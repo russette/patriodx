@@ -2832,12 +2832,11 @@ async function resetBusinessData() {
     renderAll();
 }
 
-
 // =========================================================
 // PAYMENTS
 // =========================================================
 
-async function startProPlan() {
+function startProPlan() {
 
     if (!currentUser) {
         alert("Please log in before upgrading your plan.");
@@ -2845,7 +2844,7 @@ async function startProPlan() {
     }
 
     const confirmed = confirm(
-        "Upgrade to PATRIODX Pro for GHS 900/month?\n\n" +
+        "Upgrade to PATRIODX Pro for $9/month?\n\n" +
         "Pro includes unlimited products, customers, sales and invoices."
     );
 
@@ -2865,7 +2864,7 @@ async function startProPlan() {
 
         const paystack = new PaystackPop();
 
-        await paystack.newTransaction({
+        paystack.newTransaction({
 
             key: PAYSTACK_PUBLIC_KEY,
 
@@ -2888,11 +2887,6 @@ async function startProPlan() {
                     transaction
                 );
 
-                /*
-                 * IMPORTANT:
-                 * The payment must be verified server-side
-                 * before the Pro plan is activated.
-                 */
             },
 
             onCancel: function() {
@@ -2901,6 +2895,18 @@ async function startProPlan() {
                     "Paystack checkout cancelled."
                 );
 
+            },
+
+            onError: function(error) {
+
+                console.error(
+                    "Paystack error:",
+                    error
+                );
+
+                alert(
+                    "Payment could not be completed. Please try again."
+                );
             }
 
         });
@@ -2920,7 +2926,7 @@ async function startProPlan() {
 }
 
 
-async function startBusinessPlan() {
+function startBusinessPlan() {
 
     if (!currentUser) {
         alert("Please log in before upgrading your plan.");
@@ -2928,7 +2934,7 @@ async function startBusinessPlan() {
     }
 
     const confirmed = confirm(
-        "Upgrade to PATRIODX Business for GHS 1,900/month?\n\n" +
+        "Upgrade to PATRIODX Business for $19/month?\n\n" +
         "Business includes unlimited products, customers, sales and invoices."
     );
 
@@ -2948,7 +2954,7 @@ async function startBusinessPlan() {
 
         const paystack = new PaystackPop();
 
-        await paystack.newTransaction({
+        paystack.newTransaction({
 
             key: PAYSTACK_PUBLIC_KEY,
 
@@ -2971,11 +2977,6 @@ async function startBusinessPlan() {
                     transaction
                 );
 
-                /*
-                 * IMPORTANT:
-                 * The payment must be verified server-side
-                 * before the Business plan is activated.
-                 */
             },
 
             onCancel: function() {
@@ -2984,6 +2985,18 @@ async function startBusinessPlan() {
                     "Paystack checkout cancelled."
                 );
 
+            },
+
+            onError: function(error) {
+
+                console.error(
+                    "Paystack error:",
+                    error
+                );
+
+                alert(
+                    "Payment could not be completed. Please try again."
+                );
             }
 
         });
