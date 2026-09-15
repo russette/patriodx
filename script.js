@@ -2837,25 +2837,54 @@ async function resetBusinessData() {
 // PAYMENTS
 // =========================================================
 
-function startProPlan() {
+async function startProPlan() {
+
+    if (!currentUser) {
+        alert("Please log in before upgrading your plan.");
+        return;
+    }
 
     const confirmed = confirm(
-        "Upgrade to PATRIODX Pro for $9/month?\n\n" +
-        "Pro includes unlimited products, customers, sales and invoices."
+        "Upgrade to PATRIODX Pro for $9/month?"
     );
 
     if (!confirmed) {
         return;
     }
 
-    alert(
-        "Pro subscription checkout is being prepared.\n\n" +
-        "Payment will be processed securely once your payment account is approved."
-    );
+    const email = currentUser.email;
+
+    if (!window.PaystackPop) {
+        alert("Payment system could not load. Please refresh the page and try again.");
+        return;
+    }
+
+    const handler = PaystackPop.setup({
+        key: PAYSTACK_PUBLIC_KEY,
+        email: email,
+        amount: 900 * 100,
+        currency: "GHS",
+
+        callback: function(response) {
+
+            alert(
+                "Payment successful!\n\n" +
+                "Reference: " + response.reference
+            );
+
+            console.log("Paystack payment:", response);
+
+            // Subscription activation will be connected
+            // after server-side payment verification is added.
+        },
+
+        onClose: function() {
+            console.log("Paystack checkout closed.");
+        }
+    });
+
+    handler.openIframe();
 }
-
-
-function startBusinessPlan() {
 
     const confirmed = confirm(
         "Upgrade to PATRIODX Business for $19/month?\n\n" +
