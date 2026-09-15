@@ -40,6 +40,7 @@
         <a href="#sales">Sales</a>
         <a href="#invoices">Invoices</a>
         <a href="#contact">Contact</a>
+        <a href="#account">⚙️ Account</a>
     </nav>
 
     <button id="themeToggle" class="theme-toggle" type="button">
@@ -1863,6 +1864,206 @@
 
 
 <!-- =========================================================
+     ACCOUNT
+========================================================= -->
+
+<section
+    id="account"
+    class="section"
+>
+
+    <div class="section-heading">
+
+        <div>
+
+            <p class="eyebrow">
+                ACCOUNT
+            </p>
+
+            <h2>
+                Account Settings
+            </h2>
+
+            <p>
+                Manage your PATRIODX account, business and subscription.
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="analytics-grid">
+
+        <div class="analytics-card">
+
+            <span>👤</span>
+
+            <p>
+                Account Email
+            </p>
+
+            <strong id="accountEmail">
+                —
+            </strong>
+
+        </div>
+
+        <div class="analytics-card">
+
+            <span>🏢</span>
+
+            <p>
+                Business Name
+            </p>
+
+            <strong id="accountBusinessName">
+                —
+            </strong>
+
+        </div>
+
+        <div class="analytics-card">
+
+            <span>💳</span>
+
+            <p>
+                Current Plan
+            </p>
+
+            <strong id="accountPlan">
+                FREE
+            </strong>
+
+        </div>
+
+        <div class="analytics-card">
+
+            <span>📊</span>
+
+            <p>
+                Account Status
+            </p>
+
+            <strong id="accountStatus">
+                Active
+            </strong>
+
+        </div>
+
+    </div>
+
+    <div class="chart-card">
+
+        <h3>
+            📈 Plan Usage
+        </h3>
+
+        <p>
+            See how much of your Free plan you are currently using.
+        </p>
+
+        <div class="overview-grid">
+
+            <div>
+                <span>Products</span>
+                <strong id="accountProductsUsage">0 / 20</strong>
+            </div>
+
+            <div>
+                <span>Customers</span>
+                <strong id="accountCustomersUsage">0 / 20</strong>
+            </div>
+
+            <div>
+                <span>Sales This Month</span>
+                <strong id="accountSalesUsage">0 / 30</strong>
+            </div>
+
+            <div>
+                <span>Invoices This Month</span>
+                <strong id="accountInvoicesUsage">0 / 5</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="chart-card">
+
+        <h3>
+            💳 Subscription
+        </h3>
+
+        <p id="accountPlanDescription">
+            You are currently using the Free plan.
+        </p>
+
+        <div class="form-buttons">
+
+            <button
+                type="button"
+                onclick="startProPlan()"
+            >
+                🚀 Upgrade to Pro — $9/month
+            </button>
+
+            <button
+                type="button"
+                class="secondary-btn"
+                onclick="startBusinessPlan()"
+            >
+                Choose Business — $19/month
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="danger-zone">
+
+        <div>
+
+            <p class="eyebrow">
+                ACCOUNT SECURITY
+            </p>
+
+            <h3>
+                Account Actions
+            </h3>
+
+            <p>
+                Keep your account secure and manage your access to PATRIODX.
+            </p>
+
+        </div>
+
+        <div class="data-actions">
+
+            <button
+                type="button"
+                class="secondary-btn"
+                onclick="changePassword()"
+            >
+                🔐 Change Password
+            </button>
+
+            <button
+                type="button"
+                class="danger-btn"
+                onclick="deleteAccount()"
+            >
+                🗑️ Delete Account
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
      BUSINESS DATA
 ========================================================= -->
 
@@ -2581,6 +2782,12 @@
             <p>
                 <a href="#contact">
                     Contact
+                </a>
+            </p>
+
+            <p>
+                <a href="#account">
+                    Account
                 </a>
             </p>
 
