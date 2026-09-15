@@ -2837,15 +2837,36 @@ async function resetBusinessData() {
 
 function startProPlan() {
 
+    const confirmed = confirm(
+        "Upgrade to PATRIODX Pro for $9/month?\n\n" +
+        "Pro includes unlimited products, customers, sales and invoices."
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
     alert(
-        "Pro payments are being connected. Your dashboard and cloud storage are already working."
+        "Pro subscription checkout is being prepared.\n\n" +
+        "Payment will be processed securely once your payment account is approved."
     );
 }
 
+
 function startBusinessPlan() {
 
+    const confirmed = confirm(
+        "Upgrade to PATRIODX Business for $19/month?\n\n" +
+        "Business includes unlimited products, customers, sales and invoices."
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
     alert(
-        "Business plan payments are coming soon."
+        "Business subscription checkout is being prepared.\n\n" +
+        "Payment will be processed securely once your payment account is approved."
     );
 }
 
