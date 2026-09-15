@@ -3132,7 +3132,11 @@ window.startBusinessPlan =
 
 window.logoutUser =
     logoutUser;
+window.changePassword =
+    changePassword;
 
+window.deleteAccount =
+    deleteAccount;
 
 // =========================================================
 // START
