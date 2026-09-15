@@ -1,3 +1,5 @@
+const PAYSTACK_PUBLIC_KEY =
+    "pk_live_e1462983063e834b226acdca9492e980762a6ddd";
 const SUPABASE_URL = "https://saerujjsfzyxkyacbvgr.supabase.co";
 const SUPABASE_KEY = "sb_publishable_l50YIYtYLXkjWE1iQSTyoA_GkrIKWn7";
 
