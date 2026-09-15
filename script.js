@@ -2525,7 +2525,68 @@ function renderRecentActivity() {
             `)
             .join("");
 }
+// =========================================================
+// CHANGE PASSWORD
+// =========================================================
 
+async function changePassword() {
+
+    if (!currentUser) {
+        alert("Please log in again before changing your password.");
+        return;
+    }
+
+    const newPassword = prompt(
+        "Enter your new password (at least 6 characters):"
+    );
+
+    if (newPassword === null) {
+        return;
+    }
+
+    if (newPassword.length < 6) {
+        alert("Your new password must be at least 6 characters long.");
+        return;
+    }
+
+    const confirmPassword = prompt(
+        "Confirm your new password:"
+    );
+
+    if (confirmPassword === null) {
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        alert("The passwords do not match.");
+        return;
+    }
+
+    const { error } =
+        await supabaseClient.auth.updateUser({
+            password: newPassword
+        });
+
+    if (error) {
+        console.error(error);
+        alert("Could not change your password. Please try again.");
+        return;
+    }
+
+    alert("Your password has been changed successfully.");
+}
+
+
+// =========================================================
+// DELETE ACCOUNT
+// =========================================================
+
+async function deleteAccount() {
+
+    alert(
+        "Account deletion requires a secure server-side process. Your account has not been deleted."
+    );
+}
 
 // =========================================================
 // SEARCH
