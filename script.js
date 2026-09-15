@@ -2845,49 +2845,90 @@ async function startProPlan() {
     }
 
     const confirmed = confirm(
-        "Upgrade to PATRIODX Pro for $9/month?"
+        "Upgrade to PATRIODX Pro for GHS 900/month?\n\n" +
+        "Pro includes unlimited products, customers, sales and invoices."
     );
 
     if (!confirmed) {
         return;
     }
 
-    const email = currentUser.email;
-
-    if (!window.PaystackPop) {
-        alert("Payment system could not load. Please refresh the page and try again.");
+    if (typeof PaystackPop === "undefined") {
+        alert(
+            "Payment system could not load.\n\n" +
+            "Please refresh the page and try again."
+        );
         return;
     }
 
-    const handler = PaystackPop.setup({
-        key: PAYSTACK_PUBLIC_KEY,
-        email: email,
-        amount: 900 * 100,
-        currency: "GHS",
+    try {
 
-        callback: function(response) {
+        const paystack = new PaystackPop();
 
-            alert(
-                "Payment successful!\n\n" +
-                "Reference: " + response.reference
-            );
+        await paystack.newTransaction({
 
-            console.log("Paystack payment:", response);
+            key: PAYSTACK_PUBLIC_KEY,
 
-            // Subscription activation will be connected
-            // after server-side payment verification is added.
-        },
+            email: currentUser.email,
 
-        onClose: function() {
-            console.log("Paystack checkout closed.");
-        }
-    });
+            amount: 90000,
 
-    handler.openIframe();
+            currency: "GHS",
+
+            onSuccess: function(transaction) {
+
+                alert(
+                    "Payment successful!\n\n" +
+                    "Reference: " +
+                    transaction.reference
+                );
+
+                console.log(
+                    "Paystack transaction:",
+                    transaction
+                );
+
+                /*
+                 * IMPORTANT:
+                 * The payment must be verified server-side
+                 * before the Pro plan is activated.
+                 */
+            },
+
+            onCancel: function() {
+
+                console.log(
+                    "Paystack checkout cancelled."
+                );
+
+            }
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Paystack error:",
+            error
+        );
+
+        alert(
+            "Unable to start payment.\n\n" +
+            "Please try again."
+        );
+    }
 }
 
+
+async function startBusinessPlan() {
+
+    if (!currentUser) {
+        alert("Please log in before upgrading your plan.");
+        return;
+    }
+
     const confirmed = confirm(
-        "Upgrade to PATRIODX Business for $19/month?\n\n" +
+        "Upgrade to PATRIODX Business for GHS 1,900/month?\n\n" +
         "Business includes unlimited products, customers, sales and invoices."
     );
 
@@ -2895,13 +2936,71 @@ async function startProPlan() {
         return;
     }
 
-    alert(
-        "Business subscription checkout is being prepared.\n\n" +
-        "Payment will be processed securely once your payment account is approved."
-    );
+    if (typeof PaystackPop === "undefined") {
+        alert(
+            "Payment system could not load.\n\n" +
+            "Please refresh the page and try again."
+        );
+        return;
+    }
+
+    try {
+
+        const paystack = new PaystackPop();
+
+        await paystack.newTransaction({
+
+            key: PAYSTACK_PUBLIC_KEY,
+
+            email: currentUser.email,
+
+            amount: 190000,
+
+            currency: "GHS",
+
+            onSuccess: function(transaction) {
+
+                alert(
+                    "Payment successful!\n\n" +
+                    "Reference: " +
+                    transaction.reference
+                );
+
+                console.log(
+                    "Paystack transaction:",
+                    transaction
+                );
+
+                /*
+                 * IMPORTANT:
+                 * The payment must be verified server-side
+                 * before the Business plan is activated.
+                 */
+            },
+
+            onCancel: function() {
+
+                console.log(
+                    "Paystack checkout cancelled."
+                );
+
+            }
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Paystack error:",
+            error
+        );
+
+        alert(
+            "Unable to start payment.\n\n" +
+            "Please try again."
+        );
+    }
 }
-
-
 // =========================================================
 // RENDER EVERYTHING
 // =========================================================
