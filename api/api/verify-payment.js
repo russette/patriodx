@@ -1,3 +1,5 @@
+import { createClient } from "@supabase/supabase-js";
+
 export default async function handler(req, res) {
 
     // =========================================================
@@ -36,12 +38,8 @@ export default async function handler(req, res) {
     if (req.method !== "POST") {
 
         return res.status(405).json({
-
             status: false,
-
-            error:
-                "Method not allowed"
-
+            error: "Method not allowed"
         });
     }
 
@@ -49,7 +47,7 @@ export default async function handler(req, res) {
     try {
 
         // =====================================================
-        // GET REFERENCE
+        // GET PAYMENT REFERENCE
         // =====================================================
 
         const {
@@ -60,22 +58,24 @@ export default async function handler(req, res) {
         if (!reference) {
 
             return res.status(400).json({
-
                 status: false,
-
-                error:
-                    "Payment reference is required"
-
+                error: "Payment reference is required"
             });
         }
 
 
         // =====================================================
-        // PAYSTACK SECRET KEY
+        // ENVIRONMENT VARIABLES
         // =====================================================
 
         const secretKey =
             process.env.PAYSTACK_SECRET_KEY;
+
+        const supabaseUrl =
+            process.env.SUPABASE_URL;
+
+        const supabaseServiceKey =
+            process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 
         if (!secretKey) {
@@ -85,18 +85,40 @@ export default async function handler(req, res) {
             );
 
             return res.status(500).json({
-
                 status: false,
-
                 error:
                     "PAYSTACK_SECRET_KEY is not configured on Vercel"
+            });
+        }
 
+
+        if (!supabaseUrl || !supabaseServiceKey) {
+
+            console.error(
+                "Supabase server credentials are missing"
+            );
+
+            return res.status(500).json({
+                status: false,
+                error:
+                    "Supabase server credentials are not configured on Vercel"
             });
         }
 
 
         // =====================================================
-        // VERIFY WITH PAYSTACK
+        // CREATE SUPABASE SERVER CLIENT
+        // =====================================================
+
+        const supabase =
+            createClient(
+                supabaseUrl,
+                supabaseServiceKey
+            );
+
+
+        // =====================================================
+        // VERIFY PAYMENT WITH PAYSTACK
         // =====================================================
 
         const paystackResponse =
@@ -161,7 +183,7 @@ export default async function handler(req, res) {
 
 
         // =====================================================
-        // VERIFIED PAYMENT
+        // GET VERIFIED TRANSACTION
         // =====================================================
 
         const payment =
@@ -181,57 +203,308 @@ export default async function handler(req, res) {
         }
 
 
-        console.log(
-            "Verified transaction:",
-            {
-                reference:
-                    payment.reference,
+        // =====================================================
+        // PAYMENT MUST BE SUCCESSFUL
+        // =====================================================
 
-                status:
-                    payment.status,
+        if (payment.status !== "success") {
 
-                amount:
-                    payment.amount,
+            return res.status(400).json({
 
-                currency:
-                    payment.currency,
+                status: false,
 
-                customer:
-                    payment.customer?.email
+                error:
+                    `Payment has not been completed. Paystack status: ${payment.status}`,
+
+                data: {
+                    reference:
+                        payment.reference,
+
+                    status:
+                        payment.status
+                }
+
+            });
+        }
+
+
+        // =====================================================
+        // GET CUSTOMER EMAIL
+        // =====================================================
+
+        const email =
+            payment.customer?.email ||
+            payment.email;
+
+
+        if (!email) {
+
+            return res.status(400).json({
+
+                status: false,
+
+                error:
+                    "No customer email was returned by Paystack"
+
+            });
+        }
+
+
+        // =====================================================
+        // PAYMENT INFORMATION
+        // =====================================================
+
+        const amount =
+            Number(payment.amount) / 100;
+
+        const currency =
+            payment.currency || "GHS";
+
+        const providerReference =
+            payment.reference;
+
+
+        // =====================================================
+        // CHECK IF THIS PAYMENT WAS ALREADY SAVED
+        // =====================================================
+
+        const {
+            data: existingSubscription,
+            error: existingError
+        } = await supabase
+            .from("subscriptions")
+            .select("*")
+            .eq(
+                "provider_reference",
+                providerReference
+            )
+            .maybeSingle();
+
+
+        if (existingError) {
+
+            console.error(
+                "Subscription lookup error:",
+                existingError
+            );
+
+            return res.status(500).json({
+
+                status: false,
+
+                error:
+                    "Unable to check existing subscription"
+
+            });
+        }
+
+
+        // =====================================================
+        // PREVENT DOUBLE ACTIVATION
+        // =====================================================
+
+        if (existingSubscription) {
+
+            return res.status(200).json({
+
+                status: true,
+
+                message:
+                    "Payment was already verified",
+
+                data: {
+
+                    reference:
+                        existingSubscription.provider_reference,
+
+                    email:
+                        existingSubscription.email,
+
+                    plan:
+                        existingSubscription.plan,
+
+                    status:
+                        existingSubscription.status,
+
+                    amount:
+                        existingSubscription.amount,
+
+                    currency:
+                        existingSubscription.currency,
+
+                    expires_at:
+                        existingSubscription.expires_at
+
+                }
+
+            });
+        }
+
+
+        // =====================================================
+        // PLAN
+        // =====================================================
+
+        let plan = "Pro";
+
+        if (
+            payment.metadata &&
+            typeof payment.metadata === "object" &&
+            payment.metadata.plan
+        ) {
+
+            if (
+                payment.metadata.plan === "Pro" ||
+                payment.metadata.plan === "Business"
+            ) {
+
+                plan =
+                    payment.metadata.plan;
             }
+        }
+
+
+        // =====================================================
+        // SUBSCRIPTION DATES
+        // =====================================================
+
+        const startedAt =
+            new Date();
+
+        const expiresAt =
+            new Date(startedAt);
+
+        // 30-day subscription
+        expiresAt.setDate(
+            expiresAt.getDate() + 30
         );
 
 
         // =====================================================
-        // RETURN VERIFIED PAYMENT
+        // SAVE SUBSCRIPTION
         // =====================================================
+
+        const {
+            data: subscription,
+            error: insertError
+        } = await supabase
+            .from("subscriptions")
+            .insert({
+
+                email:
+                    email,
+
+                plan:
+                    plan,
+
+                status:
+                    "active",
+
+                provider:
+                    "paystack",
+
+                provider_reference:
+                    providerReference,
+
+                amount:
+                    amount,
+
+                currency:
+                    currency,
+
+                started_at:
+                    startedAt.toISOString(),
+
+                expires_at:
+                    expiresAt.toISOString()
+
+            })
+            .select()
+            .single();
+
+
+        // =====================================================
+        // DATABASE ERROR
+        // =====================================================
+
+        if (insertError) {
+
+            console.error(
+                "Subscription insert error:",
+                insertError
+            );
+
+            return res.status(500).json({
+
+                status: false,
+
+                error:
+                    "Payment was verified, but the subscription could not be saved",
+
+                details:
+                    insertError.message
+
+            });
+        }
+
+
+        // =====================================================
+        // SUCCESS
+        // =====================================================
+
+        console.log(
+            "Subscription created:",
+            {
+                id:
+                    subscription.id,
+
+                email:
+                    subscription.email,
+
+                plan:
+                    subscription.plan,
+
+                reference:
+                    subscription.provider_reference
+            }
+        );
+
 
         return res.status(200).json({
 
             status: true,
 
             message:
-                "Payment verification completed",
+                "Payment verified and subscription activated",
 
             data: {
 
+                id:
+                    subscription.id,
+
                 reference:
-                    payment.reference,
+                    subscription.provider_reference,
+
+                email:
+                    subscription.email,
+
+                plan:
+                    subscription.plan,
 
                 status:
-                    payment.status,
+                    subscription.status,
 
                 amount:
-                    payment.amount,
+                    subscription.amount,
 
                 currency:
-                    payment.currency,
+                    subscription.currency,
 
-                paid_at:
-                    payment.paid_at,
+                started_at:
+                    subscription.started_at,
 
-                customer:
-                    payment.customer
+                expires_at:
+                    subscription.expires_at
 
             }
 
