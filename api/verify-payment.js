@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
     res.setHeader(
         "Access-Control-Allow-Headers",
-        "Content-Type"
+        "Content-Type, Authorization"
     );
 
 
@@ -47,11 +47,12 @@ export default async function handler(req, res) {
     try {
 
         // =====================================================
-        // GET PAYMENT REFERENCE
+        // GET REQUEST DATA
         // =====================================================
 
         const {
-            reference
+            reference,
+            plan
         } = req.body || {};
 
 
@@ -60,6 +61,22 @@ export default async function handler(req, res) {
             return res.status(400).json({
                 status: false,
                 error: "Payment reference is required"
+            });
+        }
+
+
+        // =====================================================
+        // VALIDATE PLAN
+        // =====================================================
+
+        if (
+            plan !== "Pro" &&
+            plan !== "Business"
+        ) {
+
+            return res.status(400).json({
+                status: false,
+                error: "Invalid plan"
             });
         }
 
@@ -107,7 +124,30 @@ export default async function handler(req, res) {
 
 
         // =====================================================
-        // CREATE SUPABASE SERVER CLIENT
+        // GET USER ACCESS TOKEN
+        // =====================================================
+
+        const authorization =
+            req.headers.authorization || "";
+
+        if (
+            !authorization ||
+            !authorization.startsWith("Bearer ")
+        ) {
+
+            return res.status(401).json({
+                status: false,
+                error: "Authentication required"
+            });
+        }
+
+
+        const accessToken =
+            authorization.substring(7);
+
+
+        // =====================================================
+        // SUPABASE SERVER CLIENT
         // =====================================================
 
         const supabase =
@@ -115,6 +155,71 @@ export default async function handler(req, res) {
                 supabaseUrl,
                 supabaseServiceKey
             );
+
+
+        // =====================================================
+        // VERIFY SUPABASE USER
+        // =====================================================
+
+        const {
+            data: userData,
+            error: userError
+        } = await supabase.auth.getUser(
+            accessToken
+        );
+
+
+        if (
+            userError ||
+            !userData?.user
+        ) {
+
+            console.error(
+                "Supabase authentication error:",
+                userError
+            );
+
+            return res.status(401).json({
+                status: false,
+                error: "Invalid or expired login session"
+            });
+        }
+
+
+        const user =
+            userData.user;
+
+
+        // =====================================================
+        // FIND USER'S BUSINESS
+        // =====================================================
+
+        const {
+            data: business,
+            error: businessError
+        } = await supabase
+            .from("businesses")
+            .select("*")
+            .eq(
+                "owner_id",
+                user.id
+            )
+            .single();
+
+
+        if (businessError || !business) {
+
+            console.error(
+                "Business lookup error:",
+                businessError
+            );
+
+            return res.status(404).json({
+                status: false,
+                error:
+                    "Your PATRIODX business account could not be found"
+            });
+        }
 
 
         // =====================================================
@@ -183,7 +288,7 @@ export default async function handler(req, res) {
 
 
         // =====================================================
-        // GET VERIFIED TRANSACTION
+        // VERIFIED TRANSACTION
         // =====================================================
 
         const payment =
@@ -193,12 +298,9 @@ export default async function handler(req, res) {
         if (!payment) {
 
             return res.status(400).json({
-
                 status: false,
-
                 error:
                     "Paystack returned no transaction data"
-
             });
         }
 
@@ -229,43 +331,118 @@ export default async function handler(req, res) {
 
 
         // =====================================================
-        // GET CUSTOMER EMAIL
+        // CUSTOMER EMAIL
         // =====================================================
 
-        const email =
+        const paymentEmail =
             payment.customer?.email ||
-            payment.email;
+            payment.email ||
+            "";
 
 
-        if (!email) {
+        // =====================================================
+        // MAKE SURE PAYMENT BELONGS TO LOGGED-IN USER
+        // =====================================================
 
-            return res.status(400).json({
+        if (
+            paymentEmail &&
+            user.email &&
+            paymentEmail.toLowerCase() !==
+            user.email.toLowerCase()
+        ) {
+
+            return res.status(403).json({
 
                 status: false,
 
                 error:
-                    "No customer email was returned by Paystack"
+                    "This payment does not belong to the logged-in account"
 
             });
         }
 
 
         // =====================================================
-        // PAYMENT INFORMATION
+        // VERIFY AMOUNT AND CURRENCY
         // =====================================================
 
-        const amount =
-            Number(payment.amount) / 100;
+        const expectedAmount =
+            plan === "Pro"
+                ? 90000
+                : 190000;
 
-        const currency =
-            payment.currency || "GHS";
+        const expectedCurrency =
+            "GHS";
+
+
+        if (
+            Number(payment.amount) !==
+            expectedAmount
+        ) {
+
+            console.error(
+                "Incorrect payment amount:",
+                {
+                    expected:
+                        expectedAmount,
+
+                    received:
+                        payment.amount,
+
+                    reference
+                }
+            );
+
+            return res.status(400).json({
+
+                status: false,
+
+                error:
+                    "Payment amount does not match the selected plan"
+
+            });
+        }
+
+
+        if (
+            String(payment.currency).toUpperCase() !==
+            expectedCurrency
+        ) {
+
+            console.error(
+                "Incorrect payment currency:",
+                {
+                    expected:
+                        expectedCurrency,
+
+                    received:
+                        payment.currency,
+
+                    reference
+                }
+            );
+
+            return res.status(400).json({
+
+                status: false,
+
+                error:
+                    "Payment currency does not match the selected plan"
+
+            });
+        }
+
+
+        // =====================================================
+        // PAYMENT REFERENCE
+        // =====================================================
 
         const providerReference =
             payment.reference;
 
 
         // =====================================================
-        // CHECK IF THIS PAYMENT WAS ALREADY SAVED
+        // CHECK FOR EXISTING SUBSCRIPTION
         // =====================================================
 
         const {
@@ -342,29 +519,6 @@ export default async function handler(req, res) {
 
 
         // =====================================================
-        // PLAN
-        // =====================================================
-
-        let plan = "Pro";
-
-        if (
-            payment.metadata &&
-            typeof payment.metadata === "object" &&
-            payment.metadata.plan
-        ) {
-
-            if (
-                payment.metadata.plan === "Pro" ||
-                payment.metadata.plan === "Business"
-            ) {
-
-                plan =
-                    payment.metadata.plan;
-            }
-        }
-
-
-        // =====================================================
         // SUBSCRIPTION DATES
         // =====================================================
 
@@ -374,7 +528,9 @@ export default async function handler(req, res) {
         const expiresAt =
             new Date(startedAt);
 
+
         // 30-day subscription
+
         expiresAt.setDate(
             expiresAt.getDate() + 30
         );
@@ -392,7 +548,8 @@ export default async function handler(req, res) {
             .insert({
 
                 email:
-                    email,
+                    paymentEmail ||
+                    user.email,
 
                 plan:
                     plan,
@@ -407,10 +564,10 @@ export default async function handler(req, res) {
                     providerReference,
 
                 amount:
-                    amount,
+                    Number(payment.amount) / 100,
 
                 currency:
-                    currency,
+                    payment.currency,
 
                 started_at:
                     startedAt.toISOString(),
@@ -422,10 +579,6 @@ export default async function handler(req, res) {
             .select()
             .single();
 
-
-        // =====================================================
-        // DATABASE ERROR
-        // =====================================================
 
         if (insertError) {
 
@@ -449,23 +602,75 @@ export default async function handler(req, res) {
 
 
         // =====================================================
+        // UPDATE BUSINESS PLAN
+        // =====================================================
+
+        const {
+            data: updatedBusiness,
+            error: updateError
+        } = await supabase
+            .from("businesses")
+            .update({
+
+                plan:
+                    plan.toLowerCase()
+
+            })
+            .eq(
+                "id",
+                business.id
+            )
+            .eq(
+                "owner_id",
+                user.id
+            )
+            .select()
+            .single();
+
+
+        // =====================================================
+        // BUSINESS UPDATE ERROR
+        // =====================================================
+
+        if (updateError) {
+
+            console.error(
+                "Business plan update error:",
+                updateError
+            );
+
+            return res.status(500).json({
+
+                status: false,
+
+                error:
+                    "Payment was verified and subscription saved, but your business plan could not be updated",
+
+                details:
+                    updateError.message
+
+            });
+        }
+
+
+        // =====================================================
         // SUCCESS
         // =====================================================
 
         console.log(
-            "Subscription created:",
+            "PATRIODX plan activated:",
             {
-                id:
-                    subscription.id,
+                userId:
+                    user.id,
 
-                email:
-                    subscription.email,
+                businessId:
+                    updatedBusiness.id,
 
                 plan:
-                    subscription.plan,
+                    updatedBusiness.plan,
 
                 reference:
-                    subscription.provider_reference
+                    providerReference
             }
         );
 
