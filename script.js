@@ -2836,33 +2836,158 @@ async function resetBusinessData() {
 // PAYMENTS
 // =========================================================
 
+async function verifyPatriodxPayment(reference, expectedPlan) {
+
+    try {
+
+        const {
+            data: sessionData,
+            error: sessionError
+        } = await supabaseClient.auth.getSession();
+
+        if (sessionError || !sessionData?.session?.access_token) {
+
+            console.error(
+                "Supabase session error:",
+                sessionError
+            );
+
+            alert(
+                "Your login session has expired.\n\n" +
+                "Please log in again and try the payment."
+            );
+
+            return false;
+        }
+
+
+        const response = await fetch(
+            "/api/verify-payment",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization":
+                        "Bearer " +
+                        sessionData.session.access_token
+                },
+
+                body: JSON.stringify({
+                    reference: reference,
+                    plan: expectedPlan
+                })
+            }
+        );
+
+
+        const result = await response.json();
+
+
+        console.log(
+            "PATRIODX payment verification:",
+            result
+        );
+
+
+        if (!response.ok || !result.status) {
+
+            console.error(
+                "Payment verification failed:",
+                result
+            );
+
+            alert(
+                "Payment was received, but PATRIODX could not verify it.\n\n" +
+                "Reference: " +
+                reference +
+                "\n\n" +
+                "Please contact support and provide this reference."
+            );
+
+            return false;
+        }
+
+
+        alert(
+            "Payment verified successfully! 🎉\n\n" +
+            "Your PATRIODX " +
+            result.data.plan +
+            " plan is now active."
+        );
+
+
+        // Reload the business from Supabase
+        // so the dashboard sees the new plan.
+
+        if (typeof loadBusiness === "function") {
+
+            await loadBusiness();
+
+        } else {
+
+            window.location.reload();
+
+        }
+
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Payment verification error:",
+            error
+        );
+
+        alert(
+            "Payment was completed, but verification could not be completed.\n\n" +
+            "Please contact support if your plan does not update."
+        );
+
+        return false;
+    }
+}
+
+
 function startProPlan() {
 
     if (!currentUser) {
-        alert("Please log in before upgrading your plan.");
+
+        alert(
+            "Please log in before upgrading your plan."
+        );
+
         return;
     }
 
+
     const confirmed = confirm(
-        "Upgrade to PATRIODX Pro for $9/month?\n\n" +
+        "Upgrade to PATRIODX Pro for GHS 900/month?\n\n" +
         "Pro includes unlimited products, customers, sales and invoices."
     );
+
 
     if (!confirmed) {
         return;
     }
 
+
     if (typeof PaystackPop === "undefined") {
+
         alert(
             "Payment system could not load.\n\n" +
             "Please refresh the page and try again."
         );
+
         return;
     }
+
 
     try {
 
         const paystack = new PaystackPop();
+
 
         paystack.newTransaction({
 
@@ -2870,24 +2995,39 @@ function startProPlan() {
 
             email: currentUser.email,
 
+            // GHS 900
+            // Paystack uses pesewas.
+
             amount: 90000,
 
             currency: "GHS",
 
-            onSuccess: function(transaction) {
+            metadata: {
+                plan: "Pro"
+            },
 
-                alert(
-                    "Payment successful!\n\n" +
-                    "Reference: " +
-                    transaction.reference
-                );
+
+            onSuccess: async function(transaction) {
 
                 console.log(
                     "Paystack transaction:",
                     transaction
                 );
 
+
+                alert(
+                    "Payment received.\n\n" +
+                    "Verifying your payment..."
+                );
+
+
+                await verifyPatriodxPayment(
+                    transaction.reference,
+                    "Pro"
+                );
+
             },
+
 
             onCancel: function() {
 
@@ -2897,6 +3037,7 @@ function startProPlan() {
 
             },
 
+
             onError: function(error) {
 
                 console.error(
@@ -2904,12 +3045,16 @@ function startProPlan() {
                     error
                 );
 
+
                 alert(
-                    "Payment could not be completed. Please try again."
+                    "Payment could not be completed.\n\n" +
+                    "Please try again."
                 );
+
             }
 
         });
+
 
     } catch (error) {
 
@@ -2918,10 +3063,12 @@ function startProPlan() {
             error
         );
 
+
         alert(
             "Unable to start payment.\n\n" +
             "Please try again."
         );
+
     }
 }
 
@@ -2929,30 +3076,41 @@ function startProPlan() {
 function startBusinessPlan() {
 
     if (!currentUser) {
-        alert("Please log in before upgrading your plan.");
+
+        alert(
+            "Please log in before upgrading your plan."
+        );
+
         return;
     }
 
+
     const confirmed = confirm(
-        "Upgrade to PATRIODX Business for $19/month?\n\n" +
+        "Upgrade to PATRIODX Business for GHS 1,900/month?\n\n" +
         "Business includes unlimited products, customers, sales and invoices."
     );
+
 
     if (!confirmed) {
         return;
     }
 
+
     if (typeof PaystackPop === "undefined") {
+
         alert(
             "Payment system could not load.\n\n" +
             "Please refresh the page and try again."
         );
+
         return;
     }
+
 
     try {
 
         const paystack = new PaystackPop();
+
 
         paystack.newTransaction({
 
@@ -2960,24 +3118,39 @@ function startBusinessPlan() {
 
             email: currentUser.email,
 
+            // GHS 1,900
+            // Paystack uses pesewas.
+
             amount: 190000,
 
             currency: "GHS",
 
-            onSuccess: function(transaction) {
+            metadata: {
+                plan: "Business"
+            },
 
-                alert(
-                    "Payment successful!\n\n" +
-                    "Reference: " +
-                    transaction.reference
-                );
+
+            onSuccess: async function(transaction) {
 
                 console.log(
                     "Paystack transaction:",
                     transaction
                 );
 
+
+                alert(
+                    "Payment received.\n\n" +
+                    "Verifying your payment..."
+                );
+
+
+                await verifyPatriodxPayment(
+                    transaction.reference,
+                    "Business"
+                );
+
             },
+
 
             onCancel: function() {
 
@@ -2987,6 +3160,7 @@ function startBusinessPlan() {
 
             },
 
+
             onError: function(error) {
 
                 console.error(
@@ -2994,12 +3168,16 @@ function startBusinessPlan() {
                     error
                 );
 
+
                 alert(
-                    "Payment could not be completed. Please try again."
+                    "Payment could not be completed.\n\n" +
+                    "Please try again."
                 );
+
             }
 
         });
+
 
     } catch (error) {
 
@@ -3008,10 +3186,12 @@ function startBusinessPlan() {
             error
         );
 
+
         alert(
             "Unable to start payment.\n\n" +
             "Please try again."
         );
+
     }
 }
 // =========================================================
