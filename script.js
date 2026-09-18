@@ -2861,8 +2861,8 @@ async function verifyPatriodxPayment(reference, expectedPlan) {
         }
 
 
-        const response = await fetch(
-            "/api/verify-payment",
+       const response = await fetch(
+    "https://businessos-wine-eight.vercel.app/api/verify-payment",
             {
                 method: "POST",
 
