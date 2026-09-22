@@ -465,11 +465,12 @@ forgotButton.addEventListener("click", async () => {
 
 
     try {
-
-        const redirectUrl =
-            window.location.origin +
-            window.location.pathname;
-
+const redirectUrl =
+    window.location.origin +
+    window.location.pathname.replace(
+        "auth.html",
+        "reset-password.html"
+    );
 
         const { error } =
             await supabaseClient.auth
