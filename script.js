@@ -3490,3 +3490,255 @@ document.addEventListener(
     "DOMContentLoaded",
     startPATRIODX
 );
+/* =========================================================
+   PATRIODX AI
+========================================================= */
+
+const aiForm = document.getElementById("aiForm");
+const aiInput = document.getElementById("aiInput");
+const aiMessages = document.getElementById("aiMessages");
+const aiSendButton = document.getElementById("aiSendButton");
+
+
+function addAIMessage(message, type = "bot") {
+
+    const messageDiv = document.createElement("div");
+
+    messageDiv.className =
+        type === "user"
+            ? "ai-message ai-message-user"
+            : "ai-message ai-message-bot";
+
+    if (type === "user") {
+
+        messageDiv.innerHTML = `
+            <strong>You</strong>
+            <p>${message}</p>
+        `;
+
+    } else {
+
+        messageDiv.innerHTML = `
+            <strong>🤖 PATRIODX AI</strong>
+            <p>${message}</p>
+        `;
+
+    }
+
+    aiMessages.appendChild(messageDiv);
+
+    aiMessages.scrollTop =
+        aiMessages.scrollHeight;
+}
+
+
+if (aiForm) {
+
+    aiForm.addEventListener("submit", async function (event) {
+
+        event.preventDefault();
+
+        const message =
+            aiInput.value.trim();
+
+        if (!message) {
+            return;
+        }
+
+
+        /* Show user's message */
+
+        addAIMessage(
+            message,
+            "user"
+        );
+
+
+        /* Clear input */
+
+        aiInput.value = "";
+
+
+        /* Disable button */
+
+        aiSendButton.disabled = true;
+        aiSendButton.textContent = "Thinking...";
+
+
+        /* Temporary loading message */
+
+        const loadingDiv =
+            document.createElement("div");
+
+        loadingDiv.className =
+            "ai-message ai-message-bot";
+
+        loadingDiv.innerHTML = `
+            <strong>🤖 PATRIODX AI</strong>
+            <p>Thinking...</p>
+        `;
+
+        aiMessages.appendChild(
+            loadingDiv
+        );
+
+
+        try {
+
+            /*
+             * Get the current Supabase session.
+             */
+
+            const {
+                data: sessionData
+            } =
+                await supabaseClient.auth.getSession();
+
+
+            const session =
+                sessionData?.session;
+
+
+            if (!session) {
+
+                throw new Error(
+                    "Please log in to use PATRIODX AI."
+                );
+
+            }
+
+
+            /*
+             * Send business data to our
+             * secure server endpoint.
+             */
+
+            const response =
+                await fetch(
+                    "https://businessos-wine-eight.vercel.app/ai",
+                    {
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Authorization":
+                                `Bearer ${session.access_token}`
+
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                message:
+
+                                    message,
+
+                                business: {
+
+                                    businessName:
+                                        typeof businessName !== "undefined"
+                                            ? businessName
+                                            : "",
+
+                                    plan:
+                                        typeof currentPlan !== "undefined"
+                                            ? currentPlan
+                                            : "Free",
+
+                                    products:
+                                        typeof products !== "undefined"
+                                            ? products
+                                            : [],
+
+                                    customers:
+                                        typeof customers !== "undefined"
+                                            ? customers
+                                            : [],
+
+                                    sales:
+                                        typeof sales !== "undefined"
+                                            ? sales
+                                            : [],
+
+                                    invoices:
+                                        typeof invoices !== "undefined"
+                                            ? invoices
+                                            : []
+
+                                }
+
+                            })
+
+                    }
+
+                );
+
+
+            const result =
+                await response.json();
+
+
+            if (!response.ok ||
+                !result.status) {
+
+                throw new Error(
+                    result.error ||
+                    "PATRIODX AI request failed."
+                );
+
+            }
+
+
+            /*
+             * Remove loading message.
+             */
+
+            loadingDiv.remove();
+
+
+            /*
+             * Display AI response.
+             */
+
+            addAIMessage(
+                result.answer,
+                "bot"
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "PATRIODX AI error:",
+                error
+            );
+
+
+            loadingDiv.remove();
+
+
+            addAIMessage(
+                error.message ||
+                "Something went wrong while contacting PATRIODX AI.",
+                "bot"
+            );
+
+
+        } finally {
+
+            aiSendButton.disabled =
+                false;
+
+            aiSendButton.textContent =
+                "Ask AI";
+
+            aiInput.focus();
+
+        }
+
+    });
+
+}
