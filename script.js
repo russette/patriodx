@@ -3615,7 +3615,7 @@ if (aiForm) {
 
             const response =
                 await fetch(
-                    "https://businessos-wine-eight.vercel.app/ai",
+                   "https://businessos-wine-eight.vercel.app/api/ai",
                     {
                         method: "POST",
 
