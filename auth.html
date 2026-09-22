@@ -177,7 +177,7 @@
                 >
             </div>
 
-            <div class="form-group">
+            <div class="form-group" id="emailGroup">
                 <label for="email">Email</label>
 
                 <input
@@ -188,8 +188,10 @@
                 >
             </div>
 
-            <div class="form-group" id="passwordGroup">
-                <label for="password">Password</label>
+            <div class="form-group">
+                <label for="password" id="passwordLabel">
+                    Password
+                </label>
 
                 <input
                     type="password"
@@ -213,7 +215,9 @@
         </form>
 
         <div class="switch" id="switchArea">
-            <span id="switchText">Don't have an account?</span>
+            <span id="switchText">
+                Don't have an account?
+            </span>
 
             <button type="button" id="switchButton">
                 Create Account
@@ -245,35 +249,153 @@ let isSignUp = false;
 let isResetting = false;
 
 
-const form = document.getElementById("authForm");
-const formTitle = document.getElementById("formTitle");
-const submitButton = document.getElementById("submitButton");
-const switchButton = document.getElementById("switchButton");
-const switchText = document.getElementById("switchText");
-const switchArea = document.getElementById("switchArea");
-const nameGroup = document.getElementById("nameGroup");
-const passwordGroup = document.getElementById("passwordGroup");
-const forgotGroup = document.getElementById("forgotGroup");
-const forgotButton = document.getElementById("forgotButton");
-const message = document.getElementById("message");
+const form =
+    document.getElementById("authForm");
+
+const formTitle =
+    document.getElementById("formTitle");
+
+const submitButton =
+    document.getElementById("submitButton");
+
+const switchButton =
+    document.getElementById("switchButton");
+
+const switchText =
+    document.getElementById("switchText");
+
+const switchArea =
+    document.getElementById("switchArea");
+
+const nameGroup =
+    document.getElementById("nameGroup");
+
+const emailGroup =
+    document.getElementById("emailGroup");
+
+const passwordLabel =
+    document.getElementById("passwordLabel");
+
+const passwordInput =
+    document.getElementById("password");
+
+const forgotGroup =
+    document.getElementById("forgotGroup");
+
+const forgotButton =
+    document.getElementById("forgotButton");
+
+const message =
+    document.getElementById("message");
 
 
 function showMessage(text, type) {
 
     message.textContent = text;
+
     message.className = type;
+
     message.style.display = "block";
+
+}
+
+
+function showResetForm() {
+
+    isResetting = true;
+    isSignUp = false;
+
+
+    formTitle.textContent =
+        "Reset Password";
+
+
+    emailGroup.style.display =
+        "none";
+
+
+    nameGroup.style.display =
+        "none";
+
+
+    forgotGroup.style.display =
+        "none";
+
+
+    switchArea.style.display =
+        "none";
+
+
+    passwordLabel.textContent =
+        "New Password";
+
+
+    passwordInput.placeholder =
+        "Enter your new password";
+
+
+    passwordInput.value =
+        "";
+
+
+    submitButton.textContent =
+        "Update Password";
+
+
+    showMessage(
+        "Enter your new password below.",
+        "success"
+    );
+
+}
+
+
+function showLoginForm() {
+
+    isResetting = false;
+    isSignUp = false;
+
+
+    formTitle.textContent =
+        "Sign In";
+
+
+    emailGroup.style.display =
+        "block";
+
+
+    nameGroup.style.display =
+        "none";
+
+
+    forgotGroup.style.display =
+        "block";
+
+
+    switchArea.style.display =
+        "block";
+
+
+    passwordLabel.textContent =
+        "Password";
+
+
+    passwordInput.placeholder =
+        "Minimum 6 characters";
+
+
+    submitButton.textContent =
+        "Sign In";
 
 }
 
 
 function updateForm() {
 
-    isResetting = false;
-
     if (isSignUp) {
 
-        formTitle.textContent = "Create Account";
+        formTitle.textContent =
+            "Create Account";
 
         submitButton.textContent =
             "Create Account";
@@ -287,19 +409,12 @@ function updateForm() {
         nameGroup.style.display =
             "block";
 
-        passwordGroup.style.display =
-            "block";
-
         forgotGroup.style.display =
             "none";
 
     } else {
 
-        formTitle.textContent =
-            "Sign In";
-
-        submitButton.textContent =
-            "Sign In";
+        showLoginForm();
 
         switchText.textContent =
             "Don't have an account?";
@@ -307,22 +422,11 @@ function updateForm() {
         switchButton.textContent =
             "Create Account";
 
-        nameGroup.style.display =
-            "none";
-
-        passwordGroup.style.display =
-            "block";
-
-        forgotGroup.style.display =
-            "block";
-
     }
-
-    switchArea.style.display =
-        "block";
 
     message.style.display =
         "none";
+
 }
 
 
@@ -340,6 +444,7 @@ forgotButton.addEventListener("click", async () => {
     const email =
         document.getElementById("email").value.trim();
 
+
     if (!email) {
 
         showMessage(
@@ -348,11 +453,15 @@ forgotButton.addEventListener("click", async () => {
         );
 
         return;
+
     }
 
 
-    forgotButton.disabled = true;
-    forgotButton.textContent = "Sending...";
+    forgotButton.disabled =
+        true;
+
+    forgotButton.textContent =
+        "Sending...";
 
 
     try {
@@ -363,12 +472,14 @@ forgotButton.addEventListener("click", async () => {
 
 
         const { error } =
-            await supabaseClient.auth.resetPasswordForEmail(
-                email,
-                {
-                    redirectTo: redirectUrl
-                }
-            );
+            await supabaseClient.auth
+                .resetPasswordForEmail(
+                    email,
+                    {
+                        redirectTo:
+                            redirectUrl
+                    }
+                );
 
 
         if (error) {
@@ -392,7 +503,8 @@ forgotButton.addEventListener("click", async () => {
 
     } finally {
 
-        forgotButton.disabled = false;
+        forgotButton.disabled =
+            false;
 
         forgotButton.textContent =
             "Forgot Password?";
@@ -408,16 +520,22 @@ form.addEventListener("submit", async (event) => {
 
 
     const email =
-        document.getElementById("email").value.trim();
+        document.getElementById("email")
+            .value
+            .trim();
 
     const password =
-        document.getElementById("password").value;
+        passwordInput.value;
 
     const businessName =
-        document.getElementById("name").value.trim();
+        document.getElementById("name")
+            .value
+            .trim();
 
 
-    submitButton.disabled = true;
+    submitButton.disabled =
+        true;
+
 
     submitButton.textContent =
         "Please wait...";
@@ -425,9 +543,9 @@ form.addEventListener("submit", async (event) => {
 
     try {
 
-        /* =========================
+        /* ==========================
            PASSWORD RESET
-           ========================= */
+           ========================== */
 
         if (isResetting) {
 
@@ -441,9 +559,10 @@ form.addEventListener("submit", async (event) => {
 
 
             const { error } =
-                await supabaseClient.auth.updateUser({
-                    password: password
-                });
+                await supabaseClient.auth
+                    .updateUser({
+                        password: password
+                    });
 
 
             if (error) {
@@ -452,38 +571,38 @@ form.addEventListener("submit", async (event) => {
 
 
             showMessage(
-                "Password updated successfully. You can now sign in with your new password.",
+                "Password updated successfully!",
                 "success"
             );
 
 
-            isResetting = false;
-
-            formTitle.textContent =
-                "Sign In";
-
-            submitButton.textContent =
-                "Sign In";
-
-            passwordGroup.style.display =
-                "block";
-
-            forgotGroup.style.display =
-                "block";
-
-            switchArea.style.display =
-                "block";
-
-            document.getElementById("password").value =
+            passwordInput.value =
                 "";
+
+
+            setTimeout(() => {
+
+                showLoginForm();
+
+                document.getElementById(
+                    "email"
+                ).value = email;
+
+                showMessage(
+                    "Your password has been changed. You can now sign in.",
+                    "success"
+                );
+
+            }, 1500);
+
 
             return;
         }
 
 
-        /* =========================
+        /* ==========================
            SIGN UP
-           ========================= */
+           ========================== */
 
         if (isSignUp) {
 
@@ -497,20 +616,21 @@ form.addEventListener("submit", async (event) => {
 
 
             const { data, error } =
-                await supabaseClient.auth.signUp({
+                await supabaseClient.auth
+                    .signUp({
 
-                    email: email,
+                        email: email,
 
-                    password: password,
+                        password: password,
 
-                    options: {
-                        data: {
-                            business_name:
-                                businessName
+                        options: {
+                            data: {
+                                business_name:
+                                    businessName
+                            }
                         }
-                    }
 
-                });
+                    });
 
 
             if (error) {
@@ -527,17 +647,18 @@ form.addEventListener("submit", async (event) => {
 
             }
 
+
+            return;
         }
 
 
-        /* =========================
+        /* ==========================
            SIGN IN
-           ========================= */
+           ========================== */
 
-        else {
-
-            const { data, error } =
-                await supabaseClient.auth.signInWithPassword({
+        const { data, error } =
+            await supabaseClient.auth
+                .signInWithPassword({
 
                     email: email,
 
@@ -546,24 +667,23 @@ form.addEventListener("submit", async (event) => {
                 });
 
 
-            if (error) {
-                throw error;
-            }
+        if (error) {
+            throw error;
+        }
 
 
-            if (!data.session) {
+        if (!data.session) {
 
-                throw new Error(
-                    "Login succeeded, but no session was created."
-                );
-
-            }
-
-
-            window.location.href =
-                "index.html";
+            throw new Error(
+                "Login succeeded, but no session was created."
+            );
 
         }
+
+
+        window.location.href =
+            "index.html";
+
 
     } catch (error) {
 
@@ -575,23 +695,21 @@ form.addEventListener("submit", async (event) => {
 
     } finally {
 
-        if (!isResetting) {
+        submitButton.disabled =
+            false;
 
-            submitButton.disabled =
-                false;
+
+        if (isResetting) {
+
+            submitButton.textContent =
+                "Update Password";
+
+        } else {
 
             submitButton.textContent =
                 isSignUp
                     ? "Create Account"
                     : "Sign In";
-
-        } else {
-
-            submitButton.disabled =
-                false;
-
-            submitButton.textContent =
-                "Update Password";
 
         }
 
@@ -600,51 +718,22 @@ form.addEventListener("submit", async (event) => {
 });
 
 
-/* =========================================
-   DETECT PASSWORD RESET SESSION
-   ========================================= */
+/* =====================================
+   PASSWORD RECOVERY EVENT
+   ===================================== */
 
 supabaseClient.auth.onAuthStateChange(
-    async (event, session) => {
+    (event, session) => {
+
+        console.log(
+            "Supabase Auth Event:",
+            event
+        );
+
 
         if (event === "PASSWORD_RECOVERY") {
 
-            isResetting = true;
-            isSignUp = false;
-
-
-            formTitle.textContent =
-                "Create New Password";
-
-
-            document.getElementById("password").placeholder =
-                "Enter your new password";
-
-
-            document.getElementById("password").value =
-                "";
-
-
-            submitButton.textContent =
-                "Update Password";
-
-
-            nameGroup.style.display =
-                "none";
-
-
-            forgotGroup.style.display =
-                "none";
-
-
-            switchArea.style.display =
-                "none";
-
-
-            showMessage(
-                "Enter a new password for your PATRIODX account.",
-                "success"
-            );
+            showResetForm();
 
         }
 
@@ -652,9 +741,37 @@ supabaseClient.auth.onAuthStateChange(
 );
 
 
-/* =========================================
+/* =====================================
+   CHECK THE URL FOR RECOVERY FLOW
+   ===================================== */
+
+const hash =
+    window.location.hash;
+
+
+if (
+    hash.includes("type=recovery") ||
+    hash.includes("type%3Drecovery")
+) {
+
+    /*
+       Give Supabase a moment to process
+       the recovery session, then display
+       the password form.
+    */
+
+    setTimeout(() => {
+
+        showResetForm();
+
+    }, 500);
+
+}
+
+
+/* =====================================
    INITIAL FORM
-   ========================================= */
+   ===================================== */
 
 updateForm();
 
