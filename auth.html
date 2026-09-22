@@ -5,128 +5,147 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>PATRIODX | Sign In</title>
+    <title>PATRIODX | Sign In</title>
 
-<style>
-    * {
-        box-sizing: border-box;
-    }
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-    body {
-        margin: 0;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: Arial, sans-serif;
-        background: #f5f7fb;
-        padding: 20px;
-    }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            padding: 20px;
+        }
 
-    .auth-container {
-        width: 100%;
-        max-width: 430px;
-    }
+        .auth-container {
+            width: 100%;
+            max-width: 430px;
+        }
 
-    .brand {
-        text-align: center;
-        margin-bottom: 25px;
-    }
+        .brand {
+            text-align: center;
+            margin-bottom: 25px;
+        }
 
-    .brand img {
-        width: 80px;
-        height: 80px;
-        object-fit: contain;
-        border-radius: 18px;
-        margin-bottom: 10px;
-    }
+        .brand img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            border-radius: 18px;
+            margin-bottom: 10px;
+        }
 
-    .brand h1 {
-        margin: 0;
-        font-size: 28px;
-    }
+        .brand h1 {
+            margin: 0;
+            font-size: 28px;
+        }
 
-    .brand p {
-        margin-top: 8px;
-        color: #666;
-    }
+        .brand p {
+            margin-top: 8px;
+            color: #666;
+        }
 
-    .auth-card {
-        background: white;
-        padding: 30px;
-        border-radius: 18px;
-        box-shadow: 0 10px 35px rgba(0,0,0,0.08);
-    }
+        .auth-card {
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+        }
 
-    .auth-card h2 {
-        margin-top: 0;
-    }
+        .auth-card h2 {
+            margin-top: 0;
+        }
 
-    .form-group {
-        margin-bottom: 18px;
-    }
+        .form-group {
+            margin-bottom: 18px;
+        }
 
-    label {
-        display: block;
-        margin-bottom: 7px;
-        font-weight: 600;
-    }
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 600;
+        }
 
-    input {
-        width: 100%;
-        padding: 13px;
-        border: 1px solid #d8dce5;
-        border-radius: 10px;
-        font-size: 15px;
-    }
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #d8dce5;
+            border-radius: 10px;
+            font-size: 15px;
+        }
 
-    button {
-        width: 100%;
-        padding: 14px;
-        border: 0;
-        border-radius: 10px;
-        background: #111827;
-        color: white;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-    }
+        button {
+            width: 100%;
+            padding: 14px;
+            border: 0;
+            border-radius: 10px;
+            background: #111827;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
 
-    button:hover {
-        opacity: 0.9;
-    }
+        button:hover {
+            opacity: 0.9;
+        }
 
-    .switch {
-        text-align: center;
-        margin-top: 20px;
-        color: #666;
-    }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
 
-    .switch button {
-        width: auto;
-        padding: 0;
-        background: none;
-        color: #111827;
-        font-size: inherit;
-    }
+        .switch {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
 
-    #message {
-        margin-bottom: 15px;
-        padding: 12px;
-        border-radius: 8px;
-        display: none;
-    }
+        .switch button {
+            width: auto;
+            padding: 0;
+            background: none;
+            color: #111827;
+            font-size: inherit;
+        }
 
-    .success {
-        background: #e8f7ed;
-        color: #176b35;
-    }
+        .forgot {
+            text-align: right;
+            margin-top: -8px;
+            margin-bottom: 18px;
+        }
 
-    .error {
-        background: #fdecec;
-        color: #a11a1a;
-    }
-</style>
+        .forgot button {
+            width: auto;
+            padding: 0;
+            background: none;
+            color: #111827;
+            font-size: 14px;
+        }
+
+        #message {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .success {
+            background: #e8f7ed;
+            color: #176b35;
+        }
+
+        .error {
+            background: #fdecec;
+            color: #a11a1a;
+        }
+    </style>
 
 </head>
 
@@ -134,68 +153,74 @@
 
 <div class="auth-container">
 
-<div class="brand">
-    <img src="assets/patriodx-logo.jpeg" alt="PATRIODX">
-    <h1>PATRIODX</h1>
-    <p>Run your business smarter.</p>
-</div>
-
-<div class="auth-card">
-
-    <h2 id="formTitle">Sign In</h2>
-
-    <div id="message"></div>
-
-    <form id="authForm">
-
-        <div class="form-group" id="nameGroup" style="display:none;">
-            <label for="name">Business Name</label>
-
-            <input
-                type="text"
-                id="name"
-                placeholder="Your business name"
-            >
-        </div>
-
-        <div class="form-group">
-            <label for="email">Email</label>
-
-            <input
-                type="email"
-                id="email"
-                placeholder="you@example.com"
-                required
-            >
-        </div>
-
-        <div class="form-group">
-            <label for="password">Password</label>
-
-            <input
-                type="password"
-                id="password"
-                placeholder="Minimum 6 characters"
-                minlength="6"
-                required
-            >
-        </div>
-
-        <button type="submit" id="submitButton">
-            Sign In
-        </button>
-
-    </form>
-
-    <div class="switch">
-        <span id="switchText">Don't have an account?</span>
-
-        <button type="button" id="switchButton">
-            Create Account
-        </button>
+    <div class="brand">
+        <img src="assets/patriodx-logo.jpeg" alt="PATRIODX">
+        <h1>PATRIODX</h1>
+        <p>Run your business smarter.</p>
     </div>
 
-</div>
+    <div class="auth-card">
+
+        <h2 id="formTitle">Sign In</h2>
+
+        <div id="message"></div>
+
+        <form id="authForm">
+
+            <div class="form-group" id="nameGroup" style="display:none;">
+                <label for="name">Business Name</label>
+
+                <input
+                    type="text"
+                    id="name"
+                    placeholder="Your business name"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="you@example.com"
+                    required
+                >
+            </div>
+
+            <div class="form-group" id="passwordGroup">
+                <label for="password">Password</label>
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Minimum 6 characters"
+                    minlength="6"
+                    required
+                >
+            </div>
+
+            <div class="forgot" id="forgotGroup">
+                <button type="button" id="forgotButton">
+                    Forgot Password?
+                </button>
+            </div>
+
+            <button type="submit" id="submitButton">
+                Sign In
+            </button>
+
+        </form>
+
+        <div class="switch" id="switchArea">
+            <span id="switchText">Don't have an account?</span>
+
+            <button type="button" id="switchButton">
+                Create Account
+            </button>
+        </div>
+
+    </div>
 
 </div>
 
@@ -217,6 +242,7 @@ const supabaseClient =
 
 
 let isSignUp = false;
+let isResetting = false;
 
 
 const form = document.getElementById("authForm");
@@ -224,7 +250,11 @@ const formTitle = document.getElementById("formTitle");
 const submitButton = document.getElementById("submitButton");
 const switchButton = document.getElementById("switchButton");
 const switchText = document.getElementById("switchText");
+const switchArea = document.getElementById("switchArea");
 const nameGroup = document.getElementById("nameGroup");
+const passwordGroup = document.getElementById("passwordGroup");
+const forgotGroup = document.getElementById("forgotGroup");
+const forgotButton = document.getElementById("forgotButton");
 const message = document.getElementById("message");
 
 
@@ -239,26 +269,60 @@ function showMessage(text, type) {
 
 function updateForm() {
 
+    isResetting = false;
+
     if (isSignUp) {
 
         formTitle.textContent = "Create Account";
-        submitButton.textContent = "Create Account";
-        switchText.textContent = "Already have an account?";
-        switchButton.textContent = "Sign In";
-        nameGroup.style.display = "block";
+
+        submitButton.textContent =
+            "Create Account";
+
+        switchText.textContent =
+            "Already have an account?";
+
+        switchButton.textContent =
+            "Sign In";
+
+        nameGroup.style.display =
+            "block";
+
+        passwordGroup.style.display =
+            "block";
+
+        forgotGroup.style.display =
+            "none";
 
     } else {
 
-        formTitle.textContent = "Sign In";
-        submitButton.textContent = "Sign In";
-        switchText.textContent = "Don't have an account?";
-        switchButton.textContent = "Create Account";
-        nameGroup.style.display = "none";
+        formTitle.textContent =
+            "Sign In";
+
+        submitButton.textContent =
+            "Sign In";
+
+        switchText.textContent =
+            "Don't have an account?";
+
+        switchButton.textContent =
+            "Create Account";
+
+        nameGroup.style.display =
+            "none";
+
+        passwordGroup.style.display =
+            "block";
+
+        forgotGroup.style.display =
+            "block";
 
     }
 
-    message.style.display = "none";
+    switchArea.style.display =
+        "block";
 
+    message.style.display =
+        "none";
 }
 
 
@@ -271,9 +335,77 @@ switchButton.addEventListener("click", () => {
 });
 
 
+forgotButton.addEventListener("click", async () => {
+
+    const email =
+        document.getElementById("email").value.trim();
+
+    if (!email) {
+
+        showMessage(
+            "Please enter your email address first.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    forgotButton.disabled = true;
+    forgotButton.textContent = "Sending...";
+
+
+    try {
+
+        const redirectUrl =
+            window.location.origin +
+            window.location.pathname;
+
+
+        const { error } =
+            await supabaseClient.auth.resetPasswordForEmail(
+                email,
+                {
+                    redirectTo: redirectUrl
+                }
+            );
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        showMessage(
+            "Password reset email sent. Check your inbox and click the reset link.",
+            "success"
+        );
+
+
+    } catch (error) {
+
+        showMessage(
+            error.message ||
+            "Unable to send password reset email.",
+            "error"
+        );
+
+    } finally {
+
+        forgotButton.disabled = false;
+
+        forgotButton.textContent =
+            "Forgot Password?";
+
+    }
+
+});
+
+
 form.addEventListener("submit", async (event) => {
 
     event.preventDefault();
+
 
     const email =
         document.getElementById("email").value.trim();
@@ -286,16 +418,80 @@ form.addEventListener("submit", async (event) => {
 
 
     submitButton.disabled = true;
-    submitButton.textContent = "Please wait...";
+
+    submitButton.textContent =
+        "Please wait...";
 
 
     try {
+
+        /* =========================
+           PASSWORD RESET
+           ========================= */
+
+        if (isResetting) {
+
+            if (password.length < 6) {
+
+                throw new Error(
+                    "Password must be at least 6 characters."
+                );
+
+            }
+
+
+            const { error } =
+                await supabaseClient.auth.updateUser({
+                    password: password
+                });
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            showMessage(
+                "Password updated successfully. You can now sign in with your new password.",
+                "success"
+            );
+
+
+            isResetting = false;
+
+            formTitle.textContent =
+                "Sign In";
+
+            submitButton.textContent =
+                "Sign In";
+
+            passwordGroup.style.display =
+                "block";
+
+            forgotGroup.style.display =
+                "block";
+
+            switchArea.style.display =
+                "block";
+
+            document.getElementById("password").value =
+                "";
+
+            return;
+        }
+
+
+        /* =========================
+           SIGN UP
+           ========================= */
 
         if (isSignUp) {
 
             if (!businessName) {
 
-                throw new Error("Please enter your business name.");
+                throw new Error(
+                    "Please enter your business name."
+                );
 
             }
 
@@ -304,11 +500,13 @@ form.addEventListener("submit", async (event) => {
                 await supabaseClient.auth.signUp({
 
                     email: email,
+
                     password: password,
 
                     options: {
                         data: {
-                            business_name: businessName
+                            business_name:
+                                businessName
                         }
                     }
 
@@ -329,42 +527,136 @@ form.addEventListener("submit", async (event) => {
 
             }
 
-        } else {
-const { data, error } =
-    await supabaseClient.auth.signInWithPassword({
-        email: email,
-        password: password
-    });
+        }
 
-if (error) {
-    throw error;
-}
 
-if (!data.session) {
-    throw new Error("Login succeeded, but no session was created.");
-}
+        /* =========================
+           SIGN IN
+           ========================= */
 
-window.location.href = "index.html";
+        else {
+
+            const { data, error } =
+                await supabaseClient.auth.signInWithPassword({
+
+                    email: email,
+
+                    password: password
+
+                });
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            if (!data.session) {
+
+                throw new Error(
+                    "Login succeeded, but no session was created."
+                );
+
+            }
+
+
+            window.location.href =
+                "index.html";
 
         }
 
     } catch (error) {
 
         showMessage(
-            error.message || "Something went wrong.",
+            error.message ||
+            "Something went wrong.",
             "error"
         );
 
     } finally {
 
-        submitButton.disabled = false;
+        if (!isResetting) {
 
-        submitButton.textContent =
-            isSignUp ? "Create Account" : "Sign In";
+            submitButton.disabled =
+                false;
+
+            submitButton.textContent =
+                isSignUp
+                    ? "Create Account"
+                    : "Sign In";
+
+        } else {
+
+            submitButton.disabled =
+                false;
+
+            submitButton.textContent =
+                "Update Password";
+
+        }
 
     }
 
 });
+
+
+/* =========================================
+   DETECT PASSWORD RESET SESSION
+   ========================================= */
+
+supabaseClient.auth.onAuthStateChange(
+    async (event, session) => {
+
+        if (event === "PASSWORD_RECOVERY") {
+
+            isResetting = true;
+            isSignUp = false;
+
+
+            formTitle.textContent =
+                "Create New Password";
+
+
+            document.getElementById("password").placeholder =
+                "Enter your new password";
+
+
+            document.getElementById("password").value =
+                "";
+
+
+            submitButton.textContent =
+                "Update Password";
+
+
+            nameGroup.style.display =
+                "none";
+
+
+            forgotGroup.style.display =
+                "none";
+
+
+            switchArea.style.display =
+                "none";
+
+
+            showMessage(
+                "Enter a new password for your PATRIODX account.",
+                "success"
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================
+   INITIAL FORM
+   ========================================= */
+
+updateForm();
 
 </script>
 
