@@ -34,6 +34,7 @@
 
     <nav>
         <a href="#social">🌐 Social</a>
+        <a href="#messaging">💬 Messages</a>
         <a href="#dashboard">Dashboard</a>
         <a href="#analytics">Analytics</a>
         <a href="#products">Products</a>
@@ -1195,7 +1196,162 @@
     </div>
 
 </section>
+<!-- =========================================================
+     PATRIODX MESSAGING
+========================================================= -->
 
+<section
+    id="messaging"
+    class="section"
+>
+
+    <div class="section-heading">
+
+        <div>
+
+            <p class="eyebrow">
+                💬 PATRIODX MESSAGING
+            </p>
+
+            <h2>
+                Messages
+            </h2>
+
+            <p>
+                Connect and communicate with people
+                across the PATRIODX community.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="messaging-layout">
+
+
+        <!-- CONVERSATIONS -->
+
+        <div class="chart-card conversations-card">
+
+            <div class="messaging-card-header">
+
+                <h3>
+                    Conversations
+                </h3>
+
+                <button
+                    type="button"
+                    id="newConversationButton"
+                    class="messaging-new-button"
+                >
+                    + New
+                </button>
+
+            </div>
+
+
+            <div
+                id="conversationList"
+                class="conversation-list"
+            >
+
+                <div class="messaging-empty-state">
+
+                    <div>💬</div>
+
+                    <h3>
+                        No conversations
+                    </h3>
+
+                    <p>
+                        Start a conversation with
+                        someone on PATRIODX.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- CHAT -->
+
+        <div class="chart-card chat-card">
+
+            <div
+                id="chatHeader"
+                class="chat-header"
+            >
+
+                <div>
+
+                    <h3>
+                        PATRIODX Messages
+                    </h3>
+
+                    <p>
+                        Select a conversation to start chatting.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="messageList"
+                class="message-list"
+            >
+
+                <div class="messaging-empty-state">
+
+                    <div>💬</div>
+
+                    <h3>
+                        No conversation selected
+                    </h3>
+
+                    <p>
+                        Choose a conversation from the left.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form
+                id="messageForm"
+                class="message-form"
+            >
+
+                <input
+                    type="text"
+                    id="messageInput"
+                    placeholder="Write a message..."
+                    autocomplete="off"
+                    maxlength="2000"
+                    disabled
+                    required
+                >
+
+                <button
+                    type="submit"
+                    id="messageSendButton"
+                    disabled
+                >
+                    Send
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</section>
 
 <!-- =========================================================
      ANALYTICS
