@@ -3753,6 +3753,10 @@ const socialFeed =
     document.getElementById("socialFeed");
 
 
+/* =========================================================
+   LOAD SOCIAL POSTS
+========================================================= */
+
 async function loadSocialPosts() {
 
     if (!socialFeed) return;
@@ -3786,7 +3790,7 @@ async function loadSocialPosts() {
             <div class="social-empty-state">
                 <div>⚠️</div>
                 <h3>Could not load posts</h3>
-                <p>Please refresh the page and try again.</p>
+                <p>${safe(error.message)}</p>
             </div>
         `;
 
@@ -3837,7 +3841,10 @@ async function loadSocialPosts() {
 
 
             return `
-                <article class="social-post-card">
+                <article
+                    class="social-post-card"
+                    id="social-post-${post.id}"
+                >
 
                     <div class="social-post-header">
 
@@ -3864,6 +3871,7 @@ async function loadSocialPosts() {
                         ${safe(post.content)}
                     </div>
 
+
                     ${image}
 
 
@@ -3877,19 +3885,59 @@ async function loadSocialPosts() {
                             ❤️ Like
                         </button>
 
-                        <button
-                            type="button"
-                            class="social-action-button"
-                        >
-                            💬 Comment
-                        </button>
 
                         <button
                             type="button"
                             class="social-action-button"
+                            onclick="toggleComments('${post.id}')"
+                        >
+                            💬 Comment
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="social-action-button"
+                            onclick="shareSocialPost('${post.id}')"
                         >
                             ↗️ Share
                         </button>
+
+                    </div>
+
+
+                    <div
+                        id="comments-${post.id}"
+                        class="social-comments"
+                        style="display:none;"
+                    >
+
+                        <div
+                            id="comments-list-${post.id}"
+                            class="social-comments-list"
+                        >
+                            <p>Loading comments...</p>
+                        </div>
+
+
+                        <form
+                            class="social-comment-form"
+                            onsubmit="submitSocialComment(event, '${post.id}')"
+                        >
+
+                            <input
+                                type="text"
+                                id="comment-input-${post.id}"
+                                placeholder="Write a comment..."
+                                maxlength="1000"
+                                required
+                            >
+
+                            <button type="submit">
+                                Send
+                            </button>
+
+                        </form>
 
                     </div>
 
@@ -4074,7 +4122,8 @@ async function likeSocialPost(postId) {
             );
 
             alert(
-                "Could not like this post."
+                "Could not like this post.\n\n" +
+                error.message
             );
 
         }
@@ -4084,6 +4133,327 @@ async function likeSocialPost(postId) {
 
 
     alert("❤️ Post liked!");
+
+}
+
+
+/* =========================================================
+   TOGGLE COMMENTS
+========================================================= */
+
+async function toggleComments(postId) {
+
+    const commentsBox =
+        document.getElementById(
+            `comments-${postId}`
+        );
+
+
+    if (!commentsBox) return;
+
+
+    if (
+        commentsBox.style.display === "none" ||
+        commentsBox.style.display === ""
+    ) {
+
+        commentsBox.style.display = "block";
+
+        await loadSocialComments(postId);
+
+    } else {
+
+        commentsBox.style.display = "none";
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD COMMENTS
+========================================================= */
+
+async function loadSocialComments(postId) {
+
+    const commentsList =
+        document.getElementById(
+            `comments-list-${postId}`
+        );
+
+
+    if (!commentsList) return;
+
+
+    commentsList.innerHTML = `
+        <p>Loading comments...</p>
+    `;
+
+
+    const { data: comments, error } =
+        await supabaseClient
+            .from("comments")
+            .select("*")
+            .eq("post_id", postId)
+            .order("created_at", {
+                ascending: true
+            });
+
+
+    if (error) {
+
+        console.error(
+            "Could not load comments:",
+            error
+        );
+
+        commentsList.innerHTML = `
+            <p>
+                Could not load comments.
+            </p>
+        `;
+
+        return;
+    }
+
+
+    if (!comments || comments.length === 0) {
+
+        commentsList.innerHTML = `
+            <p>
+                No comments yet. Be the first!
+            </p>
+        `;
+
+        return;
+    }
+
+
+    commentsList.innerHTML =
+        comments.map(comment => {
+
+            const author =
+                comment.user_id === currentUser?.id
+                    ? "You"
+                    : "PATRIODX User";
+
+
+            return `
+                <div class="social-comment">
+
+                    <div class="social-comment-avatar">
+                        👤
+                    </div>
+
+                    <div class="social-comment-content">
+
+                        <strong>
+                            ${safe(author)}
+                        </strong>
+
+                        <p>
+                            ${safe(comment.content)}
+                        </p>
+
+                        <small>
+                            ${formatDate(comment.created_at)}
+                        </small>
+
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
+}
+
+
+/* =========================================================
+   SUBMIT COMMENT
+========================================================= */
+
+async function submitSocialComment(
+    event,
+    postId
+) {
+
+    event.preventDefault();
+
+
+    if (!currentUser) {
+
+        alert(
+            "Please log in before commenting."
+        );
+
+        return;
+    }
+
+
+    const input =
+        document.getElementById(
+            `comment-input-${postId}`
+        );
+
+
+    if (!input) return;
+
+
+    const content =
+        input.value.trim();
+
+
+    if (!content) {
+
+        return;
+
+    }
+
+
+    const form =
+        event.target;
+
+
+    const button =
+        form.querySelector(
+            "button[type='submit']"
+        );
+
+
+    button.disabled = true;
+    button.textContent = "Sending...";
+
+
+    const { error } =
+        await supabaseClient
+            .from("comments")
+            .insert({
+
+                post_id:
+                    postId,
+
+                user_id:
+                    currentUser.id,
+
+                content:
+                    content
+
+            });
+
+
+    if (error) {
+
+        console.error(
+            "Comment error:",
+            error
+        );
+
+        alert(
+            "Could not add comment.\n\n" +
+            error.message
+        );
+
+        button.disabled = false;
+        button.textContent = "Send";
+
+        return;
+    }
+
+
+    input.value = "";
+
+    button.disabled = false;
+    button.textContent = "Send";
+
+
+    await loadSocialComments(postId);
+
+}
+
+
+/* =========================================================
+   SHARE SOCIAL POST
+========================================================= */
+
+async function shareSocialPost(postId) {
+
+    const shareUrl =
+        `${window.location.origin}${window.location.pathname}#social-post-${postId}`;
+
+
+    const shareData = {
+
+        title:
+            "PATRIODX Social",
+
+        text:
+            "Check out this post on PATRIODX.",
+
+        url:
+            shareUrl
+
+    };
+
+
+    try {
+
+        if (
+            navigator.share
+        ) {
+
+            await navigator.share(
+                shareData
+            );
+
+            return;
+        }
+
+
+        await navigator.clipboard.writeText(
+            shareUrl
+        );
+
+
+        alert(
+            "🔗 Post link copied to clipboard!"
+        );
+
+    } catch (error) {
+
+        if (
+            error.name === "AbortError"
+        ) {
+
+            return;
+
+        }
+
+
+        console.error(
+            "Share error:",
+            error
+        );
+
+
+        try {
+
+            await navigator.clipboard.writeText(
+                shareUrl
+            );
+
+            alert(
+                "🔗 Post link copied to clipboard!"
+            );
+
+        } catch (clipboardError) {
+
+            alert(
+                "Could not share this post."
+            );
+
+        }
+
+    }
 
 }
 
@@ -4099,5 +4469,18 @@ if (socialFeed) {
 }
 
 
+/* =========================================================
+   MAKE SOCIAL FUNCTIONS AVAILABLE
+========================================================= */
+
 window.likeSocialPost =
     likeSocialPost;
+
+window.toggleComments =
+    toggleComments;
+
+window.submitSocialComment =
+    submitSocialComment;
+
+window.shareSocialPost =
+    shareSocialPost;
