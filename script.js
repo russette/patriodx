@@ -5053,7 +5053,6 @@ function subscribeToMessages(
 
 }
 
-
 /* =========================================================
    NEW CONVERSATION
 ========================================================= */
@@ -5073,44 +5072,44 @@ if (newConversationButton) {
                 return;
             }
 
+            /* Generate the conversation ID ourselves */
+            const conversationId =
+                crypto.randomUUID();
 
-            const { data: conversation, error } =
+            /* Create conversation */
+            const { error: conversationError } =
                 await supabaseClient
                     .from("conversations")
-                    .insert({})
-                    .select()
-                    .single();
+                    .insert({
+                        id: conversationId
+                    });
 
-
-            if (error) {
+            if (conversationError) {
 
                 console.error(
                     "Could not create conversation:",
-                    error
+                    conversationError
                 );
 
                 alert(
                     "Could not create conversation.\n\n" +
-                    error.message
+                    conversationError.message
                 );
 
                 return;
             }
 
-
+            /* Add current user as a member */
             const { error: memberError } =
                 await supabaseClient
                     .from("conversation_members")
                     .insert({
-
                         conversation_id:
-                            conversation.id,
+                            conversationId,
 
                         user_id:
                             currentUser.id
-
                     });
-
 
             if (memberError) {
 
@@ -5127,12 +5126,12 @@ if (newConversationButton) {
                 return;
             }
 
-
+            /* Reload conversations */
             await loadConversations();
 
-
+            /* Open the new conversation */
             await openConversation(
-                conversation.id
+                conversationId
             );
 
         }
