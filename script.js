@@ -4656,15 +4656,14 @@ async function loadConversations() {
 
 
                 return `
-                    <div
-                        class="conversation-item ${
-                            activeConversationId === conversation.id
-                                ? "active"
-                                : ""
-                        }"
-                        onclick="openConversation('${conversation.id}')"
-                    >
-
+                   <div
+    class="conversation-item ${
+        activeConversationId === conversation.id
+            ? "active"
+            : ""
+    }"
+    data-conversation-id="${conversation.id}"
+>
                         <div class="conversation-avatar">
                             💬
                         </div>
@@ -4685,9 +4684,34 @@ async function loadConversations() {
                 `;
 
             }
-        ).join("");
-}
+             ).join("");
 
+
+    conversationList
+        .querySelectorAll(".conversation-item")
+        .forEach(item => {
+
+            item.addEventListener(
+                "click",
+                function() {
+
+                    const conversationId =
+                        this.dataset.conversationId;
+
+                    if (!conversationId) {
+                        return;
+                    }
+
+                    openConversation(
+                        conversationId
+                    );
+
+                }
+            );
+
+        });
+
+}
 
 /* =========================================================
    OPEN CONVERSATION
