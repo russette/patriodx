@@ -5078,27 +5078,10 @@ if (newConversationButton) {
             }
 
 
-            const title =
-                prompt(
-                    "Enter a name for this conversation:"
-                );
-
-
-            if (!title) return;
-
-
             const { data: conversation, error } =
                 await supabaseClient
                     .from("conversations")
-                    .insert({
-
-                        title:
-                            title.trim(),
-
-                        created_by:
-                            currentUser.id
-
-                    })
+                    .insert({})
                     .select()
                     .single();
 
@@ -5160,8 +5143,6 @@ if (newConversationButton) {
     );
 
 }
-
-
 /* =========================================================
    START MESSAGING
 ========================================================= */
