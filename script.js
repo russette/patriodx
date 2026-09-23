@@ -3742,3 +3742,362 @@ if (aiForm) {
     });
 
 }
+/* =========================================================
+   PATRIODX SOCIAL
+========================================================= */
+
+const socialPostForm =
+    document.getElementById("socialPostForm");
+
+const socialFeed =
+    document.getElementById("socialFeed");
+
+
+async function loadSocialPosts() {
+
+    if (!socialFeed) return;
+
+    socialFeed.innerHTML = `
+        <div class="social-empty-state">
+            <div>⏳</div>
+            <h3>Loading posts...</h3>
+            <p>Please wait.</p>
+        </div>
+    `;
+
+
+    const { data: posts, error } =
+        await supabaseClient
+            .from("posts")
+            .select("*")
+            .order("created_at", {
+                ascending: false
+            });
+
+
+    if (error) {
+
+        console.error(
+            "Could not load social posts:",
+            error
+        );
+
+        socialFeed.innerHTML = `
+            <div class="social-empty-state">
+                <div>⚠️</div>
+                <h3>Could not load posts</h3>
+                <p>Please refresh the page and try again.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    if (!posts || posts.length === 0) {
+
+        socialFeed.innerHTML = `
+            <div class="social-empty-state">
+                <div>🌐</div>
+                <h3>No posts yet</h3>
+                <p>
+                    Be the first to share something
+                    with the PATRIODX community.
+                </p>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    socialFeed.innerHTML =
+        posts.map(post => {
+
+            const author =
+                post.user_id === currentUser?.id
+                    ? (
+                        currentBusiness?.name ||
+                        "Your Business"
+                    )
+                    : "PATRIODX User";
+
+
+            const image =
+                post.image_url
+                    ? `
+                        <img
+                            src="${safe(post.image_url)}"
+                            class="social-post-image"
+                            alt="Post image"
+                            loading="lazy"
+                        >
+                    `
+                    : "";
+
+
+            return `
+                <article class="social-post-card">
+
+                    <div class="social-post-header">
+
+                        <div class="social-post-avatar">
+                            👤
+                        </div>
+
+                        <div>
+
+                            <div class="social-post-author">
+                                ${safe(author)}
+                            </div>
+
+                            <div class="social-post-date">
+                                ${formatDate(post.created_at)}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="social-post-content">
+                        ${safe(post.content)}
+                    </div>
+
+                    ${image}
+
+
+                    <div class="social-post-actions-bar">
+
+                        <button
+                            type="button"
+                            class="social-action-button"
+                            onclick="likeSocialPost('${post.id}')"
+                        >
+                            ❤️ Like
+                        </button>
+
+                        <button
+                            type="button"
+                            class="social-action-button"
+                        >
+                            💬 Comment
+                        </button>
+
+                        <button
+                            type="button"
+                            class="social-action-button"
+                        >
+                            ↗️ Share
+                        </button>
+
+                    </div>
+
+                </article>
+            `;
+
+        }).join("");
+}
+
+
+/* =========================================================
+   CREATE SOCIAL POST
+========================================================= */
+
+if (socialPostForm) {
+
+    socialPostForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            if (!currentUser) {
+
+                alert(
+                    "Please log in before creating a post."
+                );
+
+                return;
+            }
+
+
+            const content =
+                document
+                    .getElementById(
+                        "socialPostContent"
+                    )
+                    .value
+                    .trim();
+
+
+            const imageUrl =
+                document
+                    .getElementById(
+                        "socialPostImage"
+                    )
+                    .value
+                    .trim();
+
+
+            if (!content) {
+
+                alert(
+                    "Please write something before posting."
+                );
+
+                return;
+            }
+
+
+            const button =
+                socialPostForm.querySelector(
+                    "button[type='submit']"
+                );
+
+
+            button.disabled = true;
+            button.textContent = "Posting...";
+
+
+            const { error } =
+                await supabaseClient
+                    .from("posts")
+                    .insert({
+
+                        user_id:
+                            currentUser.id,
+
+                        business_id:
+                            currentBusiness?.id || null,
+
+                        content:
+                            content,
+
+                        image_url:
+                            imageUrl || null
+
+                    });
+
+
+            if (error) {
+
+                console.error(
+                    "Could not create post:",
+                    error
+                );
+
+                alert(
+                    "Could not create your post.\n\n" +
+                    error.message
+                );
+
+                button.disabled = false;
+                button.textContent = "📢 Post";
+
+                return;
+            }
+
+
+            document
+                .getElementById(
+                    "socialPostContent"
+                )
+                .value = "";
+
+
+            document
+                .getElementById(
+                    "socialPostImage"
+                )
+                .value = "";
+
+
+            button.disabled = false;
+            button.textContent = "📢 Post";
+
+
+            await loadSocialPosts();
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   LIKE SOCIAL POST
+========================================================= */
+
+async function likeSocialPost(postId) {
+
+    if (!currentUser) {
+
+        alert(
+            "Please log in to like posts."
+        );
+
+        return;
+    }
+
+
+    const { error } =
+        await supabaseClient
+            .from("post_likes")
+            .insert({
+
+                post_id:
+                    postId,
+
+                user_id:
+                    currentUser.id
+
+            });
+
+
+    if (error) {
+
+        if (
+            error.code === "23505"
+        ) {
+
+            alert(
+                "You already liked this post."
+            );
+
+        } else {
+
+            console.error(
+                "Like error:",
+                error
+            );
+
+            alert(
+                "Could not like this post."
+            );
+
+        }
+
+        return;
+    }
+
+
+    alert("❤️ Post liked!");
+
+}
+
+
+/* =========================================================
+   START SOCIAL
+========================================================= */
+
+if (socialFeed) {
+
+    loadSocialPosts();
+
+}
+
+
+window.likeSocialPost =
+    likeSocialPost;
