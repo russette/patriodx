@@ -3256,3 +3256,235 @@ textarea:focus-visible {
     }
 
 }
+/* =========================================================
+   PATRIODX MESSAGING
+========================================================= */
+
+.messaging-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.conversations-card,
+.chat-card {
+    min-height: 560px;
+}
+
+.messaging-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.15);
+}
+
+.messaging-card-header h3 {
+    margin: 0;
+}
+
+.messaging-new-button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.conversation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 15px;
+    max-height: 470px;
+    overflow-y: auto;
+}
+
+.conversation-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.conversation-item:hover {
+    background: rgba(128, 128, 128, 0.1);
+}
+
+.conversation-item.active {
+    background: rgba(128, 128, 128, 0.15);
+}
+
+.conversation-avatar {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(128, 128, 128, 0.15);
+    font-size: 20px;
+}
+
+.conversation-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.conversation-name {
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.conversation-preview {
+    font-size: 13px;
+    opacity: 0.65;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.15);
+}
+
+.chat-header h3 {
+    margin: 0 0 5px;
+}
+
+.chat-header p {
+    margin: 0;
+    opacity: 0.65;
+    font-size: 13px;
+}
+
+.message-list {
+    flex: 1;
+    min-height: 400px;
+    max-height: 430px;
+    overflow-y: auto;
+    padding: 20px 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.message-bubble {
+    max-width: 70%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.message-bubble.mine {
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+
+.message-bubble.theirs {
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    background: rgba(128, 128, 128, 0.12);
+}
+
+.message-time {
+    display: block;
+    margin-top: 4px;
+    font-size: 10px;
+    opacity: 0.55;
+}
+
+.message-form {
+    display: flex;
+    gap: 10px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(128, 128, 128, 0.15);
+}
+
+.message-form input {
+    flex: 1;
+    min-width: 0;
+    padding: 13px 15px;
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    border-radius: 10px;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+}
+
+.message-form button {
+    padding: 13px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.messaging-empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    opacity: 0.75;
+}
+
+.messaging-empty-state > div {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.messaging-empty-state h3 {
+    margin-bottom: 8px;
+}
+
+.messaging-empty-state p {
+    margin: 0;
+}
+
+@media (max-width: 800px) {
+
+    .messaging-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .conversations-card,
+    .chat-card {
+        min-height: auto;
+    }
+
+    .conversation-list {
+        max-height: 300px;
+    }
+
+    .message-list {
+        min-height: 350px;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .message-form {
+        flex-direction: column;
+    }
+
+    .message-form button {
+        width: 100%;
+    }
+
+    .message-bubble {
+        max-width: 85%;
+    }
+
+}
