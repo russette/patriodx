@@ -4650,10 +4650,8 @@ async function loadConversations() {
         conversations.map(
             conversation => {
 
-                const name =
-                    conversation.title ||
-                    "PATRIODX Conversation";
-
+               const name =
+    "PATRIODX Conversation";
 
                 return `
                    <div
@@ -4755,9 +4753,7 @@ async function openConversation(
 
 
     const title =
-        conversation.title ||
-        "PATRIODX Conversation";
-
+    "PATRIODX Conversation";
 
     document.getElementById(
         "chatHeader"
