@@ -3006,3 +3006,162 @@ textarea:focus-visible {
     }
 
 }
+/* =========================================================
+   PATRIODX SOCIAL
+========================================================= */
+
+.social-create-card {
+    margin-top: 20px;
+}
+
+#socialPostContent {
+    width: 100%;
+    min-height: 120px;
+    padding: 15px;
+    border: 1px solid rgba(128, 128, 128, 0.35);
+    border-radius: 12px;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    font-size: 15px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+#socialPostContent::placeholder {
+    opacity: 0.65;
+}
+
+.social-post-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+#socialPostImage {
+    flex: 1;
+    min-width: 0;
+    padding: 13px 15px;
+    border: 1px solid rgba(128, 128, 128, 0.35);
+    border-radius: 10px;
+    background: transparent;
+    color: inherit;
+}
+
+.social-post-actions button {
+    padding: 13px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.social-feed-container {
+    margin-top: 30px;
+}
+
+.social-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.social-empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    border-radius: 14px;
+    border: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+.social-empty-state > div {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.social-empty-state h3 {
+    margin-bottom: 8px;
+}
+
+.social-empty-state p {
+    opacity: 0.7;
+}
+
+.social-post-card {
+    padding: 20px;
+    border-radius: 14px;
+    border: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+.social-post-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.social-post-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(128, 128, 128, 0.15);
+    font-size: 20px;
+}
+
+.social-post-author {
+    font-weight: 700;
+}
+
+.social-post-date {
+    font-size: 12px;
+    opacity: 0.6;
+    margin-top: 3px;
+}
+
+.social-post-content {
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.social-post-image {
+    width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-top: 15px;
+}
+
+.social-post-actions-bar {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(128, 128, 128, 0.15);
+}
+
+.social-action-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.social-action-button:hover {
+    background: rgba(128, 128, 128, 0.1);
+}
+
+@media (max-width: 600px) {
+
+    .social-post-actions {
+        flex-direction: column;
+    }
+
+    .social-post-actions button {
+        width: 100%;
+    }
+
+}
