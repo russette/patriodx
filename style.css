@@ -3165,3 +3165,94 @@ textarea:focus-visible {
     }
 
 }
+/* =========================================================
+   PATRIODX SOCIAL COMMENTS
+========================================================= */
+
+.social-comments {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(128, 128, 128, 0.15);
+}
+
+.social-comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.social-comment {
+    display: flex;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(128, 128, 128, 0.06);
+}
+
+.social-comment-avatar {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(128, 128, 128, 0.15);
+}
+
+.social-comment-content {
+    flex: 1;
+}
+
+.social-comment-content strong {
+    display: block;
+    margin-bottom: 3px;
+}
+
+.social-comment-content p {
+    margin: 0 0 5px;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.social-comment-content small {
+    opacity: 0.55;
+    font-size: 11px;
+}
+
+.social-comment-form {
+    display: flex;
+    gap: 10px;
+}
+
+.social-comment-form input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 14px;
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    border-radius: 10px;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+}
+
+.social-comment-form button {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+
+    .social-comment-form {
+        flex-direction: column;
+    }
+
+    .social-comment-form button {
+        width: 100%;
+    }
+
+}
