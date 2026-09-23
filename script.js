@@ -4484,3 +4484,677 @@ window.submitSocialComment =
 
 window.shareSocialPost =
     shareSocialPost;
+/* =========================================================
+   PATRIODX MESSAGING
+========================================================= */
+
+const conversationList =
+    document.getElementById("conversationList");
+
+const messageList =
+    document.getElementById("messageList");
+
+const messageForm =
+    document.getElementById("messageForm");
+
+const messageInput =
+    document.getElementById("messageInput");
+
+const messageSendButton =
+    document.getElementById("messageSendButton");
+
+const newConversationButton =
+    document.getElementById("newConversationButton");
+
+let activeConversationId = null;
+
+let messagingRealtimeChannel = null;
+
+
+/* =========================================================
+   LOAD CONVERSATIONS
+========================================================= */
+
+async function loadConversations() {
+
+    if (!conversationList || !currentUser) {
+        return;
+    }
+
+
+    conversationList.innerHTML = `
+        <div class="messaging-empty-state">
+            <div>⏳</div>
+            <p>Loading conversations...</p>
+        </div>
+    `;
+
+
+    const { data: memberships, error } =
+        await supabaseClient
+            .from("conversation_members")
+            .select("conversation_id")
+            .eq(
+                "user_id",
+                currentUser.id
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Could not load conversation memberships:",
+            error
+        );
+
+        conversationList.innerHTML = `
+            <div class="messaging-empty-state">
+                <div>⚠️</div>
+                <p>Could not load conversations.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    if (
+        !memberships ||
+        memberships.length === 0
+    ) {
+
+        conversationList.innerHTML = `
+            <div class="messaging-empty-state">
+                <div>💬</div>
+
+                <h3>
+                    No conversations
+                </h3>
+
+                <p>
+                    Start a conversation with
+                    someone on PATRIODX.
+                </p>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    const conversationIds =
+        memberships.map(
+            member =>
+                member.conversation_id
+        );
+
+
+    const { data: conversations, error: conversationsError } =
+        await supabaseClient
+            .from("conversations")
+            .select("*")
+            .in(
+                "id",
+                conversationIds
+            )
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (conversationsError) {
+
+        console.error(
+            "Could not load conversations:",
+            conversationsError
+        );
+
+        conversationList.innerHTML = `
+            <div class="messaging-empty-state">
+                <div>⚠️</div>
+                <p>
+                    Could not load conversations.
+                </p>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    if (
+        !conversations ||
+        conversations.length === 0
+    ) {
+
+        conversationList.innerHTML = `
+            <div class="messaging-empty-state">
+                <div>💬</div>
+                <h3>No conversations</h3>
+                <p>
+                    Start a conversation with
+                    someone on PATRIODX.
+                </p>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    conversationList.innerHTML =
+        conversations.map(
+            conversation => {
+
+                const name =
+                    conversation.title ||
+                    "PATRIODX Conversation";
+
+
+                return `
+                    <div
+                        class="conversation-item ${
+                            activeConversationId === conversation.id
+                                ? "active"
+                                : ""
+                        }"
+                        onclick="openConversation('${conversation.id}')"
+                    >
+
+                        <div class="conversation-avatar">
+                            💬
+                        </div>
+
+                        <div class="conversation-info">
+
+                            <div class="conversation-name">
+                                ${safe(name)}
+                            </div>
+
+                            <div class="conversation-preview">
+                                Open conversation
+                            </div>
+
+                        </div>
+
+                    </div>
+                `;
+
+            }
+        ).join("");
+}
+
+
+/* =========================================================
+   OPEN CONVERSATION
+========================================================= */
+
+async function openConversation(
+    conversationId
+) {
+
+    activeConversationId =
+        conversationId;
+
+
+    await loadConversations();
+
+
+    messageInput.disabled = false;
+    messageSendButton.disabled = false;
+
+
+    const { data: conversation, error } =
+        await supabaseClient
+            .from("conversations")
+            .select("*")
+            .eq(
+                "id",
+                conversationId
+            )
+            .single();
+
+
+    if (error) {
+
+        console.error(
+            "Could not open conversation:",
+            error
+        );
+
+        return;
+    }
+
+
+    const title =
+        conversation.title ||
+        "PATRIODX Conversation";
+
+
+    document.getElementById(
+        "chatHeader"
+    ).innerHTML = `
+
+        <div>
+
+            <h3>
+                ${safe(title)}
+            </h3>
+
+            <p>
+                PATRIODX conversation
+            </p>
+
+        </div>
+
+    `;
+
+
+    await loadMessages(
+        conversationId
+    );
+
+
+    subscribeToMessages(
+        conversationId
+    );
+
+}
+
+
+/* =========================================================
+   LOAD MESSAGES
+========================================================= */
+
+async function loadMessages(
+    conversationId
+) {
+
+    if (!messageList) return;
+
+
+    messageList.innerHTML = `
+        <div class="messaging-empty-state">
+            <div>⏳</div>
+            <p>Loading messages...</p>
+        </div>
+    `;
+
+
+    const { data: messages, error } =
+        await supabaseClient
+            .from("messages")
+            .select("*")
+            .eq(
+                "conversation_id",
+                conversationId
+            )
+            .order(
+                "created_at",
+                {
+                    ascending: true
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Could not load messages:",
+            error
+        );
+
+        messageList.innerHTML = `
+            <div class="messaging-empty-state">
+                <div>⚠️</div>
+                <p>
+                    Could not load messages.
+                </p>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    if (
+        !messages ||
+        messages.length === 0
+    ) {
+
+        messageList.innerHTML = `
+            <div class="messaging-empty-state">
+                <div>💬</div>
+
+                <h3>
+                    No messages yet
+                </h3>
+
+                <p>
+                    Send the first message.
+                </p>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    messageList.innerHTML =
+        messages.map(
+            message => {
+
+                const mine =
+                    message.sender_id ===
+                    currentUser.id;
+
+
+                return `
+                    <div
+                        class="message-bubble ${
+                            mine
+                                ? "mine"
+                                : "theirs"
+                        }"
+                    >
+
+                        <div>
+                            ${safe(message.content)}
+                        </div>
+
+                        <span class="message-time">
+                            ${formatDate(
+                                message.created_at
+                            )}
+                        </span>
+
+                    </div>
+                `;
+
+            }
+        ).join("");
+
+
+    messageList.scrollTop =
+        messageList.scrollHeight;
+
+}
+
+
+/* =========================================================
+   SEND MESSAGE
+========================================================= */
+
+if (messageForm) {
+
+    messageForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            if (!currentUser) {
+
+                alert(
+                    "Please log in before sending messages."
+                );
+
+                return;
+            }
+
+
+            if (!activeConversationId) {
+
+                alert(
+                    "Please select a conversation first."
+                );
+
+                return;
+            }
+
+
+            const content =
+                messageInput.value.trim();
+
+
+            if (!content) return;
+
+
+            messageSendButton.disabled =
+                true;
+
+
+            const { error } =
+                await supabaseClient
+                    .from("messages")
+                    .insert({
+
+                        conversation_id:
+                            activeConversationId,
+
+                        sender_id:
+                            currentUser.id,
+
+                        content:
+                            content
+
+                    });
+
+
+            if (error) {
+
+                console.error(
+                    "Could not send message:",
+                    error
+                );
+
+                alert(
+                    "Could not send message.\n\n" +
+                    error.message
+                );
+
+                messageSendButton.disabled =
+                    false;
+
+                return;
+            }
+
+
+            messageInput.value = "";
+
+
+            messageSendButton.disabled =
+                false;
+
+
+            await loadMessages(
+                activeConversationId
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   REALTIME MESSAGES
+========================================================= */
+
+function subscribeToMessages(
+    conversationId
+) {
+
+    if (messagingRealtimeChannel) {
+
+        supabaseClient.removeChannel(
+            messagingRealtimeChannel
+        );
+
+    }
+
+
+    messagingRealtimeChannel =
+        supabaseClient
+            .channel(
+                `messages-${conversationId}`
+            )
+            .on(
+                "postgres_changes",
+                {
+                    event: "INSERT",
+                    schema: "public",
+                    table: "messages",
+                    filter:
+                        `conversation_id=eq.${conversationId}`
+                },
+                function(payload) {
+
+                    if (
+                        activeConversationId ===
+                        conversationId
+                    ) {
+
+                        loadMessages(
+                            conversationId
+                        );
+
+                    }
+
+                }
+            )
+            .subscribe();
+
+}
+
+
+/* =========================================================
+   NEW CONVERSATION
+========================================================= */
+
+if (newConversationButton) {
+
+    newConversationButton.addEventListener(
+        "click",
+        async function() {
+
+            if (!currentUser) {
+
+                alert(
+                    "Please log in first."
+                );
+
+                return;
+            }
+
+
+            const title =
+                prompt(
+                    "Enter a name for this conversation:"
+                );
+
+
+            if (!title) return;
+
+
+            const { data: conversation, error } =
+                await supabaseClient
+                    .from("conversations")
+                    .insert({
+
+                        title:
+                            title.trim(),
+
+                        created_by:
+                            currentUser.id
+
+                    })
+                    .select()
+                    .single();
+
+
+            if (error) {
+
+                console.error(
+                    "Could not create conversation:",
+                    error
+                );
+
+                alert(
+                    "Could not create conversation.\n\n" +
+                    error.message
+                );
+
+                return;
+            }
+
+
+            const { error: memberError } =
+                await supabaseClient
+                    .from("conversation_members")
+                    .insert({
+
+                        conversation_id:
+                            conversation.id,
+
+                        user_id:
+                            currentUser.id
+
+                    });
+
+
+            if (memberError) {
+
+                console.error(
+                    "Could not add conversation member:",
+                    memberError
+                );
+
+                alert(
+                    "Conversation was created, but you could not be added.\n\n" +
+                    memberError.message
+                );
+
+                return;
+            }
+
+
+            await loadConversations();
+
+
+            await openConversation(
+                conversation.id
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   START MESSAGING
+========================================================= */
+
+if (
+    conversationList &&
+    currentUser
+) {
+
+    loadConversations();
+
+}
+
+
+/* =========================================================
+   MAKE FUNCTIONS AVAILABLE
+========================================================= */
+
+window.openConversation =
+    openConversation;
