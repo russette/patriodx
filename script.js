@@ -3743,7 +3743,7 @@ if (aiForm) {
 
 }
 /* =========================================================
-   PATRIODX SOCIAL
+   PATRIODX SOCIAL 2.0
 ========================================================= */
 
 const socialPostForm =
@@ -3775,15 +3775,12 @@ function showSocialMediaPreview(file) {
     if (!file) {
 
         socialMediaPreview.innerHTML = "";
-
         socialMediaPreview.style.display = "none";
 
         return;
     }
 
-
     selectedSocialFile = file;
-
 
     const fileUrl =
         URL.createObjectURL(file);
@@ -3800,12 +3797,13 @@ function showSocialMediaPreview(file) {
                     alt="Selected photo"
                 >
 
-                <p>
+                <div class="social-preview-info">
                     📷 ${safe(file.name)}
-                </p>
+                </div>
 
                 <button
                     type="button"
+                    class="social-remove-media"
                     onclick="clearSocialMedia()"
                 >
                     Remove
@@ -3825,12 +3823,13 @@ function showSocialMediaPreview(file) {
                     controls
                 ></video>
 
-                <p>
+                <div class="social-preview-info">
                     🎥 ${safe(file.name)}
-                </p>
+                </div>
 
                 <button
                     type="button"
+                    class="social-remove-media"
                     onclick="clearSocialMedia()"
                 >
                     Remove
@@ -3838,12 +3837,10 @@ function showSocialMediaPreview(file) {
 
             </div>
         `;
-
     }
 
 
-    socialMediaPreview.style.display =
-        "block";
+    socialMediaPreview.style.display = "block";
 }
 
 
@@ -3855,7 +3852,7 @@ if (socialImageInput) {
 
     socialImageInput.addEventListener(
         "change",
-        function() {
+        function () {
 
             const file =
                 this.files?.[0];
@@ -3863,9 +3860,7 @@ if (socialImageInput) {
             if (!file) return;
 
 
-            if (
-                !file.type.startsWith("image/")
-            ) {
+            if (!file.type.startsWith("image/")) {
 
                 alert(
                     "Please select an image file."
@@ -3877,11 +3872,7 @@ if (socialImageInput) {
             }
 
 
-            /* Maximum 10 MB */
-
-            if (
-                file.size > 10 * 1024 * 1024
-            ) {
+            if (file.size > 10 * 1024 * 1024) {
 
                 alert(
                     "Photo must be smaller than 10 MB."
@@ -3893,18 +3884,14 @@ if (socialImageInput) {
             }
 
 
-            /* Clear video */
-
             if (socialVideoInput) {
                 socialVideoInput.value = "";
             }
 
 
             showSocialMediaPreview(file);
-
         }
     );
-
 }
 
 
@@ -3916,7 +3903,7 @@ if (socialVideoInput) {
 
     socialVideoInput.addEventListener(
         "change",
-        function() {
+        function () {
 
             const file =
                 this.files?.[0];
@@ -3924,9 +3911,7 @@ if (socialVideoInput) {
             if (!file) return;
 
 
-            if (
-                !file.type.startsWith("video/")
-            ) {
+            if (!file.type.startsWith("video/")) {
 
                 alert(
                     "Please select a video file."
@@ -3938,11 +3923,7 @@ if (socialVideoInput) {
             }
 
 
-            /* Maximum 50 MB */
-
-            if (
-                file.size > 50 * 1024 * 1024
-            ) {
+            if (file.size > 50 * 1024 * 1024) {
 
                 alert(
                     "Video must be smaller than 50 MB."
@@ -3954,18 +3935,14 @@ if (socialVideoInput) {
             }
 
 
-            /* Clear image */
-
             if (socialImageInput) {
                 socialImageInput.value = "";
             }
 
 
             showSocialMediaPreview(file);
-
         }
     );
-
 }
 
 
@@ -3995,12 +3972,11 @@ function clearSocialMedia() {
         socialMediaPreview.style.display =
             "none";
     }
-
 }
 
 
 /* =========================================================
-   UPLOAD MEDIA TO SUPABASE
+   UPLOAD MEDIA
 ========================================================= */
 
 async function uploadSocialMedia(file) {
@@ -4054,12 +4030,64 @@ async function uploadSocialMedia(file) {
         supabaseClient
             .storage
             .from("patriodx-media")
-            .getPublicUrl(
-                filePath
-            );
+            .getPublicUrl(filePath);
 
 
     return data.publicUrl;
+}
+
+
+/* =========================================================
+   GET POST COUNTS
+========================================================= */
+
+async function getSocialCounts(postId) {
+
+    const [
+        likesResult,
+        commentsResult
+    ] = await Promise.all([
+
+        supabaseClient
+            .from("post_likes")
+            .select(
+                "id",
+                {
+                    count: "exact",
+                    head: true
+                }
+            )
+            .eq(
+                "post_id",
+                postId
+            ),
+
+        supabaseClient
+            .from("comments")
+            .select(
+                "id",
+                {
+                    count: "exact",
+                    head: true
+                }
+            )
+            .eq(
+                "post_id",
+                postId
+            )
+
+    ]);
+
+
+    return {
+
+        likes:
+            likesResult.count || 0,
+
+        comments:
+            commentsResult.count || 0
+
+    };
 }
 
 
@@ -4074,9 +4102,15 @@ async function loadSocialPosts() {
 
     socialFeed.innerHTML = `
         <div class="social-empty-state">
+
             <div>⏳</div>
+
             <h3>Loading posts...</h3>
-            <p>Please wait.</p>
+
+            <p>
+                Please wait.
+            </p>
+
         </div>
     `;
 
@@ -4102,9 +4136,17 @@ async function loadSocialPosts() {
 
         socialFeed.innerHTML = `
             <div class="social-empty-state">
+
                 <div>⚠️</div>
-                <h3>Could not load posts</h3>
-                <p>${safe(error.message)}</p>
+
+                <h3>
+                    Could not load posts
+                </h3>
+
+                <p>
+                    ${safe(error.message)}
+                </p>
+
             </div>
         `;
 
@@ -4112,16 +4154,16 @@ async function loadSocialPosts() {
     }
 
 
-    if (
-        !posts ||
-        posts.length === 0
-    ) {
+    if (!posts || posts.length === 0) {
 
         socialFeed.innerHTML = `
             <div class="social-empty-state">
+
                 <div>🌐</div>
 
-                <h3>No posts yet</h3>
+                <h3>
+                    No posts yet
+                </h3>
 
                 <p>
                     Be the first to share something
@@ -4135,166 +4177,279 @@ async function loadSocialPosts() {
     }
 
 
+    /*
+       Get counts for every post.
+    */
+
+    const postsWithCounts =
+        await Promise.all(
+
+            posts.map(
+                async post => {
+
+                    const counts =
+                        await getSocialCounts(
+                            post.id
+                        );
+
+                    return {
+                        ...post,
+                        ...counts
+                    };
+
+                }
+            )
+        );
+
+
     socialFeed.innerHTML =
-        posts.map(post => {
+        postsWithCounts
+            .map(post => {
 
-            const author =
-                post.user_id === currentUser?.id
-                    ? (
-                        currentBusiness?.name ||
-                        "Your Business"
-                    )
-                    : "PATRIODX User";
+                const isOwnPost =
+                    post.user_id ===
+                    currentUser?.id;
 
 
-            const image =
-                post.image_url
-                    ? `
-                        <img
-                            src="${safe(post.image_url)}"
-                            class="social-post-image"
-                            alt="Post image"
-                            loading="lazy"
-                        >
-                    `
-                    : "";
+                const author =
+                    isOwnPost
+                        ? (
+                            currentBusiness?.name ||
+                            currentUser?.user_metadata?.business_name ||
+                            currentUser?.user_metadata?.full_name ||
+                            currentUser?.email ||
+                            "You"
+                        )
+                        : "PATRIODX User";
 
 
-            const video =
-                post.video_url
-                    ? `
-                        <video
-                            src="${safe(post.video_url)}"
-                            class="social-post-video"
-                            controls
-                            preload="metadata"
-                        ></video>
-                    `
-                    : "";
+                const image =
+                    post.image_url
+                        ? `
+                            <div class="social-media-wrapper">
 
+                                <img
+                                    src="${safe(post.image_url)}"
+                                    class="social-post-image"
+                                    alt="Post image"
+                                    loading="lazy"
+                                >
 
-            return `
-                <article
-                    class="social-post-card"
-                    id="social-post-${post.id}"
-                >
-
-                    <div class="social-post-header">
-
-                        <div class="social-post-avatar">
-                            👤
-                        </div>
-
-                        <div>
-
-                            <div class="social-post-author">
-                                ${safe(author)}
                             </div>
+                        `
+                        : "";
 
-                            <div class="social-post-date">
-                                ${formatDate(
-                                    post.created_at
-                                )}
+
+                const video =
+                    post.video_url
+                        ? `
+                            <div class="social-media-wrapper">
+
+                                <video
+                                    src="${safe(post.video_url)}"
+                                    class="social-post-video"
+                                    controls
+                                    preload="metadata"
+                                ></video>
+
                             </div>
-
-                        </div>
-
-                    </div>
+                        `
+                        : "";
 
 
-                    ${
-                        post.content
-                            ? `
-                                <div class="social-post-content">
-                                    ${safe(post.content)}
-                                </div>
-                            `
-                            : ""
-                    }
+                return `
 
-
-                    ${image}
-
-                    ${video}
-
-
-                    <div class="social-post-actions-bar">
-
-                        <button
-                            type="button"
-                            class="social-action-button"
-                            onclick="likeSocialPost('${post.id}')"
-                        >
-                            ❤️ Like
-                        </button>
-
-
-                        <button
-                            type="button"
-                            class="social-action-button"
-                            onclick="toggleComments('${post.id}')"
-                        >
-                            💬 Comment
-                        </button>
-
-
-                        <button
-                            type="button"
-                            class="social-action-button"
-                            onclick="shareSocialPost('${post.id}')"
-                        >
-                            ↗️ Share
-                        </button>
-
-                    </div>
-
-
-                    <div
-                        id="comments-${post.id}"
-                        class="social-comments"
-                        style="display:none;"
+                    <article
+                        class="social-post-card"
+                        id="social-post-${post.id}"
                     >
 
-                        <div
-                            id="comments-list-${post.id}"
-                            class="social-comments-list"
-                        >
-                            <p>
-                                Loading comments...
-                            </p>
+                        <!-- POST HEADER -->
+
+                        <div class="social-post-header">
+
+                            <div class="social-post-avatar">
+                                👤
+                            </div>
+
+                            <div class="social-post-author-area">
+
+                                <div
+                                    class="social-post-author"
+                                >
+                                    ${safe(author)}
+                                </div>
+
+                                <div
+                                    class="social-post-date"
+                                >
+                                    ${formatDate(
+                                        post.created_at
+                                    )}
+                                </div>
+
+                            </div>
+
+
+                            ${
+                                isOwnPost
+                                    ? `
+                                        <button
+                                            type="button"
+                                            class="social-delete-button"
+                                            onclick="deleteSocialPost('${post.id}')"
+                                            title="Delete post"
+                                        >
+                                            🗑️
+                                        </button>
+                                    `
+                                    : `
+                                        <button
+                                            type="button"
+                                            class="social-report-button"
+                                            onclick="reportSocialPost('${post.id}')"
+                                            title="Report post"
+                                        >
+                                            🚩
+                                        </button>
+                                    `
+                            }
+
                         </div>
 
 
-                        <form
-                            class="social-comment-form"
-                            onsubmit="submitSocialComment(event, '${post.id}')"
+                        <!-- POST CONTENT -->
+
+                        ${
+                            post.content
+                                ? `
+                                    <div
+                                        class="social-post-content"
+                                    >
+                                        ${safe(
+                                            post.content
+                                        )}
+                                    </div>
+                                `
+                                : ""
+                        }
+
+
+                        <!-- PHOTO -->
+
+                        ${image}
+
+
+                        <!-- VIDEO -->
+
+                        ${video}
+
+
+                        <!-- COUNTS -->
+
+                        <div
+                            class="social-post-stats"
+                            id="social-stats-${post.id}"
                         >
 
-                            <input
-                                type="text"
-                                id="comment-input-${post.id}"
-                                placeholder="Write a comment..."
-                                maxlength="1000"
-                                required
-                            >
+                            <span>
+                                ❤️ ${post.likes}
+                            </span>
 
-                            <button type="submit">
-                                Send
+                            <span>
+                                💬 ${post.comments}
+                            </span>
+
+                        </div>
+
+
+                        <!-- ACTIONS -->
+
+                        <div
+                            class="social-post-actions-bar"
+                        >
+
+                            <button
+                                type="button"
+                                class="social-action-button"
+                                onclick="likeSocialPost('${post.id}')"
+                            >
+                                ❤️ Like
                             </button>
 
-                        </form>
 
-                    </div>
+                            <button
+                                type="button"
+                                class="social-action-button"
+                                onclick="toggleComments('${post.id}')"
+                            >
+                                💬 Comment
+                            </button>
 
-                </article>
-            `;
 
-        }).join("");
+                            <button
+                                type="button"
+                                class="social-action-button"
+                                onclick="shareSocialPost('${post.id}')"
+                            >
+                                ↗️ Share
+                            </button>
+
+                        </div>
+
+
+                        <!-- COMMENTS -->
+
+                        <div
+                            id="comments-${post.id}"
+                            class="social-comments"
+                            style="display:none;"
+                        >
+
+                            <div
+                                id="comments-list-${post.id}"
+                                class="social-comments-list"
+                            >
+                                <p>
+                                    Loading comments...
+                                </p>
+                            </div>
+
+
+                            <form
+                                class="social-comment-form"
+                                onsubmit="submitSocialComment(event, '${post.id}')"
+                            >
+
+                                <input
+                                    type="text"
+                                    id="comment-input-${post.id}"
+                                    placeholder="Write a comment..."
+                                    maxlength="1000"
+                                    required
+                                >
+
+                                <button
+                                    type="submit"
+                                >
+                                    Send
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </article>
+
+                `;
+
+            })
+            .join("");
 }
 
 
 /* =========================================================
-   CREATE SOCIAL POST
+   CREATE POST
 ========================================================= */
 
 if (socialPostForm) {
@@ -4357,8 +4512,6 @@ if (socialPostForm) {
                 let videoUrl = null;
 
 
-                /* Upload selected media */
-
                 if (selectedSocialFile) {
 
                     const uploadedUrl =
@@ -4375,20 +4528,14 @@ if (socialPostForm) {
                         imageUrl =
                             uploadedUrl;
 
-                    } else if (
-                        selectedSocialFile.type
-                            .startsWith("video/")
-                    ) {
+                    } else {
 
                         videoUrl =
                             uploadedUrl;
 
                     }
-
                 }
 
-
-                /* Create database post */
 
                 const { error } =
                     await supabaseClient
@@ -4415,12 +4562,9 @@ if (socialPostForm) {
 
 
                 if (error) {
-
                     throw error;
                 }
 
-
-                /* Clear form */
 
                 document
                     .getElementById(
@@ -4461,17 +4605,15 @@ if (socialPostForm) {
 
                 button.textContent =
                     "📢 Post";
-
             }
 
         }
     );
-
 }
 
 
 /* =========================================================
-   LIKE SOCIAL POST
+   LIKE POST
 ========================================================= */
 
 async function likeSocialPost(postId) {
@@ -4502,9 +4644,7 @@ async function likeSocialPost(postId) {
 
     if (error) {
 
-        if (
-            error.code === "23505"
-        ) {
+        if (error.code === "23505") {
 
             alert(
                 "You already liked this post."
@@ -4521,17 +4661,50 @@ async function likeSocialPost(postId) {
                 "Could not like this post.\n\n" +
                 error.message
             );
-
         }
 
         return;
     }
 
 
-    alert(
-        "❤️ Post liked!"
+    await refreshSocialPostStats(
+        postId
     );
+}
 
+
+/* =========================================================
+   REFRESH POST COUNTS
+========================================================= */
+
+async function refreshSocialPostStats(postId) {
+
+    const stats =
+        await getSocialCounts(
+            postId
+        );
+
+
+    const statsElement =
+        document.getElementById(
+            `social-stats-${postId}`
+        );
+
+
+    if (!statsElement) return;
+
+
+    statsElement.innerHTML = `
+
+        <span>
+            ❤️ ${stats.likes}
+        </span>
+
+        <span>
+            💬 ${stats.comments}
+        </span>
+
+    `;
 }
 
 
@@ -4566,9 +4739,7 @@ async function toggleComments(postId) {
 
         commentsBox.style.display =
             "none";
-
     }
-
 }
 
 
@@ -4621,10 +4792,7 @@ async function loadSocialComments(postId) {
     }
 
 
-    if (
-        !comments ||
-        comments.length === 0
-    ) {
+    if (!comments || comments.length === 0) {
 
         commentsList.innerHTML =
             "<p>No comments yet. Be the first!</p>";
@@ -4634,8 +4802,8 @@ async function loadSocialComments(postId) {
 
 
     commentsList.innerHTML =
-        comments.map(
-            comment => {
+        comments
+            .map(comment => {
 
                 const author =
                     comment.user_id ===
@@ -4645,13 +4813,18 @@ async function loadSocialComments(postId) {
 
 
                 return `
+
                     <div class="social-comment">
 
-                        <div class="social-comment-avatar">
+                        <div
+                            class="social-comment-avatar"
+                        >
                             👤
                         </div>
 
-                        <div class="social-comment-content">
+                        <div
+                            class="social-comment-content"
+                        >
 
                             <strong>
                                 ${safe(author)}
@@ -4672,10 +4845,16 @@ async function loadSocialComments(postId) {
                         </div>
 
                     </div>
+
                 `;
 
-            }
-        ).join("");
+            })
+            .join("");
+
+
+    await refreshSocialPostStats(
+        postId
+    );
 }
 
 
@@ -4782,12 +4961,226 @@ async function submitSocialComment(
     await loadSocialComments(
         postId
     );
-
 }
 
 
 /* =========================================================
-   SHARE SOCIAL POST
+   DELETE OWN POST
+========================================================= */
+
+async function deleteSocialPost(postId) {
+
+    if (!currentUser) return;
+
+
+    const confirmed =
+        confirm(
+            "Delete this post?\n\nThis cannot be undone."
+        );
+
+
+    if (!confirmed) return;
+
+
+    const { data: post, error: postError } =
+        await supabaseClient
+            .from("posts")
+            .select(
+                "id,user_id,image_url,video_url"
+            )
+            .eq(
+                "id",
+                postId
+            )
+            .single();
+
+
+    if (postError) {
+
+        alert(
+            "Could not find this post."
+        );
+
+        return;
+    }
+
+
+    if (
+        post.user_id !==
+        currentUser.id
+    ) {
+
+        alert(
+            "You can only delete your own posts."
+        );
+
+        return;
+    }
+
+
+    const { error } =
+        await supabaseClient
+            .from("posts")
+            .delete()
+            .eq(
+                "id",
+                postId
+            )
+            .eq(
+                "user_id",
+                currentUser.id
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Delete post error:",
+            error
+        );
+
+        alert(
+            "Could not delete post.\n\n" +
+            error.message
+        );
+
+        return;
+    }
+
+
+    /*
+       Remove the media file from storage.
+       The post is already deleted even if
+       storage cleanup fails.
+    */
+
+    try {
+
+        const mediaUrl =
+            post.image_url ||
+            post.video_url;
+
+
+        if (mediaUrl) {
+
+            const marker =
+                "/patriodx-media/";
+
+            const index =
+                mediaUrl.indexOf(marker);
+
+
+            if (index !== -1) {
+
+                const filePath =
+                    mediaUrl
+                        .substring(
+                            index +
+                            marker.length
+                        );
+
+
+                await supabaseClient
+                    .storage
+                    .from("patriodx-media")
+                    .remove([
+                        filePath
+                    ]);
+            }
+        }
+
+    } catch (storageError) {
+
+        console.warn(
+            "Media cleanup failed:",
+            storageError
+        );
+    }
+
+
+    await loadSocialPosts();
+}
+
+
+/* =========================================================
+   REPORT POST
+========================================================= */
+
+async function reportSocialPost(postId) {
+
+    if (!currentUser) {
+
+        alert(
+            "Please log in to report posts."
+        );
+
+        return;
+    }
+
+
+    const reason =
+        prompt(
+            "Why are you reporting this post?\n\n" +
+            "Examples: Spam, Scam, Harassment, " +
+            "Inappropriate content, Other"
+        );
+
+
+    if (!reason) return;
+
+
+    const cleanReason =
+        reason.trim();
+
+
+    if (!cleanReason) return;
+
+
+    const { error } =
+        await supabaseClient
+            .from("reports")
+            .insert({
+
+                user_id:
+                    currentUser.id,
+
+                type:
+                    "post",
+
+                reason:
+                    cleanReason,
+
+                related_id:
+                    postId
+
+            });
+
+
+    if (error) {
+
+        console.error(
+            "Report error:",
+            error
+        );
+
+        alert(
+            "Could not submit report.\n\n" +
+            error.message
+        );
+
+        return;
+    }
+
+
+    alert(
+        "🚩 Report submitted.\n\n" +
+        "Thank you for helping keep PATRIODX safe."
+    );
+}
+
+
+/* =========================================================
+   SHARE POST
 ========================================================= */
 
 async function shareSocialPost(postId) {
@@ -4806,7 +5199,6 @@ async function shareSocialPost(postId) {
 
         url:
             shareUrl
-
     };
 
 
@@ -4837,7 +5229,6 @@ async function shareSocialPost(postId) {
             error.name ===
             "AbortError"
         ) {
-
             return;
         }
 
@@ -4850,9 +5241,7 @@ async function shareSocialPost(postId) {
         alert(
             "Could not share this post."
         );
-
     }
-
 }
 
 
@@ -4863,12 +5252,11 @@ async function shareSocialPost(postId) {
 if (socialFeed) {
 
     loadSocialPosts();
-
 }
 
 
 /* =========================================================
-   MAKE SOCIAL FUNCTIONS AVAILABLE
+   GLOBAL FUNCTIONS
 ========================================================= */
 
 window.likeSocialPost =
@@ -4885,6 +5273,12 @@ window.shareSocialPost =
 
 window.clearSocialMedia =
     clearSocialMedia;
+
+window.deleteSocialPost =
+    deleteSocialPost;
+
+window.reportSocialPost =
+    reportSocialPost;
 /* =========================================================
    PATRIODX MESSAGING
 ========================================================= */
