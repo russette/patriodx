@@ -3752,6 +3752,316 @@ const socialPostForm =
 const socialFeed =
     document.getElementById("socialFeed");
 
+const socialImageInput =
+    document.getElementById("socialImageInput");
+
+const socialVideoInput =
+    document.getElementById("socialVideoInput");
+
+const socialMediaPreview =
+    document.getElementById("socialMediaPreview");
+
+let selectedSocialFile = null;
+
+
+/* =========================================================
+   MEDIA PREVIEW
+========================================================= */
+
+function showSocialMediaPreview(file) {
+
+    if (!socialMediaPreview) return;
+
+    if (!file) {
+
+        socialMediaPreview.innerHTML = "";
+
+        socialMediaPreview.style.display = "none";
+
+        return;
+    }
+
+
+    selectedSocialFile = file;
+
+
+    const fileUrl =
+        URL.createObjectURL(file);
+
+
+    if (file.type.startsWith("image/")) {
+
+        socialMediaPreview.innerHTML = `
+            <div class="social-preview-container">
+
+                <img
+                    src="${fileUrl}"
+                    class="social-preview-image"
+                    alt="Selected photo"
+                >
+
+                <p>
+                    📷 ${safe(file.name)}
+                </p>
+
+                <button
+                    type="button"
+                    onclick="clearSocialMedia()"
+                >
+                    Remove
+                </button>
+
+            </div>
+        `;
+
+    } else if (file.type.startsWith("video/")) {
+
+        socialMediaPreview.innerHTML = `
+            <div class="social-preview-container">
+
+                <video
+                    src="${fileUrl}"
+                    class="social-preview-video"
+                    controls
+                ></video>
+
+                <p>
+                    🎥 ${safe(file.name)}
+                </p>
+
+                <button
+                    type="button"
+                    onclick="clearSocialMedia()"
+                >
+                    Remove
+                </button>
+
+            </div>
+        `;
+
+    }
+
+
+    socialMediaPreview.style.display =
+        "block";
+}
+
+
+/* =========================================================
+   IMAGE SELECTED
+========================================================= */
+
+if (socialImageInput) {
+
+    socialImageInput.addEventListener(
+        "change",
+        function() {
+
+            const file =
+                this.files?.[0];
+
+            if (!file) return;
+
+
+            if (
+                !file.type.startsWith("image/")
+            ) {
+
+                alert(
+                    "Please select an image file."
+                );
+
+                this.value = "";
+
+                return;
+            }
+
+
+            /* Maximum 10 MB */
+
+            if (
+                file.size > 10 * 1024 * 1024
+            ) {
+
+                alert(
+                    "Photo must be smaller than 10 MB."
+                );
+
+                this.value = "";
+
+                return;
+            }
+
+
+            /* Clear video */
+
+            if (socialVideoInput) {
+                socialVideoInput.value = "";
+            }
+
+
+            showSocialMediaPreview(file);
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   VIDEO SELECTED
+========================================================= */
+
+if (socialVideoInput) {
+
+    socialVideoInput.addEventListener(
+        "change",
+        function() {
+
+            const file =
+                this.files?.[0];
+
+            if (!file) return;
+
+
+            if (
+                !file.type.startsWith("video/")
+            ) {
+
+                alert(
+                    "Please select a video file."
+                );
+
+                this.value = "";
+
+                return;
+            }
+
+
+            /* Maximum 50 MB */
+
+            if (
+                file.size > 50 * 1024 * 1024
+            ) {
+
+                alert(
+                    "Video must be smaller than 50 MB."
+                );
+
+                this.value = "";
+
+                return;
+            }
+
+
+            /* Clear image */
+
+            if (socialImageInput) {
+                socialImageInput.value = "";
+            }
+
+
+            showSocialMediaPreview(file);
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   CLEAR MEDIA
+========================================================= */
+
+function clearSocialMedia() {
+
+    selectedSocialFile = null;
+
+
+    if (socialImageInput) {
+        socialImageInput.value = "";
+    }
+
+
+    if (socialVideoInput) {
+        socialVideoInput.value = "";
+    }
+
+
+    if (socialMediaPreview) {
+
+        socialMediaPreview.innerHTML = "";
+
+        socialMediaPreview.style.display =
+            "none";
+    }
+
+}
+
+
+/* =========================================================
+   UPLOAD MEDIA TO SUPABASE
+========================================================= */
+
+async function uploadSocialMedia(file) {
+
+    if (!file || !currentUser) {
+        return null;
+    }
+
+
+    const extension =
+        file.name
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+
+    const fileName =
+        `${crypto.randomUUID()}.${extension}`;
+
+
+    const filePath =
+        `${currentUser.id}/${fileName}`;
+
+
+    const { error } =
+        await supabaseClient
+            .storage
+            .from("patriodx-media")
+            .upload(
+                filePath,
+                file,
+                {
+                    cacheControl: "3600",
+                    upsert: false
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Media upload error:",
+            error
+        );
+
+        throw error;
+    }
+
+
+    const { data } =
+        supabaseClient
+            .storage
+            .from("patriodx-media")
+            .getPublicUrl(
+                filePath
+            );
+
+
+    return data.publicUrl;
+}
+
 
 /* =========================================================
    LOAD SOCIAL POSTS
@@ -3760,6 +4070,7 @@ const socialFeed =
 async function loadSocialPosts() {
 
     if (!socialFeed) return;
+
 
     socialFeed.innerHTML = `
         <div class="social-empty-state">
@@ -3774,9 +4085,12 @@ async function loadSocialPosts() {
         await supabaseClient
             .from("posts")
             .select("*")
-            .order("created_at", {
-                ascending: false
-            });
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
 
 
     if (error) {
@@ -3798,16 +4112,22 @@ async function loadSocialPosts() {
     }
 
 
-    if (!posts || posts.length === 0) {
+    if (
+        !posts ||
+        posts.length === 0
+    ) {
 
         socialFeed.innerHTML = `
             <div class="social-empty-state">
                 <div>🌐</div>
+
                 <h3>No posts yet</h3>
+
                 <p>
                     Be the first to share something
                     with the PATRIODX community.
                 </p>
+
             </div>
         `;
 
@@ -3840,6 +4160,19 @@ async function loadSocialPosts() {
                     : "";
 
 
+            const video =
+                post.video_url
+                    ? `
+                        <video
+                            src="${safe(post.video_url)}"
+                            class="social-post-video"
+                            controls
+                            preload="metadata"
+                        ></video>
+                    `
+                    : "";
+
+
             return `
                 <article
                     class="social-post-card"
@@ -3859,7 +4192,9 @@ async function loadSocialPosts() {
                             </div>
 
                             <div class="social-post-date">
-                                ${formatDate(post.created_at)}
+                                ${formatDate(
+                                    post.created_at
+                                )}
                             </div>
 
                         </div>
@@ -3867,12 +4202,20 @@ async function loadSocialPosts() {
                     </div>
 
 
-                    <div class="social-post-content">
-                        ${safe(post.content)}
-                    </div>
+                    ${
+                        post.content
+                            ? `
+                                <div class="social-post-content">
+                                    ${safe(post.content)}
+                                </div>
+                            `
+                            : ""
+                    }
 
 
                     ${image}
+
+                    ${video}
 
 
                     <div class="social-post-actions-bar">
@@ -3916,7 +4259,9 @@ async function loadSocialPosts() {
                             id="comments-list-${post.id}"
                             class="social-comments-list"
                         >
-                            <p>Loading comments...</p>
+                            <p>
+                                Loading comments...
+                            </p>
                         </div>
 
 
@@ -3980,19 +4325,13 @@ if (socialPostForm) {
                     .trim();
 
 
-            const imageUrl =
-                document
-                    .getElementById(
-                        "socialPostImage"
-                    )
-                    .value
-                    .trim();
-
-
-            if (!content) {
+            if (
+                !content &&
+                !selectedSocialFile
+            ) {
 
                 alert(
-                    "Please write something before posting."
+                    "Please write something or select a photo/video."
                 );
 
                 return;
@@ -4000,73 +4339,130 @@ if (socialPostForm) {
 
 
             const button =
-                socialPostForm.querySelector(
-                    "button[type='submit']"
+                document.getElementById(
+                    "socialPostButton"
                 );
 
 
             button.disabled = true;
-            button.textContent = "Posting...";
+
+            button.textContent =
+                "Uploading...";
 
 
-            const { error } =
-                await supabaseClient
-                    .from("posts")
-                    .insert({
+            try {
 
-                        user_id:
-                            currentUser.id,
+                let imageUrl = null;
 
-                        business_id:
-                            currentBusiness?.id || null,
-
-                        content:
-                            content,
-
-                        image_url:
-                            imageUrl || null
-
-                    });
+                let videoUrl = null;
 
 
-            if (error) {
+                /* Upload selected media */
+
+                if (selectedSocialFile) {
+
+                    const uploadedUrl =
+                        await uploadSocialMedia(
+                            selectedSocialFile
+                        );
+
+
+                    if (
+                        selectedSocialFile.type
+                            .startsWith("image/")
+                    ) {
+
+                        imageUrl =
+                            uploadedUrl;
+
+                    } else if (
+                        selectedSocialFile.type
+                            .startsWith("video/")
+                    ) {
+
+                        videoUrl =
+                            uploadedUrl;
+
+                    }
+
+                }
+
+
+                /* Create database post */
+
+                const { error } =
+                    await supabaseClient
+                        .from("posts")
+                        .insert({
+
+                            user_id:
+                                currentUser.id,
+
+                            business_id:
+                                currentBusiness?.id ||
+                                null,
+
+                            content:
+                                content || null,
+
+                            image_url:
+                                imageUrl,
+
+                            video_url:
+                                videoUrl
+
+                        });
+
+
+                if (error) {
+
+                    throw error;
+                }
+
+
+                /* Clear form */
+
+                document
+                    .getElementById(
+                        "socialPostContent"
+                    )
+                    .value = "";
+
+
+                clearSocialMedia();
+
+
+                button.disabled =
+                    false;
+
+                button.textContent =
+                    "📢 Post";
+
+
+                await loadSocialPosts();
+
+
+            } catch (error) {
 
                 console.error(
                     "Could not create post:",
                     error
                 );
 
+
                 alert(
                     "Could not create your post.\n\n" +
                     error.message
                 );
 
-                button.disabled = false;
-                button.textContent = "📢 Post";
 
-                return;
+                button.disabled =
+                    false;
+
+                button.textContent =
+                    "📢 Post";
+
             }
-
-
-            document
-                .getElementById(
-                    "socialPostContent"
-                )
-                .value = "";
-
-
-            document
-                .getElementById(
-                    "socialPostImage"
-                )
-                .value = "";
-
-
-            button.disabled = false;
-            button.textContent = "📢 Post";
-
-
-            await loadSocialPosts();
 
         }
     );
@@ -4132,7 +4528,9 @@ async function likeSocialPost(postId) {
     }
 
 
-    alert("❤️ Post liked!");
+    alert(
+        "❤️ Post liked!"
+    );
 
 }
 
@@ -4157,13 +4555,17 @@ async function toggleComments(postId) {
         commentsBox.style.display === ""
     ) {
 
-        commentsBox.style.display = "block";
+        commentsBox.style.display =
+            "block";
 
-        await loadSocialComments(postId);
+        await loadSocialComments(
+            postId
+        );
 
     } else {
 
-        commentsBox.style.display = "none";
+        commentsBox.style.display =
+            "none";
 
     }
 
@@ -4185,19 +4587,24 @@ async function loadSocialComments(postId) {
     if (!commentsList) return;
 
 
-    commentsList.innerHTML = `
-        <p>Loading comments...</p>
-    `;
+    commentsList.innerHTML =
+        "<p>Loading comments...</p>";
 
 
     const { data: comments, error } =
         await supabaseClient
             .from("comments")
             .select("*")
-            .eq("post_id", postId)
-            .order("created_at", {
-                ascending: true
-            });
+            .eq(
+                "post_id",
+                postId
+            )
+            .order(
+                "created_at",
+                {
+                    ascending: true
+                }
+            );
 
 
     if (error) {
@@ -4207,64 +4614,68 @@ async function loadSocialComments(postId) {
             error
         );
 
-        commentsList.innerHTML = `
-            <p>
-                Could not load comments.
-            </p>
-        `;
+        commentsList.innerHTML =
+            "<p>Could not load comments.</p>";
 
         return;
     }
 
 
-    if (!comments || comments.length === 0) {
+    if (
+        !comments ||
+        comments.length === 0
+    ) {
 
-        commentsList.innerHTML = `
-            <p>
-                No comments yet. Be the first!
-            </p>
-        `;
+        commentsList.innerHTML =
+            "<p>No comments yet. Be the first!</p>";
 
         return;
     }
 
 
     commentsList.innerHTML =
-        comments.map(comment => {
+        comments.map(
+            comment => {
 
-            const author =
-                comment.user_id === currentUser?.id
-                    ? "You"
-                    : "PATRIODX User";
+                const author =
+                    comment.user_id ===
+                    currentUser?.id
+                        ? "You"
+                        : "PATRIODX User";
 
 
-            return `
-                <div class="social-comment">
+                return `
+                    <div class="social-comment">
 
-                    <div class="social-comment-avatar">
-                        👤
+                        <div class="social-comment-avatar">
+                            👤
+                        </div>
+
+                        <div class="social-comment-content">
+
+                            <strong>
+                                ${safe(author)}
+                            </strong>
+
+                            <p>
+                                ${safe(
+                                    comment.content
+                                )}
+                            </p>
+
+                            <small>
+                                ${formatDate(
+                                    comment.created_at
+                                )}
+                            </small>
+
+                        </div>
+
                     </div>
+                `;
 
-                    <div class="social-comment-content">
-
-                        <strong>
-                            ${safe(author)}
-                        </strong>
-
-                        <p>
-                            ${safe(comment.content)}
-                        </p>
-
-                        <small>
-                            ${formatDate(comment.created_at)}
-                        </small>
-
-                    </div>
-
-                </div>
-            `;
-
-        }).join("");
+            }
+        ).join("");
 }
 
 
@@ -4303,11 +4714,7 @@ async function submitSocialComment(
         input.value.trim();
 
 
-    if (!content) {
-
-        return;
-
-    }
+    if (!content) return;
 
 
     const form =
@@ -4321,7 +4728,9 @@ async function submitSocialComment(
 
 
     button.disabled = true;
-    button.textContent = "Sending...";
+
+    button.textContent =
+        "Sending...";
 
 
     const { error } =
@@ -4354,7 +4763,9 @@ async function submitSocialComment(
         );
 
         button.disabled = false;
-        button.textContent = "Send";
+
+        button.textContent =
+            "Send";
 
         return;
     }
@@ -4363,10 +4774,14 @@ async function submitSocialComment(
     input.value = "";
 
     button.disabled = false;
-    button.textContent = "Send";
+
+    button.textContent =
+        "Send";
 
 
-    await loadSocialComments(postId);
+    await loadSocialComments(
+        postId
+    );
 
 }
 
@@ -4397,9 +4812,7 @@ async function shareSocialPost(postId) {
 
     try {
 
-        if (
-            navigator.share
-        ) {
+        if (navigator.share) {
 
             await navigator.share(
                 shareData
@@ -4421,11 +4834,11 @@ async function shareSocialPost(postId) {
     } catch (error) {
 
         if (
-            error.name === "AbortError"
+            error.name ===
+            "AbortError"
         ) {
 
             return;
-
         }
 
 
@@ -4434,24 +4847,9 @@ async function shareSocialPost(postId) {
             error
         );
 
-
-        try {
-
-            await navigator.clipboard.writeText(
-                shareUrl
-            );
-
-            alert(
-                "🔗 Post link copied to clipboard!"
-            );
-
-        } catch (clipboardError) {
-
-            alert(
-                "Could not share this post."
-            );
-
-        }
+        alert(
+            "Could not share this post."
+        );
 
     }
 
@@ -4484,6 +4882,9 @@ window.submitSocialComment =
 
 window.shareSocialPost =
     shareSocialPost;
+
+window.clearSocialMedia =
+    clearSocialMedia;
 /* =========================================================
    PATRIODX MESSAGING
 ========================================================= */
