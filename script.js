@@ -5256,36 +5256,27 @@ function renderNotifications(
             .map(notification => {
 
                 const isUnread =
-                    !notification.read_at;
-
-                const message =
-                    notification.message ||
-                    notification.content ||
-                    "You have a new notification.";
-
-                const type =
-                    notification.type ||
-                    "general";
+                    notification.is_read !== true;
 
                 let icon = "🔔";
 
-                if (type === "like") {
+                if (notification.type === "like") {
                     icon = "❤️";
                 }
 
-                if (type === "comment") {
+                if (notification.type === "comment") {
                     icon = "💬";
                 }
 
-                if (type === "message") {
+                if (notification.type === "message") {
                     icon = "✉️";
                 }
 
-                if (type === "sale") {
+                if (notification.type === "sale") {
                     icon = "🛒";
                 }
 
-                if (type === "system") {
+                if (notification.type === "system") {
                     icon = "⚙️";
                 }
 
@@ -5317,7 +5308,10 @@ function renderNotifications(
                             </h4>
 
                             <p>
-                                ${message}
+                                ${
+                                    notification.message ||
+                                    "You have a new notification."
+                                }
                             </p>
 
                             <span class="notification-time">
@@ -5350,7 +5344,7 @@ function renderNotifications(
     const unreadCount =
         notifications.filter(
             notification =>
-                !notification.read_at
+                notification.is_read !== true
         ).length;
 
     if (notificationStatus) {
@@ -5373,11 +5367,15 @@ async function markNotificationRead(
     notificationId
 ) {
 
+    if (!currentUser) {
+        return;
+    }
+
     const { error } =
         await supabaseClient
             .from("notifications")
             .update({
-                read_at: new Date().toISOString()
+                is_read: true
             })
             .eq("id", notificationId)
             .eq("user_id", currentUser.id);
@@ -5387,6 +5385,11 @@ async function markNotificationRead(
         console.error(
             "Could not mark notification as read:",
             error
+        );
+
+        alert(
+            "Could not mark notification as read.\n\n" +
+            error.message
         );
 
         return;
@@ -5414,16 +5417,15 @@ if (markAllNotificationsButton) {
                 await supabaseClient
                     .from("notifications")
                     .update({
-                        read_at:
-                            new Date().toISOString()
+                        is_read: true
                     })
                     .eq(
                         "user_id",
                         currentUser.id
                     )
-                    .is(
-                        "read_at",
-                        null
+                    .eq(
+                        "is_read",
+                        false
                     );
 
             if (error) {
@@ -5450,7 +5452,7 @@ if (markAllNotificationsButton) {
 
 
 /* ---------------------------------------------------------
-   LOAD AFTER LOGIN
+   LOAD NOTIFICATIONS
 --------------------------------------------------------- */
 
 if (currentUser) {
@@ -5488,3 +5490,11 @@ if (currentUser) {
         .subscribe();
 
 }
+
+
+/* ---------------------------------------------------------
+   GLOBAL FUNCTION
+--------------------------------------------------------- */
+
+window.markNotificationRead =
+    markNotificationRead;
