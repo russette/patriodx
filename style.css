@@ -3488,3 +3488,132 @@ textarea:focus-visible {
     }
 
 }
+/* =========================================================
+   PATRIODX NOTIFICATIONS
+========================================================= */
+
+.notifications-card {
+    padding: 0;
+    overflow: hidden;
+}
+
+.notifications-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 24px;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+.notifications-header h3 {
+    margin: 0 0 6px;
+}
+
+.notifications-header p {
+    margin: 0;
+    opacity: 0.7;
+}
+
+.notifications-mark-button {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.notification-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.15);
+    transition: background 0.2s ease;
+}
+
+.notification-item:hover {
+    background: rgba(128, 128, 128, 0.06);
+}
+
+.notification-item.unread {
+    font-weight: 500;
+}
+
+.notification-icon {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-content h4 {
+    margin: 0 0 5px;
+}
+
+.notification-content p {
+    margin: 0 0 7px;
+    opacity: 0.8;
+}
+
+.notification-time {
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+.notification-read-button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.notifications-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.notifications-empty-state > div {
+    font-size: 42px;
+    margin-bottom: 15px;
+}
+
+.notifications-empty-state h3 {
+    margin-bottom: 8px;
+}
+
+.notifications-empty-state p {
+    margin: 0;
+    opacity: 0.7;
+}
+
+@media (max-width: 700px) {
+
+    .notifications-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .notifications-mark-button {
+        width: 100%;
+    }
+
+    .notification-item {
+        padding: 18px;
+    }
+
+}
