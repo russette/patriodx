@@ -5158,3 +5158,333 @@ if (
 
 window.openConversation =
     openConversation;
+/* =========================================================
+   PATRIODX NOTIFICATIONS
+========================================================= */
+
+const notificationList =
+    document.getElementById("notificationList");
+
+const notificationStatus =
+    document.getElementById("notificationStatus");
+
+const markAllNotificationsButton =
+    document.getElementById(
+        "markAllNotificationsButton"
+    );
+
+
+/* ---------------------------------------------------------
+   LOAD NOTIFICATIONS
+--------------------------------------------------------- */
+
+async function loadNotifications() {
+
+    if (!currentUser) {
+
+        if (notificationStatus) {
+            notificationStatus.textContent =
+                "Please log in to view your notifications.";
+        }
+
+        return;
+    }
+
+    const { data, error } =
+        await supabaseClient
+            .from("notifications")
+            .select("*")
+            .eq("user_id", currentUser.id)
+            .order("created_at", {
+                ascending: false
+            });
+
+    if (error) {
+
+        console.error(
+            "Could not load notifications:",
+            error
+        );
+
+        if (notificationStatus) {
+            notificationStatus.textContent =
+                "Could not load notifications.";
+        }
+
+        return;
+    }
+
+    renderNotifications(data || []);
+}
+
+
+/* ---------------------------------------------------------
+   RENDER NOTIFICATIONS
+--------------------------------------------------------- */
+
+function renderNotifications(
+    notifications
+) {
+
+    if (!notificationList) {
+        return;
+    }
+
+    if (!notifications.length) {
+
+        notificationList.innerHTML = `
+            <div class="notifications-empty-state">
+                <div>🔔</div>
+                <h3>No notifications yet</h3>
+                <p>
+                    Your notifications will appear here.
+                </p>
+            </div>
+        `;
+
+        if (notificationStatus) {
+            notificationStatus.textContent =
+                "You're all caught up.";
+        }
+
+        return;
+    }
+
+
+    notificationList.innerHTML =
+        notifications
+            .map(notification => {
+
+                const isUnread =
+                    !notification.read_at;
+
+                const message =
+                    notification.message ||
+                    notification.content ||
+                    "You have a new notification.";
+
+                const type =
+                    notification.type ||
+                    "general";
+
+                let icon = "🔔";
+
+                if (type === "like") {
+                    icon = "❤️";
+                }
+
+                if (type === "comment") {
+                    icon = "💬";
+                }
+
+                if (type === "message") {
+                    icon = "✉️";
+                }
+
+                if (type === "sale") {
+                    icon = "🛒";
+                }
+
+                if (type === "system") {
+                    icon = "⚙️";
+                }
+
+                const createdAt =
+                    notification.created_at
+                        ? new Date(
+                            notification.created_at
+                        ).toLocaleString()
+                        : "";
+
+                return `
+                    <div
+                        class="notification-item ${
+                            isUnread ? "unread" : ""
+                        }"
+                    >
+
+                        <div class="notification-icon">
+                            ${icon}
+                        </div>
+
+                        <div class="notification-content">
+
+                            <h4>
+                                ${
+                                    notification.title ||
+                                    "PATRIODX Notification"
+                                }
+                            </h4>
+
+                            <p>
+                                ${message}
+                            </p>
+
+                            <span class="notification-time">
+                                ${createdAt}
+                            </span>
+
+                        </div>
+
+                        ${
+                            isUnread
+                                ? `
+                                    <button
+                                        type="button"
+                                        class="notification-read-button"
+                                        onclick="markNotificationRead('${notification.id}')"
+                                    >
+                                        Mark read
+                                    </button>
+                                `
+                                : ""
+                        }
+
+                    </div>
+                `;
+
+            })
+            .join("");
+
+
+    const unreadCount =
+        notifications.filter(
+            notification =>
+                !notification.read_at
+        ).length;
+
+    if (notificationStatus) {
+
+        notificationStatus.textContent =
+            unreadCount > 0
+                ? `${unreadCount} unread notification${
+                    unreadCount === 1 ? "" : "s"
+                }`
+                : "You're all caught up.";
+    }
+}
+
+
+/* ---------------------------------------------------------
+   MARK ONE AS READ
+--------------------------------------------------------- */
+
+async function markNotificationRead(
+    notificationId
+) {
+
+    const { error } =
+        await supabaseClient
+            .from("notifications")
+            .update({
+                read_at: new Date().toISOString()
+            })
+            .eq("id", notificationId)
+            .eq("user_id", currentUser.id);
+
+    if (error) {
+
+        console.error(
+            "Could not mark notification as read:",
+            error
+        );
+
+        return;
+    }
+
+    await loadNotifications();
+}
+
+
+/* ---------------------------------------------------------
+   MARK ALL AS READ
+--------------------------------------------------------- */
+
+if (markAllNotificationsButton) {
+
+    markAllNotificationsButton.addEventListener(
+        "click",
+        async function() {
+
+            if (!currentUser) {
+                return;
+            }
+
+            const { error } =
+                await supabaseClient
+                    .from("notifications")
+                    .update({
+                        read_at:
+                            new Date().toISOString()
+                    })
+                    .eq(
+                        "user_id",
+                        currentUser.id
+                    )
+                    .is(
+                        "read_at",
+                        null
+                    );
+
+            if (error) {
+
+                console.error(
+                    "Could not mark all notifications as read:",
+                    error
+                );
+
+                alert(
+                    "Could not mark notifications as read.\n\n" +
+                    error.message
+                );
+
+                return;
+            }
+
+            await loadNotifications();
+
+        }
+    );
+
+}
+
+
+/* ---------------------------------------------------------
+   LOAD AFTER LOGIN
+--------------------------------------------------------- */
+
+if (currentUser) {
+    loadNotifications();
+}
+
+
+/* ---------------------------------------------------------
+   REALTIME NOTIFICATIONS
+--------------------------------------------------------- */
+
+if (currentUser) {
+
+    supabaseClient
+        .channel(
+            "patriodx-notifications-" +
+            currentUser.id
+        )
+        .on(
+            "postgres_changes",
+            {
+                event: "INSERT",
+                schema: "public",
+                table: "notifications",
+                filter:
+                    "user_id=eq." +
+                    currentUser.id
+            },
+            function() {
+
+                loadNotifications();
+
+            }
+        )
+        .subscribe();
+
+}
