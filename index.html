@@ -1093,34 +1093,26 @@
 >
 
     <div class="section-heading">
-
         <div>
+            <p class="eyebrow">🌐 PATRIODX SOCIAL</p>
 
-            <p class="eyebrow">
-                🌐 PATRIODX SOCIAL
-            </p>
-
-            <h2>
-                Connect. Share. Grow.
-            </h2>
+            <h2>Connect. Share. Grow.</h2>
 
             <p>
-                Connect with customers and businesses,
-                share updates and promote what you do.
+                Connect with customers and businesses, share updates
+                and promote what you do.
             </p>
-
         </div>
-
     </div>
 
 
-    <!-- CREATE POST -->
+    <!-- =====================================================
+         CREATE POST
+    ====================================================== -->
 
     <div class="chart-card social-create-card">
 
-        <h3>
-            Create a Post
-        </h3>
+        <h3>Create a Post</h3>
 
         <form id="socialPostForm">
 
@@ -1129,19 +1121,61 @@
                 placeholder="What's happening with your business?"
                 rows="4"
                 maxlength="2000"
-                required
             ></textarea>
+
+
+            <!-- MEDIA PREVIEW -->
+
+            <div
+                id="socialMediaPreview"
+                class="social-media-preview"
+                style="display: none;"
+            ></div>
+
+
+            <!-- MEDIA INPUTS -->
+
+            <div class="social-upload-area">
+
+                <label
+                    for="socialImageInput"
+                    class="social-upload-button"
+                >
+                    📷 Photo
+                </label>
+
+                <input
+                    type="file"
+                    id="socialImageInput"
+                    accept="image/*"
+                    hidden
+                >
+
+
+                <label
+                    for="socialVideoInput"
+                    class="social-upload-button"
+                >
+                    🎥 Video
+                </label>
+
+                <input
+                    type="file"
+                    id="socialVideoInput"
+                    accept="video/*"
+                    hidden
+                >
+
+            </div>
+
+
+            <!-- POST BUTTON -->
 
             <div class="social-post-actions">
 
-                <input
-                    type="url"
-                    id="socialPostImage"
-                    placeholder="Image URL (optional)"
-                >
-
                 <button
                     type="submit"
+                    id="socialPostButton"
                 >
                     📢 Post
                 </button>
@@ -1153,18 +1187,16 @@
     </div>
 
 
-    <!-- SOCIAL FEED -->
+    <!-- =====================================================
+         SOCIAL FEED
+    ====================================================== -->
 
     <div class="social-feed-container">
 
         <div class="section-heading">
 
             <div>
-
-                <h3>
-                    Latest Posts
-                </h3>
-
+                <h3>Latest Posts</h3>
             </div>
 
         </div>
@@ -1177,17 +1209,13 @@
 
             <div class="social-empty-state">
 
-                <div>
-                    🌐
-                </div>
+                <div>🌐</div>
 
-                <h3>
-                    No posts yet
-                </h3>
+                <h3>No posts yet</h3>
 
                 <p>
-                    Be the first to share something
-                    with the PATRIODX community.
+                    Be the first to share something with
+                    the PATRIODX community.
                 </p>
 
             </div>
