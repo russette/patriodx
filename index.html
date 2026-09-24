@@ -1114,75 +1114,65 @@
 
         <h3>Create a Post</h3>
 
-        <form id="socialPostForm">
+     <form id="socialPostForm">
 
-            <textarea
-                id="socialPostContent"
-                placeholder="What's happening with your business?"
-                rows="4"
-                maxlength="2000"
-            ></textarea>
+    <textarea
+        id="socialPostContent"
+        placeholder="What's happening with your business?"
+        rows="4"
+        maxlength="2000"
+    ></textarea>
 
+    <div
+        id="socialMediaPreview"
+        class="social-media-preview"
+        style="display: none;"
+    ></div>
 
-            <!-- MEDIA PREVIEW -->
+    <div class="social-upload-area">
 
-            <div
-                id="socialMediaPreview"
-                class="social-media-preview"
-                style="display: none;"
-            ></div>
+        <label
+            for="socialImageInput"
+            class="social-upload-button"
+        >
+            📷 Photo
+        </label>
 
+        <input
+            type="file"
+            id="socialImageInput"
+            accept="image/*"
+            hidden
+        >
 
-            <!-- MEDIA INPUTS -->
+        <label
+            for="socialVideoInput"
+            class="social-upload-button"
+        >
+            🎥 Video
+        </label>
 
-            <div class="social-upload-area">
+        <input
+            type="file"
+            id="socialVideoInput"
+            accept="video/*"
+            hidden
+        >
 
-                <label
-                    for="socialImageInput"
-                    class="social-upload-button"
-                >
-                    📷 Photo
-                </label>
+    </div>
 
-                <input
-                    type="file"
-                    id="socialImageInput"
-                    accept="image/*"
-                    hidden
-                >
+    <div class="social-post-actions">
 
+        <button
+            type="submit"
+            id="socialPostButton"
+        >
+            📢 Post
+        </button>
 
-                <label
-                    for="socialVideoInput"
-                    class="social-upload-button"
-                >
-                    🎥 Video
-                </label>
+    </div>
 
-                <input
-                    type="file"
-                    id="socialVideoInput"
-                    accept="video/*"
-                    hidden
-                >
-
-            </div>
-
-
-            <!-- POST BUTTON -->
-
-            <div class="social-post-actions">
-
-                <button
-                    type="submit"
-                    id="socialPostButton"
-                >
-                    📢 Post
-                </button>
-
-            </div>
-
-        </form>
+</form>
 
     </div>
 
