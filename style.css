@@ -3617,3 +3617,166 @@ textarea:focus-visible {
     }
 
 }
+/* =========================================================
+   PATRIODX SOCIAL 2.0
+========================================================= */
+
+.social-media-wrapper {
+    width: 100%;
+    margin-top: 15px;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #111;
+}
+
+.social-post-image {
+    display: block;
+    width: 100%;
+    max-height: 650px;
+    object-fit: cover;
+}
+
+.social-post-video {
+    display: block;
+    width: 100%;
+    max-height: 650px;
+    background: #000;
+}
+
+.social-preview-container {
+    margin-top: 15px;
+    padding: 14px;
+    border-radius: 14px;
+    background: var(--card-bg, #f5f5f5);
+    border: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+.social-preview-image,
+.social-preview-video {
+    display: block;
+    width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+    border-radius: 10px;
+    background: #000;
+}
+
+.social-preview-info {
+    margin-top: 10px;
+    font-size: 14px;
+    word-break: break-word;
+}
+
+.social-remove-media {
+    margin-top: 10px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.social-post-author-area {
+    flex: 1;
+}
+
+.social-post-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 4px;
+    margin-top: 5px;
+    color: #777;
+    font-size: 14px;
+}
+
+.social-delete-button,
+.social-report-button {
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 17px;
+    padding: 7px;
+    border-radius: 8px;
+}
+
+.social-delete-button:hover,
+.social-report-button:hover {
+    background: rgba(128, 128, 128, 0.12);
+}
+
+.social-comment {
+    display: flex;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.15);
+}
+
+.social-comment-avatar {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(128, 128, 128, 0.12);
+}
+
+.social-comment-content {
+    flex: 1;
+}
+
+.social-comment-content p {
+    margin: 5px 0;
+    word-break: break-word;
+}
+
+.social-comment-content small {
+    color: #777;
+}
+
+.social-action-button {
+    transition: transform 0.15s ease;
+}
+
+.social-action-button:active {
+    transform: scale(0.96);
+}
+
+
+/* =========================================================
+   MOBILE SOCIAL
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .social-post-card {
+        border-radius: 12px;
+    }
+
+    .social-post-image,
+    .social-post-video {
+        max-height: 450px;
+    }
+
+    .social-post-actions-bar {
+        display: flex;
+        gap: 4px;
+    }
+
+    .social-action-button {
+        flex: 1;
+        padding: 10px 5px;
+        font-size: 13px;
+    }
+
+    .social-post-stats {
+        font-size: 13px;
+    }
+
+    .social-post-header {
+        gap: 8px;
+    }
+
+}
