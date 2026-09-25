@@ -3337,13 +3337,13 @@ async function startPATRIODX() {
             logoutUser
         );
 
-    renderAll();
+  renderAll();
 
-    // Load the PATRIODX Home feed
-   
-    console.log(
-        "PATRIODX connected successfully."
-    );
+await loadHomePosts();
+
+console.log(
+    "PATRIODX connected successfully."
+);
 }
 // =========================================================
 // LOGOUT
@@ -5268,6 +5268,215 @@ window.deleteSocialPost =
 
 window.reportSocialPost =
     reportSocialPost;
+/* =========================================================
+   PATRIODX HOME FEED
+========================================================= */
+
+const homeFeed =
+    document.getElementById("homeFeed");
+
+async function loadHomePosts() {
+
+    if (!homeFeed) return;
+
+    homeFeed.innerHTML = `
+        <div class="social-empty-state">
+            <div>⏳</div>
+            <h3>Loading your feed...</h3>
+            <p>Please wait.</p>
+        </div>
+    `;
+
+    const { data: posts, error } =
+        await supabaseClient
+            .from("posts")
+            .select("*")
+            .order("created_at", {
+                ascending: false
+            });
+
+    if (error) {
+
+        console.error(
+            "Could not load Home feed:",
+            error
+        );
+
+        homeFeed.innerHTML = `
+            <div class="social-empty-state">
+                <div>⚠️</div>
+                <h3>Could not load your feed</h3>
+                <p>${safe(error.message)}</p>
+            </div>
+        `;
+
+        return;
+    }
+
+    if (!posts || posts.length === 0) {
+
+        homeFeed.innerHTML = `
+            <div class="social-empty-state">
+                <div>🌐</div>
+                <h3>No posts yet</h3>
+                <p>
+                    Be the first to share something
+                    with the PATRIODX community.
+                </p>
+            </div>
+        `;
+
+        return;
+    }
+
+    const postsWithCounts =
+        await Promise.all(
+            posts.map(async post => {
+
+                const counts =
+                    await getSocialCounts(post.id);
+
+                return {
+                    ...post,
+                    ...counts
+                };
+
+            })
+        );
+
+    homeFeed.innerHTML =
+        postsWithCounts.map(post => {
+
+            const isOwnPost =
+                post.user_id === currentUser?.id;
+
+            const author =
+                isOwnPost
+                    ? (
+                        currentBusiness?.name ||
+                        currentUser?.user_metadata?.full_name ||
+                        currentUser?.email ||
+                        "You"
+                    )
+                    : "PATRIODX User";
+
+            const image =
+                post.image_url
+                    ? `
+                        <div class="social-media-wrapper">
+                            <img
+                                src="${safe(post.image_url)}"
+                                class="social-post-image"
+                                alt="Post image"
+                                loading="lazy"
+                            >
+                        </div>
+                    `
+                    : "";
+
+            const video =
+                post.video_url
+                    ? `
+                        <div class="social-media-wrapper">
+                            <video
+                                src="${safe(post.video_url)}"
+                                class="social-post-video"
+                                controls
+                                preload="metadata"
+                            ></video>
+                        </div>
+                    `
+                    : "";
+
+            return `
+                <article
+                    class="social-post-card"
+                    id="home-post-${post.id}"
+                >
+
+                    <div class="social-post-header">
+
+                        <div class="social-post-avatar">
+                            👤
+                        </div>
+
+                        <div class="social-post-author-area">
+
+                            <div class="social-post-author">
+                                ${safe(author)}
+                            </div>
+
+                            <div class="social-post-date">
+                                ${formatDate(post.created_at)}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    ${
+                        post.content
+                            ? `
+                                <div class="social-post-content">
+                                    ${safe(post.content)}
+                                </div>
+                            `
+                            : ""
+                    }
+
+
+                    ${image}
+
+                    ${video}
+
+
+                    <div class="social-post-stats">
+
+                        <span>
+                            ❤️ ${post.likes}
+                        </span>
+
+                        <span>
+                            💬 ${post.comments}
+                        </span>
+
+                    </div>
+
+
+                    <div class="social-post-actions-bar">
+
+                        <button
+                            type="button"
+                            class="social-action-button"
+                            onclick="likeSocialPost('${post.id}')"
+                        >
+                            ❤️ Like
+                        </button>
+
+                        <button
+                            type="button"
+                            class="social-action-button"
+                            onclick="scrollToSection('social')"
+                        >
+                            💬 Comment
+                        </button>
+
+                        <button
+                            type="button"
+                            class="social-action-button"
+                            onclick="shareSocialPost('${post.id}')"
+                        >
+                            ↗️ Share
+                        </button>
+
+                    </div>
+
+                </article>
+            `;
+
+        }).join("");
+}
 /* =========================================================
    PATRIODX MESSAGING
 ========================================================= */
