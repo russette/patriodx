@@ -8498,6 +8498,39 @@ recordTransaction: "Record a new transaction",
 
 createInvoice: "Create Invoice",
 sendInvoice: "Send a professional invoice",
+        findPeople: "🔎 Find People",
+searchByUsername: "Search PATRIODX by username.",
+searchUsername: "Search username...",
+patriodxProfile: "👤 PATRIODX PROFILE",
+yourProfile: "Your Profile",
+buildYourIdentity: "Build your identity on PATRIODX.",
+
+follow: "Follow",
+posts: "Posts",
+followers: "Followers",
+following: "Following",
+
+tellPeopleAboutYourself: "Tell people about yourself.",
+editProfile: "✏️ Edit Profile",
+
+editYourProfile: "Edit Your Profile",
+customizeProfile: "Customize how people see you on PATRIODX.",
+
+username: "Username",
+usernamePlaceholder: "username",
+uniqueUsername: "Your unique PATRIODX username.",
+
+displayName: "Display Name",
+yourName: "Your name",
+
+bio: "Bio",
+bioPlaceholder: "Tell people about yourself...",
+
+profilePicture: "Profile Picture",
+saveProfile: "Save Profile",
+cancel: "Cancel",
+
+yourPosts: "Your Posts",
         allRights: "All rights reserved."
     },
 
@@ -8571,6 +8604,39 @@ recordTransaction: "Enregistrer une nouvelle transaction",
 
 createInvoice: "Créer une facture",
 sendInvoice: "Envoyer une facture professionnelle",
+        findPeople: "🔎 Trouver des personnes",
+searchByUsername: "Recherchez sur PATRIODX par nom d'utilisateur.",
+searchUsername: "Rechercher un nom d'utilisateur...",
+patriodxProfile: "👤 PROFIL PATRIODX",
+yourProfile: "Votre profil",
+buildYourIdentity: "Construisez votre identité sur PATRIODX.",
+
+follow: "Suivre",
+posts: "Publications",
+followers: "Abonnés",
+following: "Abonnements",
+
+tellPeopleAboutYourself: "Parlez de vous aux autres.",
+editProfile: "✏️ Modifier le profil",
+
+editYourProfile: "Modifier votre profil",
+customizeProfile: "Personnalisez la façon dont les autres vous voient sur PATRIODX.",
+
+username: "Nom d'utilisateur",
+usernamePlaceholder: "nom d'utilisateur",
+uniqueUsername: "Votre nom d'utilisateur PATRIODX unique.",
+
+displayName: "Nom affiché",
+yourName: "Votre nom",
+
+bio: "Biographie",
+bioPlaceholder: "Parlez de vous...",
+
+profilePicture: "Photo de profil",
+saveProfile: "Enregistrer le profil",
+cancel: "Annuler",
+
+yourPosts: "Vos publications",
         allRights: "Tous droits réservés."
     },
 
@@ -8644,6 +8710,39 @@ recordTransaction: "Registrar una nueva transacción",
 
 createInvoice: "Crear factura",
 sendInvoice: "Enviar una factura profesional",
+        findPeople: "🔎 Buscar personas",
+searchByUsername: "Busca en PATRIODX por nombre de usuario.",
+searchUsername: "Buscar nombre de usuario...",
+patriodxProfile: "👤 PERFIL PATRIODX",
+yourProfile: "Tu perfil",
+buildYourIdentity: "Construye tu identidad en PATRIODX.",
+
+follow: "Seguir",
+posts: "Publicaciones",
+followers: "Seguidores",
+following: "Siguiendo",
+
+tellPeopleAboutYourself: "Cuéntale a la gente sobre ti.",
+editProfile: "✏️ Editar perfil",
+
+editYourProfile: "Editar tu perfil",
+customizeProfile: "Personaliza cómo te ven las personas en PATRIODX.",
+
+username: "Nombre de usuario",
+usernamePlaceholder: "nombre de usuario",
+uniqueUsername: "Tu nombre de usuario único de PATRIODX.",
+
+displayName: "Nombre para mostrar",
+yourName: "Tu nombre",
+
+bio: "Biografía",
+bioPlaceholder: "Cuéntale a la gente sobre ti...",
+
+profilePicture: "Foto de perfil",
+saveProfile: "Guardar perfil",
+cancel: "Cancelar",
+
+yourPosts: "Tus publicaciones",
         allRights: "Todos los derechos reservados."
     }
 
@@ -8745,7 +8844,16 @@ function applyPATRIODXLanguage(
             );
 
         });
+document.querySelectorAll("[data-i18n-placeholder]").forEach(element => {
+    const key = element.dataset.i18nPlaceholder;
 
+    if (
+        translations &&
+        Object.prototype.hasOwnProperty.call(translations, key)
+    ) {
+        element.placeholder = translations[key];
+    }
+});
 
     /* Search placeholder */
 
