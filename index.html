@@ -1381,41 +1381,51 @@
 ========================================================= -->
 
 <section id="profile" class="section">
-<div class="profile-search-card chart-card">
-    <div class="profile-search-heading">
-        <div>
-            <h3>🔎 Find People</h3>
-            <p>Search PATRIODX by username.</p>
+
+    <div class="profile-search-card chart-card">
+
+        <div class="profile-search-heading">
+            <div>
+                <h3 data-i18n="findPeople">🔎 Find People</h3>
+                <p data-i18n="searchByUsername">Search PATRIODX by username.</p>
+            </div>
         </div>
+
+        <form id="profileSearchForm" class="profile-search-form">
+
+            <input
+                type="text"
+                id="profileSearchInput"
+                placeholder="Search username..."
+                data-i18n-placeholder="searchUsername"
+                autocomplete="off"
+                maxlength="30"
+            >
+
+            <button type="submit" data-i18n="search">
+                Search
+            </button>
+
+        </form>
+
+        <div id="profileSearchResults" class="profile-search-results"></div>
+
     </div>
 
-    <form id="profileSearchForm" class="profile-search-form">
-        <input
-            type="text"
-            id="profileSearchInput"
-            placeholder="Search username..."
-            autocomplete="off"
-            maxlength="30"
-        >
 
-        <button type="submit">
-            Search
-        </button>
-    </form>
-
-    <div id="profileSearchResults" class="profile-search-results"></div>
-</div>
     <div class="section-heading">
 
         <div>
 
-            <p class="eyebrow">
+            <p class="eyebrow" data-i18n="patriodxProfile">
                 👤 PATRIODX PROFILE
             </p>
 
-            <h2>Your Profile</h2>
+            <h2 data-i18n="yourProfile">
+                Your Profile
+            </h2>
 
-            <p>
+            <p data-i18n="buildYourIdentity">
                 Build your identity on PATRIODX.
             </p>
 
@@ -1425,87 +1435,99 @@
 
 
     <div class="profile-page-card">
-<div
-    id="publicProfileCard"
-    class="profile-page-card public-profile-card"
-    style="display:none;"
->
-    <div id="publicProfileCover" class="profile-cover"></div>
 
-    <div class="profile-header">
-
-        <div id="publicProfileAvatar" class="profile-avatar">
-            👤
-        </div>
-
-        <div class="profile-main-info">
-
-            <h2 id="publicProfileDisplayName">
-                User
-            </h2>
-
-            <p
-                id="publicProfileUsername"
-                class="profile-username"
-            >
-                @username
-            </p>
-
-            <p
-                id="publicProfileBio"
-                class="profile-bio"
-            >
-                Bio
-            </p>
-
-        </div>
-
-        <button
-            type="button"
-            id="publicProfileFollowButton"
-            class="profile-edit-button"
+        <div
+            id="publicProfileCard"
+            class="profile-page-card public-profile-card"
+            style="display:none;"
         >
-            Follow
-        </button>
 
-    </div>
+            <div id="publicProfileCover" class="profile-cover"></div>
 
-    <div class="profile-stats">
+            <div class="profile-header">
 
-        <div>
-            <strong id="publicProfilePostCount">0</strong>
-            <span>Posts</span>
+                <div id="publicProfileAvatar" class="profile-avatar">
+                    👤
+                </div>
+
+                <div class="profile-main-info">
+
+                    <h2 id="publicProfileDisplayName">
+                        User
+                    </h2>
+
+                    <p
+                        id="publicProfileUsername"
+                        class="profile-username"
+                    >
+                        @username
+                    </p>
+
+                    <p
+                        id="publicProfileBio"
+                        class="profile-bio"
+                    >
+                        Bio
+                    </p>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="publicProfileFollowButton"
+                    class="profile-edit-button"
+                    data-i18n="follow"
+                >
+                    Follow
+                </button>
+
+            </div>
+
+
+            <div class="profile-stats">
+
+                <div>
+                    <strong id="publicProfilePostCount">0</strong>
+                    <span data-i18n="posts">Posts</span>
+                </div>
+
+                <div>
+                    <strong id="profileFollowerCount">0</strong>
+                    <span data-i18n="followers">Followers</span>
+                </div>
+
+                <div>
+                    <strong id="profileFollowingCount">0</strong>
+                    <span data-i18n="following">Following</span>
+                </div>
+
+            </div>
+
         </div>
 
-        <div>
-    <strong id="profileFollowerCount">0</strong>
-    <span>Followers</span>
-</div>
 
-<div>
-    <strong id="profileFollowingCount">0</strong>
-    <span>Following</span>
-</div>
+        <div
+            id="publicProfilePostsContainer"
+            class="profile-posts"
+            style="display:none;"
+        >
 
-    </div>
-</div>
+            <div class="section-heading">
 
-<div
-    id="publicProfilePostsContainer"
-    class="profile-posts"
-    style="display:none;"
->
-    <div class="section-heading">
-        <div>
-            <h3>Posts</h3>
+                <div>
+                    <h3 data-i18n="posts">Posts</h3>
+                </div>
+
+            </div>
+
+            <div
+                id="publicProfilePosts"
+                class="social-feed"
+            ></div>
+
         </div>
-    </div>
 
-    <div
-        id="publicProfilePosts"
-        class="social-feed"
-    ></div>
-</div>
+
         <!-- COVER -->
 
         <div
@@ -1528,9 +1550,7 @@
 
             <div class="profile-main-info">
 
-                <h2
-                    id="profileDisplayName"
-                >
+                <h2 id="profileDisplayName">
                     Your Name
                 </h2>
 
@@ -1544,6 +1564,7 @@
                 <p
                     id="profileBio"
                     class="profile-bio"
+                    data-i18n="tellPeopleAboutYourself"
                 >
                     Tell people about yourself.
                 </p>
@@ -1551,14 +1572,16 @@
             </div>
 
 
-           <button
-    type="button"
-    id="editProfileButton"
-    class="profile-edit-button"
-    onclick="openProfileEditor()"
->
-    ✏️ Edit Profile
-</button>
+            <button
+                type="button"
+                id="editProfileButton"
+                class="profile-edit-button"
+                onclick="openProfileEditor()"
+                data-i18n="editProfile"
+            >
+                ✏️ Edit Profile
+            </button>
+
         </div>
 
 
@@ -1571,7 +1594,7 @@
                     0
                 </strong>
 
-                <span>
+                <span data-i18n="posts">
                     Posts
                 </span>
             </div>
@@ -1582,7 +1605,7 @@
                     0
                 </strong>
 
-                <span>
+                <span data-i18n="followers">
                     Followers
                 </span>
             </div>
@@ -1593,7 +1616,7 @@
                     0
                 </strong>
 
-                <span>
+                <span data-i18n="following">
                     Following
                 </span>
             </div>
@@ -1615,13 +1638,12 @@
 
             <div>
 
-                <h3>
+                <h3 data-i18n="editYourProfile">
                     Edit Your Profile
                 </h3>
 
-                <p>
-                    Customize how people see you
-                    on PATRIODX.
+                <p data-i18n="customizeProfile">
+                    Customize how people see you on PATRIODX.
                 </p>
 
             </div>
@@ -1631,7 +1653,7 @@
 
         <form id="profileForm">
 
-            <label>
+            <label data-i18n="username">
                 Username
             </label>
 
@@ -1639,17 +1661,18 @@
                 type="text"
                 id="profileUsernameInput"
                 placeholder="username"
+                data-i18n-placeholder="usernamePlaceholder"
                 maxlength="30"
                 autocomplete="off"
                 required
             >
 
-            <small>
+            <small data-i18n="uniqueUsername">
                 Your unique PATRIODX username.
             </small>
 
 
-            <label>
+            <label data-i18n="displayName">
                 Display Name
             </label>
 
@@ -1657,24 +1680,26 @@
                 type="text"
                 id="profileDisplayNameInput"
                 placeholder="Your name"
+                data-i18n-placeholder="yourName"
                 maxlength="80"
                 required
             >
 
 
-            <label>
+            <label data-i18n="bio">
                 Bio
             </label>
 
             <textarea
                 id="profileBioInput"
                 placeholder="Tell people about yourself..."
+                data-i18n-placeholder="bioPlaceholder"
                 maxlength="300"
                 rows="4"
             ></textarea>
 
 
-            <label>
+            <label data-i18n="profilePicture">
                 Profile Picture
             </label>
 
@@ -1690,17 +1715,20 @@
                 <button
                     type="submit"
                     id="saveProfileButton"
+                    data-i18n="saveProfile"
                 >
                     Save Profile
                 </button>
 
-               <button
-    type="button"
-    id="cancelProfileButton"
-    onclick="closeProfileEditor()"
->
-    Cancel
-</button>
+                <button
+                    type="button"
+                    id="cancelProfileButton"
+                    onclick="closeProfileEditor()"
+                    data-i18n="cancel"
+                >
+                    Cancel
+                </button>
+
             </div>
 
         </form>
@@ -1715,11 +1743,9 @@
         <div class="section-heading">
 
             <div>
-
-                <h3>
+                <h3 data-i18n="yourPosts">
                     Your Posts
                 </h3>
-
             </div>
 
         </div>
