@@ -7225,3 +7225,628 @@ function closeProfileEditor() {
 
 window.openProfileEditor = openProfileEditor;
 window.closeProfileEditor = closeProfileEditor;
+// ==========================================
+// PATRIODX PUBLIC PROFILES + FOLLOW SYSTEM
+// ==========================================
+
+let viewedProfileUserId = null;
+
+
+// ------------------------------------------
+// PROFILE FOLLOW COUNTS
+// ------------------------------------------
+
+async function getProfileFollowCounts(userId) {
+
+    const { count: followers } = await supabaseClient
+        .from("profile_follows")
+        .select("*", {
+            count: "exact",
+            head: true
+        })
+        .eq("following_id", userId);
+
+    const { count: following } = await supabaseClient
+        .from("profile_follows")
+        .select("*", {
+            count: "exact",
+            head: true
+        })
+        .eq("follower_id", userId);
+
+    return {
+        followers: followers || 0,
+        following: following || 0
+    };
+}
+
+
+// ------------------------------------------
+// LOAD OWN FOLLOW COUNTS
+// ------------------------------------------
+
+async function loadMyFollowCounts() {
+
+    if (!currentUser) return;
+
+    const counts = await getProfileFollowCounts(currentUser.id);
+
+    const followersElement =
+        document.getElementById("profileFollowerCount");
+
+    const followingElement =
+        document.getElementById("profileFollowingCount");
+
+    if (followersElement) {
+        followersElement.textContent = counts.followers;
+    }
+
+    if (followingElement) {
+        followingElement.textContent = counts.following;
+    }
+}
+
+
+// ------------------------------------------
+// CHECK IF FOLLOWING
+// ------------------------------------------
+
+async function isFollowingUser(userId) {
+
+    if (!currentUser || userId === currentUser.id) {
+        return false;
+    }
+
+    const { data, error } = await supabaseClient
+        .from("profile_follows")
+        .select("id")
+        .eq("follower_id", currentUser.id)
+        .eq("following_id", userId)
+        .maybeSingle();
+
+    if (error) {
+        console.error("Follow check error:", error);
+        return false;
+    }
+
+    return !!data;
+}
+
+
+// ------------------------------------------
+// FOLLOW USER
+// ------------------------------------------
+
+async function followUser(userId) {
+
+    if (!currentUser) {
+        alert("Please sign in first.");
+        return;
+    }
+
+    if (userId === currentUser.id) {
+        return;
+    }
+
+    const button =
+        document.getElementById("publicProfileFollowButton");
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Following...";
+    }
+
+    const { error } = await supabaseClient
+        .from("profile_follows")
+        .insert({
+            follower_id: currentUser.id,
+            following_id: userId
+        });
+
+    if (error) {
+
+        console.error("Follow error:", error);
+
+        if (button) {
+            button.disabled = false;
+            button.textContent = "Follow";
+        }
+
+        if (error.code === "23505") {
+            alert("You are already following this user.");
+        } else {
+            alert("Could not follow this user.");
+        }
+
+        return;
+    }
+
+    await loadPublicProfile(userId);
+}
+
+
+// ------------------------------------------
+// UNFOLLOW USER
+// ------------------------------------------
+
+async function unfollowUser(userId) {
+
+    if (!currentUser) return;
+
+    const button =
+        document.getElementById("publicProfileFollowButton");
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Unfollowing...";
+    }
+
+    const { error } = await supabaseClient
+        .from("profile_follows")
+        .delete()
+        .eq("follower_id", currentUser.id)
+        .eq("following_id", userId);
+
+    if (error) {
+
+        console.error("Unfollow error:", error);
+
+        if (button) {
+            button.disabled = false;
+            button.textContent = "Following";
+        }
+
+        alert("Could not unfollow this user.");
+
+        return;
+    }
+
+    await loadPublicProfile(userId);
+}
+
+
+// ------------------------------------------
+// LOAD PUBLIC PROFILE
+// ------------------------------------------
+
+async function loadPublicProfile(userId) {
+
+    if (!userId) return;
+
+    viewedProfileUserId = userId;
+
+    const { data: profile, error } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
+
+    if (error) {
+        console.error("Profile loading error:", error);
+        return;
+    }
+
+    if (!profile) {
+        alert("Profile not found.");
+        return;
+    }
+
+
+    const card =
+        document.getElementById("publicProfileCard");
+
+    const postsContainer =
+        document.getElementById("publicProfilePostsContainer");
+
+    if (card) {
+        card.style.display = "block";
+    }
+
+    if (postsContainer) {
+        postsContainer.style.display = "block";
+    }
+
+
+    const nameElement =
+        document.getElementById("publicProfileDisplayName");
+
+    const usernameElement =
+        document.getElementById("publicProfileUsername");
+
+    const bioElement =
+        document.getElementById("publicProfileBio");
+
+    const avatarElement =
+        document.getElementById("publicProfileAvatar");
+
+
+    if (nameElement) {
+        nameElement.textContent =
+            profile.display_name || "PATRIODX User";
+    }
+
+    if (usernameElement) {
+        usernameElement.textContent =
+            profile.username
+                ? "@" + profile.username
+                : "@user";
+    }
+
+    if (bioElement) {
+        bioElement.textContent =
+            profile.bio || "No bio yet.";
+    }
+
+
+    if (avatarElement) {
+
+        if (profile.avatar_url) {
+
+            avatarElement.innerHTML =
+                `<img src="${profile.avatar_url}" alt="Profile picture">`;
+
+        } else {
+
+            avatarElement.textContent = "👤";
+        }
+    }
+
+
+    // --------------------------------------
+    // FOLLOW BUTTON
+    // --------------------------------------
+
+    const followButton =
+        document.getElementById("publicProfileFollowButton");
+
+    if (followButton) {
+
+        if (currentUser && userId === currentUser.id) {
+
+            followButton.style.display = "none";
+
+        } else {
+
+            followButton.style.display = "inline-block";
+
+            const following =
+                await isFollowingUser(userId);
+
+            followButton.textContent =
+                following ? "Following" : "Follow";
+
+            followButton.disabled = false;
+
+            followButton.onclick = function () {
+
+                if (following) {
+                    unfollowUser(userId);
+                } else {
+                    followUser(userId);
+                }
+
+            };
+        }
+    }
+
+
+    // --------------------------------------
+    // FOLLOW COUNTS
+    // --------------------------------------
+
+    const counts =
+        await getProfileFollowCounts(userId);
+
+    const followerCount =
+        document.getElementById("publicProfileFollowerCount");
+
+    const followingCount =
+        document.getElementById("publicProfileFollowingCount");
+
+    if (followerCount) {
+        followerCount.textContent = counts.followers;
+    }
+
+    if (followingCount) {
+        followingCount.textContent = counts.following;
+    }
+
+
+    // --------------------------------------
+    // LOAD USER POSTS
+    // --------------------------------------
+
+    const { data: posts, error: postsError } =
+        await supabaseClient
+            .from("posts")
+            .select("*")
+            .eq("user_id", userId)
+            .order("created_at", {
+                ascending: false
+            });
+
+    if (postsError) {
+        console.error("Public profile posts error:", postsError);
+        return;
+    }
+
+
+    const postCount =
+        document.getElementById("publicProfilePostCount");
+
+    if (postCount) {
+        postCount.textContent =
+            posts ? posts.length : 0;
+    }
+
+
+    const postsElement =
+        document.getElementById("publicProfilePosts");
+
+    if (!postsElement) return;
+
+
+    if (!posts || posts.length === 0) {
+
+        postsElement.innerHTML = `
+            <div class="social-empty-state">
+                <div>📝</div>
+                <h3>No posts yet</h3>
+                <p>This user has not posted anything yet.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    postsElement.innerHTML = posts.map(post => {
+
+        const date = post.created_at
+            ? new Date(post.created_at).toLocaleString()
+            : "";
+
+        let media = "";
+
+        if (post.image_url) {
+            media = `
+                <img
+                    src="${post.image_url}"
+                    class="social-post-image"
+                    alt="Post image"
+                >
+            `;
+        }
+
+        if (post.video_url) {
+            media = `
+                <video
+                    class="social-post-image"
+                    controls
+                >
+                    <source src="${post.video_url}">
+                </video>
+            `;
+        }
+
+
+        return `
+            <article class="social-post-card">
+
+                <div class="social-post-header">
+
+                    <div class="social-post-avatar">
+                        ${
+                            profile.avatar_url
+                            ? `<img src="${profile.avatar_url}" alt="Profile picture">`
+                            : "👤"
+                        }
+                    </div>
+
+                    <div class="social-post-author">
+
+                        <strong>
+                            ${escapeHTML(
+                                profile.display_name ||
+                                "PATRIODX User"
+                            )}
+                        </strong>
+
+                        <span>
+                            ${
+                                profile.username
+                                ? "@" + escapeHTML(profile.username)
+                                : ""
+                            }
+                        </span>
+
+                    </div>
+
+                    <div class="social-post-date">
+                        ${escapeHTML(date)}
+                    </div>
+
+                </div>
+
+                <div class="social-post-content">
+                    ${escapeHTML(post.content || "")}
+                </div>
+
+                ${media}
+
+            </article>
+        `;
+
+    }).join("");
+}
+
+
+// ------------------------------------------
+// SEARCH USERS
+// ------------------------------------------
+
+async function searchPATRIODXUsers(username) {
+
+    const results =
+        document.getElementById("profileSearchResults");
+
+    if (!results) return;
+
+    const cleanUsername =
+        username.trim().replace(/^@/, "");
+
+    if (!cleanUsername) {
+
+        results.innerHTML = "";
+
+        return;
+    }
+
+
+    results.innerHTML = `
+        <div class="social-empty-state">
+            <p>Searching...</p>
+        </div>
+    `;
+
+
+    const { data, error } =
+        await supabaseClient
+            .from("profiles")
+            .select("id, username, display_name, avatar_url, bio")
+            .ilike("username", `%${cleanUsername}%`)
+            .limit(10);
+
+
+    if (error) {
+
+        console.error("Profile search error:", error);
+
+        results.innerHTML = `
+            <div class="social-empty-state">
+                <p>Could not search profiles.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    if (!data || data.length === 0) {
+
+        results.innerHTML = `
+            <div class="social-empty-state">
+                <div>🔎</div>
+                <h3>No users found</h3>
+                <p>No PATRIODX users matched that username.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    results.innerHTML = data.map(profile => {
+
+        const avatar = profile.avatar_url
+            ? `<img src="${profile.avatar_url}" alt="Profile">`
+            : "👤";
+
+
+        return `
+            <div
+                class="profile-search-result"
+                data-user-id="${profile.id}"
+            >
+
+                <div class="profile-search-result-avatar">
+                    ${avatar}
+                </div>
+
+                <div class="profile-search-result-info">
+
+                    <div class="profile-search-result-name">
+                        ${escapeHTML(
+                            profile.display_name ||
+                            "PATRIODX User"
+                        )}
+                    </div>
+
+                    <div class="profile-search-result-username">
+                        ${
+                            profile.username
+                            ? "@" + escapeHTML(profile.username)
+                            : ""
+                        }
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+
+    }).join("");
+
+
+    document
+        .querySelectorAll(".profile-search-result")
+        .forEach(result => {
+
+            result.addEventListener("click", function () {
+
+                const userId =
+                    this.getAttribute("data-user-id");
+
+                loadPublicProfile(userId);
+
+                const publicCard =
+                    document.getElementById("publicProfileCard");
+
+                if (publicCard) {
+                    publicCard.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+                }
+
+            });
+
+        });
+}
+
+
+// ------------------------------------------
+// SEARCH FORM
+// ------------------------------------------
+
+function initializeProfileSearch() {
+
+    const form =
+        document.getElementById("profileSearchForm");
+
+    const input =
+        document.getElementById("profileSearchInput");
+
+    if (!form || !input) return;
+
+
+    form.addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        await searchPATRIODXUsers(input.value);
+
+    });
+
+}
+
+
+// ------------------------------------------
+// START
+// ------------------------------------------
+
+initializeProfileSearch();
+
+if (typeof loadMyFollowCounts === "function") {
+    loadMyFollowCounts();
+}
