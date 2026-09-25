@@ -3340,10 +3340,7 @@ async function startPATRIODX() {
     renderAll();
 
     // Load the PATRIODX Home feed
-    if (typeof loadSocialFeed === "function") {
-        await loadSocialFeed();
-    }
-
+   
     console.log(
         "PATRIODX connected successfully."
     );
