@@ -4086,3 +4086,521 @@ textarea:focus-visible {
         width: 100%;
     }
 }
+/* =========================================================
+   PATRIODX PLATFORM SHELL
+========================================================= */
+
+/* ---------- HEADER ---------- */
+
+.patriodx-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 68px;
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 22px;
+
+    background: var(--card-bg, #ffffff);
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* ---------- BRAND ---------- */
+
+.patriodx-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 220px;
+}
+
+.patriodx-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    text-decoration: none;
+    color: inherit;
+
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.patriodx-logo img {
+    width: 38px;
+    height: 38px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.mobile-menu-button {
+    display: none;
+
+    border: none;
+    background: transparent;
+
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* ---------- GLOBAL SEARCH ---------- */
+
+.patriodx-global-search {
+    width: min(420px, 40vw);
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 9px 14px;
+
+    border-radius: 22px;
+
+    background: var(--input-bg, #f3f4f6);
+    border: 1px solid var(--border-color, #e5e7eb);
+}
+
+.patriodx-global-search span {
+    font-size: 15px;
+}
+
+.patriodx-global-search input {
+    width: 100%;
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    color: inherit;
+    font-size: 14px;
+}
+
+/* ---------- HEADER ACTIONS ---------- */
+
+.patriodx-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-icon-button,
+.header-profile-button,
+.header-logout-button {
+    position: relative;
+
+    border: none;
+    cursor: pointer;
+
+    border-radius: 10px;
+
+    transition: 0.2s ease;
+}
+
+.header-icon-button {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: transparent;
+
+    font-size: 18px;
+}
+
+.header-icon-button:hover,
+.header-profile-button:hover {
+    background: var(--input-bg, #f3f4f6);
+}
+
+.header-profile-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 6px 10px;
+
+    background: transparent;
+
+    color: inherit;
+}
+
+.header-profile-name {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.header-badge {
+    position: absolute;
+
+    top: -2px;
+    right: -2px;
+
+    min-width: 17px;
+    height: 17px;
+
+    padding: 0 4px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 999px;
+
+    background: #ef4444;
+    color: white;
+
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.language-selector {
+    height: 38px;
+
+    padding: 0 8px;
+
+    border-radius: 9px;
+
+    border: 1px solid var(--border-color, #e5e7eb);
+
+    background: var(--card-bg, #ffffff);
+    color: inherit;
+
+    cursor: pointer;
+}
+
+.header-logout-button {
+    padding: 9px 13px;
+
+    background: #ef4444;
+    color: white;
+
+    font-weight: 600;
+}
+
+.header-logout-button:hover {
+    opacity: 0.9;
+}
+
+/* ---------- DESKTOP SIDEBAR ---------- */
+
+.patriodx-sidebar {
+    position: fixed;
+
+    top: 68px;
+    left: 0;
+    bottom: 0;
+
+    width: 250px;
+
+    z-index: 900;
+
+    padding: 22px 14px;
+
+    overflow-y: auto;
+
+    background: var(--card-bg, #ffffff);
+    border-right: 1px solid var(--border-color, #e5e7eb);
+}
+
+.sidebar-section {
+    margin-bottom: 25px;
+}
+
+.sidebar-label {
+    margin: 0 10px 9px;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+    color: var(--muted-text, #6b7280);
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 11px 13px;
+    margin-bottom: 4px;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    color: inherit;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: 0.2s ease;
+}
+
+.sidebar-link:hover {
+    background: var(--input-bg, #f3f4f6);
+}
+
+.sidebar-link.active {
+    background: rgba(37, 99, 235, 0.12);
+    color: #2563eb;
+}
+
+.sidebar-link span:first-child {
+    width: 24px;
+
+    display: flex;
+    justify-content: center;
+
+    font-size: 17px;
+}
+
+/* ---------- SIDEBAR UPGRADE ---------- */
+
+.sidebar-footer {
+    margin-top: auto;
+}
+
+.sidebar-upgrade-card {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    padding: 16px;
+
+    border-radius: 14px;
+
+    background: rgba(37, 99, 235, 0.08);
+    border: 1px solid rgba(37, 99, 235, 0.15);
+}
+
+.sidebar-upgrade-card > span {
+    font-size: 23px;
+}
+
+.sidebar-upgrade-card strong {
+    font-size: 14px;
+}
+
+.sidebar-upgrade-card small {
+    line-height: 1.4;
+
+    color: var(--muted-text, #6b7280);
+}
+
+.sidebar-upgrade-card button {
+    margin-top: 5px;
+
+    padding: 9px 11px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #2563eb;
+    color: white;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+/* ---------- MAIN CONTENT OFFSET ---------- */
+
+body {
+    padding-top: 68px;
+}
+
+.container {
+    margin-left: 250px;
+}
+
+/* ---------- MOBILE BOTTOM NAV ---------- */
+
+.mobile-bottom-nav {
+    display: none;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+    .patriodx-global-search {
+        width: 280px;
+    }
+
+    .header-profile-name {
+        display: none;
+    }
+
+    .patriodx-sidebar {
+        width: 220px;
+    }
+
+    .container {
+        margin-left: 220px;
+    }
+}
+
+
+/* =========================================================
+   TABLET / MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .patriodx-header {
+        height: 60px;
+        padding: 0 12px;
+    }
+
+    .patriodx-brand {
+        min-width: auto;
+    }
+
+    .mobile-menu-button {
+        display: block;
+    }
+
+    .patriodx-logo span {
+        display: none;
+    }
+
+    .patriodx-logo img {
+        width: 36px;
+        height: 36px;
+    }
+
+    .patriodx-global-search {
+        width: auto;
+        flex: 1;
+
+        margin: 0 10px;
+
+        max-width: none;
+    }
+
+    .language-selector {
+        display: none;
+    }
+
+    .header-profile-button {
+        display: none;
+    }
+
+    .header-logout-button {
+        display: none;
+    }
+
+    .patriodx-sidebar {
+        top: 60px;
+        left: -270px;
+
+        width: 250px;
+
+        transition: left 0.25s ease;
+
+        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .patriodx-sidebar.mobile-open {
+        left: 0;
+    }
+
+    body {
+        padding-top: 60px;
+        padding-bottom: 70px;
+    }
+
+    .container {
+        margin-left: 0;
+    }
+
+    .mobile-bottom-nav {
+        position: fixed;
+
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        height: 65px;
+
+        z-index: 1100;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+
+        background: var(--card-bg, #ffffff);
+        border-top: 1px solid var(--border-color, #e5e7eb);
+
+        box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .mobile-nav-link {
+        flex: 1;
+
+        height: 100%;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        gap: 3px;
+
+        text-decoration: none;
+
+        color: var(--muted-text, #6b7280);
+
+        font-size: 18px;
+    }
+
+    .mobile-nav-link small {
+        font-size: 10px;
+        font-weight: 600;
+    }
+
+    .mobile-nav-link.active {
+        color: #2563eb;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL PHONES
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .patriodx-global-search {
+        padding: 8px 10px;
+    }
+
+    .patriodx-global-search input {
+        font-size: 13px;
+    }
+
+    .header-icon-button {
+        width: 36px;
+        height: 36px;
+    }
+
+    .mobile-bottom-nav {
+        height: 62px;
+    }
+
+}
