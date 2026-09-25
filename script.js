@@ -8478,6 +8478,26 @@ grow: "GROW",
 growWithPatriodx: "Grow with PATRIODX",
 unlockTools: "Unlock more business tools.",
 viewPlans: "View Plans",
+        controlCenter: "PATRIODX • CONTROL CENTER",
+runBusinessSmarter: "Run your business smarter.",
+dashboardDescription: "Manage your products, customers, sales and invoices from one powerful business dashboard.",
+manageProducts: "📦 Manage Products",
+viewAnalytics: "📊 View Analytics",
+
+quickActions: "QUICK ACTIONS",
+getThingsDoneFaster: "Get things done faster.",
+
+addProduct: "Add Product",
+addInventoryItem: "Add something to your inventory",
+
+addCustomer: "Add Customer",
+addNewCustomer: "Add a new customer",
+
+recordSale: "Record Sale",
+recordTransaction: "Record a new transaction",
+
+createInvoice: "Create Invoice",
+sendInvoice: "Send a professional invoice",
         allRights: "All rights reserved."
     },
 
@@ -8531,6 +8551,26 @@ grow: "DÉVELOPPEMENT",
 growWithPatriodx: "Développez-vous avec PATRIODX",
 unlockTools: "Débloquez plus d'outils professionnels.",
 viewPlans: "Voir les offres",
+        controlCenter: "PATRIODX • CENTRE DE CONTRÔLE",
+runBusinessSmarter: "Gérez votre entreprise plus intelligemment.",
+dashboardDescription: "Gérez vos produits, clients, ventes et factures depuis un puissant tableau de bord.",
+manageProducts: "📦 Gérer les produits",
+viewAnalytics: "📊 Voir les analyses",
+
+quickActions: "ACTIONS RAPIDES",
+getThingsDoneFaster: "Accomplissez vos tâches plus rapidement.",
+
+addProduct: "Ajouter un produit",
+addInventoryItem: "Ajoutez un élément à votre inventaire",
+
+addCustomer: "Ajouter un client",
+addNewCustomer: "Ajouter un nouveau client",
+
+recordSale: "Enregistrer une vente",
+recordTransaction: "Enregistrer une nouvelle transaction",
+
+createInvoice: "Créer une facture",
+sendInvoice: "Envoyer une facture professionnelle",
         allRights: "Tous droits réservés."
     },
 
@@ -8584,6 +8624,26 @@ grow: "CRECER",
 growWithPatriodx: "Crece con PATRIODX",
 unlockTools: "Desbloquea más herramientas empresariales.",
 viewPlans: "Ver planes",
+        controlCenter: "PATRIODX • CENTRO DE CONTROL",
+runBusinessSmarter: "Gestiona tu negocio de forma más inteligente.",
+dashboardDescription: "Gestiona tus productos, clientes, ventas y facturas desde un potente panel de control.",
+manageProducts: "📦 Gestionar productos",
+viewAnalytics: "📊 Ver analíticas",
+
+quickActions: "ACCIONES RÁPIDAS",
+getThingsDoneFaster: "Haz las cosas más rápido.",
+
+addProduct: "Añadir producto",
+addInventoryItem: "Añade algo a tu inventario",
+
+addCustomer: "Añadir cliente",
+addNewCustomer: "Añadir un nuevo cliente",
+
+recordSale: "Registrar venta",
+recordTransaction: "Registrar una nueva transacción",
+
+createInvoice: "Crear factura",
+sendInvoice: "Enviar una factura profesional",
         allRights: "Todos los derechos reservados."
     }
 
