@@ -1089,7 +1089,30 @@
 ========================================================= -->
 
 <section id="profile" class="section">
+<div class="profile-search-card chart-card">
+    <div class="profile-search-heading">
+        <div>
+            <h3>🔎 Find People</h3>
+            <p>Search PATRIODX by username.</p>
+        </div>
+    </div>
 
+    <form id="profileSearchForm" class="profile-search-form">
+        <input
+            type="text"
+            id="profileSearchInput"
+            placeholder="Search username..."
+            autocomplete="off"
+            maxlength="30"
+        >
+
+        <button type="submit">
+            Search
+        </button>
+    </form>
+
+    <div id="profileSearchResults" class="profile-search-results"></div>
+</div>
     <div class="section-heading">
 
         <div>
@@ -1110,7 +1133,87 @@
 
 
     <div class="profile-page-card">
+<div
+    id="publicProfileCard"
+    class="profile-page-card public-profile-card"
+    style="display:none;"
+>
+    <div id="publicProfileCover" class="profile-cover"></div>
 
+    <div class="profile-header">
+
+        <div id="publicProfileAvatar" class="profile-avatar">
+            👤
+        </div>
+
+        <div class="profile-main-info">
+
+            <h2 id="publicProfileDisplayName">
+                User
+            </h2>
+
+            <p
+                id="publicProfileUsername"
+                class="profile-username"
+            >
+                @username
+            </p>
+
+            <p
+                id="publicProfileBio"
+                class="profile-bio"
+            >
+                Bio
+            </p>
+
+        </div>
+
+        <button
+            type="button"
+            id="publicProfileFollowButton"
+            class="profile-edit-button"
+        >
+            Follow
+        </button>
+
+    </div>
+
+    <div class="profile-stats">
+
+        <div>
+            <strong id="publicProfilePostCount">0</strong>
+            <span>Posts</span>
+        </div>
+
+        <div>
+    <strong id="profileFollowerCount">0</strong>
+    <span>Followers</span>
+</div>
+
+<div>
+    <strong id="profileFollowingCount">0</strong>
+    <span>Following</span>
+</div>
+
+    </div>
+</div>
+
+<div
+    id="publicProfilePostsContainer"
+    class="profile-posts"
+    style="display:none;"
+>
+    <div class="section-heading">
+        <div>
+            <h3>Posts</h3>
+        </div>
+    </div>
+
+    <div
+        id="publicProfilePosts"
+        class="social-feed"
+    ></div>
+</div>
         <!-- COVER -->
 
         <div
