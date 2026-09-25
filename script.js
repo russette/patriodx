@@ -7174,3 +7174,24 @@ window.loadMyProfile =
 
 window.initializePATRIODXProfile =
     initializePATRIODXProfile;
+document.addEventListener("DOMContentLoaded", function () {
+    const editButton = document.getElementById("editProfileButton");
+    const profileEditor = document.getElementById("profileEditor");
+    const cancelButton = document.getElementById("cancelProfileButton");
+
+    if (editButton && profileEditor) {
+        editButton.addEventListener("click", function () {
+            profileEditor.style.display = "block";
+            profileEditor.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        });
+    }
+
+    if (cancelButton && profileEditor) {
+        cancelButton.addEventListener("click", function () {
+            profileEditor.style.display = "none";
+        });
+    }
+});
