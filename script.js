@@ -7845,17 +7845,16 @@ if (typeof loadMyFollowCounts === "function") {
     loadMyFollowCounts();
 }
 /* =========================================================
-   PATRIODX APP ROUTER
-   Single-page application navigation
+   PATRIODX SIMPLE APP NAVIGATION
 ========================================================= */
 
 const PATRIODX_PAGES = [
     "home",
+    "dashboard",
     "profile",
     "social",
     "messaging",
     "notifications",
-    "dashboard",
     "analytics",
     "products",
     "customers",
@@ -7866,136 +7865,148 @@ const PATRIODX_PAGES = [
     "account"
 ];
 
-
-/* =========================================================
-   PAGE ALIASES
-========================================================= */
-
-const PATRIODX_PAGE_ALIASES = {
-    ai: "patriodxAI"
-};
-
-
-/* =========================================================
-   NORMALIZE PAGE
-========================================================= */
-
-function normalizePATRIODXPage(pageId) {
-
-    if (!pageId) {
-        return "home";
-    }
-
-    pageId = pageId.replace(/^#/, "");
+const PATRIODX_EXTRA_SECTIONS = [
+    ".features-section",
+    ".pricing-section",
+    ".final-cta",
+    ".stats-grid",
+    ".recent-activity",
+    ".danger-zone"
+];
 
 
-    if (PATRIODX_PAGE_ALIASES[pageId]) {
-        pageId = PATRIODX_PAGE_ALIASES[pageId];
-    }
+function patriodxShow(element) {
+    if (!element) return;
 
-
-    if (!PATRIODX_PAGES.includes(pageId)) {
-        return "home";
-    }
-
-
-    return pageId;
-}
-
-
-/* =========================================================
-   HIDE ALL APP PAGES
-========================================================= */
-
-function hideAllPATRIODXPages() {
-
-    PATRIODX_PAGES.forEach(pageId => {
-
-        const page =
-            document.getElementById(pageId);
-
-        if (!page) {
-            return;
-        }
-
-        page.style.setProperty(
-            "display",
-            "none",
-            "important"
-        );
-
-        page.style.setProperty(
-            "visibility",
-            "hidden",
-            "important"
-        );
-
-        page.style.setProperty(
-            "opacity",
-            "0",
-            "important"
-        );
-
-    });
-
-}
-
-
-/* =========================================================
-   SHOW ONE APP PAGE
-========================================================= */
-
-function showPATRIODXPage(pageId) {
-
-    const page =
-        document.getElementById(pageId);
-
-    if (!page) {
-
-        console.warn(
-            "PATRIODX page not found:",
-            pageId
-        );
-
-        return false;
-    }
-
-
-    page.style.setProperty(
+    element.style.setProperty(
         "display",
         "block",
         "important"
     );
 
-    page.style.setProperty(
+    element.style.setProperty(
         "visibility",
         "visible",
         "important"
     );
 
-    page.style.setProperty(
+    element.style.setProperty(
         "opacity",
         "1",
         "important"
     );
-
-
-    window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: "instant"
-    });
-
-
-    return true;
 }
 
 
-/* =========================================================
-   UPDATE ACTIVE SIDEBAR
-========================================================= */
+function patriodxHide(element) {
+    if (!element) return;
 
-function updatePATRIODXSidebar(pageId) {
+    element.style.setProperty(
+        "display",
+        "none",
+        "important"
+    );
+}
+
+
+function navigatePATRIODX(page) {
+
+    if (page === "ai") {
+        page = "patriodxAI";
+    }
+
+    if (!PATRIODX_PAGES.includes(page)) {
+        page = "home";
+    }
+
+
+    /* Hide every main app page */
+
+    PATRIODX_PAGES.forEach(id => {
+
+        const element =
+            document.getElementById(id);
+
+        patriodxHide(element);
+
+    });
+
+
+    /* Hide extra sections */
+
+    PATRIODX_EXTRA_SECTIONS.forEach(selector => {
+
+        document
+            .querySelectorAll(selector)
+            .forEach(element => {
+
+                patriodxHide(element);
+
+            });
+
+    });
+
+
+    /* Show selected page */
+
+    const selected =
+        document.getElementById(page);
+
+    patriodxShow(selected);
+
+
+    /* Home */
+
+    if (page === "home") {
+
+        document
+            .querySelectorAll(
+                ".landing-section, .features-section, .pricing-section, .final-cta"
+            )
+            .forEach(element => {
+
+                patriodxShow(element);
+
+            });
+
+    }
+
+
+    /* Dashboard */
+
+    if (page === "dashboard") {
+
+        document
+            .querySelectorAll(
+                ".stats-grid, .recent-activity"
+            )
+            .forEach(element => {
+
+                patriodxShow(element);
+
+            });
+
+    }
+
+
+    /* Account */
+
+    if (page === "account") {
+
+        document
+            .querySelectorAll(
+                ".danger-zone"
+            )
+            .forEach(element => {
+
+                patriodxShow(element);
+
+            });
+
+    }
+
+
+    /* Active sidebar */
 
     document
         .querySelectorAll(".sidebar-link")
@@ -8003,26 +8014,21 @@ function updatePATRIODXSidebar(pageId) {
 
             link.classList.remove("active");
 
-            const linkPage =
-                normalizePATRIODXPage(
-                    link.dataset.page ||
-                    link.getAttribute("href")
-                );
+            let linkPage =
+                link.dataset.page;
 
-            if (linkPage === pageId) {
+            if (linkPage === "ai") {
+                linkPage = "patriodxAI";
+            }
+
+            if (linkPage === page) {
                 link.classList.add("active");
             }
 
         });
 
-}
 
-
-/* =========================================================
-   UPDATE MOBILE NAV
-========================================================= */
-
-function updatePATRIODXMobileNav(pageId) {
+    /* Active mobile navigation */
 
     document
         .querySelectorAll(".mobile-nav-link")
@@ -8030,25 +8036,36 @@ function updatePATRIODXMobileNav(pageId) {
 
             link.classList.remove("active");
 
-            const linkPage =
-                normalizePATRIODXPage(
-                    link.getAttribute("href")
-                );
+            let linkPage =
+                (link.getAttribute("href") || "")
+                .replace("#", "");
 
-            if (linkPage === pageId) {
+            if (linkPage === "ai") {
+                linkPage = "patriodxAI";
+            }
+
+            if (linkPage === page) {
                 link.classList.add("active");
             }
 
         });
 
-}
+
+    /* Update URL */
+
+    history.pushState(
+        { page: page },
+        "",
+        "#" + page
+    );
 
 
-/* =========================================================
-   CLOSE MOBILE SIDEBAR
-========================================================= */
+    /* Go to top */
 
-function closePATRIODXSidebar() {
+    window.scrollTo(0, 0);
+
+
+    /* Close mobile sidebar */
 
     const sidebar =
         document.getElementById(
@@ -8065,339 +8082,40 @@ function closePATRIODXSidebar() {
 
 
 /* =========================================================
-   NAVIGATE
+   OLD scrollToSection COMPATIBILITY
 ========================================================= */
 
-function navigatePATRIODX(
-    pageId,
-    updateUrl = true
-) {
+function scrollToSection(id) {
 
-    pageId =
-        normalizePATRIODXPage(pageId);
+    if (PATRIODX_PAGES.includes(id)) {
 
+        navigatePATRIODX(id);
 
-    /*
-       Hide everything first.
-    */
-
-    hideAllPATRIODXPages();
-
-
-    /*
-       Show only the requested page.
-    */
-
-    showPATRIODXPage(pageId);
-
-
-    /*
-       Update navigation UI.
-    */
-
-    updatePATRIODXSidebar(pageId);
-
-    updatePATRIODXMobileNav(pageId);
-
-
-    /*
-       Close mobile menu.
-    */
-
-    closePATRIODXSidebar();
-
-
-    /*
-       Update URL.
-    */
-
-    if (updateUrl) {
-
-        const currentHash =
-            window.location.hash
-                .replace(/^#/, "");
-
-        if (currentHash !== pageId) {
-
-            history.pushState(
-                {
-                    page: pageId
-                },
-                "",
-                "#" + pageId
-            );
-
-        }
-
-    }
-
-
-    /*
-       Run page-specific loading.
-    */
-
-    initializePATRIODXPage(
-        pageId
-    );
-
-}
-
-
-/* =========================================================
-   PAGE-SPECIFIC INITIALIZATION
-========================================================= */
-
-function initializePATRIODXPage(
-    pageId
-) {
-
-    /*
-       Profile
-    */
-
-    if (
-        pageId === "profile" &&
-        typeof initializePATRIODXProfile === "function"
-    ) {
-
-        initializePATRIODXProfile();
-
-    }
-
-
-    /*
-       Social
-    */
-
-    if (
-        pageId === "social" &&
-        typeof loadSocialPosts === "function"
-    ) {
-
-        loadSocialPosts();
-
-    }
-
-
-    /*
-       Messaging
-    */
-
-    if (
-        pageId === "messaging" &&
-        typeof loadConversations === "function"
-    ) {
-
-        loadConversations();
-
-    }
-
-
-    /*
-       Notifications
-    */
-
-    if (
-        pageId === "notifications" &&
-        typeof loadNotifications === "function"
-    ) {
-
-        loadNotifications();
-
-    }
-
-
-    /*
-       Dashboard
-    */
-
-    if (
-        pageId === "dashboard" &&
-        typeof renderAll === "function"
-    ) {
-
-        renderAll();
-
-    }
-
-
-    /*
-       Analytics
-    */
-
-    if (
-        pageId === "analytics" &&
-        typeof renderAnalytics === "function"
-    ) {
-
-        renderAnalytics();
-
-    }
-
-
-    /*
-       Products
-    */
-
-    if (
-        pageId === "products" &&
-        typeof renderProducts === "function"
-    ) {
-
-        renderProducts();
-
-    }
-
-
-    /*
-       Customers
-    */
-
-    if (
-        pageId === "customers" &&
-        typeof renderCustomers === "function"
-    ) {
-
-        renderCustomers();
-
-    }
-
-
-    /*
-       Sales
-    */
-
-    if (
-        pageId === "sales" &&
-        typeof renderSales === "function"
-    ) {
-
-        renderSales();
-
-    }
-
-
-    /*
-       Invoices
-    */
-
-    if (
-        pageId === "invoices" &&
-        typeof renderInvoices === "function"
-    ) {
-
-        renderInvoices();
-
-    }
-
-}
-
-
-/* =========================================================
-   SIDEBAR + MOBILE LINKS
-========================================================= */
-
-function initializePATRIODXRouter() {
-
-    const links =
-        document.querySelectorAll(
-            ".sidebar-link, .mobile-nav-link"
-        );
-
-
-    links.forEach(link => {
-
-        /*
-           Prevent duplicate listeners.
-        */
-
-        if (
-            link.dataset.patriodxRouterReady ===
-            "true"
-        ) {
-            return;
-        }
-
-
-        link.dataset.patriodxRouterReady =
-            "true";
-
-
-        link.addEventListener(
-            "click",
-            function(event) {
-
-                const rawPage =
-                    this.dataset.page ||
-                    this.getAttribute("href");
-
-
-                if (!rawPage) {
-                    return;
-                }
-
-
-                const pageId =
-                    normalizePATRIODXPage(
-                        rawPage
-                    );
-
-
-                event.preventDefault();
-
-                navigatePATRIODX(
-                    pageId
-                );
-
-            }
-        );
-
-    });
-
-}
-
-
-/* =========================================================
-   LOGO
-========================================================= */
-
-function initializePATRIODXLogo() {
-
-    const logo =
-        document.querySelector(
-            ".patriodx-logo"
-        );
-
-
-    if (!logo) {
         return;
     }
 
 
-    if (
-        logo.dataset.patriodxRouterReady ===
-        "true"
-    ) {
+    if (id === "ai") {
+
+        navigatePATRIODX(
+            "patriodxAI"
+        );
+
         return;
     }
 
 
-    logo.dataset.patriodxRouterReady =
-        "true";
+    const element =
+        document.getElementById(id);
 
+    if (element) {
 
-    logo.addEventListener(
-        "click",
-        function(event) {
+        element.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
 
-            event.preventDefault();
-
-            navigatePATRIODX(
-                "home"
-            );
-
-        }
-    );
+    }
 
 }
 
@@ -8406,7 +8124,7 @@ function initializePATRIODXLogo() {
    HEADER BUTTONS
 ========================================================= */
 
-function initializePATRIODXHeaderActions() {
+function setupPATRIODXHeaderButtons() {
 
     const notificationButton =
         document.querySelector(
@@ -8475,12 +8193,95 @@ function initializePATRIODXHeaderActions() {
 
 
 /* =========================================================
+   SIDEBAR BUTTONS
+========================================================= */
+
+function setupPATRIODXLinks() {
+
+    document
+        .querySelectorAll(
+            ".sidebar-link, .mobile-nav-link"
+        )
+        .forEach(link => {
+
+            link.onclick =
+                function(event) {
+
+                    const href =
+                        this.getAttribute(
+                            "href"
+                        );
+
+                    let page =
+                        this.dataset.page ||
+                        (href || "").replace(
+                            "#",
+                            ""
+                        );
+
+
+                    if (page === "ai") {
+                        page = "patriodxAI";
+                    }
+
+
+                    if (
+                        !PATRIODX_PAGES.includes(
+                            page
+                        )
+                    ) {
+                        return;
+                    }
+
+
+                    event.preventDefault();
+
+                    navigatePATRIODX(
+                        page
+                    );
+
+                };
+
+        });
+
+}
+
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+function setupPATRIODXLogo() {
+
+    const logo =
+        document.querySelector(
+            ".patriodx-logo"
+        );
+
+    if (!logo) return;
+
+
+    logo.onclick =
+        function(event) {
+
+            event.preventDefault();
+
+            navigatePATRIODX(
+                "home"
+            );
+
+        };
+
+}
+
+
+/* =========================================================
    MOBILE MENU
 ========================================================= */
 
-function initializePATRIODXMobileMenu() {
+function setupPATRIODXMobileMenu() {
 
-    const menuButton =
+    const button =
         document.getElementById(
             "mobileMenuButton"
         );
@@ -8491,28 +8292,12 @@ function initializePATRIODXMobileMenu() {
         );
 
 
-    if (
-        !menuButton ||
-        !sidebar
-    ) {
+    if (!button || !sidebar) {
         return;
     }
 
 
-    if (
-        menuButton.dataset.patriodxMenuReady ===
-        "true"
-    ) {
-        return;
-    }
-
-
-    menuButton.dataset.patriodxMenuReady =
-        "true";
-
-
-    menuButton.addEventListener(
-        "click",
+    button.onclick =
         function(event) {
 
             event.preventDefault();
@@ -8521,8 +8306,7 @@ function initializePATRIODXMobileMenu() {
                 "mobile-open"
             );
 
-        }
-    );
+        };
 
 }
 
@@ -8535,63 +8319,105 @@ window.addEventListener(
     "popstate",
     function() {
 
-        const pageId =
-            normalizePATRIODXPage(
-                window.location.hash
-            );
+        let page =
+            window.location.hash
+                .replace("#", "");
 
 
-        navigatePATRIODX(
-            pageId,
-            false
-        );
+        if (page === "ai") {
+            page = "patriodxAI";
+        }
+
+
+        if (
+            !PATRIODX_PAGES.includes(page)
+        ) {
+            page = "home";
+        }
+
+
+        /* Don't push another history entry */
+
+        const oldPushState =
+            history.pushState;
+
+        history.pushState =
+            function() {};
+
+        navigatePATRIODX(page);
+
+        history.pushState =
+            oldPushState;
 
     }
 );
 
 
 /* =========================================================
-   INITIALIZE ROUTER
+   START NAVIGATION
 ========================================================= */
 
-function startPATRIODXRouter() {
+function startPATRIODXNavigation() {
 
-    const startingPage =
-        normalizePATRIODXPage(
-            window.location.hash
-        );
+    setupPATRIODXHeaderButtons();
+
+    setupPATRIODXLinks();
+
+    setupPATRIODXLogo();
+
+    setupPATRIODXMobileMenu();
 
 
-    initializePATRIODXRouter();
+    let startingPage =
+        window.location.hash
+            .replace("#", "");
 
-    initializePATRIODXLogo();
 
-    initializePATRIODXHeaderActions();
+    if (startingPage === "ai") {
+        startingPage = "patriodxAI";
+    }
 
-    initializePATRIODXMobileMenu();
 
+    if (
+        !PATRIODX_PAGES.includes(
+            startingPage
+        )
+    ) {
+        startingPage = "home";
+    }
+
+
+    /* Initial display without adding history */
+
+    const oldPushState =
+        history.pushState;
+
+    history.pushState =
+        function() {};
 
     navigatePATRIODX(
-        startingPage,
-        false
+        startingPage
     );
+
+    history.pushState =
+        oldPushState;
 
 }
 
 
-/* =========================================================
-   GLOBAL ROUTER FUNCTIONS
-========================================================= */
+if (
+    document.readyState ===
+    "loading"
+) {
 
-window.navigatePATRIODX =
-    navigatePATRIODX;
+    document.addEventListener(
+        "DOMContentLoaded",
+        startPATRIODXNavigation,
+        { once: true }
+    );
 
-window.scrollToSection =
-    scrollToSection;
+} else {
 
+    startPATRIODXNavigation();
 
-/* =========================================================
-   START ROUTER
-========================================================= */
-
-startPATRIODXRouter();
+}
