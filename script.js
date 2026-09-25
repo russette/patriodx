@@ -7851,39 +7851,93 @@ if (typeof loadMyFollowCounts === "function") {
     loadMyFollowCounts();
 }
 /* =========================================================
-   PATRIODX APP NAVIGATION
-   Makes sections behave like separate pages
+   PATRIODX APP ROUTER
+   Real app-style page navigation
 ========================================================= */
 
-function showPATRIODXPage(pageId) {
+const PATRIODX_PAGES = [
+    "home",
+    "profile",
+    "social",
+    "messaging",
+    "notifications",
+    "dashboard",
+    "analytics",
+    "products",
+    "customers",
+    "sales",
+    "invoices",
+    "patriodxAI",
+    "contact",
+    "account"
+];
 
-    const allPages = document.querySelectorAll(
-        ".landing-section, .section"
-    );
 
-    allPages.forEach(page => {
-        page.style.display = "none";
+/* =========================================================
+   SHOW ONE PAGE
+========================================================= */
+
+function navigatePATRIODX(pageId, updateUrl = true) {
+
+    if (!PATRIODX_PAGES.includes(pageId)) {
+        pageId = "home";
+    }
+
+    /*
+       Hide every major PATRIODX page
+    */
+
+    PATRIODX_PAGES.forEach(id => {
+
+        const page = document.getElementById(id);
+
+        if (page) {
+            page.style.display = "none";
+        }
+
     });
+
+
+    /*
+       Show selected page
+    */
 
     const selectedPage = document.getElementById(pageId);
 
     if (selectedPage) {
+
         selectedPage.style.display = "block";
+
+        /*
+           Start the selected view at its own top
+        */
+
+        window.scrollTo(0, 0);
+
     }
 
-    /* Update desktop sidebar */
+
+    /*
+       Desktop sidebar
+    */
 
     document.querySelectorAll(".sidebar-link").forEach(link => {
+
         link.classList.remove("active");
 
         if (link.dataset.page === pageId) {
             link.classList.add("active");
         }
+
     });
 
-    /* Update mobile navigation */
+
+    /*
+       Mobile navigation
+    */
 
     document.querySelectorAll(".mobile-nav-link").forEach(link => {
+
         link.classList.remove("active");
 
         const href = link.getAttribute("href");
@@ -7891,9 +7945,30 @@ function showPATRIODXPage(pageId) {
         if (href === "#" + pageId) {
             link.classList.add("active");
         }
+
     });
 
-    /* Close mobile sidebar */
+
+    /*
+       Update browser URL
+    */
+
+    if (updateUrl) {
+
+        history.pushState(
+            {
+                page: pageId
+            },
+            "",
+            "#" + pageId
+        );
+
+    }
+
+
+    /*
+       Close mobile sidebar
+    */
 
     const sidebar = document.getElementById("patriodxSidebar");
 
@@ -7901,26 +7976,20 @@ function showPATRIODXPage(pageId) {
         sidebar.classList.remove("mobile-open");
     }
 
-    /* Always return to the top of the selected page */
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
 }
 
 
 /* =========================================================
-   NAVIGATION CLICK HANDLERS
+   HANDLE NAVIGATION LINKS
 ========================================================= */
 
-function initializePATRIODXNavigation() {
+function initializePATRIODXRouter() {
 
-    const navigationLinks = document.querySelectorAll(
-        '.sidebar-link, .mobile-nav-link, .patriodx-logo'
+    const links = document.querySelectorAll(
+        ".sidebar-link, .mobile-nav-link"
     );
 
-    navigationLinks.forEach(link => {
+    links.forEach(link => {
 
         link.addEventListener("click", function(event) {
 
@@ -7932,23 +8001,88 @@ function initializePATRIODXNavigation() {
 
             const pageId = href.substring(1);
 
-            if (!document.getElementById(pageId)) {
+            if (!PATRIODX_PAGES.includes(pageId)) {
                 return;
             }
 
             event.preventDefault();
 
-            history.pushState(
-                null,
-                "",
-                "#" + pageId
-            );
-
-            showPATRIODXPage(pageId);
+            navigatePATRIODX(pageId);
 
         });
 
     });
+
+}
+
+
+/* =========================================================
+   LOGO → HOME
+========================================================= */
+
+function initializePATRIODXLogo() {
+
+    const logo = document.querySelector(".patriodx-logo");
+
+    if (!logo) {
+        return;
+    }
+
+    logo.addEventListener("click", function(event) {
+
+        event.preventDefault();
+
+        navigatePATRIODX("home");
+
+    });
+
+}
+
+
+/* =========================================================
+   HEADER SHORTCUTS
+========================================================= */
+
+function initializePATRIODXHeaderActions() {
+
+    const notificationButton = document.querySelector(
+        '[title="Notifications"]'
+    );
+
+    const messageButton = document.querySelector(
+        '[title="Messages"]'
+    );
+
+    const profileButton = document.querySelector(
+        '[title="Your Profile"]'
+    );
+
+
+    if (notificationButton) {
+
+        notificationButton.onclick = function() {
+            navigatePATRIODX("notifications");
+        };
+
+    }
+
+
+    if (messageButton) {
+
+        messageButton.onclick = function() {
+            navigatePATRIODX("messaging");
+        };
+
+    }
+
+
+    if (profileButton) {
+
+        profileButton.onclick = function() {
+            navigatePATRIODX("profile");
+        };
+
+    }
 
 }
 
@@ -7959,12 +8093,17 @@ function initializePATRIODXNavigation() {
 
 function initializePATRIODXMobileMenu() {
 
-    const menuButton = document.getElementById("mobileMenuButton");
-    const sidebar = document.getElementById("patriodxSidebar");
+    const menuButton =
+        document.getElementById("mobileMenuButton");
+
+    const sidebar =
+        document.getElementById("patriodxSidebar");
+
 
     if (!menuButton || !sidebar) {
         return;
     }
+
 
     menuButton.addEventListener("click", function() {
 
@@ -7981,36 +8120,46 @@ function initializePATRIODXMobileMenu() {
 
 window.addEventListener("popstate", function() {
 
-    const pageId = window.location.hash
-        ? window.location.hash.substring(1)
-        : "home";
+    let pageId =
+        window.location.hash.replace("#", "");
 
-    if (document.getElementById(pageId)) {
-        showPATRIODXPage(pageId);
+    if (!PATRIODX_PAGES.includes(pageId)) {
+        pageId = "home";
     }
+
+    navigatePATRIODX(pageId, false);
 
 });
 
 
 /* =========================================================
-   START PATRIODX NAVIGATION
+   INITIAL PAGE
 ========================================================= */
 
-function initializePATRIODXAppNavigation() {
+function startPATRIODXRouter() {
 
-    initializePATRIODXNavigation();
+    let startingPage =
+        window.location.hash.replace("#", "");
 
-    initializePATRIODXMobileMenu();
-
-    let startingPage = window.location.hash
-        ? window.location.hash.substring(1)
-        : "home";
-
-    if (!document.getElementById(startingPage)) {
+    if (!PATRIODX_PAGES.includes(startingPage)) {
         startingPage = "home";
     }
 
-    showPATRIODXPage(startingPage);
+    navigatePATRIODX(startingPage, false);
+
+    initializePATRIODXRouter();
+
+    initializePATRIODXLogo();
+
+    initializePATRIODXHeaderActions();
+
+    initializePATRIODXMobileMenu();
+
 }
 
-initializePATRIODXAppNavigation();
+
+/* =========================================================
+   START
+========================================================= */
+
+startPATRIODXRouter();
