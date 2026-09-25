@@ -7850,3 +7850,167 @@ initializeProfileSearch();
 if (typeof loadMyFollowCounts === "function") {
     loadMyFollowCounts();
 }
+/* =========================================================
+   PATRIODX APP NAVIGATION
+   Makes sections behave like separate pages
+========================================================= */
+
+function showPATRIODXPage(pageId) {
+
+    const allPages = document.querySelectorAll(
+        ".landing-section, .section"
+    );
+
+    allPages.forEach(page => {
+        page.style.display = "none";
+    });
+
+    const selectedPage = document.getElementById(pageId);
+
+    if (selectedPage) {
+        selectedPage.style.display = "block";
+    }
+
+    /* Update desktop sidebar */
+
+    document.querySelectorAll(".sidebar-link").forEach(link => {
+        link.classList.remove("active");
+
+        if (link.dataset.page === pageId) {
+            link.classList.add("active");
+        }
+    });
+
+    /* Update mobile navigation */
+
+    document.querySelectorAll(".mobile-nav-link").forEach(link => {
+        link.classList.remove("active");
+
+        const href = link.getAttribute("href");
+
+        if (href === "#" + pageId) {
+            link.classList.add("active");
+        }
+    });
+
+    /* Close mobile sidebar */
+
+    const sidebar = document.getElementById("patriodxSidebar");
+
+    if (sidebar) {
+        sidebar.classList.remove("mobile-open");
+    }
+
+    /* Always return to the top of the selected page */
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+/* =========================================================
+   NAVIGATION CLICK HANDLERS
+========================================================= */
+
+function initializePATRIODXNavigation() {
+
+    const navigationLinks = document.querySelectorAll(
+        '.sidebar-link, .mobile-nav-link, .patriodx-logo'
+    );
+
+    navigationLinks.forEach(link => {
+
+        link.addEventListener("click", function(event) {
+
+            const href = this.getAttribute("href");
+
+            if (!href || !href.startsWith("#")) {
+                return;
+            }
+
+            const pageId = href.substring(1);
+
+            if (!document.getElementById(pageId)) {
+                return;
+            }
+
+            event.preventDefault();
+
+            history.pushState(
+                null,
+                "",
+                "#" + pageId
+            );
+
+            showPATRIODXPage(pageId);
+
+        });
+
+    });
+
+}
+
+
+/* =========================================================
+   MOBILE MENU
+========================================================= */
+
+function initializePATRIODXMobileMenu() {
+
+    const menuButton = document.getElementById("mobileMenuButton");
+    const sidebar = document.getElementById("patriodxSidebar");
+
+    if (!menuButton || !sidebar) {
+        return;
+    }
+
+    menuButton.addEventListener("click", function() {
+
+        sidebar.classList.toggle("mobile-open");
+
+    });
+
+}
+
+
+/* =========================================================
+   BROWSER BACK / FORWARD
+========================================================= */
+
+window.addEventListener("popstate", function() {
+
+    const pageId = window.location.hash
+        ? window.location.hash.substring(1)
+        : "home";
+
+    if (document.getElementById(pageId)) {
+        showPATRIODXPage(pageId);
+    }
+
+});
+
+
+/* =========================================================
+   START PATRIODX NAVIGATION
+========================================================= */
+
+function initializePATRIODXAppNavigation() {
+
+    initializePATRIODXNavigation();
+
+    initializePATRIODXMobileMenu();
+
+    let startingPage = window.location.hash
+        ? window.location.hash.substring(1)
+        : "home";
+
+    if (!document.getElementById(startingPage)) {
+        startingPage = "home";
+    }
+
+    showPATRIODXPage(startingPage);
+}
+
+initializePATRIODXAppNavigation();
