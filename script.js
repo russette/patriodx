@@ -8465,7 +8465,13 @@ const PATRIODX_TRANSLATIONS = {
 
         privacy: "Privacy Policy",
         terms: "Terms of Service",
-
+connect: "Connect. Share. Grow.",
+socialDescription: "Connect with customers and businesses, share updates and promote what you do.",
+createPost: "Create a Post",
+photo: "Photo",
+video: "Video",
+post: "Post",
+latestPosts: "Latest Posts",
         allRights: "All rights reserved."
     },
 
@@ -8506,7 +8512,13 @@ const PATRIODX_TRANSLATIONS = {
 
         privacy: "Politique de confidentialité",
         terms: "Conditions d'utilisation",
-
+connect: "Connectez-vous. Partagez. Développez-vous.",
+socialDescription: "Connectez-vous avec des clients et des entreprises, partagez des actualités et faites la promotion de vos activités.",
+createPost: "Créer une publication",
+photo: "Photo",
+video: "Vidéo",
+post: "Publier",
+latestPosts: "Dernières publications",
         allRights: "Tous droits réservés."
     },
 
@@ -8547,7 +8559,13 @@ const PATRIODX_TRANSLATIONS = {
 
         privacy: "Política de privacidad",
         terms: "Términos de servicio",
-
+connect: "Conecta. Comparte. Crece.",
+socialDescription: "Conecta con clientes y empresas, comparte novedades y promociona lo que haces.",
+createPost: "Crear una publicación",
+photo: "Foto",
+video: "Vídeo",
+post: "Publicar",
+latestPosts: "Últimas publicaciones",
         allRights: "Todos los derechos reservados."
     }
 
