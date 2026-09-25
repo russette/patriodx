@@ -8472,6 +8472,12 @@ photo: "Photo",
 video: "Video",
 post: "Post",
 latestPosts: "Latest Posts",
+        main: "MAIN",
+business: "BUSINESS",
+grow: "GROW",
+growWithPatriodx: "Grow with PATRIODX",
+unlockTools: "Unlock more business tools.",
+viewPlans: "View Plans",
         allRights: "All rights reserved."
     },
 
@@ -8519,6 +8525,12 @@ photo: "Photo",
 video: "Vidéo",
 post: "Publier",
 latestPosts: "Dernières publications",
+        main: "PRINCIPAL",
+business: "ENTREPRISE",
+grow: "DÉVELOPPEMENT",
+growWithPatriodx: "Développez-vous avec PATRIODX",
+unlockTools: "Débloquez plus d'outils professionnels.",
+viewPlans: "Voir les offres",
         allRights: "Tous droits réservés."
     },
 
@@ -8566,6 +8578,12 @@ photo: "Foto",
 video: "Vídeo",
 post: "Publicar",
 latestPosts: "Últimas publicaciones",
+        main: "PRINCIPAL",
+business: "NEGOCIO",
+grow: "CRECER",
+growWithPatriodx: "Crece con PATRIODX",
+unlockTools: "Desbloquea más herramientas empresariales.",
+viewPlans: "Ver planes",
         allRights: "Todos los derechos reservados."
     }
 
