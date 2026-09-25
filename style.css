@@ -3780,3 +3780,180 @@ textarea:focus-visible {
     }
 
 }
+/* =========================================================
+   PATRIODX PROFILE
+========================================================= */
+
+.profile-page-card {
+    overflow: hidden;
+    border-radius: 18px;
+    background: var(--card-bg, #ffffff);
+    border: 1px solid rgba(128, 128, 128, 0.18);
+}
+
+.profile-cover {
+    height: 220px;
+    background:
+        linear-gradient(
+            135deg,
+            #111827,
+            #374151
+        );
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 0 25px 25px;
+    margin-top: -55px;
+    position: relative;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    min-width: 120px;
+    border-radius: 50%;
+    border: 5px solid var(--card-bg, #ffffff);
+    background: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    font-size: 45px;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-main-info {
+    flex: 1;
+    padding-top: 55px;
+}
+
+.profile-main-info h2 {
+    margin: 0;
+}
+
+.profile-username {
+    margin: 4px 0;
+    color: #777;
+}
+
+.profile-bio {
+    margin-top: 10px;
+}
+
+.profile-edit-button {
+    padding: 10px 16px;
+    border-radius: 9px;
+    border: none;
+    cursor: pointer;
+}
+
+.profile-stats {
+    display: flex;
+    gap: 45px;
+    padding: 18px 25px;
+    border-top: 1px solid rgba(128, 128, 128, 0.15);
+}
+
+.profile-stats div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.profile-stats strong {
+    font-size: 20px;
+}
+
+.profile-stats span {
+    color: #777;
+    font-size: 13px;
+}
+
+.profile-editor {
+    margin-top: 20px;
+}
+
+.profile-editor form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.profile-editor input,
+.profile-editor textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 9px;
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    font: inherit;
+    box-sizing: border-box;
+}
+
+.profile-editor label {
+    margin-top: 12px;
+    font-weight: 600;
+}
+
+.profile-editor small {
+    color: #777;
+}
+
+.profile-editor-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.profile-editor-actions button {
+    padding: 11px 18px;
+    border-radius: 9px;
+    border: none;
+    cursor: pointer;
+}
+
+.profile-posts {
+    margin-top: 30px;
+}
+
+@media (max-width: 700px) {
+
+    .profile-cover {
+        height: 160px;
+    }
+
+    .profile-header {
+        flex-wrap: wrap;
+        padding: 0 16px 20px;
+    }
+
+    .profile-avatar {
+        width: 90px;
+        height: 90px;
+        min-width: 90px;
+        font-size: 35px;
+    }
+
+    .profile-main-info {
+        padding-top: 45px;
+        min-width: calc(100% - 115px);
+    }
+
+    .profile-edit-button {
+        width: 100%;
+    }
+
+    .profile-stats {
+        justify-content: space-around;
+        gap: 10px;
+        padding: 15px;
+    }
+
+}
