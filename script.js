@@ -8422,3 +8422,354 @@ if (
     startPATRIODXNavigation();
 
 }
+/* =========================================================
+   PATRIODX LANGUAGE SYSTEM
+========================================================= */
+
+const PATRIODX_TRANSLATIONS = {
+
+    en: {
+        search: "Search PATRIODX...",
+        profile: "Profile",
+        notifications: "Notifications",
+        messages: "Messages",
+        logout: "Logout",
+
+        home: "Home",
+        dashboard: "Dashboard",
+        social: "Social",
+        analytics: "Analytics",
+        products: "Products",
+        customers: "Customers",
+        sales: "Sales",
+        invoices: "Invoices",
+        contact: "Contact",
+        account: "Account",
+        ai: "PATRIODX AI",
+
+        language: "Language",
+
+        welcome: "Welcome to PATRIODX",
+        runBusiness: "Run your business. Grow your money.",
+        connect: "Connect. Share. Grow.",
+
+        notificationsTitle: "Notifications",
+        messagesTitle: "Messages",
+        profileTitle: "Profile",
+
+        noNotifications: "No notifications yet",
+        noPosts: "No posts yet",
+
+        contactTitle: "Contact",
+        quickLinks: "Quick Links",
+
+        privacy: "Privacy Policy",
+        terms: "Terms of Service",
+
+        allRights: "All rights reserved."
+    },
+
+    fr: {
+        search: "Rechercher sur PATRIODX...",
+        profile: "Profil",
+        notifications: "Notifications",
+        messages: "Messages",
+        logout: "Déconnexion",
+
+        home: "Accueil",
+        dashboard: "Tableau de bord",
+        social: "Social",
+        analytics: "Analyses",
+        products: "Produits",
+        customers: "Clients",
+        sales: "Ventes",
+        invoices: "Factures",
+        contact: "Contact",
+        account: "Compte",
+        ai: "PATRIODX IA",
+
+        language: "Langue",
+
+        welcome: "Bienvenue sur PATRIODX",
+        runBusiness: "Gérez votre entreprise. Faites fructifier votre argent.",
+        connect: "Connectez-vous. Partagez. Développez-vous.",
+
+        notificationsTitle: "Notifications",
+        messagesTitle: "Messages",
+        profileTitle: "Profil",
+
+        noNotifications: "Aucune notification pour le moment",
+        noPosts: "Aucune publication pour le moment",
+
+        contactTitle: "Contact",
+        quickLinks: "Liens rapides",
+
+        privacy: "Politique de confidentialité",
+        terms: "Conditions d'utilisation",
+
+        allRights: "Tous droits réservés."
+    },
+
+    es: {
+        search: "Buscar en PATRIODX...",
+        profile: "Perfil",
+        notifications: "Notificaciones",
+        messages: "Mensajes",
+        logout: "Cerrar sesión",
+
+        home: "Inicio",
+        dashboard: "Panel",
+        social: "Social",
+        analytics: "Analítica",
+        products: "Productos",
+        customers: "Clientes",
+        sales: "Ventas",
+        invoices: "Facturas",
+        contact: "Contacto",
+        account: "Cuenta",
+        ai: "PATRIODX IA",
+
+        language: "Idioma",
+
+        welcome: "Bienvenido a PATRIODX",
+        runBusiness: "Administra tu negocio. Haz crecer tu dinero.",
+        connect: "Conecta. Comparte. Crece.",
+
+        notificationsTitle: "Notificaciones",
+        messagesTitle: "Mensajes",
+        profileTitle: "Perfil",
+
+        noNotifications: "Aún no hay notificaciones",
+        noPosts: "Aún no hay publicaciones",
+
+        contactTitle: "Contacto",
+        quickLinks: "Enlaces rápidos",
+
+        privacy: "Política de privacidad",
+        terms: "Términos de servicio",
+
+        allRights: "Todos los derechos reservados."
+    }
+
+};
+
+
+/* =========================================================
+   CURRENT LANGUAGE
+========================================================= */
+
+let PATRIODX_CURRENT_LANGUAGE =
+    localStorage.getItem(
+        "patriodxLanguage"
+    ) || "en";
+
+
+/* =========================================================
+   TRANSLATE ELEMENT
+========================================================= */
+
+function patriodxTranslateElement(
+    element,
+    language
+) {
+
+    if (!element) return;
+
+    const key =
+        element.dataset.i18n;
+
+    if (!key) return;
+
+    const translations =
+        PATRIODX_TRANSLATIONS[language];
+
+    if (!translations) return;
+
+    if (
+        Object.prototype.hasOwnProperty.call(
+            translations,
+            key
+        )
+    ) {
+
+        element.textContent =
+            translations[key];
+
+    }
+
+}
+
+
+/* =========================================================
+   APPLY TRANSLATIONS
+========================================================= */
+
+function applyPATRIODXLanguage(
+    language
+) {
+
+    if (
+        !PATRIODX_TRANSLATIONS[language]
+    ) {
+
+        language = "en";
+
+    }
+
+
+    PATRIODX_CURRENT_LANGUAGE =
+        language;
+
+
+    localStorage.setItem(
+        "patriodxLanguage",
+        language
+    );
+
+
+    document.documentElement.lang =
+        language;
+
+
+    const translations =
+        PATRIODX_TRANSLATIONS[language];
+
+
+    /* Elements using data-i18n */
+
+    document
+        .querySelectorAll(
+            "[data-i18n]"
+        )
+        .forEach(element => {
+
+            patriodxTranslateElement(
+                element,
+                language
+            );
+
+        });
+
+
+    /* Search placeholder */
+
+    const searchInput =
+        document.getElementById(
+            "globalSearchInput"
+        );
+
+    if (searchInput) {
+
+        searchInput.placeholder =
+            translations.search;
+
+    }
+
+
+    /* Profile */
+
+    const profileName =
+        document.getElementById(
+            "headerProfileName"
+        );
+
+    if (
+        profileName &&
+        (
+            !profileName.textContent.trim() ||
+            profileName.textContent.trim() === "Profile"
+        )
+    ) {
+
+        profileName.textContent =
+            translations.profile;
+
+    }
+
+
+    /* Language selector */
+
+    const selector =
+        document.getElementById(
+            "languageSelector"
+        );
+
+    if (
+        selector &&
+        selector.value !== language
+    ) {
+
+        selector.value =
+            language;
+
+    }
+
+}
+
+
+/* =========================================================
+   LANGUAGE SELECTOR
+========================================================= */
+
+function setupPATRIODXLanguageSelector() {
+
+    const selector =
+        document.getElementById(
+            "languageSelector"
+        );
+
+
+    if (!selector) return;
+
+
+    if (
+        selector.dataset.languageReady ===
+        "true"
+    ) {
+        return;
+    }
+
+
+    selector.dataset.languageReady =
+        "true";
+
+
+    selector.addEventListener(
+        "change",
+        function() {
+
+            applyPATRIODXLanguage(
+                this.value
+            );
+
+        }
+    );
+
+
+    applyPATRIODXLanguage(
+        PATRIODX_CURRENT_LANGUAGE
+    );
+
+}
+
+
+/* =========================================================
+   START LANGUAGE SYSTEM
+========================================================= */
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        setupPATRIODXLanguageSelector,
+        { once: true }
+    );
+
+} else {
+
+    setupPATRIODXLanguageSelector();
+
+}
