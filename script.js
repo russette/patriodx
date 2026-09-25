@@ -7871,7 +7871,8 @@ const PATRIODX_EXTRA_SECTIONS = [
     ".final-cta",
     ".stats-grid",
     ".recent-activity",
-    ".danger-zone"
+    ".danger-zone",
+    "footer"
 ];
 
 
@@ -7957,19 +7958,19 @@ function navigatePATRIODX(page) {
 
     /* Home */
 
-    if (page === "home") {
+  if (page === "home") {
 
-        document
-            .querySelectorAll(
-                ".landing-section, .features-section, .pricing-section, .final-cta"
-            )
-            .forEach(element => {
+    document
+        .querySelectorAll(
+            ".landing-section, .features-section, .pricing-section, .final-cta, footer"
+        )
+        .forEach(element => {
 
-                patriodxShow(element);
+            patriodxShow(element);
 
-            });
+        });
 
-    }
+}
 
 
     /* Dashboard */
