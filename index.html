@@ -22,36 +22,404 @@
 
 <body>
 
-
 <!-- =========================================================
-     HEADER
+     PATRIODX PLATFORM HEADER
 ========================================================= -->
 
-<header class="topbar">
-    <a href="#" class="logo">
-        <img src="assets/patriodx-logo.jpeg" alt="PATRIODX">
+<header class="patriodx-header">
+
+    <!-- LEFT: BRAND -->
+    <div class="patriodx-brand">
+
+        <button
+            type="button"
+            id="mobileMenuButton"
+            class="mobile-menu-button"
+            aria-label="Open menu"
+        >
+            ☰
+        </button>
+
+        <a href="#home" class="patriodx-logo">
+
+            <img
+                src="assets/patriodx-logo.jpeg"
+                alt="PATRIODX"
+            >
+
+            <span>PATRIODX</span>
+
+        </a>
+
+    </div>
+
+
+    <!-- CENTER: SEARCH -->
+    <div class="patriodx-global-search">
+
+        <span>🔎</span>
+
+        <input
+            type="search"
+            id="globalSearchInput"
+            placeholder="Search PATRIODX..."
+            autocomplete="off"
+        >
+
+    </div>
+
+
+    <!-- RIGHT: ACTIONS -->
+    <div class="patriodx-header-actions">
+
+        <button
+            type="button"
+            class="header-icon-button"
+            onclick="scrollToSection('notifications')"
+            title="Notifications"
+        >
+            🔔
+            <span
+                id="notificationBadge"
+                class="header-badge"
+                style="display:none;"
+            >
+                0
+            </span>
+        </button>
+
+
+        <button
+            type="button"
+            class="header-icon-button"
+            onclick="scrollToSection('messaging')"
+            title="Messages"
+        >
+            💬
+            <span
+                id="messageBadge"
+                class="header-badge"
+                style="display:none;"
+            >
+                0
+            </span>
+        </button>
+
+
+        <!-- LANGUAGE -->
+        <select
+            id="languageSelector"
+            class="language-selector"
+            title="Language"
+        >
+            <option value="en">🌐 English</option>
+            <option value="fr">🇫🇷 Français</option>
+            <option value="es">🇪🇸 Español</option>
+            <option value="pt">🇵🇹 Português</option>
+            <option value="de">🇩🇪 Deutsch</option>
+            <option value="it">🇮🇹 Italiano</option>
+            <option value="ar">🇸🇦 العربية</option>
+            <option value="zh">🇨🇳 中文</option>
+            <option value="ja">🇯🇵 日本語</option>
+            <option value="ko">🇰🇷 한국어</option>
+            <option value="hi">🇮🇳 हिन्दी</option>
+            <option value="sw">🇰🇪 Kiswahili</option>
+        </select>
+
+
+        <!-- PROFILE -->
+        <button
+            type="button"
+            class="header-profile-button"
+            onclick="scrollToSection('profile')"
+            title="Your Profile"
+        >
+
+            <span id="headerProfileAvatar">
+                👤
+            </span>
+
+            <span
+                id="headerProfileName"
+                class="header-profile-name"
+            >
+                Profile
+            </span>
+
+        </button>
+
+
+        <!-- THEME -->
+        <button
+            id="themeToggle"
+            class="header-icon-button"
+            type="button"
+            title="Toggle theme"
+        >
+            🌙
+        </button>
+
+
+        <!-- LOGOUT -->
+        <button
+            id="logoutButton"
+            class="header-logout-button"
+            type="button"
+        >
+            Logout
+        </button>
+
+    </div>
+
+</header>
+
+
+<!-- =========================================================
+     PATRIODX DESKTOP SIDEBAR
+========================================================= -->
+
+<aside
+    id="patriodxSidebar"
+    class="patriodx-sidebar"
+>
+
+    <div class="sidebar-section">
+
+        <p class="sidebar-label">
+            MAIN
+        </p>
+
+        <a
+            href="#home"
+            class="sidebar-link active"
+            data-page="home"
+        >
+            <span>🏠</span>
+            <span>Home</span>
+        </a>
+
+        <a
+            href="#profile"
+            class="sidebar-link"
+            data-page="profile"
+        >
+            <span>👤</span>
+            <span>Profile</span>
+        </a>
+
+        <a
+            href="#social"
+            class="sidebar-link"
+            data-page="social"
+        >
+            <span>🌐</span>
+            <span>Social</span>
+        </a>
+
+        <a
+            href="#messaging"
+            class="sidebar-link"
+            data-page="messaging"
+        >
+            <span>💬</span>
+            <span>Messages</span>
+        </a>
+
+        <a
+            href="#notifications"
+            class="sidebar-link"
+            data-page="notifications"
+        >
+            <span>🔔</span>
+            <span>Notifications</span>
+        </a>
+
+    </div>
+
+
+    <div class="sidebar-section">
+
+        <p class="sidebar-label">
+            BUSINESS
+        </p>
+
+        <a
+            href="#dashboard"
+            class="sidebar-link"
+            data-page="dashboard"
+        >
+            <span>📊</span>
+            <span>Dashboard</span>
+        </a>
+
+        <a
+            href="#analytics"
+            class="sidebar-link"
+            data-page="analytics"
+        >
+            <span>📈</span>
+            <span>Analytics</span>
+        </a>
+
+        <a
+            href="#products"
+            class="sidebar-link"
+            data-page="products"
+        >
+            <span>📦</span>
+            <span>Products</span>
+        </a>
+
+        <a
+            href="#customers"
+            class="sidebar-link"
+            data-page="customers"
+        >
+            <span>👥</span>
+            <span>Customers</span>
+        </a>
+
+        <a
+            href="#sales"
+            class="sidebar-link"
+            data-page="sales"
+        >
+            <span>🛒</span>
+            <span>Sales</span>
+        </a>
+
+        <a
+            href="#invoices"
+            class="sidebar-link"
+            data-page="invoices"
+        >
+            <span>🧾</span>
+            <span>Invoices</span>
+        </a>
+
+    </div>
+
+
+    <div class="sidebar-section">
+
+        <p class="sidebar-label">
+            GROW
+        </p>
+
+        <a
+            href="#patriodxAI"
+            class="sidebar-link"
+            data-page="ai"
+        >
+            <span>🤖</span>
+            <span>PATRIODX AI</span>
+        </a>
+
+        <a
+            href="#contact"
+            class="sidebar-link"
+            data-page="contact"
+        >
+            <span>🛟</span>
+            <span>Support</span>
+        </a>
+
+        <a
+            href="#account"
+            class="sidebar-link"
+            data-page="account"
+        >
+            <span>⚙️</span>
+            <span>Settings</span>
+        </a>
+
+    </div>
+
+
+    <!-- SIDEBAR FOOTER -->
+
+    <div class="sidebar-footer">
+
+        <div class="sidebar-upgrade-card">
+
+            <span>🚀</span>
+
+            <strong>
+                Grow with PATRIODX
+            </strong>
+
+            <small>
+                Unlock more business tools.
+            </small>
+
+            <button
+                type="button"
+                onclick="scrollToSection('account')"
+            >
+                View Plans
+            </button>
+
+        </div>
+
+    </div>
+
+</aside>
+
+
+<!-- =========================================================
+     MOBILE BOTTOM NAVIGATION
+========================================================= -->
+
+<nav
+    id="mobileBottomNav"
+    class="mobile-bottom-nav"
+>
+
+    <a
+        href="#home"
+        class="mobile-nav-link active"
+    >
+        <span>🏠</span>
+        <small>Home</small>
     </a>
 
-    <nav>
-        <a href="#profile">👤 Profile</a>
-        <a href="#social">🌐 Social</a>
-        <a href="#messaging">💬 Messages</a>
-        <a href="#notifications">🔔 Notifications</a>
-        <a href="#dashboard">Dashboard</a>
-        <a href="#analytics">Analytics</a>
-        <a href="#products">Products</a>
-        <a href="#customers">Customers</a>
-        <a href="#sales">Sales</a>
-        <a href="#invoices">Invoices</a>
-        <a href="#contact">Contact</a>
-        <a href="#account">⚙️ Account</a>
-    </nav>
 
-    <button id="themeToggle" class="theme-toggle" type="button">
-        🌙 Dark Mode
-    </button>
-    <button id="logoutButton" type="button">Logout</button>
-</header>
+    <a
+        href="#social"
+        class="mobile-nav-link"
+    >
+        <span>🌐</span>
+        <small>Social</small>
+    </a>
+
+
+    <a
+        href="#messaging"
+        class="mobile-nav-link"
+    >
+        <span>💬</span>
+        <small>Messages</small>
+    </a>
+
+
+    <a
+        href="#notifications"
+        class="mobile-nav-link"
+    >
+        <span>🔔</span>
+        <small>Alerts</small>
+    </a>
+
+
+    <a
+        href="#profile"
+        class="mobile-nav-link"
+    >
+        <span>👤</span>
+        <small>Profile</small>
+    </a>
+
+</nav>
 <!-- =========================================================
      MAIN
 ========================================================= -->
@@ -64,10 +432,9 @@
 ========================================================= -->
 
 <section
-    id="landing"
+    id="home"
     class="landing-section"
 >
-
     <div class="landing-content">
 
         <p class="eyebrow">
