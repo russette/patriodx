@@ -7891,9 +7891,15 @@ function navigatePATRIODX(pageId, updateUrl = true) {
 
         const page = document.getElementById(id);
 
-        if (page) {
-            page.style.display = "none";
-        }
+       if (page) {
+
+    page.style.setProperty(
+        "display",
+        "none",
+        "important"
+    );
+
+}
 
     });
 
@@ -7904,17 +7910,23 @@ function navigatePATRIODX(pageId, updateUrl = true) {
 
     const selectedPage = document.getElementById(pageId);
 
-    if (selectedPage) {
+   if (selectedPage) {
 
-        selectedPage.style.display = "block";
+    selectedPage.style.setProperty(
+        "display",
+        "block",
+        "important"
+    );
 
-        /*
-           Start the selected view at its own top
-        */
+    selectedPage.style.visibility = "visible";
+    selectedPage.style.opacity = "1";
 
-        window.scrollTo(0, 0);
+    window.scrollTo({
+        top: 0,
+        behavior: "instant"
+    });
 
-    }
+}
 
 
     /*
