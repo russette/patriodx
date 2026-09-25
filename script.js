@@ -3311,7 +3311,6 @@ function setupForms() {
 // =========================================================
 // START PATRIODX
 // =========================================================
-
 async function startPATRIODX() {
 
     const authenticated =
@@ -3323,8 +3322,6 @@ async function startPATRIODX() {
 
     loadPlan();
 
-    
-
     setupSearch();
 
     setupDarkMode();
@@ -3334,9 +3331,7 @@ async function startPATRIODX() {
     setupForms();
 
     document
-        .getElementById(
-            "logoutButton"
-        )
+        .getElementById("logoutButton")
         ?.addEventListener(
             "click",
             logoutUser
@@ -3344,12 +3339,15 @@ async function startPATRIODX() {
 
     renderAll();
 
+    // Load the PATRIODX Home feed
+    if (typeof loadSocialFeed === "function") {
+        await loadSocialFeed();
+    }
+
     console.log(
         "PATRIODX connected successfully."
     );
 }
-
-
 // =========================================================
 // LOGOUT
 // =========================================================
