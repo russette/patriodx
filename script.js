@@ -6293,3 +6293,884 @@ if (currentUser) {
 
 window.markNotificationRead =
     markNotificationRead;
+/* =========================================================
+   PATRIODX PROFILE / IDENTITY SYSTEM
+========================================================= */
+
+const profileForm =
+    document.getElementById("profileForm");
+
+const editProfileButton =
+    document.getElementById("editProfileButton");
+
+const cancelProfileButton =
+    document.getElementById("cancelProfileButton");
+
+const profileEditor =
+    document.getElementById("profileEditor");
+
+const profileUsernameInput =
+    document.getElementById("profileUsernameInput");
+
+const profileDisplayNameInput =
+    document.getElementById("profileDisplayNameInput");
+
+const profileBioInput =
+    document.getElementById("profileBioInput");
+
+const profileAvatarInput =
+    document.getElementById("profileAvatarInput");
+
+const profileDisplayName =
+    document.getElementById("profileDisplayName");
+
+const profileUsername =
+    document.getElementById("profileUsername");
+
+const profileBio =
+    document.getElementById("profileBio");
+
+const profileAvatar =
+    document.getElementById("profileAvatar");
+
+const profilePosts =
+    document.getElementById("profilePosts");
+
+const profilePostCount =
+    document.getElementById("profilePostCount");
+
+let currentProfile = null;
+
+
+/* =========================================================
+   LOAD PROFILE
+========================================================= */
+
+async function loadMyProfile() {
+
+    if (!currentUser) return;
+
+
+    const { data: profile, error } =
+        await supabaseClient
+            .from("profiles")
+            .select("*")
+            .eq(
+                "id",
+                currentUser.id
+            )
+            .maybeSingle();
+
+
+    if (error) {
+
+        console.error(
+            "Profile loading error:",
+            error
+        );
+
+        return;
+    }
+
+
+    currentProfile =
+        profile;
+
+
+    /*
+       If profile doesn't exist,
+       automatically create a basic one.
+    */
+
+    if (!profile) {
+
+        const defaultName =
+            currentUser.user_metadata?.full_name ||
+            currentUser.email?.split("@")[0] ||
+            "PATRIODX User";
+
+
+        const { data: newProfile, error: createError } =
+            await supabaseClient
+                .from("profiles")
+                .insert({
+
+                    id:
+                        currentUser.id,
+
+                    display_name:
+                        defaultName
+
+                })
+                .select()
+                .single();
+
+
+        if (createError) {
+
+            console.error(
+                "Could not create profile:",
+                createError
+            );
+
+            return;
+        }
+
+
+        currentProfile =
+            newProfile;
+    }
+
+
+    renderMyProfile();
+
+    await loadMyProfilePosts();
+}
+
+
+/* =========================================================
+   RENDER PROFILE
+========================================================= */
+
+function renderMyProfile() {
+
+    if (!currentProfile) return;
+
+
+    const displayName =
+        currentProfile.display_name ||
+        "PATRIODX User";
+
+
+    const username =
+        currentProfile.username ||
+        "username";
+
+
+    const bio =
+        currentProfile.bio ||
+        "Welcome to PATRIODX.";
+
+
+    if (profileDisplayName) {
+
+        profileDisplayName.textContent =
+            displayName;
+    }
+
+
+    if (profileUsername) {
+
+        profileUsername.textContent =
+            `@${username}`;
+    }
+
+
+    if (profileBio) {
+
+        profileBio.textContent =
+            bio;
+    }
+
+
+    if (profileAvatar) {
+
+        if (currentProfile.avatar_url) {
+
+            profileAvatar.innerHTML = `
+
+                <img
+                    src="${safe(currentProfile.avatar_url)}"
+                    alt="Profile picture"
+                >
+
+            `;
+
+        } else {
+
+            profileAvatar.innerHTML =
+                "👤";
+        }
+    }
+}
+
+
+/* =========================================================
+   OPEN EDIT PROFILE
+========================================================= */
+
+if (editProfileButton) {
+
+    editProfileButton.addEventListener(
+        "click",
+        function () {
+
+            if (!currentProfile) return;
+
+
+            profileUsernameInput.value =
+                currentProfile.username || "";
+
+
+            profileDisplayNameInput.value =
+                currentProfile.display_name || "";
+
+
+            profileBioInput.value =
+                currentProfile.bio || "";
+
+
+            profileEditor.style.display =
+                "block";
+
+
+            profileEditor.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+
+        }
+    );
+}
+
+
+/* =========================================================
+   CANCEL EDIT
+========================================================= */
+
+if (cancelProfileButton) {
+
+    cancelProfileButton.addEventListener(
+        "click",
+        function () {
+
+            profileEditor.style.display =
+                "none";
+
+        }
+    );
+}
+
+
+/* =========================================================
+   USERNAME VALIDATION
+========================================================= */
+
+function validatePATRIODXUsername(username) {
+
+    /*
+       Username rules:
+
+       3–30 characters
+       letters
+       numbers
+       underscore
+       period
+    */
+
+    const usernameRegex =
+        /^[a-zA-Z0-9_.]{3,30}$/;
+
+
+    return usernameRegex.test(
+        username
+    );
+}
+
+
+/* =========================================================
+   CHECK USERNAME AVAILABILITY
+========================================================= */
+
+async function checkPATRIODXUsername(
+    username
+) {
+
+    const normalized =
+        username
+            .trim()
+            .toLowerCase();
+
+
+    const { data, error } =
+        await supabaseClient
+            .from("profiles")
+            .select("id")
+            .ilike(
+                "username",
+                normalized
+            )
+            .neq(
+                "id",
+                currentUser.id
+            )
+            .limit(1);
+
+
+    if (error) {
+
+        console.error(
+            "Username check error:",
+            error
+        );
+
+        throw error;
+    }
+
+
+    return !data || data.length === 0;
+}
+
+
+/* =========================================================
+   UPLOAD PROFILE PHOTO
+========================================================= */
+
+async function uploadProfileAvatar(file) {
+
+    if (!file || !currentUser) {
+        return null;
+    }
+
+
+    if (
+        !file.type.startsWith("image/")
+    ) {
+
+        throw new Error(
+            "Profile picture must be an image."
+        );
+    }
+
+
+    if (
+        file.size >
+        5 * 1024 * 1024
+    ) {
+
+        throw new Error(
+            "Profile picture must be smaller than 5 MB."
+        );
+    }
+
+
+    const extension =
+        file.name
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+
+    const fileName =
+        `avatar-${crypto.randomUUID()}.${extension}`;
+
+
+    const filePath =
+        `${currentUser.id}/profile/${fileName}`;
+
+
+    const { error } =
+        await supabaseClient
+            .storage
+            .from("patriodx-media")
+            .upload(
+                filePath,
+                file,
+                {
+                    cacheControl: "3600",
+                    upsert: false
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Profile avatar upload error:",
+            error
+        );
+
+        throw error;
+    }
+
+
+    const { data } =
+        supabaseClient
+            .storage
+            .from("patriodx-media")
+            .getPublicUrl(
+                filePath
+            );
+
+
+    return data.publicUrl;
+}
+
+
+/* =========================================================
+   SAVE PROFILE
+========================================================= */
+
+if (profileForm) {
+
+    profileForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            if (!currentUser) {
+
+                alert(
+                    "Please log in first."
+                );
+
+                return;
+            }
+
+
+            const username =
+                profileUsernameInput.value
+                    .trim()
+                    .toLowerCase();
+
+
+            const displayName =
+                profileDisplayNameInput.value
+                    .trim();
+
+
+            const bio =
+                profileBioInput.value
+                    .trim();
+
+
+            if (
+                !validatePATRIODXUsername(
+                    username
+                )
+            ) {
+
+                alert(
+                    "Username must be 3–30 characters and can only contain letters, numbers, underscores, and periods."
+                );
+
+                return;
+            }
+
+
+            if (!displayName) {
+
+                alert(
+                    "Please enter a display name."
+                );
+
+                return;
+            }
+
+
+            const saveButton =
+                document.getElementById(
+                    "saveProfileButton"
+                );
+
+
+            saveButton.disabled =
+                true;
+
+            saveButton.textContent =
+                "Saving...";
+
+
+            try {
+
+                /*
+                   Check username availability
+                */
+
+                const available =
+                    await checkPATRIODXUsername(
+                        username
+                    );
+
+
+                if (!available) {
+
+                    alert(
+                        `@${username} is already taken. Please choose another username.`
+                    );
+
+                    saveButton.disabled =
+                        false;
+
+                    saveButton.textContent =
+                        "Save Profile";
+
+                    return;
+                }
+
+
+                /*
+                   Upload new avatar if selected
+                */
+
+                let avatarUrl =
+                    currentProfile?.avatar_url ||
+                    null;
+
+
+                const avatarFile =
+                    profileAvatarInput?.files?.[0];
+
+
+                if (avatarFile) {
+
+                    avatarUrl =
+                        await uploadProfileAvatar(
+                            avatarFile
+                        );
+                }
+
+
+                /*
+                   Save profile
+                */
+
+                const { data, error } =
+                    await supabaseClient
+                        .from("profiles")
+                        .upsert({
+
+                            id:
+                                currentUser.id,
+
+                            username:
+                                username,
+
+                            display_name:
+                                displayName,
+
+                            avatar_url:
+                                avatarUrl,
+
+                            bio:
+                                bio
+
+                        })
+                        .select()
+                        .single();
+
+
+                if (error) {
+
+                    /*
+                       Unique username race-condition
+                    */
+
+                    if (
+                        error.code === "23505"
+                    ) {
+
+                        throw new Error(
+                            "That username was just taken. Please choose another."
+                        );
+                    }
+
+
+                    throw error;
+                }
+
+
+                currentProfile =
+                    data;
+
+
+                renderMyProfile();
+
+
+                profileEditor.style.display =
+                    "none";
+
+
+                profileAvatarInput.value =
+                    "";
+
+
+                alert(
+                    "✅ Your PATRIODX profile has been updated!"
+                );
+
+
+                await loadMyProfilePosts();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Profile save error:",
+                    error
+                );
+
+
+                alert(
+                    "Could not save your profile.\n\n" +
+                    error.message
+                );
+
+            } finally {
+
+                saveButton.disabled =
+                    false;
+
+                saveButton.textContent =
+                    "Save Profile";
+            }
+
+        }
+    );
+}
+
+
+/* =========================================================
+   LOAD MY POSTS
+========================================================= */
+
+async function loadMyProfilePosts() {
+
+    if (
+        !currentUser ||
+        !profilePosts
+    ) {
+        return;
+    }
+
+
+    profilePosts.innerHTML = `
+        <div class="social-empty-state">
+
+            <div>⏳</div>
+
+            <h3>
+                Loading your posts...
+            </h3>
+
+        </div>
+    `;
+
+
+    const { data: posts, error } =
+        await supabaseClient
+            .from("posts")
+            .select("*")
+            .eq(
+                "user_id",
+                currentUser.id
+            )
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Profile posts error:",
+            error
+        );
+
+        profilePosts.innerHTML = `
+            <div class="social-empty-state">
+
+                <div>⚠️</div>
+
+                <h3>
+                    Could not load your posts
+                </h3>
+
+                <p>
+                    ${safe(error.message)}
+                </p>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    if (!posts || posts.length === 0) {
+
+        profilePosts.innerHTML = `
+            <div class="social-empty-state">
+
+                <div>📝</div>
+
+                <h3>
+                    No posts yet
+                </h3>
+
+                <p>
+                    Your posts will appear here.
+                </p>
+
+            </div>
+        `;
+
+
+        if (profilePostCount) {
+
+            profilePostCount.textContent =
+                "0";
+        }
+
+        return;
+    }
+
+
+    if (profilePostCount) {
+
+        profilePostCount.textContent =
+            posts.length;
+    }
+
+
+    profilePosts.innerHTML =
+        posts
+            .map(post => {
+
+                const image =
+                    post.image_url
+                        ? `
+                            <img
+                                src="${safe(post.image_url)}"
+                                class="social-post-image"
+                                alt="Post image"
+                                loading="lazy"
+                            >
+                        `
+                        : "";
+
+
+                const video =
+                    post.video_url
+                        ? `
+                            <video
+                                src="${safe(post.video_url)}"
+                                class="social-post-video"
+                                controls
+                                preload="metadata"
+                            ></video>
+                        `
+                        : "";
+
+
+                return `
+
+                    <article
+                        class="social-post-card"
+                    >
+
+                        <div
+                            class="social-post-header"
+                        >
+
+                            <div
+                                class="social-post-avatar"
+                            >
+                                ${
+                                    currentProfile?.avatar_url
+                                        ? `
+                                            <img
+                                                src="${safe(currentProfile.avatar_url)}"
+                                                alt="Profile"
+                                                style="
+                                                    width:100%;
+                                                    height:100%;
+                                                    object-fit:cover;
+                                                    border-radius:50%;
+                                                "
+                                            >
+                                        `
+                                        : "👤"
+                                }
+                            </div>
+
+
+                            <div>
+
+                                <div
+                                    class="social-post-author"
+                                >
+                                    ${safe(
+                                        currentProfile?.display_name ||
+                                        "PATRIODX User"
+                                    )}
+                                </div>
+
+
+                                <div
+                                    class="social-post-date"
+                                >
+                                    ${formatDate(
+                                        post.created_at
+                                    )}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        ${
+                            post.content
+                                ? `
+                                    <div
+                                        class="social-post-content"
+                                    >
+                                        ${safe(
+                                            post.content
+                                        )}
+                                    </div>
+                                `
+                                : ""
+                        }
+
+
+                        ${image}
+
+                        ${video}
+
+                    </article>
+
+                `;
+
+            })
+            .join("");
+}
+
+
+/* =========================================================
+   INITIALIZE PROFILE
+========================================================= */
+
+async function initializePATRIODXProfile() {
+
+    if (!currentUser) return;
+
+    await loadMyProfile();
+}
+
+
+/* =========================================================
+   MAKE PROFILE FUNCTIONS AVAILABLE
+========================================================= */
+
+window.loadMyProfile =
+    loadMyProfile;
+
+window.initializePATRIODXProfile =
+    initializePATRIODXProfile;
