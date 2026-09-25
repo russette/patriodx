@@ -7195,3 +7195,33 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+// ==========================================
+// PATRIODX PROFILE EDIT BUTTON
+// ==========================================
+
+function openProfileEditor() {
+    const editor = document.getElementById("profileEditor");
+
+    if (!editor) {
+        alert("Profile editor could not be found.");
+        return;
+    }
+
+    editor.style.display = "block";
+
+    editor.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+
+function closeProfileEditor() {
+    const editor = document.getElementById("profileEditor");
+
+    if (editor) {
+        editor.style.display = "none";
+    }
+}
+
+window.openProfileEditor = openProfileEditor;
+window.closeProfileEditor = closeProfileEditor;
