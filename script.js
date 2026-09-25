@@ -2697,7 +2697,7 @@ function sendContactMessage(event) {
         `Name: ${name}\nEmail: ${email}\n\n${message}`;
 
     window.location.href =
-        `mailto:crarcss@gmail.com?subject=${encodeURIComponent(
+        `mailto:patriodx@gmail.com?subject=${encodeURIComponent(
             subject
         )}&body=${encodeURIComponent(
             body
