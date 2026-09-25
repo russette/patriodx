@@ -33,6 +33,7 @@
     </a>
 
     <nav>
+        <a href="#profile">👤 Profile</a>
         <a href="#social">🌐 Social</a>
         <a href="#messaging">💬 Messages</a>
         <a href="#notifications">🔔 Notifications</a>
@@ -1083,6 +1084,259 @@
     </div>
 
 </div>
+    <!-- =========================================================
+     PATRIODX PROFILE
+========================================================= -->
+
+<section id="profile" class="section">
+
+    <div class="section-heading">
+
+        <div>
+
+            <p class="eyebrow">
+                👤 PATRIODX PROFILE
+            </p>
+
+            <h2>Your Profile</h2>
+
+            <p>
+                Build your identity on PATRIODX.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="profile-page-card">
+
+        <!-- COVER -->
+
+        <div
+            id="profileCover"
+            class="profile-cover"
+        ></div>
+
+
+        <!-- PROFILE HEADER -->
+
+        <div class="profile-header">
+
+            <div
+                id="profileAvatar"
+                class="profile-avatar"
+            >
+                👤
+            </div>
+
+
+            <div class="profile-main-info">
+
+                <h2
+                    id="profileDisplayName"
+                >
+                    Your Name
+                </h2>
+
+                <p
+                    id="profileUsername"
+                    class="profile-username"
+                >
+                    @username
+                </p>
+
+                <p
+                    id="profileBio"
+                    class="profile-bio"
+                >
+                    Tell people about yourself.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="editProfileButton"
+                class="profile-edit-button"
+            >
+                ✏️ Edit Profile
+            </button>
+
+        </div>
+
+
+        <!-- PROFILE STATS -->
+
+        <div class="profile-stats">
+
+            <div>
+                <strong id="profilePostCount">
+                    0
+                </strong>
+
+                <span>
+                    Posts
+                </span>
+            </div>
+
+
+            <div>
+                <strong>
+                    0
+                </strong>
+
+                <span>
+                    Followers
+                </span>
+            </div>
+
+
+            <div>
+                <strong>
+                    0
+                </strong>
+
+                <span>
+                    Following
+                </span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- EDIT PROFILE -->
+
+    <div
+        id="profileEditor"
+        class="chart-card profile-editor"
+        style="display:none;"
+    >
+
+        <div class="section-heading">
+
+            <div>
+
+                <h3>
+                    Edit Your Profile
+                </h3>
+
+                <p>
+                    Customize how people see you
+                    on PATRIODX.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form id="profileForm">
+
+            <label>
+                Username
+            </label>
+
+            <input
+                type="text"
+                id="profileUsernameInput"
+                placeholder="username"
+                maxlength="30"
+                autocomplete="off"
+                required
+            >
+
+            <small>
+                Your unique PATRIODX username.
+            </small>
+
+
+            <label>
+                Display Name
+            </label>
+
+            <input
+                type="text"
+                id="profileDisplayNameInput"
+                placeholder="Your name"
+                maxlength="80"
+                required
+            >
+
+
+            <label>
+                Bio
+            </label>
+
+            <textarea
+                id="profileBioInput"
+                placeholder="Tell people about yourself..."
+                maxlength="300"
+                rows="4"
+            ></textarea>
+
+
+            <label>
+                Profile Picture
+            </label>
+
+            <input
+                type="file"
+                id="profileAvatarInput"
+                accept="image/*"
+            >
+
+
+            <div class="profile-editor-actions">
+
+                <button
+                    type="submit"
+                    id="saveProfileButton"
+                >
+                    Save Profile
+                </button>
+
+                <button
+                    type="button"
+                    id="cancelProfileButton"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- USER POSTS -->
+
+    <div class="profile-posts">
+
+        <div class="section-heading">
+
+            <div>
+
+                <h3>
+                    Your Posts
+                </h3>
+
+            </div>
+
+        </div>
+
+        <div
+            id="profilePosts"
+            class="social-feed"
+        ></div>
+
+    </div>
+
+</section>
 <!-- =========================================================
      PATRIODX SOCIAL
 ========================================================= -->
