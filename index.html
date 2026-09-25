@@ -374,157 +374,129 @@
 
 <section
     id="home"
-    class="landing-section"
+    class="section patriodx-home"
 >
-    <div class="landing-content">
 
-        <p class="eyebrow">
-         PATRIODX • SIMPLE BUSINESS MANAGEMENT
-        </p>
+    <!-- HOME HEADER -->
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">🌐 PATRIODX</p>
 
+            <h2>Home</h2>
 
-        <h1>
-
-            Run your business.
-
-            <span>
-                Grow your money.
-            </span>
-
-        </h1>
-
-
-        <p class="landing-description">
-
-          PATRIODX helps small businesses manage products,
-            customers, sales and invoices from one simple dashboard.
-
-        </p>
-
-
-        <div class="landing-buttons">
-
-            <button
-                type="button"
-                onclick="scrollToSection('dashboard')"
-            >
-                🚀 Start Managing
-            </button>
-
-
-            <button
-                type="button"
-                class="secondary-btn"
-                onclick="scrollToSection('pricing')"
-            >
-                View Pricing →
-            </button>
-
+            <p>
+                See what's happening across the PATRIODX community.
+            </p>
         </div>
+    </div>
 
 
-        <div class="landing-trust">
+    <!-- CREATE POST -->
+    <div class="chart-card home-create-card">
 
-            <span>
-                📦 Inventory
-            </span>
+        <h3>Create a Post</h3>
 
-            <span>
-                🧾 Invoices
-            </span>
+        <form id="homePostForm">
 
-            <span>
-                💰 Sales
-            </span>
+            <textarea
+                id="homePostContent"
+                placeholder="What's happening?"
+                rows="3"
+                maxlength="2000"
+            ></textarea>
 
-            <span>
-                📊 Analytics
-            </span>
 
-        </div>
+            <div
+                id="homeMediaPreview"
+                class="social-media-preview"
+                style="display:none;"
+            ></div>
+
+
+            <div class="social-upload-area">
+
+                <label
+                    for="homeImageInput"
+                    class="social-upload-button"
+                >
+                    📷 Photo
+                </label>
+
+                <input
+                    type="file"
+                    id="homeImageInput"
+                    accept="image/*"
+                    hidden
+                >
+
+
+                <label
+                    for="homeVideoInput"
+                    class="social-upload-button"
+                >
+                    🎥 Video
+                </label>
+
+                <input
+                    type="file"
+                    id="homeVideoInput"
+                    accept="video/*"
+                    hidden
+                >
+
+            </div>
+
+
+            <div class="social-post-actions">
+
+                <button
+                    type="submit"
+                    id="homePostButton"
+                >
+                    📢 Post
+                </button>
+
+            </div>
+
+        </form>
 
     </div>
 
 
+    <!-- HOME FEED -->
+    <div class="social-feed-container">
 
-    <div class="landing-preview">
+        <div class="section-heading">
 
-        <div class="preview-header">
+            <div>
 
-          <strong>
-    PATRIODX
-</strong>
-            <span>
-                ● LIVE
-            </span>
+                <h3>Latest Posts</h3>
+
+                <p>
+                    Posts from the PATRIODX community.
+                </p>
+
+            </div>
 
         </div>
 
 
-        <div class="preview-stat">
+        <div
+            id="homeFeed"
+            class="social-feed"
+        >
 
-            <small>
-                Total Revenue
-            </small>
+            <div class="social-empty-state">
 
-            <strong>
-                $12,480.00
-            </strong>
+                <div>🌐</div>
 
-        </div>
+                <h3>No posts yet</h3>
 
+                <p>
+                    Be the first to share something
+                    with the PATRIODX community.
+                </p>
 
-        <div class="preview-grid">
-
-            <div>
-                📦
-
-                <strong>
-                    128
-                </strong>
-
-                <small>
-                    Products
-                </small>
-            </div>
-
-
-            <div>
-                👥
-
-                <strong>
-                    64
-                </strong>
-
-                <small>
-                    Customers
-                </small>
-            </div>
-
-
-            <div>
-                🛒
-
-                <strong>
-                    342
-                </strong>
-
-                <small>
-                    Sales
-                </small>
-            </div>
-
-
-            <div>
-                🧾
-
-                <strong>
-                    28
-                </strong>
-
-                <small>
-                    Invoices
-                </small>
             </div>
 
         </div>
@@ -532,7 +504,6 @@
     </div>
 
 </section>
-
 
 
 <!-- =========================================================
@@ -1824,6 +1795,12 @@
 >
     🎥 Video
 </label>
+        <input
+    type="file"
+    id="socialImageInput"
+    accept="image/*"
+    hidden
+>
         <input
             type="file"
             id="socialVideoInput"
