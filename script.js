@@ -7276,27 +7276,44 @@ async function uploadProfileAvatar(file) {
    SAVE PROFILE
 ========================================================= */
 
-document.addEventListener("submit", async function(event) {
-
-    if (event.target.id !== "profileForm") {
-        return;
-    }
+window.savePATRIODXProfile = async function(event) {
 
     event.preventDefault();
+
+    const form = event.target;
+
+    if (!form || form.id !== "profileForm") {
+        return;
+    }
 
     if (!currentUser) {
         alert("Please log in first.");
         return;
     }
 
+    const usernameInput =
+        document.getElementById("profileUsernameInput");
+
+    const displayNameInput =
+        document.getElementById("profileDisplayNameInput");
+
+    const bioInput =
+        document.getElementById("profileBioInput");
+
+    const avatarInput =
+        document.getElementById("profileAvatarInput");
+
+    const saveButton =
+        document.getElementById("saveProfileButton");
+
     const username =
-        profileUsernameInput.value.trim().toLowerCase();
+        usernameInput.value.trim().toLowerCase();
 
     const displayName =
-        profileDisplayNameInput.value.trim();
+        displayNameInput.value.trim();
 
     const bio =
-        profileBioInput.value.trim();
+        bioInput.value.trim();
 
     if (!validatePATRIODXUsername(username)) {
         alert(
@@ -7310,24 +7327,21 @@ document.addEventListener("submit", async function(event) {
         return;
     }
 
-    const saveButton =
-        document.getElementById("saveProfileButton");
-
-    if (saveButton) {
-        saveButton.disabled = true;
-        saveButton.textContent = "Saving...";
-    }
-
     try {
+
+        if (saveButton) {
+            saveButton.disabled = true;
+            saveButton.textContent = "Saving...";
+        }
+
+        /* =========================================
+           CHECK USERNAME
+        ========================================= */
 
         const currentUsername =
             (currentProfile?.username || "")
                 .trim()
                 .toLowerCase();
-
-        /* =========================================
-           CHECK USERNAME
-        ========================================= */
 
         if (username !== currentUsername) {
 
@@ -7349,16 +7363,31 @@ document.addEventListener("submit", async function(event) {
             currentProfile?.avatar_url || null;
 
         const avatarFile =
-            document.getElementById("profileAvatarInput")?.files?.[0];
+            avatarInput?.files?.[0] || null;
 
         if (avatarFile) {
 
+            if (!avatarFile.type.startsWith("image/")) {
+                throw new Error(
+                    "Profile picture must be an image."
+                );
+            }
+
+            if (avatarFile.size > 5 * 1024 * 1024) {
+                throw new Error(
+                    "Profile picture must be smaller than 5 MB."
+                );
+            }
+
             console.log(
-                "Uploading new PATRIODX profile picture..."
+                "Uploading profile picture:",
+                avatarFile.name
             );
 
             avatarUrl =
-                await uploadProfileAvatar(avatarFile);
+                await uploadProfileAvatar(
+                    avatarFile
+                );
 
             if (!avatarUrl) {
                 throw new Error(
@@ -7367,12 +7396,13 @@ document.addEventListener("submit", async function(event) {
             }
 
             console.log(
-                "New profile picture uploaded successfully."
+                "Profile picture uploaded:",
+                avatarUrl
             );
         }
 
         /* =========================================
-           SAVE PROFILE TO SUPABASE
+           SAVE EVERYTHING TO SUPABASE
         ========================================= */
 
         const { data, error } =
@@ -7381,11 +7411,11 @@ document.addEventListener("submit", async function(event) {
                 .update({
                     username: username,
                     display_name: displayName,
-                    avatar_url: avatarUrl,
-                    bio: bio
+                    bio: bio,
+                    avatar_url: avatarUrl
                 })
                 .eq("id", currentUser.id)
-                .select()
+                .select("*")
                 .single();
 
         if (error) {
@@ -7393,27 +7423,16 @@ document.addEventListener("submit", async function(event) {
         }
 
         /* =========================================
-           UPDATE CURRENT PROFILE
+           UPDATE PROFILE INSTANTLY
         ========================================= */
 
         currentProfile = data;
 
         renderMyProfile();
 
-        /* =========================================
-           CLEAR FILE INPUT
-        ========================================= */
-
-        const avatarInput =
-            document.getElementById("profileAvatarInput");
-
         if (avatarInput) {
             avatarInput.value = "";
         }
-
-        /* =========================================
-           CLOSE EDITOR
-        ========================================= */
 
         if (profileEditor) {
             profileEditor.style.display = "none";
@@ -7428,7 +7447,7 @@ document.addEventListener("submit", async function(event) {
     } catch (error) {
 
         console.error(
-            "PROFILE SAVE ERROR:",
+            "PATRIODX PROFILE SAVE ERROR:",
             error
         );
 
@@ -7445,8 +7464,7 @@ document.addEventListener("submit", async function(event) {
         }
 
     }
-
-});
+};
 /* =========================================================
    LOAD MY POSTS
 ========================================================= */
