@@ -3351,7 +3351,7 @@ async function startPATRIODX() {
     if (!authenticated) return;
 
     await loadData();
-
+await loadMyProfile();
     loadPlan();
 
     setupSearch();
