@@ -5270,6 +5270,43 @@ window.deleteSocialPost =
 window.reportSocialPost =
     reportSocialPost;
 /* =========================================================
+   PATRIODX VERIFICATION BADGES
+========================================================= */
+
+function getPATRIODXBadge(profile) {
+
+    if (!profile) return "";
+
+    if (profile.is_owner) {
+        return `
+            <span
+                class="patriodx-verification-badge owner-badge"
+                title="PATRIODX Owner"
+                aria-label="PATRIODX Owner"
+            >
+                🔷
+            </span>
+        `;
+    }
+
+    if (profile.is_verified) {
+        return `
+            <span
+                class="patriodx-verification-badge verified-badge"
+                title="PATRIODX Verified"
+                aria-label="PATRIODX Verified"
+            >
+                🔷
+            </span>
+        `;
+    }
+
+    return "";
+}
+
+window.getPATRIODXBadge =
+    getPATRIODXBadge;
+/* =========================================================
    PATRIODX HOME FEED
 ========================================================= */
 
