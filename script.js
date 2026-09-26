@@ -6782,7 +6782,8 @@ const profileAvatarInput =
 
 const profileDisplayName =
     document.getElementById("profileDisplayName");
-
+const profileBadge =
+    document.getElementById("profileBadge");
 const profileUsername =
     document.getElementById("profileUsername");
 
