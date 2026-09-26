@@ -7048,25 +7048,77 @@ if (cancelProfileButton) {
    USERNAME VALIDATION
 ========================================================= */
 
-function validatePATRIODXUsername(username) {
+function renderMyProfile() {
 
-    /*
-       Username rules:
-
-       3–30 characters
-       letters
-       numbers
-       underscore
-       period
-    */
-
-    const usernameRegex =
-        /^[a-zA-Z0-9_.]{3,30}$/;
+    if (!currentProfile) return;
 
 
-    return usernameRegex.test(
-        username
-    );
+    const displayName =
+        currentProfile.display_name ||
+        "PATRIODX User";
+
+
+    const username =
+        currentProfile.username ||
+        "username";
+
+
+    const bio =
+        currentProfile.bio ||
+        "Welcome to PATRIODX.";
+
+
+    if (profileDisplayName) {
+
+        profileDisplayName.textContent =
+            displayName;
+    }
+
+
+    /* =====================================================
+       PATRIODX VERIFICATION BADGE
+    ===================================================== */
+
+    if (profileBadge) {
+
+        profileBadge.innerHTML =
+            getPATRIODXBadge(currentProfile);
+    }
+
+
+    if (profileUsername) {
+
+        profileUsername.textContent =
+            `@${username}`;
+    }
+
+
+    if (profileBio) {
+
+        profileBio.textContent =
+            bio;
+    }
+
+
+    if (profileAvatar) {
+
+        if (currentProfile.avatar_url) {
+
+            profileAvatar.innerHTML = `
+
+                <img
+                    src="${safe(currentProfile.avatar_url)}"
+                    alt="Profile picture"
+                >
+
+            `;
+
+        } else {
+
+            profileAvatar.innerHTML =
+                "👤";
+        }
+    }
 }
 
 
