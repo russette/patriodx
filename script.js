@@ -7126,9 +7126,7 @@ function renderMyProfile() {
    CHECK USERNAME AVAILABILITY
 ========================================================= */
 
-async function checkPATRIODXUsername(
-    username
-) {
+async function checkPATRIODXUsername(username) {
 
     const normalized =
         username
@@ -7139,14 +7137,10 @@ async function checkPATRIODXUsername(
     const { data, error } =
         await supabaseClient
             .from("profiles")
-            .select("id")
+            .select("id, username")
             .ilike(
                 "username",
                 normalized
-            )
-            .neq(
-                "id",
-                currentUser.id
             )
             .limit(1);
 
@@ -7162,7 +7156,34 @@ async function checkPATRIODXUsername(
     }
 
 
-    return !data || data.length === 0;
+    /*
+       Username does not exist.
+       Therefore it is available.
+    */
+
+    if (!data || data.length === 0) {
+        return true;
+    }
+
+
+    /*
+       Username belongs to the
+       currently logged-in user.
+       Therefore it is also allowed.
+    */
+
+    if (
+        data[0].id === currentUser.id
+    ) {
+        return true;
+    }
+
+
+    /*
+       Username belongs to somebody else.
+    */
+
+    return false;
 }
 
 
