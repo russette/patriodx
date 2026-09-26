@@ -4659,6 +4659,7 @@ async function likeSocialPost(postId) {
     await refreshSocialPostStats(
         postId
     );
+    await refreshHomePostStats(postId);
 }
 
 
@@ -5477,6 +5478,30 @@ async function loadHomePosts() {
 
         }).join("");
 }
+/* =========================================================
+   PATRIODX HOME POST STATS
+========================================================= */
+
+async function refreshHomePostStats(postId) {
+
+    const statsElement =
+        document.querySelector(
+            `#home-post-${postId} .social-post-stats`
+        );
+
+    if (!statsElement) return;
+
+    const counts =
+        await getSocialCounts(postId);
+
+    statsElement.innerHTML = `
+        <span>❤️ ${counts.likes}</span>
+        <span>💬 ${counts.comments}</span>
+    `;
+}
+
+window.refreshHomePostStats =
+    refreshHomePostStats;
 /* =========================================================
    PATRIODX MESSAGING
 ========================================================= */
