@@ -5455,14 +5455,13 @@ async function loadHomePosts() {
                             ❤️ Like
                         </button>
 
-                        <button
-                            type="button"
-                            class="social-action-button"
-                            onclick="scrollToSection('social')"
-                        >
-                            💬 Comment
-                        </button>
-
+                       <button
+    type="button"
+    class="social-action-button"
+    onclick="toggleHomeComments('${post.id}')"
+>
+    💬 Comment
+</button>
                         <button
                             type="button"
                             class="social-action-button"
@@ -5502,6 +5501,206 @@ async function refreshHomePostStats(postId) {
 
 window.refreshHomePostStats =
     refreshHomePostStats;
+/* =========================================================
+   PATRIODX HOME COMMENTS
+========================================================= */
+
+async function toggleHomeComments(postId) {
+
+    const existing =
+        document.getElementById(
+            `home-comments-${postId}`
+        );
+
+    if (existing) {
+        existing.remove();
+        return;
+    }
+
+    const post =
+        document.getElementById(
+            `home-post-${postId}`
+        );
+
+    if (!post) return;
+
+    const commentsBox =
+        document.createElement("div");
+
+    commentsBox.id =
+        `home-comments-${postId}`;
+
+    commentsBox.className =
+        "social-comments";
+
+    commentsBox.innerHTML = `
+        <div class="social-comments-loading">
+            Loading comments...
+        </div>
+    `;
+
+    post.appendChild(commentsBox);
+
+    const {
+        data: comments,
+        error
+    } = await supabaseClient
+        .from("comments")
+        .select("*")
+        .eq("post_id", postId)
+        .order("created_at", {
+            ascending: true
+        });
+
+    if (error) {
+
+        console.error(
+            "Could not load Home comments:",
+            error
+        );
+
+        commentsBox.innerHTML = `
+            <div class="social-comments-loading">
+                Could not load comments.
+            </div>
+        `;
+
+        return;
+    }
+
+    commentsBox.innerHTML = `
+        <div
+            id="home-comments-list-${postId}"
+            class="social-comments-list"
+        >
+            ${
+                comments?.length
+                    ? comments.map(comment => `
+                        <div class="social-comment">
+                            <div class="social-comment-avatar">
+                                👤
+                            </div>
+
+                            <div class="social-comment-body">
+                                <strong>
+                                    PATRIODX User
+                                </strong>
+
+                                <p>
+                                    ${safe(comment.content)}
+                                </p>
+
+                                <small>
+                                    ${formatDate(
+                                        comment.created_at
+                                    )}
+                                </small>
+                            </div>
+                        </div>
+                    `).join("")
+                    : `
+                        <div class="social-comments-loading">
+                            No comments yet.
+                        </div>
+                    `
+            }
+        </div>
+
+        <form
+            class="social-comment-form"
+            onsubmit="submitHomeComment(event, '${postId}')"
+        >
+            <input
+                type="text"
+                id="home-comment-input-${postId}"
+                placeholder="Write a comment..."
+                maxlength="1000"
+                autocomplete="off"
+                required
+            >
+
+            <button type="submit">
+                Send
+            </button>
+        </form>
+    `;
+}
+
+async function submitHomeComment(event, postId) {
+
+    event.preventDefault();
+
+    if (!currentUser) {
+        alert("Please sign in first.");
+        return;
+    }
+
+    const input =
+        document.getElementById(
+            `home-comment-input-${postId}`
+        );
+
+    if (!input) return;
+
+    const content =
+        input.value.trim();
+
+    if (!content) return;
+
+    const button =
+        event.submitter;
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Sending...";
+    }
+
+    try {
+
+        const {
+            error
+        } = await supabaseClient
+            .from("comments")
+            .insert({
+                post_id: postId,
+                user_id: currentUser.id,
+                content: content
+            });
+
+        if (error) {
+            throw error;
+        }
+
+        await toggleHomeComments(postId);
+
+        await refreshHomePostStats(postId);
+
+        await toggleHomeComments(postId);
+
+    } catch (error) {
+
+        console.error(
+            "Could not submit Home comment:",
+            error
+        );
+
+        alert(
+            "Could not post comment: " +
+            error.message
+        );
+
+        if (button) {
+            button.disabled = false;
+            button.textContent = "Send";
+        }
+    }
+}
+
+window.toggleHomeComments =
+    toggleHomeComments;
+
+window.submitHomeComment =
+    submitHomeComment;
 /* =========================================================
    PATRIODX MESSAGING
 ========================================================= */
