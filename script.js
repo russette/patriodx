@@ -7276,193 +7276,177 @@ async function uploadProfileAvatar(file) {
    SAVE PROFILE
 ========================================================= */
 
-if (profileForm) {
+document.addEventListener("submit", async function(event) {
 
-    profileForm.addEventListener("submit", async function(event) {
+    if (event.target.id !== "profileForm") {
+        return;
+    }
 
-        event.preventDefault();
+    event.preventDefault();
 
-        if (!currentUser) {
-            alert("Please log in first.");
-            return;
+    if (!currentUser) {
+        alert("Please log in first.");
+        return;
+    }
+
+    const username =
+        profileUsernameInput.value.trim().toLowerCase();
+
+    const displayName =
+        profileDisplayNameInput.value.trim();
+
+    const bio =
+        profileBioInput.value.trim();
+
+    if (!validatePATRIODXUsername(username)) {
+        alert(
+            "Username must be 3–30 characters and can only contain letters, numbers, underscores, and periods."
+        );
+        return;
+    }
+
+    if (!displayName) {
+        alert("Please enter a display name.");
+        return;
+    }
+
+    const saveButton =
+        document.getElementById("saveProfileButton");
+
+    if (saveButton) {
+        saveButton.disabled = true;
+        saveButton.textContent = "Saving...";
+    }
+
+    try {
+
+        const currentUsername =
+            (currentProfile?.username || "")
+                .trim()
+                .toLowerCase();
+
+        /* =========================================
+           CHECK USERNAME
+        ========================================= */
+
+        if (username !== currentUsername) {
+
+            const available =
+                await checkPATRIODXUsername(username);
+
+            if (!available) {
+                throw new Error(
+                    `@${username} is already taken. Please choose another username.`
+                );
+            }
         }
 
-        const username =
-            profileUsernameInput.value.trim().toLowerCase();
+        /* =========================================
+           PROFILE PICTURE
+        ========================================= */
 
-        const displayName =
-            profileDisplayNameInput.value.trim();
+        let avatarUrl =
+            currentProfile?.avatar_url || null;
 
-        const bio =
-            profileBioInput.value.trim();
+        const avatarFile =
+            document.getElementById("profileAvatarInput")?.files?.[0];
 
-        if (!validatePATRIODXUsername(username)) {
-            alert(
-                "Username must be 3–30 characters and can only contain letters, numbers, underscores, and periods."
+        if (avatarFile) {
+
+            console.log(
+                "Uploading new PATRIODX profile picture..."
             );
-            return;
+
+            avatarUrl =
+                await uploadProfileAvatar(avatarFile);
+
+            if (!avatarUrl) {
+                throw new Error(
+                    "Profile picture upload failed."
+                );
+            }
+
+            console.log(
+                "New profile picture uploaded successfully."
+            );
         }
 
-        if (!displayName) {
-            alert("Please enter a display name.");
-            return;
+        /* =========================================
+           SAVE PROFILE TO SUPABASE
+        ========================================= */
+
+        const { data, error } =
+            await supabaseClient
+                .from("profiles")
+                .update({
+                    username: username,
+                    display_name: displayName,
+                    avatar_url: avatarUrl,
+                    bio: bio
+                })
+                .eq("id", currentUser.id)
+                .select()
+                .single();
+
+        if (error) {
+            throw error;
         }
 
-        const saveButton =
-            document.getElementById("saveProfileButton");
+        /* =========================================
+           UPDATE CURRENT PROFILE
+        ========================================= */
+
+        currentProfile = data;
+
+        renderMyProfile();
+
+        /* =========================================
+           CLEAR FILE INPUT
+        ========================================= */
+
+        const avatarInput =
+            document.getElementById("profileAvatarInput");
+
+        if (avatarInput) {
+            avatarInput.value = "";
+        }
+
+        /* =========================================
+           CLOSE EDITOR
+        ========================================= */
+
+        if (profileEditor) {
+            profileEditor.style.display = "none";
+        }
+
+        alert(
+            "✅ Your PATRIODX profile has been updated!"
+        );
+
+        await loadMyProfilePosts();
+
+    } catch (error) {
+
+        console.error(
+            "PROFILE SAVE ERROR:",
+            error
+        );
+
+        alert(
+            "Could not save your profile.\n\n" +
+            error.message
+        );
+
+    } finally {
 
         if (saveButton) {
-            saveButton.disabled = true;
-            saveButton.textContent = "Saving...";
+            saveButton.disabled = false;
+            saveButton.textContent = "Save Profile";
         }
 
-        try {
+    }
 
-            /*
-             * Check username only if it changed.
-             */
-
-            const currentUsername =
-                (currentProfile?.username || "")
-                    .trim()
-                    .toLowerCase();
-
-            if (username !== currentUsername) {
-
-                const available =
-                    await checkPATRIODXUsername(username);
-
-                if (!available) {
-                    throw new Error(
-                        `@${username} is already taken. Please choose another username.`
-                    );
-                }
-            }
-
-
-            /*
-             * Keep existing avatar unless
-             * a new picture was selected.
-             */
-
-            let avatarUrl =
-                currentProfile?.avatar_url || null;
-
-            const avatarFile =
-                profileAvatarInput?.files?.[0];
-
-
-            /*
-             * Upload new profile picture.
-             */
-
-            if (avatarFile) {
-
-                console.log(
-                    "Uploading profile picture..."
-                );
-
-                avatarUrl =
-                    await uploadProfileAvatar(
-                        avatarFile
-                    );
-
-                console.log(
-                    "Profile picture uploaded:",
-                    avatarUrl
-                );
-            }
-
-
-            /*
-             * Save profile to Supabase.
-             */
-
-            const { data, error } =
-                await supabaseClient
-                    .from("profiles")
-                    .update({
-                        username: username,
-                        display_name: displayName,
-                        avatar_url: avatarUrl,
-                        bio: bio
-                    })
-                    .eq("id", currentUser.id)
-                    .select()
-                    .single();
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            /*
-             * Update local profile.
-             */
-
-            currentProfile = data;
-
-
-            /*
-             * Render updated profile.
-             */
-
-            renderMyProfile();
-
-
-            /*
-             * Clear selected file.
-             */
-
-            if (profileAvatarInput) {
-                profileAvatarInput.value = "";
-            }
-
-
-            /*
-             * Close editor.
-             */
-
-            if (profileEditor) {
-                profileEditor.style.display = "none";
-            }
-
-
-            alert(
-                "✅ Your PATRIODX profile has been updated!"
-            );
-
-
-            await loadMyProfilePosts();
-
-
-        } catch (error) {
-
-            console.error(
-                "PROFILE SAVE ERROR:",
-                error
-            );
-
-            alert(
-                "Could not save your profile.\n\n" +
-                error.message
-            );
-
-
-        } finally {
-
-            if (saveButton) {
-                saveButton.disabled = false;
-                saveButton.textContent = "Save Profile";
-            }
-
-        }
-
-    });
-
-}
-
+});
 /* =========================================================
    LOAD MY POSTS
 ========================================================= */
