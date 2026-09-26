@@ -6965,25 +6965,24 @@ function renderMyProfile() {
     }
 
 
-    if (profileAvatar) {
+   if (profileAvatar) {
 
-        if (currentProfile.avatar_url) {
+    if (currentProfile.avatar_url) {
 
-            profileAvatar.innerHTML = `
+        profileAvatar.innerHTML = `
+            <img
+                src="${safe(currentProfile.avatar_url)}"
+                alt="Profile picture"
+                class="profile-avatar-image"
+            >
+        `;
 
-                <img
-                    src="${safe(currentProfile.avatar_url)}"
-                    alt="Profile picture"
-                >
+    } else {
 
-            `;
+        profileAvatar.innerHTML = "👤";
 
-        } else {
-
-            profileAvatar.innerHTML =
-                "👤";
-        }
     }
+}
 }
 
 
