@@ -209,60 +209,92 @@ function canCreate(type) {
 
 async function loadUser() {
 
-    const {
-        data: { session },
-        error
-    } = await supabaseClient.auth.getSession();
+    try {
 
-    if (error) {
+        const {
+            data: { session },
+            error
+        } = await supabaseClient.auth.getSession();
 
-        console.error(error);
+        if (error) {
+            console.error("Session loading error:", error);
+            alert("Unable to connect to PATRIODX.");
+            return false;
+        }
 
-        alert("Unable to connect to PATRIODX.");
+        if (!session || !session.user) {
+            console.log("No active PATRIODX session.");
+            window.location.href = "auth.html";
+            return false;
+        }
 
-        return false;
-    }
+        currentUser = session.user;
 
-    if (!session) {
+        console.log(
+            "PATRIODX session restored:",
+            currentUser.email
+        );
 
-        window.location.href = "auth.html";
+        const userEmail =
+            document.getElementById("userEmail");
 
-        return false;
-    }
+        if (userEmail) {
+            userEmail.textContent =
+                currentUser.email || "Account";
+        }
 
-    currentUser = session.user;
+        const { data: business, error: businessError } =
+            await supabaseClient
+                .from("businesses")
+                .select("*")
+                .eq("owner_id", currentUser.id)
+                .maybeSingle();
 
-    const userEmail =
-        document.getElementById("userEmail");
+        if (businessError) {
+            console.error(
+                "Business loading error:",
+                businessError
+            );
 
-    if (userEmail) {
-        userEmail.textContent =
-            currentUser.email || "Account";
-    }
+            alert(
+                "Your PATRIODX business account could not be loaded."
+            );
 
-    const { data: business, error: businessError } =
-        await supabaseClient
-            .from("businesses")
-            .select("*")
-            .eq("owner_id", currentUser.id)
-            .single();
+            return false;
+        }
 
-    if (businessError) {
+        if (!business) {
+            console.error(
+                "No business account found for:",
+                currentUser.id
+            );
 
-        console.error(businessError);
+            alert(
+                "Your PATRIODX business account could not be found."
+            );
+
+            return false;
+        }
+
+        currentBusiness = business;
+
+        loadPlan();
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected PATRIODX session error:",
+            error
+        );
 
         alert(
-            "Your PATRIODX business account could not be loaded."
+            "Unable to restore your PATRIODX account."
         );
 
         return false;
     }
-
-    currentBusiness = business;
-
-    loadPlan();
-
-    return true;
 }
 
 
