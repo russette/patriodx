@@ -7278,224 +7278,190 @@ async function uploadProfileAvatar(file) {
 
 if (profileForm) {
 
-    profileForm.addEventListener(
-        "submit",
-        async function(event) {
+    profileForm.addEventListener("submit", async function(event) {
 
-            event.preventDefault();
+        event.preventDefault();
 
+        if (!currentUser) {
+            alert("Please log in first.");
+            return;
+        }
 
-            if (!currentUser) {
+        const username =
+            profileUsernameInput.value.trim().toLowerCase();
 
-                alert(
-                    "Please log in first."
-                );
+        const displayName =
+            profileDisplayNameInput.value.trim();
 
-                return;
-            }
+        const bio =
+            profileBioInput.value.trim();
 
+        if (!validatePATRIODXUsername(username)) {
+            alert(
+                "Username must be 3–30 characters and can only contain letters, numbers, underscores, and periods."
+            );
+            return;
+        }
 
-            const username =
-                profileUsernameInput.value
+        if (!displayName) {
+            alert("Please enter a display name.");
+            return;
+        }
+
+        const saveButton =
+            document.getElementById("saveProfileButton");
+
+        if (saveButton) {
+            saveButton.disabled = true;
+            saveButton.textContent = "Saving...";
+        }
+
+        try {
+
+            /*
+             * Check username only if it changed.
+             */
+
+            const currentUsername =
+                (currentProfile?.username || "")
                     .trim()
                     .toLowerCase();
 
-
-            const displayName =
-                profileDisplayNameInput.value
-                    .trim();
-
-
-            const bio =
-                profileBioInput.value
-                    .trim();
-
-
-            if (
-                !validatePATRIODXUsername(
-                    username
-                )
-            ) {
-
-                alert(
-                    "Username must be 3–30 characters and can only contain letters, numbers, underscores, and periods."
-                );
-
-                return;
-            }
-
-
-            if (!displayName) {
-
-                alert(
-                    "Please enter a display name."
-                );
-
-                return;
-            }
-
-
-            const saveButton =
-                document.getElementById(
-                    "saveProfileButton"
-                );
-
-
-            saveButton.disabled =
-                true;
-
-            saveButton.textContent =
-                "Saving...";
-
-
-            try {
-
-                /*
-                   Check username availability
-                */
+            if (username !== currentUsername) {
 
                 const available =
-                    await checkPATRIODXUsername(
-                        username
-                    );
-
+                    await checkPATRIODXUsername(username);
 
                 if (!available) {
-
-                    alert(
+                    throw new Error(
                         `@${username} is already taken. Please choose another username.`
                     );
-
-                    saveButton.disabled =
-                        false;
-
-                    saveButton.textContent =
-                        "Save Profile";
-
-                    return;
                 }
+            }
 
 
-                /*
-                   Upload new avatar if selected
-                */
+            /*
+             * Keep existing avatar unless
+             * a new picture was selected.
+             */
 
-                let avatarUrl =
-                    currentProfile?.avatar_url ||
-                    null;
+            let avatarUrl =
+                currentProfile?.avatar_url || null;
 
-
-                const avatarFile =
-                    profileAvatarInput?.files?.[0];
-
-
-                if (avatarFile) {
-
-                    avatarUrl =
-                        await uploadProfileAvatar(
-                            avatarFile
-                        );
-                }
+            const avatarFile =
+                profileAvatarInput?.files?.[0];
 
 
-                /*
-                   Save profile
-                */
+            /*
+             * Upload new profile picture.
+             */
 
-                const { data, error } =
-                    await supabaseClient
-                        .from("profiles")
-                        .upsert({
+            if (avatarFile) {
 
-                            id:
-                                currentUser.id,
-
-                            username:
-                                username,
-
-                            display_name:
-                                displayName,
-
-                            avatar_url:
-                                avatarUrl,
-
-                            bio:
-                                bio
-
-                        })
-                        .select()
-                        .single();
-
-
-                if (error) {
-
-                    /*
-                       Unique username race-condition
-                    */
-
-                    if (
-                        error.code === "23505"
-                    ) {
-
-                        throw new Error(
-                            "That username was just taken. Please choose another."
-                        );
-                    }
-
-
-                    throw error;
-                }
-
-
-                currentProfile =
-                    data;
-
-
-                renderMyProfile();
-
-
-                profileEditor.style.display =
-                    "none";
-
-
-                profileAvatarInput.value =
-                    "";
-
-
-                alert(
-                    "✅ Your PATRIODX profile has been updated!"
+                console.log(
+                    "Uploading profile picture..."
                 );
 
+                avatarUrl =
+                    await uploadProfileAvatar(
+                        avatarFile
+                    );
 
-                await loadMyProfilePosts();
-
-
-            } catch (error) {
-
-                console.error(
-                    "Profile save error:",
-                    error
+                console.log(
+                    "Profile picture uploaded:",
+                    avatarUrl
                 );
+            }
 
 
-                alert(
-                    "Could not save your profile.\n\n" +
-                    error.message
-                );
+            /*
+             * Save profile to Supabase.
+             */
 
-            } finally {
+            const { data, error } =
+                await supabaseClient
+                    .from("profiles")
+                    .update({
+                        username: username,
+                        display_name: displayName,
+                        avatar_url: avatarUrl,
+                        bio: bio
+                    })
+                    .eq("id", currentUser.id)
+                    .select()
+                    .single();
 
-                saveButton.disabled =
-                    false;
 
-                saveButton.textContent =
-                    "Save Profile";
+            if (error) {
+                throw error;
+            }
+
+
+            /*
+             * Update local profile.
+             */
+
+            currentProfile = data;
+
+
+            /*
+             * Render updated profile.
+             */
+
+            renderMyProfile();
+
+
+            /*
+             * Clear selected file.
+             */
+
+            if (profileAvatarInput) {
+                profileAvatarInput.value = "";
+            }
+
+
+            /*
+             * Close editor.
+             */
+
+            if (profileEditor) {
+                profileEditor.style.display = "none";
+            }
+
+
+            alert(
+                "✅ Your PATRIODX profile has been updated!"
+            );
+
+
+            await loadMyProfilePosts();
+
+
+        } catch (error) {
+
+            console.error(
+                "PROFILE SAVE ERROR:",
+                error
+            );
+
+            alert(
+                "Could not save your profile.\n\n" +
+                error.message
+            );
+
+
+        } finally {
+
+            if (saveButton) {
+                saveButton.disabled = false;
+                saveButton.textContent = "Save Profile";
             }
 
         }
-    );
-}
 
+    });
+
+}
 
 /* =========================================================
    LOAD MY POSTS
