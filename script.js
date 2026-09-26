@@ -6832,7 +6832,22 @@ const profilePostCount =
     document.getElementById("profilePostCount");
 
 let currentProfile = null;
+if (editProfileButton && profileEditor) {
+    editProfileButton.addEventListener("click", function () {
+        profileEditor.style.display = "block";
 
+        profileEditor.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    });
+}
+
+if (cancelProfileButton && profileEditor) {
+    cancelProfileButton.addEventListener("click", function () {
+        profileEditor.style.display = "none";
+    });
+}
 
 /* =========================================================
    LOAD PROFILE
