@@ -7908,7 +7908,8 @@ async function loadPublicProfile(userId) {
 
     const nameElement =
         document.getElementById("publicProfileDisplayName");
-
+const badgeElement =
+    document.getElementById("publicProfileBadge");
     const usernameElement =
         document.getElementById("publicProfileUsername");
 
@@ -7923,7 +7924,10 @@ async function loadPublicProfile(userId) {
         nameElement.textContent =
             profile.display_name || "PATRIODX User";
     }
-
+if (badgeElement) {
+    badgeElement.innerHTML =
+        getPATRIODXBadge(profile);
+}
     if (usernameElement) {
         usernameElement.textContent =
             profile.username
