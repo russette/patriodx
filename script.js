@@ -7229,7 +7229,20 @@ window.savePATRIODXProfile = async function(event) {
     if (!form || form.id !== "profileForm") {
         return;
     }
+document.addEventListener("DOMContentLoaded", function () {
 
+    const profileForm =
+        document.getElementById("profileForm");
+
+    if (profileForm) {
+
+        profileForm.addEventListener("submit", function (event) {
+            window.savePATRIODXProfile(event);
+        });
+
+    }
+
+});
     if (!currentUser) {
         alert("Please log in first.");
         return;
