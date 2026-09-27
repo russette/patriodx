@@ -6831,17 +6831,7 @@ const profilePosts =
 const profilePostCount =
     document.getElementById("profilePostCount");
 
-let currentProfile = null;
-if (editProfileButton && profileEditor) {
-    editProfileButton.addEventListener("click", function () {
-        profileEditor.style.display = "block";
 
-        profileEditor.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-    });
-}
 
 if (cancelProfileButton && profileEditor) {
     cancelProfileButton.addEventListener("click", function () {
@@ -6934,7 +6924,69 @@ async function loadMyProfile() {
     await loadMyProfilePosts();
 }
 
+/* =========================================================
+   PROFILE EDITOR
+========================================================= */
 
+if (editProfileButton && profileEditor) {
+
+    editProfileButton.addEventListener("click", function () {
+
+        if (!currentProfile) {
+            alert("Your profile is still loading. Please try again.");
+            return;
+        }
+
+        /* Fill the editor with the current profile */
+
+        if (profileUsernameInput) {
+            profileUsernameInput.value =
+                currentProfile.username || "";
+        }
+
+        if (profileDisplayNameInput) {
+            profileDisplayNameInput.value =
+                currentProfile.display_name || "";
+        }
+
+        if (profileBioInput) {
+            profileBioInput.value =
+                currentProfile.bio || "";
+        }
+
+        /* Clear old file selection */
+
+        if (profileAvatarInput) {
+            profileAvatarInput.value = "";
+        }
+
+        /* Open editor */
+
+        profileEditor.style.display = "block";
+
+        profileEditor.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+    });
+
+}
+
+
+if (cancelProfileButton && profileEditor) {
+
+    cancelProfileButton.addEventListener("click", function () {
+
+        profileEditor.style.display = "none";
+
+        if (profileAvatarInput) {
+            profileAvatarInput.value = "";
+        }
+
+    });
+
+}
 
 /* =========================================================
    USERNAME VALIDATION
@@ -7599,27 +7651,7 @@ window.loadMyProfile =
 
 window.initializePATRIODXProfile =
     initializePATRIODXProfile;
-document.addEventListener("DOMContentLoaded", function () {
-    const editButton = document.getElementById("editProfileButton");
-    const profileEditor = document.getElementById("profileEditor");
-    const cancelButton = document.getElementById("cancelProfileButton");
 
-    if (editButton && profileEditor) {
-        editButton.addEventListener("click", function () {
-            profileEditor.style.display = "block";
-            profileEditor.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-        });
-    }
-
-    if (cancelButton && profileEditor) {
-        cancelButton.addEventListener("click", function () {
-            profileEditor.style.display = "none";
-        });
-    }
-});
 // ==========================================
 // PATRIODX PROFILE EDIT BUTTON
 // ==========================================
