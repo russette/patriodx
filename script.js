@@ -7227,20 +7227,7 @@ window.savePATRIODXProfile = async function(event) {
     if (!form || form.id !== "profileForm") {
         return;
     }
-document.addEventListener("DOMContentLoaded", function () {
 
-    const profileForm =
-        document.getElementById("profileForm");
-
-    if (profileForm) {
-
-        profileForm.addEventListener("submit", function (event) {
-            window.savePATRIODXProfile(event);
-        });
-
-    }
-
-});
     if (!currentUser) {
         alert("Please log in first.");
         return;
@@ -7322,42 +7309,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (avatarFile) {
 
-            if (!avatarFile.type.startsWith("image/")) {
-                throw new Error(
-                    "Profile picture must be an image."
-                );
-            }
-
-            if (avatarFile.size > 5 * 1024 * 1024) {
-                throw new Error(
-                    "Profile picture must be smaller than 5 MB."
-                );
-            }
-
-            console.log(
-                "Uploading profile picture:",
-                avatarFile.name
-            );
-
             avatarUrl =
-                await uploadProfileAvatar(
-                    avatarFile
-                );
+                await uploadProfileAvatar(avatarFile);
 
             if (!avatarUrl) {
                 throw new Error(
                     "Profile picture upload failed."
                 );
             }
-
-            console.log(
-                "Profile picture uploaded:",
-                avatarUrl
-            );
         }
 
         /* =========================================
-           SAVE EVERYTHING TO SUPABASE
+           SAVE PROFILE
         ========================================= */
 
         const { data, error } =
@@ -7378,7 +7341,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         /* =========================================
-           UPDATE PROFILE INSTANTLY
+           UPDATE PROFILE IMMEDIATELY
         ========================================= */
 
         currentProfile = data;
@@ -7420,6 +7383,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
     }
 };
+
+
+/* =========================================================
+   PROFILE FORM SUBMIT
+========================================================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const profileForm =
+        document.getElementById("profileForm");
+
+    if (profileForm) {
+
+        profileForm.addEventListener(
+            "submit",
+            function (event) {
+                window.savePATRIODXProfile(event);
+            }
+        );
+
+    }
+
+});
 /* =========================================================
    LOAD MY POSTS
 ========================================================= */
