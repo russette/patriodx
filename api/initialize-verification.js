@@ -175,7 +175,36 @@ module.exports = async function handler(req, res) {
             yearlyPlanConfigured: !!YEARLY_PLAN
         });
 
+        // -----------------------------------------
+        // PAYSTACK PLAN DEBUG
+        // -----------------------------------------
 
+        const plansResponse =
+            await fetch(
+                "https://api.paystack.co/plan?perPage=100",
+                {
+                    method: "GET",
+
+                    headers: {
+                        Authorization:
+                            `Bearer ${PAYSTACK_SECRET_KEY}`
+                    }
+                }
+            );
+
+        const plansData =
+            await plansResponse.json();
+
+        console.log(
+            "PAYSTACK PLAN DEBUG:",
+            plansData.data?.map(plan => ({
+                name: plan.name,
+                code: plan.plan_code,
+                amount: plan.amount,
+                interval: plan.interval,
+                currency: plan.currency
+            }))
+        );
         // -----------------------------------------
         // PAYSTACK INITIALIZATION
         // -----------------------------------------
