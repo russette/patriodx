@@ -7044,20 +7044,23 @@ function renderMyProfile() {
     }
 
 
- if (profileAvatar) {
+if (profileAvatar) {
 
     if (currentProfile.avatar_url) {
 
         profileAvatar.innerHTML = `
+
             <img
-                src="${safe(currentProfile.avatar_url)}?v=${Date.now()}"
+                src="${safe(currentProfile.avatar_url)}"
                 alt="Profile picture"
             >
+
         `;
 
     } else {
 
-        profileAvatar.innerHTML = "👤";
+        profileAvatar.innerHTML =
+            "👤";
     }
 }
 
