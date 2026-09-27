@@ -1545,15 +1545,13 @@
             </div>
 
 
-            <button
-                type="button"
-                id="editProfileButton"
-                class="profile-edit-button"
-                onclick="openProfileEditor()"
-                data-i18n="editProfile"
-            >
-                ✏️ Edit Profile
-            </button>
+          <button
+    type="button"
+    id="editProfileButton"
+    onclick="document.getElementById('profileEditor').style.display='block'; document.getElementById('profileEditor').scrollIntoView({behavior:'smooth', block:'start'});"
+>
+    ✏️ Edit Profile
+</button>
 
         </div>
 
@@ -1692,14 +1690,13 @@
                     Save Profile
                 </button>
 
-                <button
-                    type="button"
-                    id="cancelProfileButton"
-                    onclick="closeProfileEditor()"
-                    data-i18n="cancel"
-                >
-                    Cancel
-                </button>
+               <button
+    type="button"
+    id="cancelProfileButton"
+    onclick="document.getElementById('profileEditor').style.display='none';"
+>
+    Cancel
+</button>
 
             </div>
 
