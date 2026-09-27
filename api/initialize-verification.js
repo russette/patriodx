@@ -27,15 +27,10 @@ module.exports = async function handler(req, res) {
 
     try {
 
-        // -------------------------------------------------
-        // CHECK SERVER CONFIGURATION
-        // -------------------------------------------------
-
         if (!PAYSTACK_SECRET_KEY) {
             return res.status(500).json({
                 status: false,
-                error:
-                    "Paystack secret key is not configured on Vercel"
+                error: "Paystack secret key is not configured on Vercel"
             });
         }
 
@@ -45,8 +40,7 @@ module.exports = async function handler(req, res) {
         ) {
             return res.status(500).json({
                 status: false,
-                error:
-                    "Supabase server credentials are not configured on Vercel"
+                error: "Supabase server credentials are not configured on Vercel"
             });
         }
 
@@ -56,15 +50,14 @@ module.exports = async function handler(req, res) {
         ) {
             return res.status(500).json({
                 status: false,
-                error:
-                    "Verification Paystack plans are not configured on Vercel"
+                error: "Verification Paystack plans are not configured on Vercel"
             });
         }
 
 
-        // -------------------------------------------------
-        // GET USER ACCESS TOKEN
-        // -------------------------------------------------
+        // -----------------------------------------
+        // AUTHENTICATION
+        // -----------------------------------------
 
         const authorization =
             req.headers.authorization ||
@@ -85,7 +78,6 @@ module.exports = async function handler(req, res) {
                 .replace("Bearer ", "")
                 .trim();
 
-
         if (!accessToken) {
             return res.status(401).json({
                 status: false,
@@ -93,10 +85,6 @@ module.exports = async function handler(req, res) {
             });
         }
 
-
-        // -------------------------------------------------
-        // SERVER-SIDE SUPABASE CLIENT
-        // -------------------------------------------------
 
         const supabaseAdmin =
             createClient(
@@ -110,10 +98,6 @@ module.exports = async function handler(req, res) {
                 }
             );
 
-
-        // -------------------------------------------------
-        // VERIFY USER TOKEN
-        // -------------------------------------------------
 
         const {
             data: {
@@ -138,42 +122,51 @@ module.exports = async function handler(req, res) {
 
             return res.status(401).json({
                 status: false,
-                error:
-                    "Invalid or expired authentication"
+                error: "Invalid or expired authentication"
             });
         }
 
 
-        // -------------------------------------------------
-        // GET REQUESTED VERIFICATION PLAN
-        // -------------------------------------------------
+        // -----------------------------------------
+        // PLAN SELECTION
+        // -----------------------------------------
 
         const {
             plan
         } = req.body || {};
 
+        let selectedPlan;
+        let amount;
 
-        if (
-            plan !== "monthly" &&
-            plan !== "yearly"
-        ) {
+
+        if (plan === "monthly") {
+
+            selectedPlan =
+                MONTHLY_PLAN;
+
+            amount =
+                5809;
+
+        } else if (plan === "yearly") {
+
+            selectedPlan =
+                YEARLY_PLAN;
+
+            amount =
+                58095;
+
+        } else {
+
             return res.status(400).json({
                 status: false,
-                error:
-                    "Invalid verification plan"
+                error: "Invalid verification plan"
             });
         }
 
 
-        const selectedPlan =
-            plan === "monthly"
-                ? MONTHLY_PLAN
-                : YEARLY_PLAN;
-
-
-        // -------------------------------------------------
-        // INITIALIZE PAYSTACK RECURRING PAYMENT
-        // -------------------------------------------------
+        // -----------------------------------------
+        // PAYSTACK INITIALIZATION
+        // -----------------------------------------
 
         const response =
             await fetch(
@@ -193,6 +186,12 @@ module.exports = async function handler(req, res) {
 
                         email:
                             user.email,
+
+                        amount:
+                            amount,
+
+                        currency:
+                            "GHS",
 
                         plan:
                             selectedPlan,
@@ -237,10 +236,6 @@ module.exports = async function handler(req, res) {
             });
         }
 
-
-        // -------------------------------------------------
-        // RETURN PAYSTACK CHECKOUT
-        // -------------------------------------------------
 
         return res.status(200).json({
 
