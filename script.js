@@ -7057,17 +7057,18 @@ if (profileAvatar) {
 
         `;
 
-    } else {
+      } else {
 
         profileAvatar.innerHTML =
             "👤";
     }
 }
 
+} // closes renderMyProfile()
+
 /* =========================================================
    CHECK USERNAME AVAILABILITY
 ========================================================= */
-
 async function checkPATRIODXUsername(username) {
 
     const normalized =
