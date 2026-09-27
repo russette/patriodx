@@ -9505,3 +9505,106 @@ if (
     setupPATRIODXLanguageSelector();
 
 }
+// =========================================================
+// PATRIODX BLUE CHECK VERIFICATION
+// =========================================================
+
+async function startVerificationPlan() {
+
+    if (!currentUser) {
+        alert("Please log in before getting verified.");
+        return;
+    }
+
+    const choice = prompt(
+        "🔵 PATRIODX VERIFIED\n\n" +
+        "Choose your verification plan:\n\n" +
+        "1 = Monthly — GHS 58.09\n" +
+        "2 = Yearly — GHS 580.95\n\n" +
+        "Enter 1 or 2:"
+    );
+
+    if (choice === null) {
+        return;
+    }
+
+    let plan;
+
+    if (choice.trim() === "1") {
+        plan = "monthly";
+    } else if (choice.trim() === "2") {
+        plan = "yearly";
+    } else {
+        alert("Please enter 1 for Monthly or 2 for Yearly.");
+        return;
+    }
+
+    try {
+
+        const {
+            data: {
+                session
+            }
+        } = await supabaseClient.auth.getSession();
+
+        if (!session || !session.access_token) {
+            alert("Your login session has expired. Please log in again.");
+            return;
+        }
+
+        const response = await fetch(
+            "https://businessos-wine-eight.vercel.app/api/initialize-verification",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization":
+                        `Bearer ${session.access_token}`
+                },
+
+                body: JSON.stringify({
+                    plan: plan
+                })
+            }
+        );
+
+        const result = await response.json();
+
+        console.log(
+            "Verification initialization:",
+            result
+        );
+
+        if (!response.ok || !result.status) {
+            throw new Error(
+                result.error ||
+                "Unable to start verification payment."
+            );
+        }
+
+        if (!result.authorization_url) {
+            throw new Error(
+                "Paystack did not return a checkout URL."
+            );
+        }
+
+        window.location.href =
+            result.authorization_url;
+
+    } catch (error) {
+
+        console.error(
+            "PATRIODX VERIFICATION ERROR:",
+            error
+        );
+
+        alert(
+            "Could not start verification.\n\n" +
+            error.message
+        );
+    }
+}
+
+window.startVerificationPlan =
+    startVerificationPlan;
