@@ -175,42 +175,7 @@ module.exports = async function handler(req, res) {
             yearlyPlanConfigured: !!YEARLY_PLAN
         });
 
-             // -----------------------------------------
-        // VERIFY PAYSTACK PLAN
-        // -----------------------------------------
-
-        const planCheckResponse =
-            await fetch(
-                `https://api.paystack.co/plan/${selectedPlan}`,
-                {
-                    method: "GET",
-
-                    headers: {
-                        Authorization:
-                            `Bearer ${PAYSTACK_SECRET_KEY}`
-                    }
-                }
-            );
-
-        const planCheckData =
-            await planCheckResponse.json();
-
-        console.log(
-            "PAYSTACK PLAN CHECK:",
-            planCheckData
-        );
-
-        if (
-            !planCheckResponse.ok ||
-            !planCheckData.status
-        ) {
-            return res.status(400).json({
-                status: false,
-                error:
-                    planCheckData.message ||
-                    "Paystack plan could not be found"
-            });
-        }
+           
         // -----------------------------------------
         // PAYSTACK INITIALIZATION
         // -----------------------------------------
