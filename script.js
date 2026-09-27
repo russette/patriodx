@@ -7214,7 +7214,20 @@ async function uploadProfileAvatar(file) {
     return data.publicUrl;
 }
 
+function validatePATRIODXUsername(username) {
+    if (!username) {
+        return false;
+    }
 
+    if (username.length < 3 || username.length > 30) {
+        return false;
+    }
+
+    return /^[a-z0-9_.]+$/.test(username);
+}
+
+window.validatePATRIODXUsername =
+    validatePATRIODXUsername;
 /* =========================================================
    SAVE PROFILE
 ========================================================= */
