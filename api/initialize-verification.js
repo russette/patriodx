@@ -127,7 +127,7 @@ module.exports = async function handler(req, res) {
         }
 
 
-        // -----------------------------------------
+              // -----------------------------------------
         // PLAN SELECTION
         // -----------------------------------------
 
@@ -162,6 +162,18 @@ module.exports = async function handler(req, res) {
                 error: "Invalid verification plan"
             });
         }
+
+
+        // -----------------------------------------
+        // VERIFICATION DEBUG
+        // -----------------------------------------
+
+        console.log("VERIFICATION DEBUG:", {
+            requestedPlan: plan,
+            selectedPlan: selectedPlan,
+            monthlyPlanConfigured: !!MONTHLY_PLAN,
+            yearlyPlanConfigured: !!YEARLY_PLAN
+        });
 
 
         // -----------------------------------------
