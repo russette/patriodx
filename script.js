@@ -243,13 +243,13 @@ async function loadUser() {
                 currentUser.email || "Account";
         }
 
-        const { data: business, error: businessError } =
-            await supabaseClient
-                .from("businesses")
-                .select("*")
-                .eq("owner_id", currentUser.id)
-                .maybeSingle();
+       const { data: businesses, error: businessError } =
+    await supabaseClient
+        .from("businesses")
+        .select("*")
+        .eq("owner_id", currentUser.id);
 
+const business = businesses?.[0] || null;
         if (businessError) {
             console.error(
                 "Business loading error:",
