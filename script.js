@@ -7657,11 +7657,46 @@ window.initializePATRIODXProfile =
 // ==========================================
 
 function openProfileEditor() {
+
     const editor = document.getElementById("profileEditor");
 
     if (!editor) {
         alert("Profile editor could not be found.");
         return;
+    }
+
+    if (currentProfile) {
+
+        const usernameInput =
+            document.getElementById("profileUsernameInput");
+
+        const displayNameInput =
+            document.getElementById("profileDisplayNameInput");
+
+        const bioInput =
+            document.getElementById("profileBioInput");
+
+        const avatarInput =
+            document.getElementById("profileAvatarInput");
+
+        if (usernameInput) {
+            usernameInput.value =
+                currentProfile.username || "";
+        }
+
+        if (displayNameInput) {
+            displayNameInput.value =
+                currentProfile.display_name || "";
+        }
+
+        if (bioInput) {
+            bioInput.value =
+                currentProfile.bio || "";
+        }
+
+        if (avatarInput) {
+            avatarInput.value = "";
+        }
     }
 
     editor.style.display = "block";
@@ -7672,13 +7707,24 @@ function openProfileEditor() {
     });
 }
 
+
 function closeProfileEditor() {
-    const editor = document.getElementById("profileEditor");
+
+    const editor =
+        document.getElementById("profileEditor");
 
     if (editor) {
         editor.style.display = "none";
     }
+
+    const avatarInput =
+        document.getElementById("profileAvatarInput");
+
+    if (avatarInput) {
+        avatarInput.value = "";
+    }
 }
+
 
 window.openProfileEditor = openProfileEditor;
 window.closeProfileEditor = closeProfileEditor;
