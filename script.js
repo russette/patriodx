@@ -7044,27 +7044,22 @@ function renderMyProfile() {
     }
 
 
-    if (profileAvatar) {
+ if (profileAvatar) {
 
-        if (currentProfile.avatar_url) {
+    if (currentProfile.avatar_url) {
 
-            profileAvatar.innerHTML = `
+        profileAvatar.innerHTML = `
+            <img
+                src="${safe(currentProfile.avatar_url)}?v=${Date.now()}"
+                alt="Profile picture"
+            >
+        `;
 
-                <img
-                    src="${safe(currentProfile.avatar_url)}"
-                    alt="Profile picture"
-                >
+    } else {
 
-            `;
-
-        } else {
-
-            profileAvatar.innerHTML =
-                "👤";
-        }
+        profileAvatar.innerHTML = "👤";
     }
 }
-
 
 /* =========================================================
    CHECK USERNAME AVAILABILITY
