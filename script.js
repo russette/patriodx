@@ -7271,12 +7271,16 @@ window.savePATRIODXProfile = async function(event) {
     const bio =
         bioInput.value.trim();
 
-    if (!validatePATRIODXUsername(username)) {
-        alert(
-            "Username must be 3–30 characters and can only contain letters, numbers, underscores, and periods."
-        );
-        return;
-    }
+   if (
+    username.length < 3 ||
+    username.length > 30 ||
+    !/^[a-z0-9_.]+$/.test(username)
+) {
+    alert(
+        "Username must be 3–30 characters and can only contain letters, numbers, underscores, and periods."
+    );
+    return;
+}
 
     if (!displayName) {
         alert("Please enter a display name.");
