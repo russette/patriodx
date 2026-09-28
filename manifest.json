@@ -1,0 +1,18 @@
+{
+  "name": "PATRIODX",
+  "short_name": "PATRIODX",
+  "description": "Run your business smarter with PATRIODX.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b1120",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/patriodx-logo.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}
