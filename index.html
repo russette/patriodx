@@ -4010,6 +4010,21 @@
 
 <!-- PATRIODX JAVASCRIPT -->
 <script src="script.js"></script>
-
+<script>
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js")
+            .then(() => {
+                console.log("PATRIODX service worker registered");
+            })
+            .catch(error => {
+                console.error(
+                    "PATRIODX service worker registration failed:",
+                    error
+                );
+            });
+    });
+}
+</script>
 </body>
 </html>
