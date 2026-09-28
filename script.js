@@ -8608,11 +8608,13 @@ function navigatePATRIODX(page) {
     );
 
 
-    /* Go to top */
+   /* Reset the view position without smooth scrolling */
 
-    window.scrollTo(0, 0);
-
-
+window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: "instant"
+});
     /* Close mobile sidebar */
 
     const sidebar =
