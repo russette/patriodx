@@ -4826,3 +4826,316 @@ body {
     }
 
 }
+/* =========================================================
+   PATRIODX — COMPLETE DARK MODE READABILITY FIX
+========================================================= */
+
+body.dark-mode {
+
+    --dark-bg: #0b1120;
+    --dark-surface: #111827;
+    --dark-surface-2: #172033;
+    --dark-border: #334155;
+    --dark-text: #f8fafc;
+    --dark-text-soft: #cbd5e1;
+    --dark-muted: #94a3b8;
+}
+
+
+/* =========================================================
+   GENERAL CONTENT
+========================================================= */
+
+body.dark-mode main,
+body.dark-mode section {
+    color: var(--dark-text);
+}
+
+body.dark-mode small {
+    color: var(--dark-muted);
+}
+
+body.dark-mode strong {
+    color: var(--dark-text);
+}
+
+
+/* =========================================================
+   COMMON PANELS / BOXES
+========================================================= */
+
+body.dark-mode .card,
+body.dark-mode .panel,
+body.dark-mode .box,
+body.dark-mode .content-card,
+body.dark-mode .section-card,
+body.dark-mode .dashboard-section {
+    background: var(--dark-surface);
+    color: var(--dark-text);
+    border-color: var(--dark-border);
+}
+
+
+/* =========================================================
+   TABLES
+========================================================= */
+
+body.dark-mode table {
+    background: var(--dark-surface);
+    color: var(--dark-text);
+    border-color: var(--dark-border);
+}
+
+body.dark-mode th {
+    background: #172033;
+    color: var(--dark-text);
+    border-color: var(--dark-border);
+}
+
+body.dark-mode td {
+    color: var(--dark-text-soft);
+    border-color: var(--dark-border);
+}
+
+body.dark-mode tr:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+
+/* =========================================================
+   SEARCH / FILTER AREAS
+========================================================= */
+
+body.dark-mode .search-bar,
+body.dark-mode .filters,
+body.dark-mode .filter-bar {
+    background: var(--dark-surface);
+    color: var(--dark-text);
+    border-color: var(--dark-border);
+}
+
+
+/* =========================================================
+   DROPDOWNS
+========================================================= */
+
+body.dark-mode .dropdown,
+body.dark-mode .dropdown-menu,
+body.dark-mode .menu,
+body.dark-mode .account-menu {
+    background: #111827;
+    color: var(--dark-text);
+    border-color: var(--dark-border);
+}
+
+body.dark-mode .dropdown a,
+body.dark-mode .dropdown button,
+body.dark-mode .account-menu a,
+body.dark-mode .account-menu button {
+    color: var(--dark-text-soft);
+}
+
+body.dark-mode .dropdown a:hover,
+body.dark-mode .dropdown button:hover,
+body.dark-mode .account-menu a:hover,
+body.dark-mode .account-menu button:hover {
+    background: #1e293b;
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   MOBILE MENU
+========================================================= */
+
+body.dark-mode .mobile-menu,
+body.dark-mode .mobile-nav,
+body.dark-mode .mobile-menu-content {
+    background: #111827;
+    color: var(--dark-text);
+    border-color: var(--dark-border);
+}
+
+body.dark-mode .mobile-menu a,
+body.dark-mode .mobile-menu button {
+    color: var(--dark-text-soft);
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+body.dark-mode button:not(.mobile-menu-button):not(.theme-toggle) {
+    color: #ffffff;
+}
+
+body.dark-mode .mobile-menu-button {
+    background: transparent !important;
+    color: #ffffff !important;
+}
+
+
+/* =========================================================
+   PROFILE
+========================================================= */
+
+body.dark-mode .profile-card,
+body.dark-mode .profile-section,
+body.dark-mode .profile-info,
+body.dark-mode .profile-header {
+    background: var(--dark-surface);
+    color: var(--dark-text);
+    border-color: var(--dark-border);
+}
+
+body.dark-mode .profile-card p,
+body.dark-mode .profile-section p,
+body.dark-mode .profile-info p {
+    color: var(--dark-text-soft);
+}
+
+
+/* =========================================================
+   SOCIAL / POSTS
+========================================================= */
+
+body.dark-mode .post,
+body.dark-mode .post-card,
+body.dark-mode .post-content,
+body.dark-mode .social-card,
+body.dark-mode .feed-card {
+    background: var(--dark-surface);
+    color: var(--dark-text);
+    border-color: var(--dark-border);
+}
+
+body.dark-mode .post p,
+body.dark-mode .post-card p,
+body.dark-mode .post-content p {
+    color: var(--dark-text-soft);
+}
+
+body.dark-mode .comment,
+body.dark-mode .comment-item {
+    background: #172033;
+    color: var(--dark-text-soft);
+}
+
+
+/* =========================================================
+   NOTIFICATIONS
+========================================================= */
+
+body.dark-mode .notification,
+body.dark-mode .notification-item,
+body.dark-mode .notifications-panel {
+    background: var(--dark-surface);
+    color: var(--dark-text);
+    border-color: var(--dark-border);
+}
+
+body.dark-mode .notification p,
+body.dark-mode .notification-item p {
+    color: var(--dark-text-soft);
+}
+
+
+/* =========================================================
+   MESSAGES / CHAT
+========================================================= */
+
+body.dark-mode .messages,
+body.dark-mode .chat,
+body.dark-mode .chat-container,
+body.dark-mode .conversation,
+body.dark-mode .conversation-list {
+    background: var(--dark-surface);
+    color: var(--dark-text);
+    border-color: var(--dark-border);
+}
+
+body.dark-mode .message,
+body.dark-mode .message-item {
+    background: #172033;
+    color: var(--dark-text);
+}
+
+body.dark-mode .message p,
+body.dark-mode .message-item p {
+    color: var(--dark-text-soft);
+}
+
+
+/* =========================================================
+   MODAL OVERLAY
+========================================================= */
+
+body.dark-mode .modal-content input,
+body.dark-mode .modal-content select,
+body.dark-mode .modal-content textarea {
+    background: #0f172a;
+    color: #ffffff;
+    border-color: #475569;
+}
+
+
+/* =========================================================
+   LINKS
+========================================================= */
+
+body.dark-mode a {
+    color: #93c5fd;
+}
+
+body.dark-mode a:hover {
+    color: #bfdbfe;
+}
+
+
+/* =========================================================
+   DIVIDERS
+========================================================= */
+
+body.dark-mode hr {
+    border-color: var(--dark-border);
+}
+
+
+/* =========================================================
+   ICON BACKGROUNDS
+========================================================= */
+
+body.dark-mode .icon,
+body.dark-mode .action-icon {
+    background: #172033;
+    color: #e2e8f0;
+}
+
+
+/* =========================================================
+   PLACEHOLDER / DISABLED
+========================================================= */
+
+body.dark-mode input:disabled,
+body.dark-mode select:disabled,
+body.dark-mode textarea:disabled,
+body.dark-mode button:disabled {
+    background: #1e293b;
+    color: #64748b;
+    border-color: #334155;
+}
+
+
+/* =========================================================
+   MOBILE MENU — KEEP READABLE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    body.dark-mode .mobile-menu-button {
+        background: transparent !important;
+        color: #ffffff !important;
+    }
+
+}
