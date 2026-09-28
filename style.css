@@ -1637,20 +1637,23 @@ footer a:hover {
 
 
 /* =========================================================
-   THEME TOGGLE
+   THEME TOGGLE — FINAL FIX
 ========================================================= */
 
 .theme-toggle {
+    position: relative !important;
+
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 6px !important;
 
     width: auto !important;
+    height: 40px !important;
     min-width: 40px !important;
     min-height: 40px !important;
 
-    padding: 10px 16px !important;
+    padding: 0 14px !important;
+    margin: 0 !important;
 
     background: #111827 !important;
     color: #ffffff !important;
@@ -1658,15 +1661,24 @@ footer a:hover {
     border: 1px solid #334155 !important;
     border-radius: 10px !important;
 
+    font-family: inherit !important;
     font-size: 14px !important;
     font-weight: 700 !important;
     line-height: 1 !important;
 
     white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+
     text-align: center !important;
 
     transform: none !important;
     box-shadow: none !important;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease !important;
 }
 
 .theme-toggle:hover {
@@ -1691,6 +1703,19 @@ body.dark-mode .theme-toggle:hover {
     box-shadow: none !important;
 }
 
+/* Prevent theme text from becoming a separate large block */
+.theme-toggle span,
+.theme-toggle strong,
+.theme-toggle small {
+    display: inline !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: inherit !important;
+    line-height: 1 !important;
+    font-weight: inherit !important;
+}
 /* =========================================================
    SAAS LANDING PAGE
    ========================================================= */
