@@ -1637,12 +1637,20 @@ footer a:hover {
 
 
 /* =========================================================
-   THEME TOGGLE — LIGHT / DARK MODE
+   THEME TOGGLE
 ========================================================= */
 
 .theme-toggle {
-    padding: 10px 16px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+
+    width: auto !important;
+    min-width: 40px !important;
     min-height: 40px !important;
+
+    padding: 10px 16px !important;
 
     background: #111827 !important;
     color: #ffffff !important;
@@ -1650,16 +1658,15 @@ footer a:hover {
     border: 1px solid #334155 !important;
     border-radius: 10px !important;
 
-    font-weight: 700;
-    cursor: pointer;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+
+    white-space: nowrap !important;
+    text-align: center !important;
 
     transform: none !important;
     box-shadow: none !important;
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        border-color 0.2s ease;
 }
 
 .theme-toggle:hover {
