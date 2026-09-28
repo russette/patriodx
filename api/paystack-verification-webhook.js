@@ -1,19 +1,12 @@
 const crypto = require("crypto");
 const { createClient } = require("@supabase/supabase-js");
 
-const PAYSTACK_SECRET_KEY =
-    process.env.PAYSTACK_SECRET_KEY;
-
-const SUPABASE_URL =
-    process.env.SUPABASE_URL;
-
-const SUPABASE_SERVICE_ROLE_KEY =
-    process.env.SUPABASE_SERVICE_ROLE_KEY;
-
+const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 module.exports = async function handler(req, res) {
 
-    // Paystack sends POST requests
     if (req.method !== "POST") {
         return res.status(405).json({
             status: false,
@@ -28,35 +21,21 @@ module.exports = async function handler(req, res) {
             !SUPABASE_URL ||
             !SUPABASE_SERVICE_ROLE_KEY
         ) {
-            console.error(
-                "Verification webhook environment variables are missing."
-            );
-
             return res.status(500).json({
                 status: false,
                 error: "Server configuration error"
             });
         }
 
-
-        /*
-        =========================================================
-        VERIFY PAYSTACK WEBHOOK SIGNATURE
-        =========================================================
-        */
-
         const signature =
             req.headers["x-paystack-signature"];
 
         if (!signature) {
-
             return res.status(401).json({
                 status: false,
                 error: "Missing Paystack signature"
             });
-
         }
-
 
         const payload =
             JSON.stringify(req.body);
@@ -70,28 +49,12 @@ module.exports = async function handler(req, res) {
                 .update(payload)
                 .digest("hex");
 
-
-        if (
-            signature !== expectedSignature
-        ) {
-
-            console.error(
-                "Invalid Paystack webhook signature."
-            );
-
+        if (signature !== expectedSignature) {
             return res.status(401).json({
                 status: false,
                 error: "Invalid signature"
             });
-
         }
-
-
-        /*
-        =========================================================
-        SUPABASE ADMIN CLIENT
-        =========================================================
-        */
 
         const supabaseAdmin =
             createClient(
@@ -105,43 +68,26 @@ module.exports = async function handler(req, res) {
                 }
             );
 
-
-        const event =
-            req.body;
-
+        const event = req.body;
 
         console.log(
-            "PAYSTACK VERIFICATION WEBHOOK:",
+            "PAYSTACK EVENT:",
             event.event
         );
 
 
         /*
         =========================================================
-        SUCCESSFUL PAYMENT
+        SUCCESSFUL VERIFICATION PAYMENT
         =========================================================
         */
 
-        if (
-            event.event === "charge.success"
-        ) {
+        if (event.event === "charge.success") {
 
-            const payment =
-                event.data;
+            const payment = event.data || {};
+            const metadata = payment.metadata || {};
 
-
-            /*
-            Only process transactions created
-            by our verification endpoint.
-            */
-
-            const metadata =
-                payment.metadata || {};
-
-
-            if (
-                metadata.verification !== true
-            ) {
+            if (metadata.verification !== true) {
 
                 return res.status(200).json({
                     status: true,
@@ -150,7 +96,6 @@ module.exports = async function handler(req, res) {
 
             }
 
-
             const userId =
                 metadata.user_id;
 
@@ -158,13 +103,11 @@ module.exports = async function handler(req, res) {
                 metadata.verification_plan;
 
 
-            if (
-                !userId ||
-                !verificationPlan
-            ) {
+            if (!userId || !verificationPlan) {
 
                 console.error(
-                    "Verification metadata missing."
+                    "Missing verification metadata:",
+                    metadata
                 );
 
                 return res.status(400).json({
@@ -176,44 +119,34 @@ module.exports = async function handler(req, res) {
 
 
             /*
-            Determine the correct duration
-            from the server-side plan.
+            =====================================================
+            DETERMINE PLAN DURATION
+            =====================================================
             */
 
             let months;
 
-            if (
-                verificationPlan === "monthly"
-            ) {
-
+            if (verificationPlan === "monthly") {
                 months = 1;
-
-            } else if (
-                verificationPlan === "yearly"
-            ) {
-
+            } else if (verificationPlan === "yearly") {
                 months = 12;
-
             } else {
-
                 return res.status(400).json({
                     status: false,
                     error: "Invalid verification plan"
                 });
-
             }
 
 
             /*
-            Calculate expiry.
+            =====================================================
+            CALCULATE EXPIRY
+            =====================================================
             */
 
-            const startedAt =
-                new Date();
+            const startedAt = new Date();
 
-            const expiresAt =
-                new Date(startedAt);
-
+            const expiresAt = new Date(startedAt);
 
             expiresAt.setMonth(
                 expiresAt.getMonth() + months
@@ -221,7 +154,9 @@ module.exports = async function handler(req, res) {
 
 
             /*
-            Save verification subscription.
+            =====================================================
+            SAVE VERIFICATION SUBSCRIPTION
+            =====================================================
             */
 
             const {
@@ -275,12 +210,10 @@ module.exports = async function handler(req, res) {
                     );
 
 
-            if (
-                subscriptionError
-            ) {
+            if (subscriptionError) {
 
                 console.error(
-                    "VERIFICATION SUBSCRIPTION ERROR:",
+                    "SUBSCRIPTION SAVE ERROR:",
                     subscriptionError
                 );
 
@@ -293,7 +226,9 @@ module.exports = async function handler(req, res) {
 
 
             /*
-            Activate the Blue Check.
+            =====================================================
+            ACTIVATE BLUE CHECK
+            =====================================================
             */
 
             const {
@@ -302,6 +237,7 @@ module.exports = async function handler(req, res) {
                 await supabaseAdmin
                     .from("profiles")
                     .update({
+
                         is_verified:
                             true,
 
@@ -313,6 +249,7 @@ module.exports = async function handler(req, res) {
 
                         updated_at:
                             new Date().toISOString()
+
                     })
                     .eq(
                         "id",
@@ -320,12 +257,10 @@ module.exports = async function handler(req, res) {
                     );
 
 
-            if (
-                profileError
-            ) {
+            if (profileError) {
 
                 console.error(
-                    "PROFILE VERIFICATION ERROR:",
+                    "PROFILE UPDATE ERROR:",
                     profileError
                 );
 
@@ -338,7 +273,7 @@ module.exports = async function handler(req, res) {
 
 
             console.log(
-                "PATRIODX VERIFIED:",
+                "BLUE CHECK ACTIVATED:",
                 userId,
                 verificationPlan
             );
@@ -352,48 +287,91 @@ module.exports = async function handler(req, res) {
         =========================================================
         */
 
-        if (
-            event.event === "subscription.create"
-        ) {
+        if (event.event === "subscription.create") {
 
             const subscription =
-                event.data;
+                event.data || {};
+
+            const subscriptionCode =
+                subscription.subscription_code;
+
+            const customerCode =
+                subscription.customer?.customer_code;
 
 
-            const userId =
-                subscription.metadata?.user_id;
+            if (subscriptionCode) {
+
+                /*
+                Find the most recent active verification
+                subscription for this Paystack customer.
+                */
+
+                const {
+                    data: existingSubscription,
+                    error: lookupError
+                } =
+                    await supabaseAdmin
+                        .from(
+                            "verification_subscriptions"
+                        )
+                        .select(
+                            "id"
+                        )
+                        .eq(
+                            "status",
+                            "active"
+                        )
+                        .order(
+                            "created_at",
+                            {
+                                ascending: false
+                            }
+                        )
+                        .limit(1)
+                        .maybeSingle();
 
 
-            if (
-                userId
-            ) {
+                if (!lookupError && existingSubscription) {
 
-                await supabaseAdmin
-                    .from(
-                        "verification_subscriptions"
-                    )
-                    .update({
+                    await supabaseAdmin
+                        .from(
+                            "verification_subscriptions"
+                        )
+                        .update({
 
-                        subscription_code:
-                            subscription.subscription_code,
+                            subscription_code:
+                                subscriptionCode,
 
-                        customer_code:
-                            subscription.customer?.customer_code,
+                            customer_code:
+                                customerCode || null,
 
-                        updated_at:
-                            new Date().toISOString()
+                            updated_at:
+                                new Date().toISOString()
 
-                    })
-                    .eq(
-                        "user_id",
-                        userId
-                    )
-                    .eq(
-                        "status",
-                        "active"
-                    );
+                        })
+                        .eq(
+                            "id",
+                            existingSubscription.id
+                        );
+
+                }
 
             }
+
+        }
+
+
+        /*
+        =========================================================
+        RECURRING PAYMENT SUCCESS
+        =========================================================
+        */
+
+        if (event.event === "invoice.update") {
+
+            console.log(
+                "Verification invoice updated."
+            );
 
         }
 
@@ -404,12 +382,10 @@ module.exports = async function handler(req, res) {
         =========================================================
         */
 
-        if (
-            event.event === "invoice.payment_failed"
-        ) {
+        if (event.event === "invoice.payment_failed") {
 
             console.log(
-                "Verification subscription payment failed."
+                "Verification payment failed."
             );
 
         }
@@ -421,9 +397,7 @@ module.exports = async function handler(req, res) {
         =========================================================
         */
 
-        if (
-            event.event === "subscription.not_renew"
-        ) {
+        if (event.event === "subscription.not_renew") {
 
             console.log(
                 "Verification subscription will not renew."
@@ -438,57 +412,52 @@ module.exports = async function handler(req, res) {
         =========================================================
         */
 
-        if (
-            event.event === "subscription.disable"
-        ) {
+        if (event.event === "subscription.disable") {
 
             const subscription =
-                event.data;
-
+                event.data || {};
 
             const subscriptionCode =
                 subscription.subscription_code;
 
 
-            if (
-                subscriptionCode
-            ) {
+            if (subscriptionCode) {
 
-                await supabaseAdmin
-                    .from(
-                        "verification_subscriptions"
-                    )
-                    .update({
+                const {
+                    error
+                } =
+                    await supabaseAdmin
+                        .from(
+                            "verification_subscriptions"
+                        )
+                        .update({
 
-                        status:
-                            "disabled",
+                            status:
+                                "disabled",
 
-                        updated_at:
-                            new Date().toISOString()
+                            updated_at:
+                                new Date().toISOString()
 
-                    })
-                    .eq(
-                        "subscription_code",
-                        subscriptionCode
+                        })
+                        .eq(
+                            "subscription_code",
+                            subscriptionCode
+                        );
+
+
+                if (error) {
+
+                    console.error(
+                        "DISABLE UPDATE ERROR:",
+                        error
                     );
 
-
-                /*
-                Don't immediately remove the badge
-                if the customer has already paid through
-                their current expiry date.
-                */
+                }
 
             }
 
         }
 
-
-        /*
-        =========================================================
-        DONE
-        =========================================================
-        */
 
         return res.status(200).json({
             status: true,
@@ -499,7 +468,7 @@ module.exports = async function handler(req, res) {
     } catch (error) {
 
         console.error(
-            "PAYSTACK VERIFICATION WEBHOOK ERROR:",
+            "PAYSTACK WEBHOOK ERROR:",
             error
         );
 
