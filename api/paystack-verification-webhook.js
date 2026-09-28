@@ -289,78 +289,102 @@ module.exports = async function handler(req, res) {
 
         if (event.event === "subscription.create") {
 
-            const subscription =
-                event.data || {};
+    const subscription =
+        event.data || {};
 
-            const subscriptionCode =
-                subscription.subscription_code;
+    const subscriptionCode =
+        subscription.subscription_code;
 
-            const customerCode =
-                subscription.customer?.customer_code;
+    const customerCode =
+        subscription.customer?.customer_code;
 
-
-            if (subscriptionCode) {
-
-                /*
-                Find the most recent active verification
-                subscription for this Paystack customer.
-                */
-
-                const {
-                    data: existingSubscription,
-                    error: lookupError
-                } =
-                    await supabaseAdmin
-                        .from(
-                            "verification_subscriptions"
-                        )
-                        .select(
-                            "id"
-                        )
-                        .eq(
-                            "status",
-                            "active"
-                        )
-                        .order(
-                            "created_at",
-                            {
-                                ascending: false
-                            }
-                        )
-                        .limit(1)
-                        .maybeSingle();
+    const email =
+        subscription.customer?.email;
 
 
-                if (!lookupError && existingSubscription) {
+    if (
+        subscriptionCode &&
+        email
+    ) {
 
-                    await supabaseAdmin
-                        .from(
-                            "verification_subscriptions"
-                        )
-                        .update({
+        const {
+            data: verificationSubscription,
+            error: lookupError
+        } =
+            await supabaseAdmin
+                .from("verification_subscriptions")
+                .select("id")
+                .eq("email", email)
+                .eq("status", "active")
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                )
+                .limit(1)
+                .maybeSingle();
 
-                            subscription_code:
-                                subscriptionCode,
 
-                            customer_code:
-                                customerCode || null,
+        if (lookupError) {
 
-                            updated_at:
-                                new Date().toISOString()
+            console.error(
+                "SUBSCRIPTION LOOKUP ERROR:",
+                lookupError
+            );
 
-                        })
-                        .eq(
-                            "id",
-                            existingSubscription.id
-                        );
+        } else if (verificationSubscription) {
 
-                }
+            const {
+                error: updateError
+            } =
+                await supabaseAdmin
+                    .from("verification_subscriptions")
+                    .update({
+
+                        subscription_code:
+                            subscriptionCode,
+
+                        customer_code:
+                            customerCode || null,
+
+                        updated_at:
+                            new Date().toISOString()
+
+                    })
+                    .eq(
+                        "id",
+                        verificationSubscription.id
+                    );
+
+
+            if (updateError) {
+
+                console.error(
+                    "SUBSCRIPTION LINK ERROR:",
+                    updateError
+                );
+
+            } else {
+
+                console.log(
+                    "VERIFICATION SUBSCRIPTION LINKED:",
+                    subscriptionCode
+                );
 
             }
 
+        } else {
+
+            console.log(
+                "No matching verification subscription found."
+            );
+
         }
 
+    }
 
+}
         /*
         =========================================================
         RECURRING PAYMENT SUCCESS
