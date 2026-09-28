@@ -4812,3 +4812,17 @@ body {
     }
 
 }
+/* =========================================================
+   MOBILE MENU BUTTON — LIGHT MODE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .mobile-menu-button {
+        color: #111827 !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+}
