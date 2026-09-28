@@ -4669,7 +4669,7 @@ body {
 }
 
 .verified-badge::before {
-    content: "✓";
+    content: "★";
 
     display: block;
 
