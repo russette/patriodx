@@ -440,15 +440,39 @@ function setupDarkMode() {
     const savedTheme =
         localStorage.getItem("patriodxTheme");
 
+    function updateThemeButton() {
+
+        const dark =
+            document.body.classList.contains("dark-mode");
+
+        button.innerHTML =
+            dark
+                ? "☀️"
+                : "🌙";
+
+        button.setAttribute(
+            "aria-label",
+            dark
+                ? "Switch to light mode"
+                : "Switch to dark mode"
+        );
+
+        button.setAttribute(
+            "title",
+            dark
+                ? "Switch to light mode"
+                : "Switch to dark mode"
+        );
+    }
+
     if (savedTheme === "dark") {
 
         document.body.classList.add(
             "dark-mode"
         );
-
-        button.textContent =
-            "☀️ Light Mode";
     }
+
+    updateThemeButton();
 
     button.addEventListener(
         "click",
@@ -468,15 +492,10 @@ function setupDarkMode() {
                 dark ? "dark" : "light"
             );
 
-            button.textContent =
-                dark
-                    ? "☀️ Light Mode"
-                    : "🌙 Dark Mode";
+            updateThemeButton();
         }
     );
 }
-
-
 // =========================================================
 // PRODUCT MODAL
 // =========================================================
