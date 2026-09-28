@@ -4682,3 +4682,24 @@ body {
     transform: none !important;
     rotate: none !important;
 }
+/* =========================================================
+   MOBILE LOGOUT BUTTON
+========================================================= */
+
+@media (max-width: 768px) {
+
+    #logoutButton {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+
+        width: 100%;
+        min-height: 44px;
+
+        margin-top: 10px;
+        padding: 12px 16px;
+
+        box-sizing: border-box;
+    }
+
+}
