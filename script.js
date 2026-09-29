@@ -1289,7 +1289,7 @@ function renderSales() {
 
         container.innerHTML = `
             <div class="empty-state">
-                <div class="empty-icon">🧾</div>
+                <div class="empty-icon"><i data-lucide="receipt"></i></div>
                 <h3>No sales yet</h3>
                 <p>Your recorded sales will appear here.</p>
             </div>
@@ -1792,7 +1792,7 @@ function renderInvoices() {
 
         container.innerHTML = `
             <div class="empty-state">
-                <div class="empty-icon">🧾</div>
+               <div class="empty-icon"><i data-lucide="receipt"></i></div>
                 <h3>No invoices yet</h3>
                 <p>Create your first invoice for a customer.</p>
             </div>
@@ -1845,9 +1845,9 @@ function renderInvoices() {
 
                 <span>
                     ${
-                        invoice.status === "paid"
-                            ? "✅ Paid"
-                            : "⏳ Unpaid"
+                       invoice.status === "paid"
+    ? '<i data-lucide="circle-check"></i> Paid'
+    : '<i data-lucide="clock-3"></i> Unpaid'
                     }
                 </span>
 
@@ -2053,8 +2053,8 @@ function viewInvoice(id) {
                 Status:
                 ${
                     invoice.status === "paid"
-                        ? "✅ Paid"
-                        : "⏳ Unpaid"
+    ? '<i data-lucide="circle-check"></i> Paid'
+    : '<i data-lucide="clock-3"></i> Unpaid'
                 }
             </p>
 
@@ -2366,7 +2366,7 @@ function renderAnalytics() {
 
             alertContainer.innerHTML = `
                 <div class="success-message">
-                    ✅ All products have healthy stock levels.
+                  '<i data-lucide="circle-check"></i> All products have healthy stock levels.'
                 </div>
             `;
 
@@ -2492,7 +2492,7 @@ function renderRecentActivity() {
 
         container.innerHTML = `
             <div class="empty-state">
-                <div class="empty-icon">📊</div>
+               <div class="empty-icon"><i data-lucide="chart-column"></i></div>
                 <h3>No recent activity</h3>
                 <p>Your latest business activity will appear here.</p>
             </div>
@@ -2955,7 +2955,7 @@ async function verifyPatriodxPayment(reference, expectedPlan) {
 
 
         alert(
-            "Payment verified successfully! 🎉\n\n" +
+           "Payment verified successfully! <i data-lucide=\"party-popper\"></i>\n\n"
             "Your PATRIODX " +
             result.data.plan +
             " plan is now active."
@@ -3559,7 +3559,10 @@ function addAIMessage(message, type = "bot") {
     } else {
 
         messageDiv.innerHTML = `
-            <strong>🤖 PATRIODX AI</strong>
+            <strong>
+    <i data-lucide="sparkles"></i>
+    PATRIODX AI
+</strong>
             <p>${message}</p>
         `;
 
@@ -3614,7 +3617,10 @@ if (aiForm) {
             "ai-message ai-message-bot";
 
         loadingDiv.innerHTML = `
-            <strong>🤖 PATRIODX AI</strong>
+           <strong>
+    <i data-lucide="sparkles"></i>
+    PATRIODX AI
+</strong>
             <p>Thinking...</p>
         `;
 
@@ -3838,7 +3844,7 @@ function showSocialMediaPreview(file) {
                 >
 
                 <div class="social-preview-info">
-                    📷 ${safe(file.name)}
+                  `<i data-lucide="image"></i> ${safe(file.name)}`
                 </div>
 
                 <button
@@ -3864,7 +3870,7 @@ function showSocialMediaPreview(file) {
                 ></video>
 
                 <div class="social-preview-info">
-                    🎥 ${safe(file.name)}
+                  `<strong><i data-lucide="video"></i> ${safe(file.name)}</strong>`
                 </div>
 
                 <button
@@ -4143,8 +4149,9 @@ async function loadSocialPosts() {
     socialFeed.innerHTML = `
         <div class="social-empty-state">
 
-            <div>⏳</div>
-
+           <div>
+    <i data-lucide="clock-3"></i>
+</div>
             <h3>Loading posts...</h3>
 
             <p>
@@ -4177,7 +4184,9 @@ async function loadSocialPosts() {
         socialFeed.innerHTML = `
             <div class="social-empty-state">
 
-                <div>⚠️</div>
+               <div>
+    <i data-lucide="triangle-alert"></i>
+</div>
 
                 <h3>
                     Could not load posts
@@ -4199,8 +4208,9 @@ async function loadSocialPosts() {
         socialFeed.innerHTML = `
             <div class="social-empty-state">
 
-                <div>🌐</div>
-
+               <div>
+    <i data-lucide="globe"></i>
+</div>
                 <h3>
                     No posts yet
                 </h3>
@@ -4309,7 +4319,7 @@ async function loadSocialPosts() {
                         <div class="social-post-header">
 
                             <div class="social-post-avatar">
-                                👤
+                               <i data-lucide="user"></i>
                             </div>
 
                             <div class="social-post-author-area">
@@ -4340,7 +4350,7 @@ async function loadSocialPosts() {
                                             onclick="deleteSocialPost('${post.id}')"
                                             title="Delete post"
                                         >
-                                            🗑️
+                                            <i data-lucide="trash-2"></i>
                                         </button>
                                     `
                                     : `
@@ -4350,7 +4360,7 @@ async function loadSocialPosts() {
                                             onclick="reportSocialPost('${post.id}')"
                                             title="Report post"
                                         >
-                                            🚩
+                                           <i data-lucide="flag"></i>
                                         </button>
                                     `
                             }
@@ -4393,11 +4403,11 @@ async function loadSocialPosts() {
                         >
 
                             <span>
-                                ❤️ ${post.likes}
+                               `<i data-lucide="heart"></i> ${post.likes}`
                             </span>
 
                             <span>
-                                💬 ${post.comments}
+                                `<i data-lucide="message-circle"></i> ${post.comments}`
                             </span>
 
                         </div>
@@ -4414,7 +4424,7 @@ async function loadSocialPosts() {
                                 class="social-action-button"
                                 onclick="likeSocialPost('${post.id}')"
                             >
-                                ❤️ Like
+                               <i data-lucide="heart"></i> Like
                             </button>
 
 
@@ -4423,7 +4433,7 @@ async function loadSocialPosts() {
                                 class="social-action-button"
                                 onclick="toggleComments('${post.id}')"
                             >
-                                💬 Comment
+                               <i data-lucide="message-circle"></i> Comment
                             </button>
 
 
@@ -4432,7 +4442,7 @@ async function loadSocialPosts() {
                                 class="social-action-button"
                                 onclick="shareSocialPost('${post.id}')"
                             >
-                                ↗️ Share
+                               <i data-lucide="share-2"></i> Share
                             </button>
 
                         </div>
@@ -4620,7 +4630,7 @@ if (socialPostForm) {
                     false;
 
                 button.textContent =
-                    "📢 Post";
+                   '<i data-lucide="megaphone"></i> Post';
 
 
                 await loadSocialPosts();
@@ -4644,7 +4654,7 @@ if (socialPostForm) {
                     false;
 
                 button.textContent =
-                    "📢 Post";
+                   '<i data-lucide="megaphone"></i> Post';
             }
 
         }
@@ -4738,12 +4748,12 @@ async function refreshSocialPostStats(postId) {
     statsElement.innerHTML = `
 
         <span>
-            ❤️ ${stats.likes}
-        </span>
+    <i data-lucide="heart"></i> ${stats.likes}
+</span>
 
-        <span>
-            💬 ${stats.comments}
-        </span>
+<span>
+    <i data-lucide="message-circle"></i> ${stats.comments}
+</span>
 
     `;
 }
@@ -4860,7 +4870,7 @@ async function loadSocialComments(postId) {
                         <div
                             class="social-comment-avatar"
                         >
-                            👤
+                           <i data-lucide="user"></i>
                         </div>
 
                         <div
@@ -5214,7 +5224,7 @@ async function reportSocialPost(postId) {
 
 
     alert(
-        "🚩 Report submitted.\n\n" +
+       "<i data-lucide=\"flag\"></i> Report submitted.\n\n" +
         "Thank you for helping keep PATRIODX safe."
     );
 }
@@ -5261,7 +5271,7 @@ async function shareSocialPost(postId) {
 
 
         alert(
-            "🔗 Post link copied to clipboard!"
+           "Post link copied to clipboard!"
         );
 
     } catch (error) {
@@ -5331,24 +5341,26 @@ function getPATRIODXBadge(profile) {
     if (profile.is_owner) {
         return `
             <span
-                class="patriodx-verification-badge owner-badge"
-                title="PATRIODX Owner"
-                aria-label="PATRIODX Owner"
-            >
-                🔷
-            </span>
+    class="patriodx-verification-badge owner-badge"
+    title="PATRIODX Owner"
+    aria-label="PATRIODX Owner"
+>
+    <i data-lucide="star"></i>
+    <i data-lucide="check"></i>
+</span>
         `;
     }
 
     if (profile.is_verified) {
         return `
-            <span
-                class="patriodx-verification-badge verified-badge"
-                title="PATRIODX Verified"
-                aria-label="PATRIODX Verified"
-            >
-                🔷
-            </span>
+           <span 
+    class="patriodx-verification-badge verified-badge" 
+    title="PATRIODX Verified" 
+    aria-label="PATRIODX Verified" 
+> 
+    <i data-lucide="star"></i> 
+    <i data-lucide="check"></i> 
+</span>
         `;
     }
 
@@ -5370,7 +5382,7 @@ async function loadHomePosts() {
 
     homeFeed.innerHTML = `
         <div class="social-empty-state">
-            <div>⏳</div>
+         <div><i data-lucide="clock-3"></i></div>
             <h3>Loading your feed...</h3>
             <p>Please wait.</p>
         </div>
@@ -5393,7 +5405,7 @@ async function loadHomePosts() {
 
         homeFeed.innerHTML = `
             <div class="social-empty-state">
-                <div>⚠️</div>
+               <div><i data-lucide="triangle-alert"></i></div>
                 <h3>Could not load your feed</h3>
                 <p>${safe(error.message)}</p>
             </div>
@@ -5406,7 +5418,7 @@ async function loadHomePosts() {
 
         homeFeed.innerHTML = `
             <div class="social-empty-state">
-                <div>🌐</div>
+               <div><i data-lucide="globe"></i></div>
                 <h3>No posts yet</h3>
                 <p>
                     Be the first to share something
@@ -5486,7 +5498,7 @@ async function loadHomePosts() {
                     <div class="social-post-header">
 
                         <div class="social-post-avatar">
-                            👤
+                            <i data-lucide="user"></i>
                         </div>
 
                         <div class="social-post-author-area">
@@ -5522,41 +5534,41 @@ async function loadHomePosts() {
 
                     <div class="social-post-stats">
 
-                        <span>
-                            ❤️ ${post.likes}
-                        </span>
+                       <span>
+    <i data-lucide="heart"></i> ${post.likes}
+</span>
 
-                        <span>
-                            💬 ${post.comments}
-                        </span>
-
+<span>
+    <i data-lucide="message-circle"></i> ${post.comments}
+</span>
                     </div>
 
 
-                    <div class="social-post-actions-bar">
+                   <div class="social-post-actions-bar">
 
-                        <button
-                            type="button"
-                            class="social-action-button"
-                            onclick="likeSocialPost('${post.id}')"
-                        >
-                            ❤️ Like
-                        </button>
+    <button
+        type="button"
+        class="social-action-button"
+        onclick="likeSocialPost('${post.id}')"
+    >
+        <i data-lucide="heart"></i> Like
+    </button>
 
-                       <button
-    type="button"
-    class="social-action-button"
-    onclick="toggleHomeComments('${post.id}')"
->
-    💬 Comment
-</button>
-                        <button
-                            type="button"
-                            class="social-action-button"
-                            onclick="shareSocialPost('${post.id}')"
-                        >
-                            ↗️ Share
-                        </button>
+    <button
+        type="button"
+        class="social-action-button"
+        onclick="toggleHomeComments('${post.id}')"
+    >
+        <i data-lucide="message-circle"></i> Comment
+    </button>
+
+    <button
+        type="button"
+        class="social-action-button"
+        onclick="shareSocialPost('${post.id}')"
+    >
+        <i data-lucide="share-2"></i> Share
+    </button>
 
                     </div>
 
@@ -5581,9 +5593,9 @@ async function refreshHomePostStats(postId) {
     const counts =
         await getSocialCounts(postId);
 
-    statsElement.innerHTML = `
-        <span>❤️ ${counts.likes}</span>
-        <span>💬 ${counts.comments}</span>
+   statsElement.innerHTML = `
+    <span><i data-lucide="heart"></i> ${counts.likes}</span>
+    <span><i data-lucide="message-circle"></i> ${counts.comments}</span>
     `;
 }
 
@@ -5666,7 +5678,7 @@ async function toggleHomeComments(postId) {
                     ? comments.map(comment => `
                         <div class="social-comment">
                             <div class="social-comment-avatar">
-                                👤
+                               <i data-lucide="user"></i>
                             </div>
 
                             <div class="social-comment-body">
@@ -5829,7 +5841,7 @@ async function loadConversations() {
 
     conversationList.innerHTML = `
         <div class="messaging-empty-state">
-            <div>⏳</div>
+           <div><i data-lucide="clock-3"></i></div>
             <p>Loading conversations...</p>
         </div>
     `;
@@ -5854,7 +5866,7 @@ async function loadConversations() {
 
         conversationList.innerHTML = `
             <div class="messaging-empty-state">
-                <div>⚠️</div>
+               <div><i data-lucide="triangle-alert"></i></div>
                 <p>Could not load conversations.</p>
             </div>
         `;
@@ -5870,7 +5882,7 @@ async function loadConversations() {
 
         conversationList.innerHTML = `
             <div class="messaging-empty-state">
-                <div>💬</div>
+               <div><i data-lucide="message-circle"></i></div>
 
                 <h3>
                     No conversations
@@ -5920,7 +5932,7 @@ async function loadConversations() {
 
         conversationList.innerHTML = `
             <div class="messaging-empty-state">
-                <div>⚠️</div>
+               <div><i data-lucide="triangle-alert"></i></div>
                 <p>
                     Could not load conversations.
                 </p>
@@ -5938,7 +5950,7 @@ async function loadConversations() {
 
         conversationList.innerHTML = `
             <div class="messaging-empty-state">
-                <div>💬</div>
+             <div><i data-lucide="message-circle"></i></div>
                 <h3>No conversations</h3>
                 <p>
                     Start a conversation with
@@ -5968,7 +5980,7 @@ async function loadConversations() {
     data-conversation-id="${conversation.id}"
 >
                         <div class="conversation-avatar">
-                            💬
+                            <i data-lucide="message-circle"></i>
                         </div>
 
                         <div class="conversation-info">
@@ -6104,7 +6116,7 @@ async function loadMessages(
 
     messageList.innerHTML = `
         <div class="messaging-empty-state">
-            <div>⏳</div>
+          <div><i data-lucide="clock-3"></i></div>
             <p>Loading messages...</p>
         </div>
     `;
@@ -6135,7 +6147,7 @@ async function loadMessages(
 
         messageList.innerHTML = `
             <div class="messaging-empty-state">
-                <div>⚠️</div>
+               <div><i data-lucide="triangle-alert"></i></div>
                 <p>
                     Could not load messages.
                 </p>
@@ -6153,8 +6165,7 @@ async function loadMessages(
 
         messageList.innerHTML = `
             <div class="messaging-empty-state">
-                <div>💬</div>
-
+               <div><i data-lucide="message-circle"></i></div>
                 <h3>
                     No messages yet
                 </h3>
@@ -7080,7 +7091,7 @@ if (profileAvatar) {
       } else {
 
         profileAvatar.innerHTML =
-            "👤";
+           "<i data-lucide=\"user\"></i>";
     }
 }
 
@@ -7395,7 +7406,7 @@ window.savePATRIODXProfile = async function(event) {
         }
 
         alert(
-            "✅ Your PATRIODX profile has been updated!"
+            "Your PATRIODX profile has been updated!"
         );
 
         await loadMyProfilePosts();
@@ -7461,7 +7472,7 @@ async function loadMyProfilePosts() {
     profilePosts.innerHTML = `
         <div class="social-empty-state">
 
-            <div>⏳</div>
+           <div><i data-lucide="clock-3"></i></div>
 
             <h3>
                 Loading your posts...
@@ -7497,8 +7508,7 @@ async function loadMyProfilePosts() {
         profilePosts.innerHTML = `
             <div class="social-empty-state">
 
-                <div>⚠️</div>
-
+              <div><i data-lucide="triangle-alert"></i></div>
                 <h3>
                     Could not load your posts
                 </h3>
@@ -7519,7 +7529,7 @@ async function loadMyProfilePosts() {
         profilePosts.innerHTML = `
             <div class="social-empty-state">
 
-                <div>📝</div>
+               <div><i data-lucide="file-pen-line"></i></div>
 
                 <h3>
                     No posts yet
@@ -7607,7 +7617,7 @@ async function loadMyProfilePosts() {
                                                 "
                                             >
                                         `
-                                        : "👤"
+                                       : '<i data-lucide="user"></i>'
                                 }
                             </div>
 
@@ -8132,7 +8142,7 @@ if (badgeElement) {
 
         postsElement.innerHTML = `
             <div class="social-empty-state">
-                <div>📝</div>
+               <div><i data-lucide="file-pen-line"></i></div>
                 <h3>No posts yet</h3>
                 <p>This user has not posted anything yet.</p>
             </div>
@@ -8181,7 +8191,7 @@ if (badgeElement) {
                         ${
                             profile.avatar_url
                             ? `<img src="${profile.avatar_url}" alt="Profile picture">`
-                            : "👤"
+                           : '<i data-lucide="user"></i>'
                         }
                     </div>
 
@@ -8278,7 +8288,7 @@ async function searchPATRIODXUsers(username) {
 
         results.innerHTML = `
             <div class="social-empty-state">
-                <div>🔎</div>
+               <div><i data-lucide="search"></i></div>
                 <h3>No users found</h3>
                 <p>No PATRIODX users matched that username.</p>
             </div>
@@ -8292,7 +8302,7 @@ async function searchPATRIODXUsers(username) {
 
         const avatar = profile.avatar_url
             ? `<img src="${profile.avatar_url}" alt="Profile">`
-            : "👤";
+           : '<i data-lucide="user"></i>';
 
 
         return `
@@ -9031,9 +9041,8 @@ viewPlans: "View Plans",
         controlCenter: "PATRIODX • CONTROL CENTER",
 runBusinessSmarter: "Run your business smarter.",
 dashboardDescription: "Manage your products, customers, sales and invoices from one powerful business dashboard.",
-manageProducts: "📦 Manage Products",
-viewAnalytics: "📊 View Analytics",
-
+manageProducts: '<i data-lucide="package"></i> Manage Products',
+viewAnalytics: '<i data-lucide="chart-column"></i> View Analytics',
 quickActions: "QUICK ACTIONS",
 getThingsDoneFaster: "Get things done faster.",
 
@@ -9048,10 +9057,10 @@ recordTransaction: "Record a new transaction",
 
 createInvoice: "Create Invoice",
 sendInvoice: "Send a professional invoice",
-        findPeople: "🔎 Find People",
+       findPeople: '<i data-lucide="search"></i> Find People',
 searchByUsername: "Search PATRIODX by username.",
 searchUsername: "Search username...",
-patriodxProfile: "👤 PATRIODX PROFILE",
+patriodxProfile: '<i data-lucide="user"></i> PATRIODX PROFILE',
 yourProfile: "Your Profile",
 buildYourIdentity: "Build your identity on PATRIODX.",
 
@@ -9061,8 +9070,7 @@ followers: "Followers",
 following: "Following",
 
 tellPeopleAboutYourself: "Tell people about yourself.",
-editProfile: "✏️ Edit Profile",
-
+editProfile: '<i data-lucide="pencil"></i> Edit Profile',
 editYourProfile: "Edit Your Profile",
 customizeProfile: "Customize how people see you on PATRIODX.",
 
@@ -9137,8 +9145,8 @@ viewPlans: "Voir les offres",
         controlCenter: "PATRIODX • CENTRE DE CONTRÔLE",
 runBusinessSmarter: "Gérez votre entreprise plus intelligemment.",
 dashboardDescription: "Gérez vos produits, clients, ventes et factures depuis un puissant tableau de bord.",
-manageProducts: "📦 Gérer les produits",
-viewAnalytics: "📊 Voir les analyses",
+manageProducts: '<i data-lucide="package"></i> Gérer les produits',
+viewAnalytics: '<i data-lucide="chart-column"></i> Voir les analyses',
 
 quickActions: "ACTIONS RAPIDES",
 getThingsDoneFaster: "Accomplissez vos tâches plus rapidement.",
@@ -9154,10 +9162,10 @@ recordTransaction: "Enregistrer une nouvelle transaction",
 
 createInvoice: "Créer une facture",
 sendInvoice: "Envoyer une facture professionnelle",
-        findPeople: "🔎 Trouver des personnes",
+findPeople: '<i data-lucide="search"></i> Trouver des personnes',
 searchByUsername: "Recherchez sur PATRIODX par nom d'utilisateur.",
 searchUsername: "Rechercher un nom d'utilisateur...",
-patriodxProfile: "👤 PROFIL PATRIODX",
+patriodxProfile: '<i data-lucide="user"></i> PROFIL PATRIODX',
 yourProfile: "Votre profil",
 buildYourIdentity: "Construisez votre identité sur PATRIODX.",
 
@@ -9167,7 +9175,7 @@ followers: "Abonnés",
 following: "Abonnements",
 
 tellPeopleAboutYourself: "Parlez de vous aux autres.",
-editProfile: "✏️ Modifier le profil",
+editProfile: '<i data-lucide="pencil"></i> Modifier le profil',
 
 editYourProfile: "Modifier votre profil",
 customizeProfile: "Personnalisez la façon dont les autres vous voient sur PATRIODX.",
@@ -9243,8 +9251,8 @@ viewPlans: "Ver planes",
         controlCenter: "PATRIODX • CENTRO DE CONTROL",
 runBusinessSmarter: "Gestiona tu negocio de forma más inteligente.",
 dashboardDescription: "Gestiona tus productos, clientes, ventas y facturas desde un potente panel de control.",
-manageProducts: "📦 Gestionar productos",
-viewAnalytics: "📊 Ver analíticas",
+manageProducts: '<i data-lucide="package"></i> Gestionar productos',
+viewAnalytics: '<i data-lucide="chart-column"></i> Ver analíticas',
 
 quickActions: "ACCIONES RÁPIDAS",
 getThingsDoneFaster: "Haz las cosas más rápido.",
@@ -9260,10 +9268,10 @@ recordTransaction: "Registrar una nueva transacción",
 
 createInvoice: "Crear factura",
 sendInvoice: "Enviar una factura profesional",
-        findPeople: "🔎 Buscar personas",
+findPeople: '<i data-lucide="search"></i> Buscar personas',
 searchByUsername: "Busca en PATRIODX por nombre de usuario.",
 searchUsername: "Buscar nombre de usuario...",
-patriodxProfile: "👤 PERFIL PATRIODX",
+patriodxProfile: '<i data-lucide="user"></i> PERFIL PATRIODX',
 yourProfile: "Tu perfil",
 buildYourIdentity: "Construye tu identidad en PATRIODX.",
 
@@ -9273,7 +9281,7 @@ followers: "Seguidores",
 following: "Siguiendo",
 
 tellPeopleAboutYourself: "Cuéntale a la gente sobre ti.",
-editProfile: "✏️ Editar perfil",
+editProfile: '<i data-lucide="pencil"></i> Editar perfil',
 
 editYourProfile: "Editar tu perfil",
 customizeProfile: "Personaliza cómo te ven las personas en PATRIODX.",
@@ -9539,7 +9547,7 @@ async function startVerificationPlan() {
     }
 
     const choice = prompt(
-        "🔵 PATRIODX VERIFIED\n\n" +
+      "PATRIODX VERIFIED\n\n" +
         "Choose your verification plan:\n\n" +
         "1 = Monthly — GHS 58.09\n" +
         "2 = Yearly — GHS 580.95\n\n" +
