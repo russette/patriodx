@@ -9641,3 +9641,47 @@ window.startVerificationPlan =
 if (typeof lucide !== "undefined") {
     lucide.createIcons();
 }
+/* =========================================================
+   PATRIODX ROUTER INITIALIZATION
+========================================================= */
+
+window.addEventListener("hashchange", () => {
+
+    let page =
+        window.location.hash
+            .replace("#", "")
+            .trim();
+
+    if (!page) {
+        page = "home";
+    }
+
+    if (page === "ai") {
+        page = "patriodxAI";
+    }
+
+    navigatePATRIODX(page);
+
+});
+
+
+/* Load the correct page when PATRIODX starts */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    let page =
+        window.location.hash
+            .replace("#", "")
+            .trim();
+
+    if (!page) {
+        page = "home";
+    }
+
+    if (page === "ai") {
+        page = "patriodxAI";
+    }
+
+    navigatePATRIODX(page);
+
+});
