@@ -7060,29 +7060,25 @@ function renderMyProfile() {
        PATRIODX VERIFICATION BADGE
     ===================================================== */
 
-    if (profileBadge) {
+if (profileBadge) {
 
     profileBadge.innerHTML =
         getPATRIODXBadge(currentProfile);
-
-    if (typeof lucide !== "undefined") {
-
-        lucide.createIcons();
-    }
 }
 
-    if (profileUsername) {
 
-        profileUsername.textContent =
-            `@${username}`;
-    }
+if (profileUsername) {
+
+    profileUsername.textContent =
+        `@${username}`;
+}
 
 
-    if (profileBio) {
+if (profileBio) {
 
-        profileBio.textContent =
-            bio;
-    }
+    profileBio.textContent =
+        bio;
+}
 
 
 if (profileAvatar) {
@@ -7098,15 +7094,26 @@ if (profileAvatar) {
 
         `;
 
-      } else {
+    } else {
 
         profileAvatar.innerHTML =
-           "<i data-lucide=\"user\"></i>";
+            '<i data-lucide="user"></i>';
     }
 }
 
-} // closes renderMyProfile()
 
+/* =========================================================
+   RENDER ALL PROFILE LUCIDE ICONS
+   Run AFTER all profile HTML has been updated.
+========================================================= */
+
+if (typeof lucide !== "undefined") {
+
+    lucide.createIcons();
+
+}
+
+} // closes renderMyProfile()
 /* =========================================================
    CHECK USERNAME AVAILABILITY
 ========================================================= */
