@@ -2954,28 +2954,26 @@ async function verifyPatriodxPayment(reference, expectedPlan) {
         }
 
 
-        alert(
-           "Payment verified successfully! <i data-lucide=\"party-popper\"></i>\n\n"
-            "Your PATRIODX " +
-            result.data.plan +
-            " plan is now active."
-        );
+     alert(
+    "Payment verified successfully!\n\n" +
+    "Your PATRIODX " +
+    result.data.plan +
+    " plan is now active."
+);
 
 
-        // Reload the business from Supabase
-        // so the dashboard sees the new plan.
+// Reload the business from Supabase
+// so the dashboard sees the new plan.
 
-        if (typeof loadBusiness === "function") {
+if (typeof loadBusiness === "function") {
 
-            await loadBusiness();
+    await loadBusiness();
 
-        } else {
+} else {
 
-            window.location.reload();
+    window.location.reload();
 
-        }
-
-
+}
         return true;
 
     } catch (error) {
