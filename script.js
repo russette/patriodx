@@ -9685,3 +9685,4 @@ document.addEventListener("DOMContentLoaded", () => {
     navigatePATRIODX(page);
 
 });
+// PATRIODX ROUTER SYNC
