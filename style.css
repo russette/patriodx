@@ -4680,6 +4680,7 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    position: relative;
 
     width: 20px;
     height: 20px;
@@ -4689,44 +4690,29 @@ body {
     margin-left: 5px;
     padding: 0;
 
-    border-radius: 50% !important;
-
-    background: #2563eb;
-    color: #ffffff;
-
-    font-family: Arial, sans-serif;
-    font-size: 12px;
-    font-weight: 900;
-    line-height: 20px;
-
-    text-align: center;
-
-    border: none !important;
+    color: #2563eb;
 
     box-sizing: border-box;
-    overflow: hidden;
-
-    filter: drop-shadow(
-        0 2px 4px rgba(37, 99, 235, 0.25)
-    );
-
-    transform: none !important;
-    rotate: none !important;
+    vertical-align: middle;
 }
 
-.verified-badge::before {
-    content: "★";
+.verified-badge svg:first-child {
+    width: 20px;
+    height: 20px;
 
-    display: block;
+    fill: #2563eb;
+    stroke: #2563eb;
+    stroke-width: 2;
+}
 
-    width: 100%;
-    height: 100%;
+.verified-badge svg:last-child {
+    position: absolute;
 
-    line-height: 20px;
-    text-align: center;
+    width: 9px;
+    height: 9px;
 
-    transform: none !important;
-    rotate: none !important;
+    stroke: #ffffff;
+    stroke-width: 3.5;
 }
 /* =========================================================
    MOBILE LOGOUT BUTTON
