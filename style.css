@@ -5185,3 +5185,61 @@ body.dark-mode button:disabled {
     }
 
 }
+.patriodx-header svg,
+.patriodx-header [data-lucide] {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+    flex-shrink: 0;
+}
+
+.patriodx-global-search {
+    display: flex;
+    align-items: center;
+}
+
+.patriodx-global-search .header-search-icon {
+    width: 19px;
+    height: 19px;
+    margin-right: 8px;
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+.header-icon-button,
+.header-profile-button,
+.header-logout-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+
+.header-profile-button #headerProfileAvatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-profile-button #headerProfileAvatar svg {
+    width: 20px;
+    height: 20px;
+}
+
+.header-logout-button svg {
+    width: 18px;
+    height: 18px;
+}
+
+@media (max-width: 768px) {
+    .patriodx-header svg,
+    .patriodx-header [data-lucide] {
+        width: 21px;
+        height: 21px;
+    }
+
+    .patriodx-global-search .header-search-icon {
+        width: 18px;
+        height: 18px;
+    }
+}
