@@ -3842,7 +3842,7 @@ function showSocialMediaPreview(file) {
                 >
 
                 <div class="social-preview-info">
-                  `<i data-lucide="image"></i> ${safe(file.name)}`
+                    <i data-lucide="image"></i> ${safe(file.name)}
                 </div>
 
                 <button
@@ -3868,7 +3868,9 @@ function showSocialMediaPreview(file) {
                 ></video>
 
                 <div class="social-preview-info">
-                  `<strong><i data-lucide="video"></i> ${safe(file.name)}</strong>`
+                    <strong>
+                        <i data-lucide="video"></i> ${safe(file.name)}
+                    </strong>
                 </div>
 
                 <button
@@ -3885,9 +3887,11 @@ function showSocialMediaPreview(file) {
 
 
     socialMediaPreview.style.display = "block";
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
 }
-
-
 /* =========================================================
    IMAGE SELECTED
 ========================================================= */
