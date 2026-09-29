@@ -4151,9 +4151,10 @@ async function loadSocialPosts() {
     socialFeed.innerHTML = `
         <div class="social-empty-state">
 
-           <div>
-    <i data-lucide="clock-3"></i>
-</div>
+            <div>
+                <i data-lucide="clock-3"></i>
+            </div>
+
             <h3>Loading posts...</h3>
 
             <p>
@@ -4186,9 +4187,9 @@ async function loadSocialPosts() {
         socialFeed.innerHTML = `
             <div class="social-empty-state">
 
-               <div>
-    <i data-lucide="triangle-alert"></i>
-</div>
+                <div>
+                    <i data-lucide="triangle-alert"></i>
+                </div>
 
                 <h3>
                     Could not load posts
@@ -4210,9 +4211,10 @@ async function loadSocialPosts() {
         socialFeed.innerHTML = `
             <div class="social-empty-state">
 
-               <div>
-    <i data-lucide="globe"></i>
-</div>
+                <div>
+                    <i data-lucide="globe"></i>
+                </div>
+
                 <h3>
                     No posts yet
                 </h3>
@@ -4321,7 +4323,7 @@ async function loadSocialPosts() {
                         <div class="social-post-header">
 
                             <div class="social-post-avatar">
-                               <i data-lucide="user"></i>
+                                <i data-lucide="user"></i>
                             </div>
 
                             <div class="social-post-author-area">
@@ -4362,7 +4364,7 @@ async function loadSocialPosts() {
                                             onclick="reportSocialPost('${post.id}')"
                                             title="Report post"
                                         >
-                                           <i data-lucide="flag"></i>
+                                            <i data-lucide="flag"></i>
                                         </button>
                                     `
                             }
@@ -4405,11 +4407,11 @@ async function loadSocialPosts() {
                         >
 
                             <span>
-                               `<i data-lucide="heart"></i> ${post.likes}`
+                                <i data-lucide="heart"></i> ${post.likes}
                             </span>
 
                             <span>
-                                `<i data-lucide="message-circle"></i> ${post.comments}`
+                                <i data-lucide="message-circle"></i> ${post.comments}
                             </span>
 
                         </div>
@@ -4426,7 +4428,7 @@ async function loadSocialPosts() {
                                 class="social-action-button"
                                 onclick="likeSocialPost('${post.id}')"
                             >
-                               <i data-lucide="heart"></i> Like
+                                <i data-lucide="heart"></i> Like
                             </button>
 
 
@@ -4435,7 +4437,7 @@ async function loadSocialPosts() {
                                 class="social-action-button"
                                 onclick="toggleComments('${post.id}')"
                             >
-                               <i data-lucide="message-circle"></i> Comment
+                                <i data-lucide="message-circle"></i> Comment
                             </button>
 
 
@@ -4444,7 +4446,7 @@ async function loadSocialPosts() {
                                 class="social-action-button"
                                 onclick="shareSocialPost('${post.id}')"
                             >
-                               <i data-lucide="share-2"></i> Share
+                                <i data-lucide="share-2"></i> Share
                             </button>
 
                         </div>
@@ -4497,9 +4499,11 @@ async function loadSocialPosts() {
 
             })
             .join("");
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
 }
-
-
 /* =========================================================
    CREATE POST
 ========================================================= */
