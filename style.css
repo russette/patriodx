@@ -4662,57 +4662,111 @@ body {
 ========================================================= */
 
 .patriodx-verification-badge {
-    display: inline-flex;
+    display: inline-flex !important;
+
     align-items: center;
     justify-content: center;
-    margin-left: 5px;
-    font-size: 0.85em;
-    line-height: 1;
-    vertical-align: middle;
-}
 
-.owner-badge {
-    color: #7c3aed;
-    filter: drop-shadow(0 0 3px rgba(124, 58, 237, 0.35));
-}
-
-.verified-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
     position: relative;
 
-    width: 20px;
-    height: 20px;
-    min-width: 20px;
-    min-height: 20px;
+    width: 22px !important;
+    height: 22px !important;
 
-    margin-left: 5px;
-    padding: 0;
+    min-width: 22px !important;
+    min-height: 22px !important;
 
-    color: #2563eb;
+    margin-left: 6px;
+
+    padding: 0 !important;
+
+    flex: 0 0 22px;
+
+    line-height: 1;
+
+    vertical-align: middle;
 
     box-sizing: border-box;
-    vertical-align: middle;
+
+    overflow: visible;
 }
 
-.verified-badge svg:first-child {
-    width: 20px;
-    height: 20px;
+
+/* =========================================================
+   OWNER BADGE
+========================================================= */
+
+.owner-badge {
+    color: #2563eb !important;
+
+    filter:
+        drop-shadow(
+            0 1px 2px rgba(37, 99, 235, 0.25)
+        );
+}
+
+
+/* =========================================================
+   VERIFIED BADGE
+========================================================= */
+
+.verified-badge {
+    color: #2563eb !important;
+}
+
+
+/* =========================================================
+   BLUE STAR
+========================================================= */
+
+.patriodx-verification-badge svg:first-child {
+    display: block !important;
+
+    width: 22px !important;
+    height: 22px !important;
+
+    min-width: 22px;
+    min-height: 22px;
 
     fill: #2563eb;
+
     stroke: #2563eb;
+
     stroke-width: 2;
+
+    flex-shrink: 0;
 }
 
-.verified-badge svg:last-child {
+
+/* =========================================================
+   WHITE CHECK
+========================================================= */
+
+.patriodx-verification-badge svg:last-child {
+    display: block !important;
+
     position: absolute;
 
-    width: 9px;
-    height: 9px;
+    left: 50%;
+    top: 50%;
+
+    width: 10px !important;
+    height: 10px !important;
+
+    min-width: 10px;
+    min-height: 10px;
+
+    transform: translate(-50%, -50%);
+
+    fill: none;
 
     stroke: #ffffff;
+
     stroke-width: 3.5;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+    pointer-events: none;
 }
 /* =========================================================
    MOBILE LOGOUT BUTTON
