@@ -9629,3 +9629,6 @@ async function startVerificationPlan() {
 
 window.startVerificationPlan =
     startVerificationPlan;
+if (typeof lucide !== "undefined") {
+    lucide.createIcons();
+}
