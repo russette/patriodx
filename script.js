@@ -7062,10 +7062,14 @@ function renderMyProfile() {
 
     if (profileBadge) {
 
-        profileBadge.innerHTML =
-            getPATRIODXBadge(currentProfile);
-    }
+    profileBadge.innerHTML =
+        getPATRIODXBadge(currentProfile);
 
+    if (typeof lucide !== "undefined") {
+
+        lucide.createIcons();
+    }
+}
 
     if (profileUsername) {
 
