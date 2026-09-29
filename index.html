@@ -22,6 +22,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="PATRIODX">
+<script src="https://unpkg.com/lucide@latest"></script>    
 </head>
 
 
@@ -30,7 +31,6 @@
 <!-- =========================================================
      PATRIODX PLATFORM HEADER
 ========================================================= -->
-
 <header class="patriodx-header">
 
     <!-- LEFT: BRAND -->
@@ -42,7 +42,7 @@
             class="mobile-menu-button"
             aria-label="Open menu"
         >
-            ☰
+            <i data-lucide="menu"></i>
         </button>
 
         <a href="#home" class="patriodx-logo">
@@ -62,7 +62,7 @@
     <!-- CENTER: SEARCH -->
     <div class="patriodx-global-search">
 
-        <span>🔎</span>
+        <i data-lucide="search" class="header-search-icon"></i>
 
         <input
             type="search"
@@ -82,8 +82,10 @@
             class="header-icon-button"
             onclick="scrollToSection('notifications')"
             title="Notifications"
+            aria-label="Notifications"
         >
-            🔔
+            <i data-lucide="bell"></i>
+
             <span
                 id="notificationBadge"
                 class="header-badge"
@@ -99,8 +101,10 @@
             class="header-icon-button"
             onclick="scrollToSection('messaging')"
             title="Messages"
+            aria-label="Messages"
         >
-            💬
+            <i data-lucide="message-circle"></i>
+
             <span
                 id="messageBadge"
                 class="header-badge"
@@ -117,18 +121,18 @@
             class="language-selector"
             title="Language"
         >
-            <option value="en">🌐 English</option>
-            <option value="fr">🇫🇷 Français</option>
-            <option value="es">🇪🇸 Español</option>
-            <option value="pt">🇵🇹 Português</option>
-            <option value="de">🇩🇪 Deutsch</option>
-            <option value="it">🇮🇹 Italiano</option>
-            <option value="ar">🇸🇦 العربية</option>
-            <option value="zh">🇨🇳 中文</option>
-            <option value="ja">🇯🇵 日本語</option>
-            <option value="ko">🇰🇷 한국어</option>
-            <option value="hi">🇮🇳 हिन्दी</option>
-            <option value="sw">🇰🇪 Kiswahili</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="es">Español</option>
+            <option value="pt">Português</option>
+            <option value="de">Deutsch</option>
+            <option value="it">Italiano</option>
+            <option value="ar">العربية</option>
+            <option value="zh">中文</option>
+            <option value="ja">日本語</option>
+            <option value="ko">한국어</option>
+            <option value="hi">हिन्दी</option>
+            <option value="sw">Kiswahili</option>
         </select>
 
 
@@ -141,7 +145,7 @@
         >
 
             <span id="headerProfileAvatar">
-                👤
+                <i data-lucide="user"></i>
             </span>
 
             <span
@@ -160,8 +164,9 @@
             class="header-icon-button"
             type="button"
             title="Toggle theme"
+            aria-label="Toggle theme"
         >
-            🌙
+            <i data-lucide="moon"></i>
         </button>
 
 
@@ -171,14 +176,13 @@
             class="header-logout-button"
             type="button"
         >
-            Logout
+            <i data-lucide="log-out"></i>
+            <span>Logout</span>
         </button>
 
     </div>
 
 </header>
-
-
 <!-- =========================================================
      PATRIODX DESKTOP SIDEBAR
 ========================================================= -->
