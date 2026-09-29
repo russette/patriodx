@@ -704,7 +704,9 @@ function renderProducts() {
 
         container.innerHTML = `
             <div class="empty-state">
-                <div class="empty-icon">📦</div>
+               <div class="empty-icon">
+    <i data-lucide="package"></i>
+</div>
                 <h3>No products yet</h3>
                 <p>Add your first product to start managing your inventory.</p>
             </div>
