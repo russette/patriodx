@@ -6539,7 +6539,9 @@ function renderNotifications(
 
         notificationList.innerHTML = `
             <div class="notifications-empty-state">
-                <div>🔔</div>
+               <div>
+    <i data-lucide="bell"></i>
+</div>
                 <h3>No notifications yet</h3>
                 <p>
                     Your notifications will appear here.
@@ -6563,28 +6565,27 @@ function renderNotifications(
                 const isUnread =
                     notification.is_read !== true;
 
-                let icon = "🔔";
+               let icon = "bell";
 
-                if (notification.type === "like") {
-                    icon = "❤️";
-                }
+if (notification.type === "like") {
+    icon = "heart";
+}
 
-                if (notification.type === "comment") {
-                    icon = "💬";
-                }
+if (notification.type === "comment") {
+    icon = "message-circle";
+}
 
-                if (notification.type === "message") {
-                    icon = "✉️";
-                }
+if (notification.type === "message") {
+    icon = "mail";
+}
 
-                if (notification.type === "sale") {
-                    icon = "🛒";
-                }
+if (notification.type === "sale") {
+    icon = "shopping-cart";
+}
 
-                if (notification.type === "system") {
-                    icon = "⚙️";
-                }
-
+if (notification.type === "system") {
+    icon = "settings";
+}
                 const createdAt =
                     notification.created_at
                         ? new Date(
