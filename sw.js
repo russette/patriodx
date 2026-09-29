@@ -1,4 +1,4 @@
-const CACHE_NAME = "patriodx-v1";
+const CACHE_NAME = "patriodx-v2";
 
 const APP_FILES = [
     "./",
@@ -11,6 +11,7 @@ const APP_FILES = [
     "./terms.html",
     "./manifest.json",
     "./assets/patriodx-logo.jpeg"
+    "./assets/patriodx-icon-512.png"
 ];
 
 self.addEventListener("install", event => {
