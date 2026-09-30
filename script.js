@@ -2579,6 +2579,70 @@ function renderRecentActivity() {
             .join("");
 }
 // =========================================================
+// GO LIVE
+// =========================================================
+
+function openGoLiveModal() {
+
+    const modal =
+        document.getElementById("goLiveModal");
+
+    if (!modal) {
+        alert("Live settings are unavailable right now.");
+        return;
+    }
+
+    const titleInput =
+        document.getElementById("liveTitleInput");
+
+    const privacySelect =
+        document.getElementById("livePrivacySelect");
+
+    const message =
+        document.getElementById("goLiveMessage");
+
+    if (titleInput) {
+        titleInput.value = "";
+    }
+
+    if (privacySelect) {
+        privacySelect.value = "everyone";
+    }
+
+    if (message) {
+        message.textContent = "";
+        message.style.display = "none";
+    }
+
+    modal.style.display = "flex";
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+
+    setTimeout(() => {
+        titleInput?.focus();
+    }, 100);
+}
+
+
+function closeGoLiveModal() {
+
+    const modal =
+        document.getElementById("goLiveModal");
+
+    if (!modal) {
+        return;
+    }
+
+    modal.style.display = "none";
+}
+
+
+// =========================================================
+// CHANGE PASSWORD
+// =========================================================
+// =========================================================
 // CHANGE PASSWORD
 // =========================================================
 
