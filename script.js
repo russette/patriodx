@@ -2582,54 +2582,195 @@ function renderRecentActivity() {
 // CHANGE PASSWORD
 // =========================================================
 
-async function changePassword() {
+function changePassword() {
+
+    const modal = document.getElementById("changePasswordModal");
+
+    if (!modal) {
+        alert("Password settings are unavailable right now.");
+        return;
+    }
+
+    document.getElementById("newPassword").value = "";
+    document.getElementById("confirmPassword").value = "";
+
+    const message = document.getElementById("changePasswordMessage");
+
+    if (message) {
+        message.textContent = "";
+        message.style.display = "none";
+    }
+
+    modal.style.display = "flex";
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+
+    setTimeout(() => {
+        document.getElementById("newPassword")?.focus();
+    }, 100);
+}
+
+
+function closeChangePasswordModal() {
+
+    const modal = document.getElementById("changePasswordModal");
+
+    if (!modal) {
+        return;
+    }
+
+    modal.style.display = "none";
+}
+
+
+function togglePasswordVisibility(inputId, button) {
+
+    const input = document.getElementById(inputId);
+
+    if (!input) {
+        return;
+    }
+
+    const showing = input.type === "password";
+
+    input.type = showing ? "text" : "password";
+
+    button.innerHTML = showing
+        ? '<i data-lucide="eye-off"></i>'
+        : '<i data-lucide="eye"></i>';
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+}
+
+
+async function updatePATRIODXPassword() {
+
+    const newPassword =
+        document.getElementById("newPassword")?.value || "";
+
+    const confirmPassword =
+        document.getElementById("confirmPassword")?.value || "";
+
+    const message =
+        document.getElementById("changePasswordMessage");
+
+    const button =
+        document.getElementById("updatePasswordButton");
+
+
+    function showMessage(text, type) {
+
+        if (!message) {
+            return;
+        }
+
+        message.textContent = text;
+        message.className =
+            "password-modal-message " + type;
+
+        message.style.display = "block";
+    }
+
 
     if (!currentUser) {
-        alert("Please log in again before changing your password.");
+
+        showMessage(
+            "Please sign in again.",
+            "error"
+        );
+
         return;
     }
 
-    const newPassword = prompt(
-        "Enter your new password (at least 6 characters):"
-    );
 
-    if (newPassword === null) {
+    if (newPassword.length < 8) {
+
+        showMessage(
+            "Password must be at least 8 characters.",
+            "error"
+        );
+
         return;
     }
 
-    if (newPassword.length < 6) {
-        alert("Your new password must be at least 6 characters long.");
-        return;
-    }
-
-    const confirmPassword = prompt(
-        "Confirm your new password:"
-    );
-
-    if (confirmPassword === null) {
-        return;
-    }
 
     if (newPassword !== confirmPassword) {
-        alert("The passwords do not match.");
+
+        showMessage(
+            "Passwords do not match.",
+            "error"
+        );
+
         return;
     }
+
+
+    button.disabled = true;
+
+    button.innerHTML =
+        '<i data-lucide="loader-circle"></i> Updating...';
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+
 
     const { error } =
         await supabaseClient.auth.updateUser({
             password: newPassword
         });
 
+
     if (error) {
-        console.error(error);
-        alert("Could not change your password. Please try again.");
+
+        console.error(
+            "Password update error:",
+            error
+        );
+
+        showMessage(
+            error.message ||
+            "Could not update your password.",
+            "error"
+        );
+
+        button.disabled = false;
+
+        button.innerHTML =
+            '<i data-lucide="shield-check"></i> Update Password';
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+
         return;
     }
 
-    alert("Your password has been changed successfully.");
+
+    showMessage(
+        "Password updated successfully.",
+        "success"
+    );
+
+
+    button.innerHTML =
+        '<i data-lucide="check"></i> Password Updated';
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+
+
+    setTimeout(() => {
+
+        closeChangePasswordModal();
+
+    }, 1500);
 }
-
-
 // =========================================================
 // DELETE ACCOUNT
 // =========================================================
