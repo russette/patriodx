@@ -4613,6 +4613,7 @@ async function loadSocialPosts() {
    if (typeof lucide !== "undefined" && socialFeed) {
     requestAnimationFrame(() => {
         lucide.createIcons({
+            root: socialFeed,
             attrs: {
                 "stroke-width": 2
             }
