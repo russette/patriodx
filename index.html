@@ -33,7 +33,7 @@
 ========================================================= -->
 <header class="patriodx-header">
 
-    <!-- LEFT: BRAND -->
+    <!-- BRAND -->
     <div class="patriodx-brand">
 
         <button
@@ -41,28 +41,30 @@
             id="mobileMenuButton"
             class="mobile-menu-button"
             aria-label="Open menu"
+            title="Open menu"
         >
             <i data-lucide="menu"></i>
         </button>
 
         <a href="#home" class="patriodx-logo">
-
             <img
                 src="assets/patriodx-logo.jpeg"
                 alt="PATRIODX"
             >
 
             <span>PATRIODX</span>
-
         </a>
 
     </div>
 
 
-    <!-- CENTER: SEARCH -->
+    <!-- SEARCH -->
     <div class="patriodx-global-search">
 
-        <i data-lucide="search" class="header-search-icon"></i>
+        <i
+            data-lucide="search"
+            class="header-search-icon"
+        ></i>
 
         <input
             type="search"
@@ -74,9 +76,10 @@
     </div>
 
 
-    <!-- RIGHT: ACTIONS -->
+    <!-- HEADER ACTIONS -->
     <div class="patriodx-header-actions">
 
+        <!-- NOTIFICATIONS -->
         <button
             type="button"
             class="header-icon-button"
@@ -96,6 +99,7 @@
         </button>
 
 
+        <!-- MESSAGES -->
         <button
             type="button"
             class="header-icon-button"
@@ -116,24 +120,34 @@
 
 
         <!-- LANGUAGE -->
-        <select
-            id="languageSelector"
-            class="language-selector"
-            title="Language"
-        >
-            <option value="en">English</option>
-            <option value="fr">Français</option>
-            <option value="es">Español</option>
-            <option value="pt">Português</option>
-            <option value="de">Deutsch</option>
-            <option value="it">Italiano</option>
-            <option value="ar">العربية</option>
-            <option value="zh">中文</option>
-            <option value="ja">日本語</option>
-            <option value="ko">한국어</option>
-            <option value="hi">हिन्दी</option>
-            <option value="sw">Kiswahili</option>
-        </select>
+        <div class="header-language-wrapper">
+
+            <i
+                data-lucide="languages"
+                class="header-language-icon"
+            ></i>
+
+            <select
+                id="languageSelector"
+                class="language-selector"
+                title="Language"
+                aria-label="Language"
+            >
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+                <option value="pt">Português</option>
+                <option value="de">Deutsch</option>
+                <option value="it">Italiano</option>
+                <option value="ar">العربية</option>
+                <option value="zh">中文</option>
+                <option value="ja">日本語</option>
+                <option value="ko">한국어</option>
+                <option value="hi">हिन्दी</option>
+                <option value="sw">Kiswahili</option>
+            </select>
+
+        </div>
 
 
         <!-- PROFILE -->
@@ -142,6 +156,7 @@
             class="header-profile-button"
             onclick="scrollToSection('profile')"
             title="Your Profile"
+            aria-label="Your Profile"
         >
 
             <span id="headerProfileAvatar">
@@ -175,8 +190,11 @@
             id="logoutButton"
             class="header-logout-button"
             type="button"
+            title="Logout"
+            aria-label="Logout"
         >
             <i data-lucide="log-out"></i>
+
             <span>Logout</span>
         </button>
 
