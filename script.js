@@ -17,7 +17,7 @@ let currentUser = null;
 let currentBusiness = null;
 let currentPlan = "free";
 let editingProductId = null;
-
+let socialFeedMode = "latest";
 
 // =========================================================
 // PLAN LIMITS
@@ -5110,31 +5110,223 @@ async function getSocialCounts(postId) {
 
 async function loadSocialPosts() {
 
-    if (!socialFeed) return;
+    if (!socialFeed) {
+        return;
+    }
+
+
+    /* =========================================================
+       LOADING STATE
+    ========================================================= */
 
     socialFeed.innerHTML = `
         <div class="social-empty-state">
+
             <div class="social-empty-icon">
                 <i data-lucide="clock-3"></i>
             </div>
+
             <h3>Loading posts...</h3>
+
             <p>Please wait.</p>
+
         </div>
     `;
+
 
     if (typeof lucide !== "undefined") {
         lucide.createIcons();
     }
 
 
-    const { data: posts, error } =
-        await supabaseClient
-            .from("posts")
-            .select("*")
-            .order("created_at", {
-                ascending: false
-            });
+    /* =========================================================
+       DETERMINE FEED MODE
+    ========================================================= */
 
+    const mode =
+        socialFeedMode === "following"
+            ? "following"
+            : "latest";
+
+
+    /* =========================================================
+       LOAD POSTS
+    ========================================================= */
+
+    let posts = [];
+    let error = null;
+
+
+    /* =========================================================
+       LATEST FEED
+    ========================================================= */
+
+    if (mode === "latest") {
+
+        const result =
+            await supabaseClient
+                .from("posts")
+                .select("*")
+                .order("created_at", {
+                    ascending: false
+                });
+
+        posts = result.data || [];
+        error = result.error;
+
+    }
+
+
+    /* =========================================================
+       FOLLOWING FEED
+    ========================================================= */
+
+    if (mode === "following") {
+
+        if (!currentUser) {
+
+            socialFeed.innerHTML = `
+                <div class="social-empty-state">
+
+                    <div class="social-empty-icon">
+                        <i data-lucide="user"></i>
+                    </div>
+
+                    <h3>Please sign in</h3>
+
+                    <p>
+                        Sign in to see posts from people you follow.
+                    </p>
+
+                </div>
+            `;
+
+            if (typeof lucide !== "undefined") {
+                lucide.createIcons();
+            }
+
+            return;
+        }
+
+
+        /* -----------------------------------------------------
+           Get people the current user follows
+        ----------------------------------------------------- */
+
+        const {
+            data: follows,
+            error: followsError
+        } = await supabaseClient
+            .from("profile_follows")
+            .select("following_id")
+            .eq(
+                "follower_id",
+                currentUser.id
+            );
+
+
+        if (followsError) {
+
+            console.error(
+                "Could not load followed users:",
+                followsError
+            );
+
+            socialFeed.innerHTML = `
+                <div class="social-empty-state">
+
+                    <div class="social-empty-icon">
+                        <i data-lucide="triangle-alert"></i>
+                    </div>
+
+                    <h3>Could not load Following feed</h3>
+
+                    <p>
+                        ${safe(followsError.message)}
+                    </p>
+
+                </div>
+            `;
+
+            if (typeof lucide !== "undefined") {
+                lucide.createIcons();
+            }
+
+            return;
+        }
+
+
+        const followingIds =
+            (follows || [])
+                .map(row => row.following_id)
+                .filter(Boolean);
+
+
+        /* -----------------------------------------------------
+           No followed accounts
+        ----------------------------------------------------- */
+
+        if (followingIds.length === 0) {
+
+            socialFeed.innerHTML = `
+                <div class="social-empty-state">
+
+                    <div class="social-empty-icon">
+                        <i data-lucide="users"></i>
+                    </div>
+
+                    <h3>Your Following feed is empty</h3>
+
+                    <p>
+                        Follow people on PATRIODX to see
+                        their posts here.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="secondary-btn"
+                        onclick="navigatePATRIODX('profile')"
+                    >
+                        <i data-lucide="search"></i>
+                        Find People
+                    </button>
+
+                </div>
+            `;
+
+            if (typeof lucide !== "undefined") {
+                lucide.createIcons();
+            }
+
+            return;
+        }
+
+
+        /* -----------------------------------------------------
+           Load posts from followed users
+        ----------------------------------------------------- */
+
+        const result =
+            await supabaseClient
+                .from("posts")
+                .select("*")
+                .in(
+                    "user_id",
+                    followingIds
+                )
+                .order("created_at", {
+                    ascending: false
+                });
+
+        posts = result.data || [];
+        error = result.error;
+
+    }
+
+
+    /* =========================================================
+       POST QUERY ERROR
+    ========================================================= */
 
     if (error) {
 
@@ -5145,13 +5337,17 @@ async function loadSocialPosts() {
 
         socialFeed.innerHTML = `
             <div class="social-empty-state">
+
                 <div class="social-empty-icon">
                     <i data-lucide="triangle-alert"></i>
                 </div>
 
                 <h3>Could not load posts</h3>
 
-                <p>${safe(error.message)}</p>
+                <p>
+                    ${safe(error.message)}
+                </p>
+
             </div>
         `;
 
@@ -5163,30 +5359,66 @@ async function loadSocialPosts() {
     }
 
 
+    /* =========================================================
+       NO POSTS
+    ========================================================= */
+
     if (!posts || posts.length === 0) {
+
+        const emptyTitle =
+            mode === "following"
+                ? "No posts from people you follow"
+                : "No posts yet";
+
+
+        const emptyText =
+            mode === "following"
+                ? "Follow people on PATRIODX to build your feed."
+                : "Be the first to share something with the PATRIODX community.";
+
 
         socialFeed.innerHTML = `
             <div class="social-empty-state">
 
                 <div class="social-empty-icon">
-                    <i data-lucide="globe"></i>
+
+                    <i data-lucide="${
+                        mode === "following"
+                            ? "users"
+                            : "globe"
+                    }"></i>
+
                 </div>
 
-                <h3>No posts yet</h3>
+                <h3>${emptyTitle}</h3>
 
                 <p>
-                    Be the first to share something
-                    with the PATRIODX community.
+                    ${emptyText}
                 </p>
 
-                <button
-                    type="button"
-                    class="secondary-btn"
-                    onclick="document.getElementById('socialPostContent')?.focus()"
-                >
-                    <i data-lucide="plus"></i>
-                    Create Your First Post
-                </button>
+                ${
+                    mode === "latest"
+                        ? `
+                            <button
+                                type="button"
+                                class="secondary-btn"
+                                onclick="document.getElementById('socialPostContent')?.focus()"
+                            >
+                                <i data-lucide="plus"></i>
+                                Create Your First Post
+                            </button>
+                        `
+                        : `
+                            <button
+                                type="button"
+                                class="secondary-btn"
+                                onclick="navigatePATRIODX('profile')"
+                            >
+                                <i data-lucide="search"></i>
+                                Find People
+                            </button>
+                        `
+                }
 
             </div>
         `;
@@ -5199,9 +5431,9 @@ async function loadSocialPosts() {
     }
 
 
-    /*
-     * Get likes/comments for every post.
-     */
+    /* =========================================================
+       GET LIKE / COMMENT COUNTS
+    ========================================================= */
 
     const postsWithCounts =
         await Promise.all(
@@ -5214,8 +5446,14 @@ async function loadSocialPosts() {
 
                     return {
                         ...post,
-                        likes: Number(counts?.likes || 0),
-                        comments: Number(counts?.comments || 0)
+                        likes:
+                            Number(
+                                counts?.likes || 0
+                            ),
+                        comments:
+                            Number(
+                                counts?.comments || 0
+                            )
                     };
 
                 } catch (error) {
@@ -5230,350 +5468,336 @@ async function loadSocialPosts() {
                         likes: 0,
                         comments: 0
                     };
+
                 }
 
             })
         );
 
 
+    /* =========================================================
+       RENDER FEED
+    ========================================================= */
+
     socialFeed.innerHTML =
-        postsWithCounts.map(post => {
+        postsWithCounts
+            .map(post => {
 
-            const isOwnPost =
-                post.user_id === currentUser?.id;
-
-
-            const author =
-                isOwnPost
-                    ? (
-                        currentBusiness?.name ||
-                        currentUser?.user_metadata?.business_name ||
-                        currentUser?.user_metadata?.full_name ||
-                        currentUser?.email ||
-                        "You"
-                    )
-                    : "PATRIODX User";
+                const isOwnPost =
+                    post.user_id === currentUser?.id;
 
 
-            const image =
-                post.image_url
-                    ? `
-                        <div class="social-media-wrapper">
-
-                            <img
-                                src="${safe(post.image_url)}"
-                                class="social-post-image"
-                                alt="Post image"
-                                loading="lazy"
-                            >
-
-                        </div>
-                    `
-                    : "";
+                const author =
+                    isOwnPost
+                        ? (
+                            currentBusiness?.name ||
+                            currentUser?.user_metadata?.business_name ||
+                            currentUser?.user_metadata?.full_name ||
+                            currentUser?.email ||
+                            "You"
+                        )
+                        : "PATRIODX User";
 
 
-            const video =
-                post.video_url
-                    ? `
-                        <div class="social-media-wrapper">
+                const image =
+                    post.image_url
+                        ? `
+                            <div class="social-media-wrapper">
 
-                            <video
-                                src="${safe(post.video_url)}"
-                                class="social-post-video"
-                                controls
-                                preload="metadata"
-                            ></video>
+                                <img
+                                    src="${safe(post.image_url)}"
+                                    class="social-post-image"
+                                    alt="Post image"
+                                    loading="lazy"
+                                >
 
-                        </div>
-                    `
-                    : "";
-
-
-            return `
-                <article
-                    class="social-post-card"
-                    id="social-post-${post.id}"
-                >
+                            </div>
+                        `
+                        : "";
 
 
-                    <!-- =====================================
-                         POST HEADER
-                    ====================================== -->
+                const video =
+                    post.video_url
+                        ? `
+                            <div class="social-media-wrapper">
 
-                    <div class="social-post-header">
+                                <video
+                                    src="${safe(post.video_url)}"
+                                    class="social-post-video"
+                                    controls
+                                    preload="metadata"
+                                ></video>
 
-                        <div class="social-post-avatar">
-                            <i data-lucide="user"></i>
-                        </div>
+                            </div>
+                        `
+                        : "";
 
 
-                        <div class="social-post-author-area">
+                return `
+                    <article
+                        class="social-post-card"
+                        id="social-post-${post.id}"
+                    >
 
-                            <div class="social-post-author">
-                                ${safe(author)}
+                        <!-- POST HEADER -->
+
+                        <div class="social-post-header">
+
+                            <div class="social-post-avatar">
+                                <i data-lucide="user"></i>
+                            </div>
+
+
+                            <div class="social-post-author-area">
+
+                                <div class="social-post-author">
+
+                                    ${safe(author)}
+
+                                    ${
+                                        isOwnPost
+                                            ? `
+                                                <span class="social-post-you">
+                                                    You
+                                                </span>
+                                            `
+                                            : ""
+                                    }
+
+                                </div>
+
+
+                                <div class="social-post-date">
+                                    ${formatDate(post.created_at)}
+                                </div>
+
+                            </div>
+
+
+                            <div class="social-post-menu-actions">
+
                                 ${
-                                    isOwnPost
+                                    !isOwnPost
                                         ? `
-                                            <span class="social-post-you">
-                                                You
-                                            </span>
+                                            <button
+                                                type="button"
+                                                class="social-post-icon-button"
+                                                onclick="reportSocialPost('${post.id}')"
+                                                title="Report post"
+                                                aria-label="Report post"
+                                            >
+                                                <i data-lucide="flag"></i>
+                                            </button>
                                         `
                                         : ""
                                 }
-                            </div>
 
 
-                            <div class="social-post-date">
-                                ${formatDate(post.created_at)}
-                            </div>
-
-                        </div>
-
-
-                        <div class="social-post-menu-actions">
-
-                            ${
-                                !isOwnPost
-                                    ? `
-                                        <button
-                                            type="button"
-                                            class="social-post-icon-button"
-                                            onclick="reportSocialPost('${post.id}')"
-                                            title="Report post"
-                                            aria-label="Report post"
-                                        >
-                                            <i data-lucide="flag"></i>
-                                        </button>
-                                    `
-                                    : ""
-                            }
-
-
-                            ${
-                                isOwnPost
-                                    ? `
-                                        <button
-                                            type="button"
-                                            class="social-post-icon-button"
-                                            onclick="deleteSocialPost('${post.id}')"
-                                            title="Delete post"
-                                            aria-label="Delete post"
-                                        >
-                                            <i data-lucide="trash-2"></i>
-                                        </button>
-                                    `
-                                    : ""
-                            }
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- =====================================
-                         POST CONTENT
-                    ====================================== -->
-
-                    ${
-                        post.content
-                            ? `
-                                <div class="social-post-content">
-                                    ${safe(post.content)}
-                                </div>
-                            `
-                            : ""
-                    }
-
-
-                    <!-- =====================================
-                         MEDIA
-                    ====================================== -->
-
-                    ${image}
-
-                    ${video}
-
-
-                    <!-- =====================================
-                         LIKE / COMMENT COUNTS
-                    ====================================== -->
-
-                    <div
-                        class="social-post-stats"
-                        id="social-stats-${post.id}"
-                    >
-
-                        <span class="social-like-stat">
-
-                            <i data-lucide="heart"></i>
-
-                            <strong>
-                                ${post.likes}
-                            </strong>
-
-                            <span>
-                                ${post.likes === 1 ? "Like" : "Likes"}
-                            </span>
-
-                        </span>
-
-
-                        <button
-                            type="button"
-                            class="social-comment-stat"
-                            onclick="toggleComments('${post.id}')"
-                        >
-
-                            <i data-lucide="message-circle"></i>
-
-                            <strong>
-                                ${post.comments}
-                            </strong>
-
-                            <span>
                                 ${
-                                    post.comments === 1
-                                        ? "Comment"
-                                        : "Comments"
+                                    isOwnPost
+                                        ? `
+                                            <button
+                                                type="button"
+                                                class="social-post-icon-button"
+                                                onclick="deleteSocialPost('${post.id}')"
+                                                title="Delete post"
+                                                aria-label="Delete post"
+                                            >
+                                                <i data-lucide="trash-2"></i>
+                                            </button>
+                                        `
+                                        : ""
                                 }
-                            </span>
 
-                        </button>
+                            </div>
 
-                    </div>
-
-
-                    <!-- =====================================
-                         ACTION BAR
-                    ====================================== -->
-
-                    <div class="social-post-actions-bar">
+                        </div>
 
 
-                        <button
-                            type="button"
-                            class="social-action-button social-like-button"
-                            onclick="likeSocialPost('${post.id}')"
-                            aria-label="Like post"
-                        >
+                        <!-- POST CONTENT -->
 
-                            <i data-lucide="heart"></i>
-
-                            <span>Like</span>
-
-                        </button>
-
-
-                        <button
-                            type="button"
-                            class="social-action-button"
-                            onclick="toggleComments('${post.id}')"
-                            aria-label="Comment on post"
-                        >
-
-                            <i data-lucide="message-circle"></i>
-
-                            <span>Comment</span>
-
-                        </button>
+                        ${
+                            post.content
+                                ? `
+                                    <div class="social-post-content">
+                                        ${safe(post.content)}
+                                    </div>
+                                `
+                                : ""
+                        }
 
 
-                        <button
-                            type="button"
-                            class="social-action-button"
-                            onclick="shareSocialPost('${post.id}')"
-                            aria-label="Share post"
-                        >
+                        <!-- MEDIA -->
 
-                            <i data-lucide="share-2"></i>
+                        ${image}
 
-                            <span>Share</span>
-
-                        </button>
+                        ${video}
 
 
-                        <button
-                            type="button"
-                            class="social-action-button"
-                            onclick="translateSocialPost('${post.id}')"
-                            aria-label="Translate post"
-                        >
-
-                            <i data-lucide="languages"></i>
-
-                            <span>Translate</span>
-
-                        </button>
-
-                    </div>
-
-
-                    <!-- =====================================
-                         COMMENTS
-                    ====================================== -->
-
-                    <div
-                        id="comments-${post.id}"
-                        class="social-comments"
-                        style="display:none;"
-                    >
+                        <!-- LIKE / COMMENT COUNTS -->
 
                         <div
-                            id="comments-list-${post.id}"
-                            class="social-comments-list"
-                        >
-                            <p class="social-comments-loading">
-                                Loading comments...
-                            </p>
-                        </div>
-
-
-                        <form
-                            class="social-comment-form"
-                            onsubmit="submitSocialComment(event, '${post.id}')"
+                            class="social-post-stats"
+                            id="social-stats-${post.id}"
                         >
 
-                            <input
-                                type="text"
-                                id="comment-input-${post.id}"
-                                placeholder="Write a comment..."
-                                maxlength="1000"
-                                autocomplete="off"
-                                required
-                            >
+                            <span class="social-like-stat">
+
+                                <i data-lucide="heart"></i>
+
+                                <strong>
+                                    ${post.likes}
+                                </strong>
+
+                                <span>
+                                    ${
+                                        post.likes === 1
+                                            ? "Like"
+                                            : "Likes"
+                                    }
+                                </span>
+
+                            </span>
 
 
                             <button
-                                type="submit"
-                                aria-label="Send comment"
+                                type="button"
+                                class="social-comment-stat"
+                                onclick="toggleComments('${post.id}')"
                             >
 
-                                <i data-lucide="send"></i>
+                                <i data-lucide="message-circle"></i>
+
+                                <strong>
+                                    ${post.comments}
+                                </strong>
+
+                                <span>
+                                    ${
+                                        post.comments === 1
+                                            ? "Comment"
+                                            : "Comments"
+                                    }
+                                </span>
 
                             </button>
 
-                        </form>
-
-                    </div>
+                        </div>
 
 
-                </article>
-            `;
+                        <!-- ACTION BAR -->
 
-        }).join("");
+                        <div class="social-post-actions-bar">
+
+                            <button
+                                type="button"
+                                class="social-action-button social-like-button"
+                                onclick="likeSocialPost('${post.id}')"
+                                aria-label="Like post"
+                            >
+                                <i data-lucide="heart"></i>
+                                <span>Like</span>
+                            </button>
 
 
-    /*
-     * IMPORTANT:
-     * The post HTML is created dynamically,
-     * so Lucide must run AFTER innerHTML.
-     */
+                            <button
+                                type="button"
+                                class="social-action-button"
+                                onclick="toggleComments('${post.id}')"
+                                aria-label="Comment on post"
+                            >
+                                <i data-lucide="message-circle"></i>
+                                <span>Comment</span>
+                            </button>
 
-if (typeof lucide !== "undefined") {
-    requestAnimationFrame(() => {
-        lucide.createIcons();
-    });
-}
+
+                            <button
+                                type="button"
+                                class="social-action-button"
+                                onclick="shareSocialPost('${post.id}')"
+                                aria-label="Share post"
+                            >
+                                <i data-lucide="share-2"></i>
+                                <span>Share</span>
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="social-action-button"
+                                onclick="translateSocialPost('${post.id}')"
+                                aria-label="Translate post"
+                            >
+                                <i data-lucide="languages"></i>
+                                <span>Translate</span>
+                            </button>
+
+                        </div>
+
+
+                        <!-- COMMENTS -->
+
+                        <div
+                            id="comments-${post.id}"
+                            class="social-comments"
+                            style="display:none;"
+                        >
+
+                            <div
+                                id="comments-list-${post.id}"
+                                class="social-comments-list"
+                            >
+                                <p class="social-comments-loading">
+                                    Loading comments...
+                                </p>
+                            </div>
+
+
+                            <form
+                                class="social-comment-form"
+                                onsubmit="submitSocialComment(event, '${post.id}')"
+                            >
+
+                                <input
+                                    type="text"
+                                    id="comment-input-${post.id}"
+                                    placeholder="Write a comment..."
+                                    maxlength="1000"
+                                    autocomplete="off"
+                                    required
+                                >
+
+
+                                <button
+                                    type="submit"
+                                    aria-label="Send comment"
+                                >
+                                    <i data-lucide="send"></i>
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </article>
+                `;
+
+            })
+            .join("");
+
+
+    /* =========================================================
+       LUCIDE
+    ========================================================= */
+
+    if (typeof lucide !== "undefined") {
+
+        requestAnimationFrame(() => {
+            lucide.createIcons();
+        });
+
+    }
+
 }
 /* =========================================================
    CREATE POST
