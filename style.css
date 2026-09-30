@@ -7341,3 +7341,35 @@ body.dark-mode .social-post-menu-inner > button:hover {
         padding-right: 13px;
     }
 }
+/* =========================================================
+   SOCIAL DYNAMIC LUCIDE ICONS
+========================================================= */
+
+.social-post-card svg,
+.social-post-actions-bar svg,
+.social-post-stats svg,
+.social-post-header svg,
+.social-comment-form svg {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 18px !important;
+    height: 18px !important;
+    flex-shrink: 0 !important;
+}
+
+.social-post-avatar svg {
+    width: 22px !important;
+    height: 22px !important;
+}
+
+.social-action-button {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.social-action-button svg {
+    color: currentColor !important;
+    stroke: currentColor !important;
+}
