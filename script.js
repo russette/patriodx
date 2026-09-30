@@ -4344,6 +4344,7 @@ await loadMyProfile();
 
     setupForms();
 setupSettingsActivity();
+    setupSocialFeedTabs();
     document
         .getElementById("logoutButton")
         ?.addEventListener(
@@ -5107,7 +5108,38 @@ async function getSocialCounts(postId) {
 /* =========================================================
    LOAD SOCIAL POSTS
 ========================================================= */
+function setupSocialFeedTabs() {
 
+    const latestButton =
+        document.getElementById("socialFeedLatestButton");
+
+    const followingButton =
+        document.getElementById("socialFeedFollowingButton");
+
+    if (!latestButton || !followingButton) {
+        return;
+    }
+
+    latestButton.addEventListener("click", async () => {
+
+        socialFeedMode = "latest";
+
+        latestButton.classList.add("active");
+        followingButton.classList.remove("active");
+
+        await loadSocialPosts();
+    });
+
+    followingButton.addEventListener("click", async () => {
+
+        socialFeedMode = "following";
+
+        followingButton.classList.add("active");
+        latestButton.classList.remove("active");
+
+        await loadSocialPosts();
+    });
+}
 async function loadSocialPosts() {
 
     if (!socialFeed) {
