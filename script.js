@@ -9076,9 +9076,9 @@ recordTransaction: "Record a new transaction",
 
 createInvoice: "Create Invoice",
 sendInvoice: "Send a professional invoice",
-       findPeople: '<i data-lucide="search"></i> Find People',
+findPeople: "Find People",
 searchUsername: "Search username...",
-patriodxProfile: '<i data-lucide="user"></i> PATRIODX PROFILE',
+patriodxProfile: "PATRIODX PROFILE",
 yourProfile: "Your Profile",
 buildYourIdentity: "Build your identity on PATRIODX.",
 
