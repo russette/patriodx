@@ -4344,7 +4344,7 @@ await loadMyProfile();
 
     setupForms();
 setupSettingsActivity();
-    setupSocialFeedTabs();
+  
     document
         .getElementById("logoutButton")
         ?.addEventListener(
@@ -5120,6 +5120,12 @@ function setupSocialFeedTabs() {
         return;
     }
 
+    if (latestButton.dataset.feedTabsReady === "true") {
+        return;
+    }
+
+    latestButton.dataset.feedTabsReady = "true";
+
     latestButton.addEventListener("click", async () => {
 
         socialFeedMode = "latest";
@@ -5824,11 +5830,13 @@ async function loadSocialPosts() {
 
     if (typeof lucide !== "undefined") {
 
-        requestAnimationFrame(() => {
-            lucide.createIcons();
-        });
+    requestAnimationFrame(() => {
+        lucide.createIcons();
+    });
 
-    }
+}
+
+setupSocialFeedTabs();
 
 }
 /* =========================================================
