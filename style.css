@@ -5340,3 +5340,276 @@ body.dark-mode #themeToggle svg {
     color: #f8fafc !important;
     stroke: #f8fafc !important;
 }
+/* =========================================================
+   PATRIODX — PHONE & TABLET RESPONSIVE FIX
+   ========================================================= */
+
+/* Prevent horizontal overflow everywhere */
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* Make the main app use the available width */
+main,
+.container,
+.section,
+.dashboard-grid,
+.stats-grid,
+.overview-grid,
+.analytics-grid,
+.pricing-grid {
+    max-width: 100%;
+}
+
+/* Prevent cards from forcing the page wider */
+.card,
+.stat-card,
+.dashboard-card,
+.chart-card,
+.pricing-card,
+.profile-card,
+.profile-search-card,
+.social-card,
+.messaging-card {
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* Images must shrink */
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+}
+
+/* Forms must fit */
+input,
+select,
+textarea,
+button {
+    max-width: 100%;
+}
+
+/* Long text must wrap */
+h1,
+h2,
+h3,
+h4,
+p,
+span,
+strong,
+label {
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   TABLETS
+   ========================================================= */
+
+@media (min-width: 769px) and (max-width: 1100px) {
+
+    .container {
+        width: 100%;
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    main {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboard-grid,
+    .overview-grid,
+    .analytics-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pricing-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    table {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+
+/* =========================================================
+   PHONES
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    html,
+    body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    body {
+        margin: 0;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    main {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .section {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .dashboard-grid,
+    .stats-grid,
+    .overview-grid,
+    .analytics-grid,
+    .pricing-grid {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        grid-template-columns: 1fr !important;
+    }
+
+    .card,
+    .stat-card,
+    .dashboard-card,
+    .chart-card,
+    .pricing-card,
+    .profile-card,
+    .profile-search-card,
+    .social-card,
+    .messaging-card {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    /* Header */
+    .patriodx-header {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* Navigation */
+    .patriodx-sidebar {
+        max-width: 85vw;
+    }
+
+    /* Tables */
+    .table-container,
+    .table-wrapper {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        min-width: 600px;
+    }
+
+    /* Forms */
+    form {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    input,
+    select,
+    textarea {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* Buttons */
+    button {
+        max-width: 100%;
+    }
+
+    /* Prevent giant headings */
+    h1 {
+        font-size: clamp(1.7rem, 7vw, 2.4rem);
+        line-height: 1.15;
+    }
+
+    h2 {
+        font-size: clamp(1.35rem, 6vw, 2rem);
+        line-height: 1.2;
+    }
+
+    h3 {
+        font-size: clamp(1.05rem, 5vw, 1.4rem);
+    }
+
+    /* Pricing */
+    .pricing-card {
+        width: 100%;
+    }
+
+    /* Images */
+    img {
+        height: auto;
+        max-width: 100%;
+    }
+}
+
+
+/* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+    .container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .card,
+    .stat-card,
+    .dashboard-card,
+    .chart-card,
+    .pricing-card {
+        padding: 16px;
+    }
+
+    h1 {
+        font-size: 1.65rem;
+    }
+
+    h2 {
+        font-size: 1.35rem;
+    }
+
+    button {
+        min-height: 42px;
+    }
+}
