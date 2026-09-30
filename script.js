@@ -4153,34 +4153,28 @@ async function loadSocialPosts() {
 
     if (!socialFeed) return;
 
-
     socialFeed.innerHTML = `
         <div class="social-empty-state">
-
-            <div>
+            <div class="social-empty-icon">
                 <i data-lucide="clock-3"></i>
             </div>
-
             <h3>Loading posts...</h3>
-
-            <p>
-                Please wait.
-            </p>
-
+            <p>Please wait.</p>
         </div>
     `;
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
 
 
     const { data: posts, error } =
         await supabaseClient
             .from("posts")
             .select("*")
-            .order(
-                "created_at",
-                {
-                    ascending: false
-                }
-            );
+            .order("created_at", {
+                ascending: false
+            });
 
 
     if (error) {
@@ -4192,21 +4186,19 @@ async function loadSocialPosts() {
 
         socialFeed.innerHTML = `
             <div class="social-empty-state">
-
-                <div>
+                <div class="social-empty-icon">
                     <i data-lucide="triangle-alert"></i>
                 </div>
 
-                <h3>
-                    Could not load posts
-                </h3>
+                <h3>Could not load posts</h3>
 
-                <p>
-                    ${safe(error.message)}
-                </p>
-
+                <p>${safe(error.message)}</p>
             </div>
         `;
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
 
         return;
     }
@@ -4217,138 +4209,185 @@ async function loadSocialPosts() {
         socialFeed.innerHTML = `
             <div class="social-empty-state">
 
-                <div>
+                <div class="social-empty-icon">
                     <i data-lucide="globe"></i>
                 </div>
 
-                <h3>
-                    No posts yet
-                </h3>
+                <h3>No posts yet</h3>
 
                 <p>
                     Be the first to share something
                     with the PATRIODX community.
                 </p>
 
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    onclick="document.getElementById('socialPostContent')?.focus()"
+                >
+                    <i data-lucide="plus"></i>
+                    Create Your First Post
+                </button>
+
             </div>
         `;
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
 
         return;
     }
 
 
     /*
-       Get counts for every post.
-    */
+     * Get likes/comments for every post.
+     */
 
     const postsWithCounts =
         await Promise.all(
+            posts.map(async post => {
 
-            posts.map(
-                async post => {
+                try {
 
                     const counts =
-                        await getSocialCounts(
-                            post.id
-                        );
+                        await getSocialCounts(post.id);
 
                     return {
                         ...post,
-                        ...counts
+                        likes: Number(counts?.likes || 0),
+                        comments: Number(counts?.comments || 0)
                     };
 
+                } catch (error) {
+
+                    console.error(
+                        "Could not get social counts:",
+                        error
+                    );
+
+                    return {
+                        ...post,
+                        likes: 0,
+                        comments: 0
+                    };
                 }
-            )
+
+            })
         );
 
 
     socialFeed.innerHTML =
-        postsWithCounts
-            .map(post => {
+        postsWithCounts.map(post => {
 
-                const isOwnPost =
-                    post.user_id ===
-                    currentUser?.id;
+            const isOwnPost =
+                post.user_id === currentUser?.id;
 
 
-                const author =
-                    isOwnPost
-                        ? (
-                            currentBusiness?.name ||
-                            currentUser?.user_metadata?.business_name ||
-                            currentUser?.user_metadata?.full_name ||
-                            currentUser?.email ||
-                            "You"
-                        )
-                        : "PATRIODX User";
+            const author =
+                isOwnPost
+                    ? (
+                        currentBusiness?.name ||
+                        currentUser?.user_metadata?.business_name ||
+                        currentUser?.user_metadata?.full_name ||
+                        currentUser?.email ||
+                        "You"
+                    )
+                    : "PATRIODX User";
 
 
-                const image =
-                    post.image_url
-                        ? `
-                            <div class="social-media-wrapper">
+            const image =
+                post.image_url
+                    ? `
+                        <div class="social-media-wrapper">
 
-                                <img
-                                    src="${safe(post.image_url)}"
-                                    class="social-post-image"
-                                    alt="Post image"
-                                    loading="lazy"
-                                >
+                            <img
+                                src="${safe(post.image_url)}"
+                                class="social-post-image"
+                                alt="Post image"
+                                loading="lazy"
+                            >
 
+                        </div>
+                    `
+                    : "";
+
+
+            const video =
+                post.video_url
+                    ? `
+                        <div class="social-media-wrapper">
+
+                            <video
+                                src="${safe(post.video_url)}"
+                                class="social-post-video"
+                                controls
+                                preload="metadata"
+                            ></video>
+
+                        </div>
+                    `
+                    : "";
+
+
+            return `
+                <article
+                    class="social-post-card"
+                    id="social-post-${post.id}"
+                >
+
+
+                    <!-- =====================================
+                         POST HEADER
+                    ====================================== -->
+
+                    <div class="social-post-header">
+
+                        <div class="social-post-avatar">
+                            <i data-lucide="user"></i>
+                        </div>
+
+
+                        <div class="social-post-author-area">
+
+                            <div class="social-post-author">
+                                ${safe(author)}
+                                ${
+                                    isOwnPost
+                                        ? `
+                                            <span class="social-post-you">
+                                                You
+                                            </span>
+                                        `
+                                        : ""
+                                }
                             </div>
-                        `
-                        : "";
 
 
-                const video =
-                    post.video_url
-                        ? `
-                            <div class="social-media-wrapper">
-
-                                <video
-                                    src="${safe(post.video_url)}"
-                                    class="social-post-video"
-                                    controls
-                                    preload="metadata"
-                                ></video>
-
-                            </div>
-                        `
-                        : "";
-
-
-                return `
-
-                    <article
-                        class="social-post-card"
-                        id="social-post-${post.id}"
-                    >
-
-                        <!-- POST HEADER -->
-
-                        <div class="social-post-header">
-
-                            <div class="social-post-avatar">
-                                <i data-lucide="user"></i>
+                            <div class="social-post-date">
+                                ${formatDate(post.created_at)}
                             </div>
 
-                            <div class="social-post-author-area">
+                        </div>
 
-                                <div
-                                    class="social-post-author"
-                                >
-                                    ${safe(author)}
-                                </div>
 
-                                <div
-                                    class="social-post-date"
-                                >
-                                    ${formatDate(
-                                        post.created_at
-                                    )}
-                                </div>
+                        <div class="social-post-menu-actions">
 
-                            </div>
+                            ${
+                                !isOwnPost
+                                    ? `
+                                        <button
+                                            type="button"
+                                            class="social-post-icon-button"
+                                            onclick="reportSocialPost('${post.id}')"
+                                            title="Report post"
+                                            aria-label="Report post"
+                                        >
+                                            <i data-lucide="flag"></i>
+                                        </button>
+                                    `
+                                    : ""
+                            }
 
 
                             ${
@@ -4356,155 +4395,220 @@ async function loadSocialPosts() {
                                     ? `
                                         <button
                                             type="button"
-                                            class="social-delete-button"
+                                            class="social-post-icon-button"
                                             onclick="deleteSocialPost('${post.id}')"
                                             title="Delete post"
+                                            aria-label="Delete post"
                                         >
                                             <i data-lucide="trash-2"></i>
                                         </button>
                                     `
-                                    : `
-                                        <button
-                                            type="button"
-                                            class="social-report-button"
-                                            onclick="reportSocialPost('${post.id}')"
-                                            title="Report post"
-                                        >
-                                            <i data-lucide="flag"></i>
-                                        </button>
-                                    `
+                                    : ""
                             }
 
                         </div>
 
-
-                        <!-- POST CONTENT -->
-
-                        ${
-                            post.content
-                                ? `
-                                    <div
-                                        class="social-post-content"
-                                    >
-                                        ${safe(
-                                            post.content
-                                        )}
-                                    </div>
-                                `
-                                : ""
-                        }
+                    </div>
 
 
-                        <!-- PHOTO -->
+                    <!-- =====================================
+                         POST CONTENT
+                    ====================================== -->
 
-                        ${image}
+                    ${
+                        post.content
+                            ? `
+                                <div class="social-post-content">
+                                    ${safe(post.content)}
+                                </div>
+                            `
+                            : ""
+                    }
 
 
-                        <!-- VIDEO -->
+                    <!-- =====================================
+                         MEDIA
+                    ====================================== -->
 
-                        ${video}
+                    ${image}
+
+                    ${video}
 
 
-                        <!-- COUNTS -->
+                    <!-- =====================================
+                         LIKE / COMMENT COUNTS
+                    ====================================== -->
 
-                        <div
-                            class="social-post-stats"
-                            id="social-stats-${post.id}"
-                        >
+                    <div
+                        class="social-post-stats"
+                        id="social-stats-${post.id}"
+                    >
+
+                        <span class="social-like-stat">
+
+                            <i data-lucide="heart"></i>
+
+                            <strong>
+                                ${post.likes}
+                            </strong>
 
                             <span>
-                                <i data-lucide="heart"></i> ${post.likes}
+                                ${post.likes === 1 ? "Like" : "Likes"}
                             </span>
+
+                        </span>
+
+
+                        <button
+                            type="button"
+                            class="social-comment-stat"
+                            onclick="toggleComments('${post.id}')"
+                        >
+
+                            <i data-lucide="message-circle"></i>
+
+                            <strong>
+                                ${post.comments}
+                            </strong>
 
                             <span>
-                                <i data-lucide="message-circle"></i> ${post.comments}
+                                ${
+                                    post.comments === 1
+                                        ? "Comment"
+                                        : "Comments"
+                                }
                             </span>
 
-                        </div>
+                        </button>
+
+                    </div>
 
 
-                        <!-- ACTIONS -->
+                    <!-- =====================================
+                         ACTION BAR
+                    ====================================== -->
 
-                        <div
-                            class="social-post-actions-bar"
+                    <div class="social-post-actions-bar">
+
+
+                        <button
+                            type="button"
+                            class="social-action-button social-like-button"
+                            onclick="likeSocialPost('${post.id}')"
+                            aria-label="Like post"
                         >
 
-                            <button
-                                type="button"
-                                class="social-action-button"
-                                onclick="likeSocialPost('${post.id}')"
-                            >
-                                <i data-lucide="heart"></i> Like
-                            </button>
+                            <i data-lucide="heart"></i>
+
+                            <span>Like</span>
+
+                        </button>
 
 
-                            <button
-                                type="button"
-                                class="social-action-button"
-                                onclick="toggleComments('${post.id}')"
-                            >
-                                <i data-lucide="message-circle"></i> Comment
-                            </button>
-
-
-                            <button
-                                type="button"
-                                class="social-action-button"
-                                onclick="shareSocialPost('${post.id}')"
-                            >
-                                <i data-lucide="share-2"></i> Share
-                            </button>
-
-                        </div>
-
-
-                        <!-- COMMENTS -->
-
-                        <div
-                            id="comments-${post.id}"
-                            class="social-comments"
-                            style="display:none;"
+                        <button
+                            type="button"
+                            class="social-action-button"
+                            onclick="toggleComments('${post.id}')"
+                            aria-label="Comment on post"
                         >
 
-                            <div
-                                id="comments-list-${post.id}"
-                                class="social-comments-list"
-                            >
-                                <p>
-                                    Loading comments...
-                                </p>
-                            </div>
+                            <i data-lucide="message-circle"></i>
+
+                            <span>Comment</span>
+
+                        </button>
 
 
-                            <form
-                                class="social-comment-form"
-                                onsubmit="submitSocialComment(event, '${post.id}')"
-                            >
+                        <button
+                            type="button"
+                            class="social-action-button"
+                            onclick="shareSocialPost('${post.id}')"
+                            aria-label="Share post"
+                        >
 
-                                <input
-                                    type="text"
-                                    id="comment-input-${post.id}"
-                                    placeholder="Write a comment..."
-                                    maxlength="1000"
-                                    required
-                                >
+                            <i data-lucide="share-2"></i>
 
-                                <button
-                                    type="submit"
-                                >
-                                    Send
-                                </button>
+                            <span>Share</span>
 
-                            </form>
+                        </button>
 
+
+                        <button
+                            type="button"
+                            class="social-action-button"
+                            onclick="translateSocialPost('${post.id}')"
+                            aria-label="Translate post"
+                        >
+
+                            <i data-lucide="languages"></i>
+
+                            <span>Translate</span>
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- =====================================
+                         COMMENTS
+                    ====================================== -->
+
+                    <div
+                        id="comments-${post.id}"
+                        class="social-comments"
+                        style="display:none;"
+                    >
+
+                        <div
+                            id="comments-list-${post.id}"
+                            class="social-comments-list"
+                        >
+                            <p class="social-comments-loading">
+                                Loading comments...
+                            </p>
                         </div>
 
-                    </article>
 
-                `;
+                        <form
+                            class="social-comment-form"
+                            onsubmit="submitSocialComment(event, '${post.id}')"
+                        >
 
-            })
-            .join("");
+                            <input
+                                type="text"
+                                id="comment-input-${post.id}"
+                                placeholder="Write a comment..."
+                                maxlength="1000"
+                                autocomplete="off"
+                                required
+                            >
+
+
+                            <button
+                                type="submit"
+                                aria-label="Send comment"
+                            >
+
+                                <i data-lucide="send"></i>
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+
+                </article>
+            `;
+
+        }).join("");
+
+
+    /*
+     * IMPORTANT:
+     * The post HTML is created dynamically,
+     * so Lucide must run AFTER innerHTML.
+     */
 
     if (typeof lucide !== "undefined") {
         lucide.createIcons();
