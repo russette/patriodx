@@ -5303,3 +5303,23 @@ body.dark-mode button:disabled {
     height: 14px;
     stroke-width: 3;
 }
+#themeToggle {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+#themeToggle svg {
+    display: block !important;
+    width: 20px !important;
+    height: 20px !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    stroke: currentColor !important;
+    fill: none !important;
+}
