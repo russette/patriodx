@@ -3264,7 +3264,309 @@ function renderAll() {
     renderRecentActivity();
 }
 
+// =========================================================
+// SETTINGS & ACTIVITY
+// =========================================================
 
+function setupSettingsActivity() {
+
+    // -----------------------------------------
+    // ACCOUNT
+    // -----------------------------------------
+
+    document
+        .getElementById("changeEmailButton")
+        ?.addEventListener("click", async () => {
+
+            if (!currentUser) {
+                alert("Please log in again.");
+                return;
+            }
+
+            const newEmail = prompt(
+                "Enter your new email address:"
+            );
+
+            if (!newEmail) {
+                return;
+            }
+
+            const email = newEmail.trim();
+
+            if (!email.includes("@")) {
+                alert("Please enter a valid email address.");
+                return;
+            }
+
+            const { error } =
+                await supabaseClient.auth.updateUser({
+                    email: email
+                });
+
+            if (error) {
+
+                console.error(error);
+
+                alert(
+                    "Could not change your email. Please try again."
+                );
+
+                return;
+            }
+
+            alert(
+                "A confirmation email has been sent to your new email address."
+            );
+        });
+
+
+    // -----------------------------------------
+    // PRIVACY
+    // -----------------------------------------
+
+    document
+        .getElementById("accountPrivacyButton")
+        ?.addEventListener("click", () => {
+
+            alert(
+                "Account Privacy\n\n" +
+                "Privacy controls are being connected to your profile settings."
+            );
+
+        });
+
+
+    document
+        .getElementById("messagePrivacyButton")
+        ?.addEventListener("click", () => {
+
+            alert(
+                "Message Privacy\n\n" +
+                "Choose who can message you from your privacy settings."
+            );
+
+        });
+
+
+    document
+        .getElementById("mentionPrivacyButton")
+        ?.addEventListener("click", () => {
+
+            alert(
+                "Mentions\n\n" +
+                "Mention controls will be available here."
+            );
+
+        });
+
+
+    document
+        .getElementById("tagPrivacyButton")
+        ?.addEventListener("click", () => {
+
+            alert(
+                "Tags\n\n" +
+                "Tag controls will be available here."
+            );
+
+        });
+
+
+    // -----------------------------------------
+    // SOCIAL
+    // -----------------------------------------
+
+    document
+        .getElementById("followersButton")
+        ?.addEventListener("click", () => {
+
+            scrollToSection("profile");
+
+        });
+
+
+    document
+        .getElementById("blockedUsersButton")
+        ?.addEventListener("click", () => {
+
+            alert(
+                "Blocked Users\n\n" +
+                "Your blocked accounts will appear here."
+            );
+
+        });
+
+
+    document
+        .getElementById("inviteFriendsButton")
+        ?.addEventListener("click", () => {
+
+            const inviteText =
+                "Join me on PATRIODX — Run your business smarter.";
+
+            if (
+                navigator.share &&
+                typeof navigator.share === "function"
+            ) {
+
+                navigator
+                    .share({
+                        title: "PATRIODX",
+                        text: inviteText,
+                        url: window.location.origin
+                    })
+                    .catch(() => {});
+
+            } else {
+
+                alert(inviteText);
+
+            }
+
+        });
+
+
+    document
+        .getElementById("crosspostingButton")
+        ?.addEventListener("click", () => {
+
+            alert(
+                "Crossposting\n\n" +
+                "Cross-posting settings will be available here."
+            );
+
+        });
+
+
+    document
+        .getElementById("livestreamButton")
+        ?.addEventListener("click", () => {
+
+            alert(
+                "Live\n\n" +
+                "Livestreaming will be available here."
+            );
+
+        });
+
+
+    // -----------------------------------------
+    // STORIES
+    // -----------------------------------------
+
+    document
+        .getElementById("storyPrivacyButton")
+        ?.addEventListener("click", () => {
+
+            alert(
+                "Story Privacy\n\n" +
+                "Choose who can view your stories."
+            );
+
+        });
+
+
+    document
+        .getElementById("storyArchiveButton")
+        ?.addEventListener("click", () => {
+
+            scrollToSection("social");
+
+        });
+
+
+    // -----------------------------------------
+    // LANGUAGE
+    // -----------------------------------------
+
+    const settingsLanguage =
+        document.getElementById(
+            "settingsLanguageSelector"
+        );
+
+    if (settingsLanguage) {
+
+        const headerLanguage =
+            document.getElementById(
+                "languageSelector"
+            );
+
+        if (headerLanguage) {
+
+            settingsLanguage.value =
+                headerLanguage.value;
+
+        }
+
+        settingsLanguage.addEventListener(
+            "change",
+            () => {
+
+                const language =
+                    settingsLanguage.value;
+
+                if (headerLanguage) {
+
+                    headerLanguage.value =
+                        language;
+
+                    headerLanguage.dispatchEvent(
+                        new Event("change")
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // -----------------------------------------
+    // NOTIFICATIONS
+    // -----------------------------------------
+
+    document
+        .getElementById("notificationSettingsButton")
+        ?.addEventListener("click", () => {
+
+            alert(
+                "Notification Settings\n\n" +
+                "Notification preferences will be available here."
+            );
+
+        });
+
+
+    // -----------------------------------------
+    // HELP & SUPPORT
+    // -----------------------------------------
+
+    document
+        .getElementById("reportProblemButton")
+        ?.addEventListener("click", () => {
+
+            scrollToSection("contact");
+
+        });
+
+
+    document
+        .getElementById("helpCenterButton")
+        ?.addEventListener("click", () => {
+
+            scrollToSection("contact");
+
+        });
+
+
+    // -----------------------------------------
+    // PLAN USAGE
+    // -----------------------------------------
+
+    updateAccountUI();
+
+}
 // =========================================================
 // FORM EVENTS
 // =========================================================
@@ -3384,7 +3686,7 @@ await loadMyProfile();
     setupModalBehavior();
 
     setupForms();
-
+setupSettingsActivity();
     document
         .getElementById("logoutButton")
         ?.addEventListener(
