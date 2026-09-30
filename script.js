@@ -8649,7 +8649,7 @@ function navigatePATRIODX(page) {
 
     document
         .querySelectorAll(
-            ".landing-section, .features-section, .pricing-section, .final-cta, footer"
+           ".landing-section, .features-section, .pricing-section, .final-cta"
         )
         .forEach(element => {
 
