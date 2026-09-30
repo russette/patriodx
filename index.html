@@ -1897,162 +1897,364 @@
      PATRIODX SOCIAL
 ========================================================= -->
 
-<section
-    id="social"
-    class="section"
->
+<section id="social" class="section">
 
+    <!-- =====================================================
+         SOCIAL HEADER
+    ====================================================== -->
 
-<div class="section-heading">
-    <div>
-       <p class="eyebrow"><i data-lucide="newspaper"></i> PATRIODX SOCIAL</p>
+    <div class="section-heading social-page-heading">
+        <div>
+            <p class="eyebrow">
+                <i data-lucide="newspaper"></i>
+                PATRIODX SOCIAL
+            </p>
 
+            <h2 data-i18n="connect">
+                Connect. Share. Grow.
+            </h2>
 
-<h2 data-i18n="connect">
-    Connect. Share. Grow.
-</h2>
-
-<p data-i18n="socialDescription">
-    Connect with customers and businesses, share updates and promote what you do.
-</p>
+            <p data-i18n="socialDescription">
+                Connect with people, share updates and grow your presence.
+            </p>
         </div>
     </div>
 
 
-<!-- =====================================================
-     CREATE POST
-====================================================== -->
+    <!-- =====================================================
+         STORIES
+    ====================================================== -->
 
-<div class="chart-card social-create-card">
+    <div class="chart-card social-stories-card">
 
-  <h3 data-i18n="createPost">
-Create a Post
+        <div class="social-section-title">
+            <div>
+                <h3>
+                    <i data-lucide="circle-play"></i>
+                    Stories
+                </h3>
 
+                <p>
+                    Share something that disappears after 24 hours.
+                </p>
+            </div>
 
-</h3>
-
- <form id="socialPostForm">
-
-<textarea
-    id="socialPostContent"
-    placeholder="What's happening with your business?"
-    rows="4"
-    maxlength="2000"
-></textarea>
-
-<div
-    id="socialMediaPreview"
-    class="social-media-preview"
-    style="display: none;"
-></div>
-
-<div class="social-upload-area">
-
-   <label
-for="socialImageInput"
-class="social-upload-button"
-data-i18n="photo"
+            <button
+                type="button"
+                class="secondary-btn social-story-create-button"
+                id="createStoryButton"
+            >
+                <i data-lucide="plus"></i>
+                Add Story
+            </button>
+        </div>
 
 
->
-
-
-<i data-lucide="image"></i> Photo
-
-
-</label>
-
-<label
-for="socialVideoInput"
-class="social-upload-button"
-data-i18n="video"
-
->
-
-
-<i data-lucide="video"></i> Video
-
-
-</label>
-        <input
-    type="file"
-    id="socialImageInput"
-    accept="image/*"
-    hidden
->
-        <input
-            type="file"
-            id="socialVideoInput"
-            accept="video/*"
-            hidden
+        <div
+            id="socialStories"
+            class="social-stories"
         >
 
+            <!-- Your story -->
 
-</div>
+            <button
+                type="button"
+                class="social-story-item social-your-story"
+                id="yourStoryButton"
+            >
+                <span class="social-story-avatar">
+                    <span id="socialStoryAvatar">
+                        <i data-lucide="user"></i>
+                    </span>
 
-<div class="social-post-actions">
+                    <span class="social-story-add">
+                        <i data-lucide="plus"></i>
+                    </span>
+                </span>
 
-   <button
-type="submit"
-id="socialPostButton"
-
-
->
-
-
-<i data-lucide="megaphone"></i> <span data-i18n="post">Post</span>
+                <strong>Your Story</strong>
+            </button>
 
 
-</button>
+            <!-- Other stories will be inserted here -->
+
+            <div
+                id="socialOtherStories"
+                class="social-other-stories"
+            ></div>
+
+        </div>
+
     </div>
 
-</form>
+
+    <!-- =====================================================
+         CREATE POST
+    ====================================================== -->
+
+    <div class="chart-card social-create-card">
+
+        <div class="social-create-heading">
+
+            <div class="social-create-avatar">
+                <span id="socialCreateAvatar">
+                    <i data-lucide="user"></i>
+                </span>
+            </div>
+
+            <div>
+                <strong id="socialCreateName">
+                    PATRIODX
+                </strong>
+
+                <small>
+                    Create a post
+                </small>
+            </div>
+
+        </div>
 
 
-</div>
+        <form id="socialPostForm">
+
+            <textarea
+                id="socialPostContent"
+                placeholder="What's happening with you?"
+                rows="4"
+                maxlength="2000"
+            ></textarea>
 
 
-<!-- =====================================================
-     SOCIAL FEED
-====================================================== -->
+            <!-- MEDIA PREVIEW -->
 
-<div class="social-feed-container">
-
-    <div class="section-heading">
-
-        <div>
-        <h3 data-i18n="latestPosts">
-Latest Posts
+            <div
+                id="socialMediaPreview"
+                class="social-media-preview"
+                style="display: none;"
+            ></div>
 
 
-</h3>
+            <!-- UPLOAD OPTIONS -->
+
+            <div class="social-create-toolbar">
+
+                <div class="social-upload-options">
+
+                    <label
+                        for="socialImageInput"
+                        class="social-upload-button"
+                        data-i18n="photo"
+                    >
+                        <i data-lucide="image"></i>
+                        <span>Photo</span>
+                    </label>
+
+
+                    <label
+                        for="socialVideoInput"
+                        class="social-upload-button"
+                        data-i18n="video"
+                    >
+                        <i data-lucide="video"></i>
+                        <span>Video</span>
+                    </label>
+
+
+                    <button
+                        type="button"
+                        class="social-create-option"
+                        id="socialTagButton"
+                    >
+                        <i data-lucide="tag"></i>
+                        <span>Tag</span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="social-create-option"
+                        id="socialMentionButton"
+                    >
+                        <i data-lucide="at-sign"></i>
+                        <span>Mention</span>
+                    </button>
+
+                </div>
+
+
+                <input
+                    type="file"
+                    id="socialImageInput"
+                    accept="image/*"
+                    hidden
+                >
+
+
+                <input
+                    type="file"
+                    id="socialVideoInput"
+                    accept="video/*"
+                    hidden
+                >
+
+
+                <button
+                    type="submit"
+                    id="socialPostButton"
+                >
+                    <i data-lucide="send"></i>
+                    <span data-i18n="post">Post</span>
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- =====================================================
+         SOCIAL FEED
+    ====================================================== -->
+
+    <div class="social-feed-container">
+
+        <div class="social-feed-header">
+
+            <div>
+                <p class="eyebrow">
+                    <i data-lucide="rss"></i>
+                    SOCIAL FEED
+                </p>
+
+                <h3 data-i18n="latestPosts">
+                    Latest Posts
+                </h3>
             </div>
 
 
-    </div>
+            <div class="social-feed-controls">
+
+                <button
+                    type="button"
+                    class="social-feed-control active"
+                    id="socialFeedLatestButton"
+                >
+                    <i data-lucide="clock-3"></i>
+                    Latest
+                </button>
 
 
-    <div
-        id="socialFeed"
-        class="social-feed"
-    >
+                <button
+                    type="button"
+                    class="social-feed-control"
+                    id="socialFeedFollowingButton"
+                >
+                    <i data-lucide="users"></i>
+                    Following
+                </button>
 
-        <div class="social-empty-state">
+            </div>
 
-            <div><i data-lucide="newspaper"></i></div>
+        </div>
 
-            <h3>No posts yet</h3>
 
-            <p>
-                Be the first to share something with
-                the PATRIODX community.
-            </p>
+        <!-- =================================================
+             FEED
+        ================================================== -->
+
+        <div
+            id="socialFeed"
+            class="social-feed"
+        >
+
+            <!-- Empty state -->
+
+            <div class="social-empty-state">
+
+                <div class="social-empty-icon">
+                    <i data-lucide="newspaper"></i>
+                </div>
+
+                <h3>No posts yet</h3>
+
+                <p>
+                    Be the first to share something with
+                    the PATRIODX community.
+                </p>
+
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    id="socialEmptyCreatePostButton"
+                >
+                    <i data-lucide="plus"></i>
+                    Create Your First Post
+                </button>
+
+            </div>
 
         </div>
 
     </div>
 
-</div>
+
+    <!-- =====================================================
+         POST ACTION MODAL
+    ====================================================== -->
+
+    <div
+        id="socialPostMenu"
+        class="social-post-menu"
+        style="display: none;"
+    >
+
+        <div class="social-post-menu-inner">
+
+            <div class="social-post-menu-header">
+
+                <strong>
+                    Post Options
+                </strong>
+
+                <button
+                    type="button"
+                    id="closeSocialPostMenu"
+                    aria-label="Close"
+                >
+                    <i data-lucide="x"></i>
+                </button>
+
+            </div>
+
+
+            <button type="button" id="socialSavePostButton">
+                <i data-lucide="bookmark"></i>
+                Save Post
+            </button>
+
+
+            <button type="button" id="socialTranslatePostButton">
+                <i data-lucide="languages"></i>
+                Translate
+            </button>
+
+
+            <button type="button" id="socialSharePostButton">
+                <i data-lucide="share-2"></i>
+                Share
+            </button>
+
+
+            <button type="button" id="socialReportPostButton">
+                <i data-lucide="flag"></i>
+                Report Post
+            </button>
+
+        </div>
+
+    </div>
 
 
 </section>
