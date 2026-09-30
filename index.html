@@ -3558,16 +3558,16 @@
                 <small>Manage cross-posting</small>
             </button>
 
-
-            <button
-                type="button"
-                class="settings-tile"
-                id="livestreamButton"
-            >
-                <i data-lucide="radio"></i>
-                <strong>Live</strong>
-                <small>Go live on PATRIODX</small>
-            </button>
+<button
+    type="button"
+    class="settings-tile"
+    id="livestreamButton"
+    onclick="openGoLiveModal()"
+>
+    <i data-lucide="radio"></i>
+    <strong>Live</strong>
+    <small>Go live on PATRIODX</small>
+</button>
 
         </div>
 
@@ -4869,6 +4869,101 @@ if ("serviceWorker" in navigator) {
 
     </div>
 
+</div>
+    <!-- GO LIVE MODAL -->
+
+<div
+    id="goLiveModal"
+    class="go-live-modal"
+    style="display:none;"
+>
+    <div
+        class="go-live-overlay"
+        onclick="closeGoLiveModal()"
+    ></div>
+
+    <div
+        class="go-live-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="goLiveTitle"
+    >
+
+        <button
+            type="button"
+            class="go-live-close"
+            onclick="closeGoLiveModal()"
+            aria-label="Close"
+        >
+            <i data-lucide="x"></i>
+        </button>
+
+        <div class="go-live-icon">
+            <i data-lucide="radio"></i>
+        </div>
+
+        <h2 id="goLiveTitle">
+            Go Live
+        </h2>
+
+        <p class="go-live-description">
+            Start a live broadcast on PATRIODX.
+        </p>
+
+        <div class="go-live-field">
+            <label for="liveTitleInput">
+                Live Title
+            </label>
+
+            <input
+                type="text"
+                id="liveTitleInput"
+                placeholder="What are you going live about?"
+                maxlength="100"
+            >
+        </div>
+
+        <div class="go-live-field">
+            <label for="livePrivacySelect">
+                Who can watch?
+            </label>
+
+            <select id="livePrivacySelect">
+                <option value="everyone">Everyone</option>
+                <option value="followers">Followers</option>
+                <option value="private">Only me</option>
+            </select>
+        </div>
+
+        <div
+            id="goLiveMessage"
+            class="go-live-message"
+            style="display:none;"
+        ></div>
+
+        <div class="go-live-actions">
+
+            <button
+                type="button"
+                class="secondary-btn"
+                onclick="closeGoLiveModal()"
+            >
+                Cancel
+            </button>
+
+            <button
+                type="button"
+                class="primary-btn"
+                id="startLiveButton"
+                onclick="startPATRIODXLive()"
+            >
+                <i data-lucide="radio"></i>
+                Start Live
+            </button>
+
+        </div>
+
+    </div>
 </div>
 </body>
 </html>
