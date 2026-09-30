@@ -336,54 +336,100 @@
 <!-- =========================================================
      MOBILE BOTTOM NAVIGATION
 ========================================================= -->
-
 <nav
     id="mobileBottomNav"
     class="mobile-bottom-nav"
+    aria-label="Mobile navigation"
 >
 
+    <!-- HOME -->
     <a
         href="#home"
         class="mobile-nav-link active"
+        data-page="home"
+        aria-label="Home"
     >
-      <span><i data-lucide="house"></i></span>
+        <span class="mobile-nav-icon">
+            <i data-lucide="house"></i>
+        </span>
+
         <small>Home</small>
     </a>
 
 
+    <!-- SOCIAL -->
     <a
         href="#social"
         class="mobile-nav-link"
+        data-page="social"
+        aria-label="Social"
     >
-       <span><i data-lucide="newspaper"></i></span>
-<small>Social</small>
+        <span class="mobile-nav-icon">
+            <i data-lucide="newspaper"></i>
+        </span>
+
+        <small>Social</small>
     </a>
 
 
+    <!-- SEARCH -->
+    <button
+        type="button"
+        class="mobile-nav-link mobile-search-nav"
+        aria-label="Search PATRIODX"
+        title="Search PATRIODX"
+    >
+        <span class="mobile-nav-icon">
+            <i data-lucide="search"></i>
+        </span>
+
+        <small>Search</small>
+    </button>
+
+
+    <!-- MESSAGES -->
     <a
         href="#messaging"
         class="mobile-nav-link"
+        data-page="messaging"
+        aria-label="Messages"
     >
-        <span><i data-lucide="message-circle"></i></span>
-<small>Messages</small>
+        <span class="mobile-nav-icon mobile-nav-icon-with-badge">
+            <i data-lucide="message-circle"></i>
+
+            <span
+                id="mobileMessageBadge"
+                class="mobile-nav-badge"
+                style="display:none;"
+            >
+                0
+            </span>
+        </span>
+
+        <small>Messages</small>
     </a>
 
 
+    <!-- NOTIFICATIONS -->
     <a
         href="#notifications"
         class="mobile-nav-link"
+        data-page="notifications"
+        aria-label="Notifications"
     >
-        <span><i data-lucide="bell"></i></span>
-<small>Alerts</small>
-    </a>
+        <span class="mobile-nav-icon mobile-nav-icon-with-badge">
+            <i data-lucide="bell"></i>
 
+            <span
+                id="mobileNotificationBadge"
+                class="mobile-nav-badge"
+                style="display:none;"
+            >
+                0
+            </span>
+        </span>
 
-    <a
-        href="#profile"
-        class="mobile-nav-link"
-    >
-       <span><i data-lucide="user"></i></span>
-<small>Profile</small>
+        <small>Alerts</small>
     </a>
 
 </nav>
