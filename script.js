@@ -4610,9 +4610,15 @@ async function loadSocialPosts() {
      * so Lucide must run AFTER innerHTML.
      */
 
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
-    }
+   if (typeof lucide !== "undefined" && socialFeed) {
+    requestAnimationFrame(() => {
+        lucide.createIcons({
+            attrs: {
+                "stroke-width": 2
+            }
+        });
+    });
+}
 }
 /* =========================================================
    CREATE POST
