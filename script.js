@@ -447,8 +447,12 @@ function setupDarkMode() {
 
         button.innerHTML =
             dark
-                ? "☀️"
-                : "🌙";
+                ? '<i data-lucide="sun"></i>'
+                : '<i data-lucide="moon"></i>';
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
 
         button.setAttribute(
             "aria-label",
