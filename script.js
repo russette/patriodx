@@ -3270,9 +3270,97 @@ function renderAll() {
 
 function setupSettingsActivity() {
 
-    // -----------------------------------------
+    // =========================================================
+    // SETTINGS DATABASE HELPERS
+    // =========================================================
+
+    async function ensureUserSettings() {
+
+        if (!currentUser) {
+            alert("Please log in again.");
+            return null;
+        }
+
+        const { data, error } = await supabaseClient
+            .from("user_settings")
+            .select("*")
+            .eq("user_id", currentUser.id)
+            .maybeSingle();
+
+        if (error) {
+            console.error("Settings load error:", error);
+            alert("Could not load your settings.");
+            return null;
+        }
+
+        if (data) {
+            return data;
+        }
+
+        const { data: newSettings, error: insertError } =
+            await supabaseClient
+                .from("user_settings")
+                .insert({
+                    user_id: currentUser.id
+                })
+                .select()
+                .single();
+
+        if (insertError) {
+            console.error(
+                "Settings creation error:",
+                insertError
+            );
+
+            alert("Could not create your settings.");
+            return null;
+        }
+
+        return newSettings;
+    }
+
+
+    async function saveSetting(column, value) {
+
+        if (!currentUser) {
+            alert("Please log in again.");
+            return false;
+        }
+
+        const { error } = await supabaseClient
+            .from("user_settings")
+            .upsert(
+                {
+                    user_id: currentUser.id,
+                    [column]: value,
+                    updated_at: new Date().toISOString()
+                },
+                {
+                    onConflict: "user_id"
+                }
+            );
+
+        if (error) {
+
+            console.error(
+                "Settings save error:",
+                error
+            );
+
+            alert(
+                "Could not save this setting. Please try again."
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
+
+    // =========================================================
     // ACCOUNT
-    // -----------------------------------------
+    // =========================================================
 
     document
         .getElementById("changeEmailButton")
@@ -3317,70 +3405,287 @@ function setupSettingsActivity() {
             alert(
                 "A confirmation email has been sent to your new email address."
             );
+
         });
 
 
-    // -----------------------------------------
-    // PRIVACY
-    // -----------------------------------------
+    // =========================================================
+    // ACCOUNT PRIVACY
+    // =========================================================
 
     document
         .getElementById("accountPrivacyButton")
-        ?.addEventListener("click", () => {
+        ?.addEventListener("click", async () => {
 
-            alert(
+            const settings =
+                await ensureUserSettings();
+
+            if (!settings) {
+                return;
+            }
+
+            const choice = prompt(
                 "Account Privacy\n\n" +
-                "Privacy controls are being connected to your profile settings."
+                "Choose:\n\n" +
+                "public\n" +
+                "followers\n" +
+                "private\n\n" +
+                "Current: " +
+                settings.account_privacy
             );
+
+            if (!choice) {
+                return;
+            }
+
+            const value =
+                choice.trim().toLowerCase();
+
+            if (
+                ![
+                    "public",
+                    "followers",
+                    "private"
+                ].includes(value)
+            ) {
+
+                alert(
+                    "Please enter public, followers, or private."
+                );
+
+                return;
+            }
+
+            if (
+                await saveSetting(
+                    "account_privacy",
+                    value
+                )
+            ) {
+
+                document
+                    .getElementById(
+                        "accountPrivacyButton"
+                    )
+                    .textContent =
+                    "Account Privacy: " +
+                    value;
+
+            }
 
         });
 
+
+    // =========================================================
+    // MESSAGE PRIVACY
+    // =========================================================
 
     document
         .getElementById("messagePrivacyButton")
-        ?.addEventListener("click", () => {
+        ?.addEventListener("click", async () => {
 
-            alert(
+            const settings =
+                await ensureUserSettings();
+
+            if (!settings) {
+                return;
+            }
+
+            const choice = prompt(
                 "Message Privacy\n\n" +
-                "Choose who can message you from your privacy settings."
+                "Choose:\n\n" +
+                "everyone\n" +
+                "followers\n" +
+                "nobody\n\n" +
+                "Current: " +
+                settings.message_privacy
             );
+
+            if (!choice) {
+                return;
+            }
+
+            const value =
+                choice.trim().toLowerCase();
+
+            if (
+                ![
+                    "everyone",
+                    "followers",
+                    "nobody"
+                ].includes(value)
+            ) {
+
+                alert(
+                    "Please enter everyone, followers, or nobody."
+                );
+
+                return;
+            }
+
+            if (
+                await saveSetting(
+                    "message_privacy",
+                    value
+                )
+            ) {
+
+                document
+                    .getElementById(
+                        "messagePrivacyButton"
+                    )
+                    .textContent =
+                    "Message Privacy: " +
+                    value;
+
+            }
 
         });
 
+
+    // =========================================================
+    // MENTION PRIVACY
+    // =========================================================
 
     document
         .getElementById("mentionPrivacyButton")
-        ?.addEventListener("click", () => {
+        ?.addEventListener("click", async () => {
 
-            alert(
-                "Mentions\n\n" +
-                "Mention controls will be available here."
+            const settings =
+                await ensureUserSettings();
+
+            if (!settings) {
+                return;
+            }
+
+            const choice = prompt(
+                "Mention Privacy\n\n" +
+                "Choose:\n\n" +
+                "everyone\n" +
+                "followers\n" +
+                "nobody\n\n" +
+                "Current: " +
+                settings.mention_privacy
             );
+
+            if (!choice) {
+                return;
+            }
+
+            const value =
+                choice.trim().toLowerCase();
+
+            if (
+                ![
+                    "everyone",
+                    "followers",
+                    "nobody"
+                ].includes(value)
+            ) {
+
+                alert(
+                    "Please enter everyone, followers, or nobody."
+                );
+
+                return;
+            }
+
+            if (
+                await saveSetting(
+                    "mention_privacy",
+                    value
+                )
+            ) {
+
+                document
+                    .getElementById(
+                        "mentionPrivacyButton"
+                    )
+                    .textContent =
+                    "Mention Privacy: " +
+                    value;
+
+            }
 
         });
 
+
+    // =========================================================
+    // TAG PRIVACY
+    // =========================================================
 
     document
         .getElementById("tagPrivacyButton")
-        ?.addEventListener("click", () => {
+        ?.addEventListener("click", async () => {
 
-            alert(
-                "Tags\n\n" +
-                "Tag controls will be available here."
+            const settings =
+                await ensureUserSettings();
+
+            if (!settings) {
+                return;
+            }
+
+            const choice = prompt(
+                "Tag Privacy\n\n" +
+                "Choose:\n\n" +
+                "everyone\n" +
+                "followers\n" +
+                "nobody\n\n" +
+                "Current: " +
+                settings.tag_privacy
             );
+
+            if (!choice) {
+                return;
+            }
+
+            const value =
+                choice.trim().toLowerCase();
+
+            if (
+                ![
+                    "everyone",
+                    "followers",
+                    "nobody"
+                ].includes(value)
+            ) {
+
+                alert(
+                    "Please enter everyone, followers, or nobody."
+                );
+
+                return;
+            }
+
+            if (
+                await saveSetting(
+                    "tag_privacy",
+                    value
+                )
+            ) {
+
+                document
+                    .getElementById(
+                        "tagPrivacyButton"
+                    )
+                    .textContent =
+                    "Tag Privacy: " +
+                    value;
+
+            }
 
         });
 
 
-    // -----------------------------------------
+    // =========================================================
     // SOCIAL
-    // -----------------------------------------
+    // =========================================================
 
     document
         .getElementById("followersButton")
         ?.addEventListener("click", () => {
 
-            scrollToSection("profile");
+            navigatePATRIODX("profile");
 
         });
 
@@ -3391,7 +3696,7 @@ function setupSettingsActivity() {
 
             alert(
                 "Blocked Users\n\n" +
-                "Your blocked accounts will appear here."
+                "Blocked account management will be added here."
             );
 
         });
@@ -3399,7 +3704,7 @@ function setupSettingsActivity() {
 
     document
         .getElementById("inviteFriendsButton")
-        ?.addEventListener("click", () => {
+        ?.addEventListener("click", async () => {
 
             const inviteText =
                 "Join me on PATRIODX — Run your business smarter.";
@@ -3409,13 +3714,23 @@ function setupSettingsActivity() {
                 typeof navigator.share === "function"
             ) {
 
-                navigator
-                    .share({
+                try {
+
+                    await navigator.share({
                         title: "PATRIODX",
                         text: inviteText,
                         url: window.location.origin
-                    })
-                    .catch(() => {});
+                    });
+
+                } catch (error) {
+
+                    if (
+                        error.name !== "AbortError"
+                    ) {
+                        console.error(error);
+                    }
+
+                }
 
             } else {
 
@@ -3426,58 +3741,231 @@ function setupSettingsActivity() {
         });
 
 
+    // =========================================================
+    // CROSS-POSTING
+    // =========================================================
+
     document
         .getElementById("crosspostingButton")
-        ?.addEventListener("click", () => {
+        ?.addEventListener("click", async () => {
 
-            alert(
-                "Crossposting\n\n" +
-                "Cross-posting settings will be available here."
-            );
+            const settings =
+                await ensureUserSettings();
+
+            if (!settings) {
+                return;
+            }
+
+            const newValue =
+                !Boolean(
+                    settings.crossposting_enabled
+                );
+
+            if (
+                await saveSetting(
+                    "crossposting_enabled",
+                    newValue
+                )
+            ) {
+
+                document
+                    .getElementById(
+                        "crosspostingButton"
+                    )
+                    .textContent =
+                    "Cross-posting: " +
+                    (
+                        newValue
+                            ? "On"
+                            : "Off"
+                    );
+
+            }
 
         });
 
+
+    // =========================================================
+    // LIVESTREAM
+    // =========================================================
 
     document
         .getElementById("livestreamButton")
-        ?.addEventListener("click", () => {
+        ?.addEventListener("click", async () => {
 
-            alert(
-                "Live\n\n" +
-                "Livestreaming will be available here."
+            const settings =
+                await ensureUserSettings();
+
+            if (!settings) {
+                return;
+            }
+
+            const choice = prompt(
+                "Livestream Privacy\n\n" +
+                "Choose:\n\n" +
+                "everyone\n" +
+                "followers\n" +
+                "private\n\n" +
+                "Current: " +
+                settings.livestream_privacy
             );
+
+            if (!choice) {
+                return;
+            }
+
+            const value =
+                choice.trim().toLowerCase();
+
+            if (
+                ![
+                    "everyone",
+                    "followers",
+                    "private"
+                ].includes(value)
+            ) {
+
+                alert(
+                    "Please enter everyone, followers, or private."
+                );
+
+                return;
+            }
+
+            if (
+                await saveSetting(
+                    "livestream_privacy",
+                    value
+                )
+            ) {
+
+                document
+                    .getElementById(
+                        "livestreamButton"
+                    )
+                    .textContent =
+                    "Livestream: " +
+                    value;
+
+            }
 
         });
 
 
-    // -----------------------------------------
+    // =========================================================
     // STORIES
-    // -----------------------------------------
+    // =========================================================
 
     document
         .getElementById("storyPrivacyButton")
-        ?.addEventListener("click", () => {
+        ?.addEventListener("click", async () => {
 
-            alert(
+            const settings =
+                await ensureUserSettings();
+
+            if (!settings) {
+                return;
+            }
+
+            const choice = prompt(
                 "Story Privacy\n\n" +
-                "Choose who can view your stories."
+                "Choose:\n\n" +
+                "everyone\n" +
+                "followers\n" +
+                "private\n\n" +
+                "Current: " +
+                settings.story_privacy
             );
+
+            if (!choice) {
+                return;
+            }
+
+            const value =
+                choice.trim().toLowerCase();
+
+            if (
+                ![
+                    "everyone",
+                    "followers",
+                    "private"
+                ].includes(value)
+            ) {
+
+                alert(
+                    "Please enter everyone, followers, or private."
+                );
+
+                return;
+            }
+
+            if (
+                await saveSetting(
+                    "story_privacy",
+                    value
+                )
+            ) {
+
+                document
+                    .getElementById(
+                        "storyPrivacyButton"
+                    )
+                    .textContent =
+                    "Story Privacy: " +
+                    value;
+
+            }
 
         });
 
+
+    // =========================================================
+    // STORY ARCHIVE
+    // =========================================================
 
     document
         .getElementById("storyArchiveButton")
-        ?.addEventListener("click", () => {
+        ?.addEventListener("click", async () => {
 
-            scrollToSection("social");
+            const settings =
+                await ensureUserSettings();
+
+            if (!settings) {
+                return;
+            }
+
+            const newValue =
+                !Boolean(
+                    settings.story_archive_enabled
+                );
+
+            if (
+                await saveSetting(
+                    "story_archive_enabled",
+                    newValue
+                )
+            ) {
+
+                document
+                    .getElementById(
+                        "storyArchiveButton"
+                    )
+                    .textContent =
+                    "Story Archive: " +
+                    (
+                        newValue
+                            ? "On"
+                            : "Off"
+                    );
+
+            }
 
         });
 
 
-    // -----------------------------------------
+    // =========================================================
     // LANGUAGE
-    // -----------------------------------------
+    // =========================================================
 
     const settingsLanguage =
         document.getElementById(
@@ -3522,31 +4010,64 @@ function setupSettingsActivity() {
     }
 
 
-    // -----------------------------------------
+    // =========================================================
     // NOTIFICATIONS
-    // -----------------------------------------
+    // =========================================================
 
     document
-        .getElementById("notificationSettingsButton")
-        ?.addEventListener("click", () => {
+        .getElementById(
+            "notificationSettingsButton"
+        )
+        ?.addEventListener(
+            "click",
+            async () => {
 
-            alert(
-                "Notification Settings\n\n" +
-                "Notification preferences will be available here."
-            );
+                const settings =
+                    await ensureUserSettings();
 
-        });
+                if (!settings) {
+                    return;
+                }
+
+                const newValue =
+                    !Boolean(
+                        settings.notification_enabled
+                    );
+
+                if (
+                    await saveSetting(
+                        "notification_enabled",
+                        newValue
+                    )
+                ) {
+
+                    document
+                        .getElementById(
+                            "notificationSettingsButton"
+                        )
+                        .textContent =
+                        "Notifications: " +
+                        (
+                            newValue
+                                ? "On"
+                                : "Off"
+                        );
+
+                }
+
+            }
+        );
 
 
-    // -----------------------------------------
+    // =========================================================
     // HELP & SUPPORT
-    // -----------------------------------------
+    // =========================================================
 
     document
         .getElementById("reportProblemButton")
         ?.addEventListener("click", () => {
 
-            scrollToSection("contact");
+            navigatePATRIODX("contact");
 
         });
 
@@ -3555,14 +4076,150 @@ function setupSettingsActivity() {
         .getElementById("helpCenterButton")
         ?.addEventListener("click", () => {
 
-            scrollToSection("contact");
+            navigatePATRIODX("contact");
 
         });
 
 
-    // -----------------------------------------
+    // =========================================================
+    // LOAD SAVED SETTINGS
+    // =========================================================
+
+    (async () => {
+
+        const settings =
+            await ensureUserSettings();
+
+        if (!settings) {
+            return;
+        }
+
+
+        const accountPrivacy =
+            document.getElementById(
+                "accountPrivacyButton"
+            );
+
+        if (accountPrivacy) {
+            accountPrivacy.textContent =
+                "Account Privacy: " +
+                settings.account_privacy;
+        }
+
+
+        const messagePrivacy =
+            document.getElementById(
+                "messagePrivacyButton"
+            );
+
+        if (messagePrivacy) {
+            messagePrivacy.textContent =
+                "Message Privacy: " +
+                settings.message_privacy;
+        }
+
+
+        const mentionPrivacy =
+            document.getElementById(
+                "mentionPrivacyButton"
+            );
+
+        if (mentionPrivacy) {
+            mentionPrivacy.textContent =
+                "Mention Privacy: " +
+                settings.mention_privacy;
+        }
+
+
+        const tagPrivacy =
+            document.getElementById(
+                "tagPrivacyButton"
+            );
+
+        if (tagPrivacy) {
+            tagPrivacy.textContent =
+                "Tag Privacy: " +
+                settings.tag_privacy;
+        }
+
+
+        const crossposting =
+            document.getElementById(
+                "crosspostingButton"
+            );
+
+        if (crossposting) {
+            crossposting.textContent =
+                "Cross-posting: " +
+                (
+                    settings.crossposting_enabled
+                        ? "On"
+                        : "Off"
+                );
+        }
+
+
+        const livestream =
+            document.getElementById(
+                "livestreamButton"
+            );
+
+        if (livestream) {
+            livestream.textContent =
+                "Livestream: " +
+                settings.livestream_privacy;
+        }
+
+
+        const storyPrivacy =
+            document.getElementById(
+                "storyPrivacyButton"
+            );
+
+        if (storyPrivacy) {
+            storyPrivacy.textContent =
+                "Story Privacy: " +
+                settings.story_privacy;
+        }
+
+
+        const storyArchive =
+            document.getElementById(
+                "storyArchiveButton"
+            );
+
+        if (storyArchive) {
+            storyArchive.textContent =
+                "Story Archive: " +
+                (
+                    settings.story_archive_enabled
+                        ? "On"
+                        : "Off"
+                );
+        }
+
+
+        const notifications =
+            document.getElementById(
+                "notificationSettingsButton"
+            );
+
+        if (notifications) {
+            notifications.textContent =
+                "Notifications: " +
+                (
+                    settings.notification_enabled
+                        ? "On"
+                        : "Off"
+                );
+        }
+
+    })();
+
+
+    // =========================================================
     // PLAN USAGE
-    // -----------------------------------------
+    // =========================================================
 
     updateAccountUI();
 
