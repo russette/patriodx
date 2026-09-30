@@ -7789,3 +7789,93 @@ body.dark-mode .go-live-message.success {
         width: 100%;
     }
 }
+/* =========================================================
+   SOCIAL LIVE ENTRY
+   ========================================================= */
+
+.social-live-entry {
+    margin-bottom: 18px;
+}
+
+.social-live-button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    border: 1px solid #fecaca;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #fff1f2, #ffffff);
+    color: #111827;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.social-live-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(220, 38, 38, 0.12);
+}
+
+.social-live-dot {
+    width: 12px;
+    height: 12px;
+    flex: 0 0 12px;
+    border-radius: 50%;
+    background: #dc2626;
+    box-shadow: 0 0 0 5px rgba(220, 38, 38, 0.12);
+}
+
+.social-live-content {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.social-live-content strong {
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.social-live-content small {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.social-live-button > svg {
+    width: 22px;
+    height: 22px;
+    color: #dc2626;
+    flex: 0 0 auto;
+}
+
+body.dark-mode .social-live-button {
+    border-color: #7f1d1d;
+    background: linear-gradient(135deg, #2a1115, #111827);
+    color: #f8fafc;
+}
+
+body.dark-mode .social-live-content small {
+    color: #94a3b8;
+}
+
+body.dark-mode .social-live-button > svg {
+    color: #f87171;
+}
+
+@media (max-width: 600px) {
+
+    .social-live-button {
+        padding: 15px;
+    }
+
+    .social-live-content strong {
+        font-size: 15px;
+    }
+
+    .social-live-content small {
+        font-size: 12px;
+    }
+}
