@@ -5977,3 +5977,232 @@ label {
         height: 38px;
     }
 }
+/* =========================================================
+   PATRIODX MOBILE APP NAVIGATION
+   ========================================================= */
+
+.mobile-bottom-nav {
+    display: none;
+}
+
+
+/* PHONE ONLY */
+
+@media (max-width: 768px) {
+
+    .mobile-bottom-nav {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        width: 100%;
+        max-width: 100%;
+
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+
+        align-items: stretch;
+
+        min-height: 64px;
+
+        padding:
+            6px
+            8px
+            calc(6px + env(safe-area-inset-bottom));
+
+        background: var(--card-bg, #ffffff);
+
+        border-top: 1px solid
+            var(--border-color, #e5e7eb);
+
+        z-index: 9999;
+
+        box-sizing: border-box;
+    }
+
+
+    /* NAV ITEMS */
+
+    .mobile-nav-link {
+        position: relative;
+
+        min-width: 0;
+        min-height: 52px;
+
+        display: flex;
+        flex-direction: column;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 3px;
+
+        padding: 5px 3px;
+
+        border: none;
+        background: transparent;
+
+        color: #6b7280;
+
+        text-decoration: none;
+
+        cursor: pointer;
+
+        border-radius: 10px;
+    }
+
+
+    .mobile-nav-link small {
+        display: block;
+
+        font-size: 11px;
+        line-height: 1.1;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        max-width: 100%;
+    }
+
+
+    /* ICON */
+
+    .mobile-nav-icon {
+        position: relative;
+
+        width: 24px;
+        height: 24px;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+    }
+
+
+    .mobile-nav-icon svg {
+        width: 21px;
+        height: 21px;
+
+        stroke-width: 2;
+    }
+
+
+    /* ACTIVE */
+
+    .mobile-nav-link.active {
+        color: #2563eb;
+    }
+
+
+    .mobile-nav-link.active .mobile-nav-icon svg {
+        stroke-width: 2.5;
+    }
+
+
+    /* BADGES */
+
+    .mobile-nav-icon-with-badge {
+        position: relative;
+    }
+
+
+    .mobile-nav-badge {
+        position: absolute;
+
+        top: -6px;
+        right: -9px;
+
+        min-width: 16px;
+        height: 16px;
+
+        padding: 0 4px;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 999px;
+
+        background: #ef4444;
+        color: #ffffff;
+
+        font-size: 9px;
+        font-weight: 700;
+
+        line-height: 1;
+
+        border: 2px solid
+            var(--card-bg, #ffffff);
+    }
+
+
+    /* SEARCH BUTTON */
+
+    .mobile-search-nav {
+        font-family: inherit;
+        appearance: none;
+    }
+
+
+    /* GIVE CONTENT SPACE ABOVE THE FIXED NAV */
+
+    body {
+        padding-bottom: 76px;
+    }
+
+
+    /* DARK MODE */
+
+    body.dark-mode .mobile-bottom-nav {
+        background: #111827;
+        border-top-color: #374151;
+    }
+
+    body.dark-mode .mobile-nav-link {
+        color: #9ca3af;
+    }
+
+    body.dark-mode .mobile-nav-link.active {
+        color: #60a5fa;
+    }
+
+    body.dark-mode .mobile-nav-badge {
+        border-color: #111827;
+    }
+}
+
+
+/* SMALL PHONES */
+
+@media (max-width: 420px) {
+
+    .mobile-bottom-nav {
+        min-height: 62px;
+
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    .mobile-nav-link {
+        min-height: 50px;
+    }
+
+    .mobile-nav-icon {
+        width: 22px;
+        height: 22px;
+    }
+
+    .mobile-nav-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .mobile-nav-link small {
+        font-size: 10px;
+    }
+}
