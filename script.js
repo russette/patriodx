@@ -4610,13 +4610,9 @@ async function loadSocialPosts() {
      * so Lucide must run AFTER innerHTML.
      */
 
-  if (typeof lucide !== "undefined") {
+if (typeof lucide !== "undefined") {
     requestAnimationFrame(() => {
-        lucide.createIcons({
-            attrs: {
-                "stroke-width": 2
-            }
-        });
+        lucide.createIcons();
     });
 }
 }
@@ -9174,8 +9170,8 @@ viewPlans: "View Plans",
         controlCenter: "PATRIODX • CONTROL CENTER",
 runBusinessSmarter: "Run your business smarter.",
 dashboardDescription: "Manage your products, customers, sales and invoices from one powerful business dashboard.",
-manageProducts: '<i data-lucide="package"></i> Manage Products',
-viewAnalytics: '<i data-lucide="chart-column"></i> View Analytics',
+manageProducts: "Manage Products",
+viewAnalytics: "View Analytics",
 quickActions: "QUICK ACTIONS",
 getThingsDoneFaster: "Get things done faster.",
 
@@ -9277,9 +9273,8 @@ viewPlans: "Voir les offres",
         controlCenter: "PATRIODX • CENTRE DE CONTRÔLE",
 runBusinessSmarter: "Gérez votre entreprise plus intelligemment.",
 dashboardDescription: "Gérez vos produits, clients, ventes et factures depuis un puissant tableau de bord.",
-manageProducts: '<i data-lucide="package"></i> Gérer les produits',
-viewAnalytics: '<i data-lucide="chart-column"></i> Voir les analyses',
-
+manageProducts: "Gérer les produits",
+viewAnalytics: "Voir les analyses",
 quickActions: "ACTIONS RAPIDES",
 getThingsDoneFaster: "Accomplissez vos tâches plus rapidement.",
 
@@ -9382,9 +9377,8 @@ viewPlans: "Ver planes",
         controlCenter: "PATRIODX • CENTRO DE CONTROL",
 runBusinessSmarter: "Gestiona tu negocio de forma más inteligente.",
 dashboardDescription: "Gestiona tus productos, clientes, ventas y facturas desde un potente panel de control.",
-manageProducts: '<i data-lucide="package"></i> Gestionar productos',
-viewAnalytics: '<i data-lucide="chart-column"></i> Ver analíticas',
-
+manageProducts: "Gestionar productos",
+viewAnalytics: "Ver analíticas",
 quickActions: "ACCIONES RÁPIDAS",
 getThingsDoneFaster: "Haz las cosas más rápido.",
 
