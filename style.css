@@ -6499,3 +6499,554 @@ label {
         min-height: 76px;
     }
 }
+/* =========================================================
+   PATRIODX SOCIAL — NEW LAYOUT
+========================================================= */
+
+.social-page-heading {
+    margin-bottom: 20px;
+}
+
+.social-stories-card,
+.social-create-card {
+    width: 100%;
+    min-width: 0;
+}
+
+.social-section-title,
+.social-feed-header,
+.social-create-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.social-section-title h3,
+.social-feed-header h3 {
+    margin: 0;
+}
+
+.social-section-title p {
+    margin: 5px 0 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   STORIES
+========================================================= */
+
+.social-stories {
+    display: flex;
+    gap: 14px;
+    margin-top: 20px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+}
+
+.social-story-item {
+    position: relative;
+    flex: 0 0 82px;
+    width: 82px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    text-align: center;
+}
+
+.social-story-avatar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 7px;
+    border-radius: 50%;
+    border: 3px solid #2563eb;
+    background: #eef2ff;
+    overflow: visible;
+}
+
+.social-story-avatar > span:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.social-story-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.social-story-avatar svg {
+    width: 28px;
+    height: 28px;
+    color: #2563eb;
+}
+
+.social-story-add {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 23px;
+    height: 23px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #2563eb;
+    color: white;
+    border: 2px solid white;
+}
+
+.social-story-add svg {
+    width: 13px;
+    height: 13px;
+    color: white;
+}
+
+.social-story-item strong {
+    display: block;
+    font-size: 12px;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.social-other-stories {
+    display: flex;
+    gap: 14px;
+}
+
+
+/* =========================================================
+   CREATE POST
+========================================================= */
+
+.social-create-card {
+    margin-top: 18px;
+}
+
+.social-create-heading {
+    justify-content: flex-start;
+    margin-bottom: 18px;
+}
+
+.social-create-avatar {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #eef2ff;
+    overflow: hidden;
+}
+
+.social-create-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.social-create-avatar svg {
+    width: 22px;
+    height: 22px;
+    color: #2563eb;
+}
+
+.social-create-heading strong {
+    display: block;
+    font-size: 15px;
+}
+
+.social-create-heading small {
+    display: block;
+    margin-top: 3px;
+    color: #6b7280;
+}
+
+#socialPostContent {
+    width: 100%;
+    min-height: 100px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.social-create-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+}
+
+.social-upload-options {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.social-upload-button,
+.social-create-option {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 9px 13px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 10px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    box-sizing: border-box;
+}
+
+.social-upload-button:hover,
+.social-create-option:hover {
+    border-color: #2563eb;
+    background: rgba(37, 99, 235, 0.06);
+}
+
+.social-upload-button svg,
+.social-create-option svg {
+    width: 17px;
+    height: 17px;
+    color: #2563eb;
+}
+
+#socialPostButton {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+
+#socialPostButton svg {
+    width: 17px;
+    height: 17px;
+}
+
+
+/* =========================================================
+   MEDIA PREVIEW
+========================================================= */
+
+.social-media-preview {
+    margin-top: 14px;
+    width: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.social-media-preview img,
+.social-media-preview video {
+    display: block;
+    width: 100%;
+    max-height: 420px;
+    object-fit: contain;
+    background: #0b1120;
+}
+
+
+/* =========================================================
+   FEED HEADER
+========================================================= */
+
+.social-feed-container {
+    margin-top: 26px;
+}
+
+.social-feed-header {
+    margin-bottom: 14px;
+}
+
+.social-feed-header .eyebrow {
+    margin-bottom: 5px;
+}
+
+.social-feed-controls {
+    display: flex;
+    gap: 6px;
+}
+
+.social-feed-control {
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 11px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 9px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.social-feed-control svg {
+    width: 15px;
+    height: 15px;
+}
+
+.social-feed-control.active {
+    color: #2563eb;
+    border-color: #2563eb;
+    background: rgba(37, 99, 235, 0.07);
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.social-empty-state {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 44px 20px;
+    text-align: center;
+    border: 1px dashed var(--border-color, #d1d5db);
+    border-radius: 16px;
+}
+
+.social-empty-icon {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(37, 99, 235, 0.09);
+    color: #2563eb;
+}
+
+.social-empty-icon svg {
+    width: 27px;
+    height: 27px;
+}
+
+.social-empty-state h3 {
+    margin: 0 0 7px;
+}
+
+.social-empty-state p {
+    max-width: 420px;
+    margin: 0 auto 18px;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   POST MENU
+========================================================= */
+
+.social-post-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 18px;
+    background: rgba(0, 0, 0, 0.45);
+}
+
+.social-post-menu-inner {
+    width: min(100%, 460px);
+    background: white;
+    color: #111827;
+    border-radius: 18px;
+    padding: 18px;
+    box-sizing: border-box;
+}
+
+.social-post-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.social-post-menu-header button {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.social-post-menu-header button:hover {
+    background: #f3f4f6;
+}
+
+.social-post-menu-header svg {
+    width: 19px;
+    height: 19px;
+}
+
+.social-post-menu-inner > button:not(.social-post-menu-header button) {
+    width: 100%;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: inherit;
+    padding: 12px;
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+}
+
+.social-post-menu-inner > button:hover {
+    background: #f3f4f6;
+}
+
+.social-post-menu-inner > button svg {
+    width: 19px;
+    height: 19px;
+    color: #2563eb;
+}
+
+
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+body.dark-mode .social-create-avatar,
+body.dark-mode .social-story-avatar {
+    background: rgba(37, 99, 235, 0.12);
+}
+
+body.dark-mode .social-story-add {
+    border-color: #111827;
+}
+
+body.dark-mode .social-post-menu-inner {
+    background: #111827;
+    color: #f8fafc;
+}
+
+body.dark-mode .social-post-menu-header button:hover,
+body.dark-mode .social-post-menu-inner > button:hover {
+    background: #1f2937;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .social-page-heading {
+        margin-bottom: 14px;
+    }
+
+    .social-section-title,
+    .social-feed-header {
+        align-items: flex-start;
+    }
+
+    .social-section-title p {
+        max-width: 240px;
+    }
+
+    .social-story-item {
+        flex-basis: 76px;
+        width: 76px;
+    }
+
+    .social-story-avatar {
+        width: 62px;
+        height: 62px;
+    }
+
+    .social-create-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .social-upload-options {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .social-upload-button,
+    .social-create-option {
+        width: 100%;
+    }
+
+    #socialPostButton {
+        width: 100%;
+    }
+
+    .social-feed-header {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .social-feed-controls {
+        width: 100%;
+    }
+
+    .social-feed-control {
+        flex: 1;
+    }
+
+    .social-post-menu {
+        padding: 10px;
+    }
+
+    .social-post-menu-inner {
+        border-radius: 16px;
+    }
+}
+
+
+@media (max-width: 420px) {
+
+    .social-section-title {
+        flex-direction: column;
+    }
+
+    .social-story-create-button {
+        width: 100%;
+    }
+
+    .social-upload-options {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .social-empty-state {
+        padding: 34px 16px;
+    }
+}
