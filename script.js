@@ -2637,7 +2637,108 @@ function closeGoLiveModal() {
 
     modal.style.display = "none";
 }
+async function startPATRIODXLive() {
 
+    const titleInput =
+        document.getElementById("liveTitleInput");
+
+    const privacySelect =
+        document.getElementById("livePrivacySelect");
+
+    const message =
+        document.getElementById("goLiveMessage");
+
+    const button =
+        document.getElementById("startLiveButton");
+
+    const title =
+        titleInput?.value.trim() || "";
+
+    const privacy =
+        privacySelect?.value || "everyone";
+
+
+    if (!title) {
+
+        if (message) {
+            message.textContent =
+                "Please enter a title for your live.";
+            message.className =
+                "go-live-message error";
+            message.style.display = "block";
+        }
+
+        titleInput?.focus();
+
+        return;
+    }
+
+
+    button.disabled = true;
+
+    button.innerHTML =
+        '<i data-lucide="loader-circle"></i> Starting...';
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+
+
+    try {
+
+        /*
+         * Actual video streaming will be connected
+         * in the next stage.
+         */
+
+        await new Promise(resolve =>
+            setTimeout(resolve, 800)
+        );
+
+
+        if (message) {
+            message.textContent =
+                "Live setup is ready. Streaming will be connected next.";
+            message.className =
+                "go-live-message success";
+            message.style.display = "block";
+        }
+
+
+        button.innerHTML =
+            '<i data-lucide="radio"></i> Start Live';
+
+        button.disabled = false;
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Go Live error:",
+            error
+        );
+
+        if (message) {
+            message.textContent =
+                "Could not start live.";
+            message.className =
+                "go-live-message error";
+            message.style.display = "block";
+        }
+
+        button.disabled = false;
+
+        button.innerHTML =
+            '<i data-lucide="radio"></i> Start Live';
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+    }
+}
 
 // =========================================================
 // CHANGE PASSWORD
