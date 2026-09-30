@@ -5323,3 +5323,20 @@ body.dark-mode button:disabled {
     stroke: currentColor !important;
     fill: none !important;
 }
+#themeToggle {
+    color: #111827 !important;
+}
+
+#themeToggle svg {
+    color: #111827 !important;
+    stroke: #111827 !important;
+}
+
+body.dark-mode #themeToggle {
+    color: #f8fafc !important;
+}
+
+body.dark-mode #themeToggle svg {
+    color: #f8fafc !important;
+    stroke: #f8fafc !important;
+}
