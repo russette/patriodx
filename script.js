@@ -4610,10 +4610,9 @@ async function loadSocialPosts() {
      * so Lucide must run AFTER innerHTML.
      */
 
-   if (typeof lucide !== "undefined" && socialFeed) {
+  if (typeof lucide !== "undefined") {
     requestAnimationFrame(() => {
         lucide.createIcons({
-            root: socialFeed,
             attrs: {
                 "stroke-width": 2
             }
