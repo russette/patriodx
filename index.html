@@ -3133,205 +3133,639 @@ Latest Posts
 <!-- =========================================================
     ACCOUNT
     ========================================================= -->
-    <section id="account" class="section" >
-<div class="section-heading">
+   <section id="account" class="section">
 
-    <div>
-
-        <p class="eyebrow">
-            ACCOUNT
-        </p>
-
-        <h2>
-            Account Settings
-        </h2>
-
-        <p>
-            Manage your PATRIODX account, business and subscription.
-        </p>
-
-    </div>
-
-</div>
-
-<div class="analytics-grid">
-
-    <div class="analytics-card">
-
-        <span>
-            <i data-lucide="user"></i>
-        </span>
-
-        <p>
-            Account Email
-        </p>
-
-        <strong id="accountEmail">
-            —
-        </strong>
-
-    </div>
-
-    <div class="analytics-card">
-
-        <span>
-            <i data-lucide="building-2"></i>
-        </span>
-
-        <p>
-            Business Name
-        </p>
-
-        <strong id="accountBusinessName">
-            —
-        </strong>
-
-    </div>
-
-    <div class="analytics-card">
-
-        <span>
-            <i data-lucide="credit-card"></i>
-        </span>
-
-        <p>
-            Current Plan
-        </p>
-
-        <strong id="accountPlan">
-            FREE
-        </strong>
-
-    </div>
-
-    <div class="analytics-card">
-
-        <span>
-            <i data-lucide="chart-column"></i>
-        </span>
-
-        <p>
-            Account Status
-        </p>
-
-        <strong id="accountStatus">
-            Active
-        </strong>
-
-    </div>
-
-</div>
-
-<div class="chart-card">
-
-    <h3>
-        <i data-lucide="chart-line"></i> Plan Usage
-    </h3>
-
-    <p>
-        See how much of your Free plan you are currently using.
-    </p>
-
-    <div class="overview-grid">
+    <!-- SETTINGS HEADER -->
+    <div class="section-heading">
 
         <div>
-            <span>Products</span>
-            <strong id="accountProductsUsage">0 / 20</strong>
-        </div>
 
-        <div>
-            <span>Customers</span>
-            <strong id="accountCustomersUsage">0 / 20</strong>
-        </div>
+            <p class="eyebrow">
+                <i data-lucide="settings"></i>
+                SETTINGS & ACTIVITY
+            </p>
 
-        <div>
-            <span>Sales This Month</span>
-            <strong id="accountSalesUsage">0 / 30</strong>
-        </div>
+            <h2>
+                Settings & Activity
+            </h2>
 
-        <div>
-            <span>Invoices This Month</span>
-            <strong id="accountInvoicesUsage">0 / 5</strong>
+            <p>
+                Manage your account, privacy, social activity, language and subscription.
+            </p>
+
         </div>
 
     </div>
 
-</div>
 
-<div class="chart-card">
+    <!-- =====================================================
+         ACCOUNT
+         ===================================================== -->
 
-    <h3>
-        <i data-lucide="credit-card"></i> Subscription
-    </h3>
+    <div class="chart-card settings-card">
 
-    <p id="accountPlanDescription">
-        You are currently using the Free plan.
-    </p>
+        <div class="settings-card-heading">
 
-    <div class="form-buttons">
+            <span class="settings-icon">
+                <i data-lucide="user-round"></i>
+            </span>
 
-        <button
-            type="button"
-            id="proUpgradeButton"
-            onclick="startProPlan()"
-        >
-            <i data-lucide="rocket"></i>
-            Upgrade to Pro — $9/month
-        </button>
+            <div>
+                <h3>Account</h3>
+                <p>Manage your personal account information.</p>
+            </div>
 
-        <button
-            type="button"
-            class="secondary-btn"
-            onclick="startBusinessPlan()"
-        >
-            Choose Business — $19/month
-        </button>
+        </div>
+
+
+        <div class="settings-list">
+
+            <div class="settings-row">
+                <div>
+                    <strong>Email</strong>
+                    <small id="accountEmail">—</small>
+                </div>
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    id="changeEmailButton"
+                >
+                    <i data-lucide="mail"></i>
+                    Change Email
+                </button>
+            </div>
+
+
+            <div class="settings-row">
+                <div>
+                    <strong>Password</strong>
+                    <small>Keep your account secure.</small>
+                </div>
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    onclick="changePassword()"
+                >
+                    <i data-lucide="lock-keyhole"></i>
+                    Change Password
+                </button>
+            </div>
+
+
+            <div class="settings-row">
+                <div>
+                    <strong>Profile</strong>
+                    <small>Manage your username, bio and profile.</small>
+                </div>
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    onclick="scrollToSection('profile')"
+                >
+                    <i data-lucide="user-round"></i>
+                    Open Profile
+                </button>
+            </div>
+
+        </div>
 
     </div>
 
-</div>
 
-<div class="danger-zone">
+    <!-- =====================================================
+         PRIVACY
+         ===================================================== -->
 
-    <div>
+    <div class="chart-card settings-card">
 
-        <p class="eyebrow">
-            ACCOUNT SECURITY
-        </p>
+        <div class="settings-card-heading">
 
-        <h3>
-            Account Actions
-        </h3>
+            <span class="settings-icon">
+                <i data-lucide="shield"></i>
+            </span>
 
-        <p>
-            Keep your account secure and manage your access to PATRIODX.
-        </p>
+            <div>
+                <h3>Privacy</h3>
+                <p>Control who can interact with you.</p>
+            </div>
+
+        </div>
+
+
+        <div class="settings-grid">
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="accountPrivacyButton"
+            >
+                <i data-lucide="lock"></i>
+                <strong>Account Privacy</strong>
+                <small>Public or private account</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="messagePrivacyButton"
+            >
+                <i data-lucide="message-circle"></i>
+                <strong>Messages</strong>
+                <small>Who can message you</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="mentionPrivacyButton"
+            >
+                <i data-lucide="at-sign"></i>
+                <strong>Mentions</strong>
+                <small>Control who can mention you</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="tagPrivacyButton"
+            >
+                <i data-lucide="tag"></i>
+                <strong>Tags</strong>
+                <small>Control who can tag you</small>
+            </button>
+
+        </div>
 
     </div>
 
-    <div class="data-actions">
 
-        <button
-            type="button"
-            class="secondary-btn"
-            onclick="changePassword()"
-        >
-            <i data-lucide="lock-keyhole"></i>
-            Change Password
-        </button>
+    <!-- =====================================================
+         SOCIAL
+         ===================================================== -->
 
-        <button
-            type="button"
-            class="danger-btn"
-            onclick="deleteAccount()"
-        >
-            <i data-lucide="trash-2"></i>
-            Delete Account
-        </button>
+    <div class="chart-card settings-card">
+
+        <div class="settings-card-heading">
+
+            <span class="settings-icon">
+                <i data-lucide="users"></i>
+            </span>
+
+            <div>
+                <h3>Social</h3>
+                <p>Manage your connections and social activity.</p>
+            </div>
+
+        </div>
+
+
+        <div class="settings-grid">
+
+            <button
+                type="button"
+                class="settings-tile"
+                onclick="scrollToSection('social')"
+            >
+                <i data-lucide="newspaper"></i>
+                <strong>Social Feed</strong>
+                <small>Posts, stories and interactions</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="followersButton"
+            >
+                <i data-lucide="users"></i>
+                <strong>Followers & Following</strong>
+                <small>Manage your connections</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="blockedUsersButton"
+            >
+                <i data-lucide="user-x"></i>
+                <strong>Blocked Users</strong>
+                <small>Manage blocked accounts</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="inviteFriendsButton"
+            >
+                <i data-lucide="user-plus"></i>
+                <strong>Invite Friends</strong>
+                <small>Invite people to PATRIODX</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="crosspostingButton"
+            >
+                <i data-lucide="share-2"></i>
+                <strong>Crossposting</strong>
+                <small>Manage cross-posting</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="livestreamButton"
+            >
+                <i data-lucide="radio"></i>
+                <strong>Live</strong>
+                <small>Go live on PATRIODX</small>
+            </button>
+
+        </div>
 
     </div>
 
-</div>
+
+    <!-- =====================================================
+         STORIES
+         ===================================================== -->
+
+    <div class="chart-card settings-card">
+
+        <div class="settings-card-heading">
+
+            <span class="settings-icon">
+                <i data-lucide="circle-play"></i>
+            </span>
+
+            <div>
+                <h3>Stories</h3>
+                <p>Manage stories and your story archive.</p>
+            </div>
+
+        </div>
+
+
+        <div class="settings-grid">
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="storyPrivacyButton"
+            >
+                <i data-lucide="eye"></i>
+                <strong>Story Privacy</strong>
+                <small>Choose who can see your stories</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="storyArchiveButton"
+            >
+                <i data-lucide="archive"></i>
+                <strong>Story Archive</strong>
+                <small>View expired stories</small>
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         LANGUAGE
+         ===================================================== -->
+
+    <div class="chart-card settings-card">
+
+        <div class="settings-card-heading">
+
+            <span class="settings-icon">
+                <i data-lucide="languages"></i>
+            </span>
+
+            <div>
+                <h3>Language & Translation</h3>
+                <p>Manage your language and translation preferences.</p>
+            </div>
+
+        </div>
+
+
+        <div class="settings-row">
+
+            <div>
+                <strong>Language</strong>
+                <small>Choose your preferred PATRIODX language.</small>
+            </div>
+
+            <select
+                id="settingsLanguageSelector"
+                class="language-selector"
+            >
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+                <option value="pt">Português</option>
+                <option value="de">Deutsch</option>
+                <option value="it">Italiano</option>
+                <option value="ar">العربية</option>
+                <option value="zh">中文</option>
+                <option value="ja">日本語</option>
+                <option value="ko">한국어</option>
+                <option value="hi">हिन्दी</option>
+                <option value="sw">Kiswahili</option>
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         NOTIFICATIONS
+         ===================================================== -->
+
+    <div class="chart-card settings-card">
+
+        <div class="settings-card-heading">
+
+            <span class="settings-icon">
+                <i data-lucide="bell"></i>
+            </span>
+
+            <div>
+                <h3>Notifications</h3>
+                <p>Manage your notification activity.</p>
+            </div>
+
+        </div>
+
+
+        <div class="settings-grid">
+
+            <button
+                type="button"
+                class="settings-tile"
+                onclick="scrollToSection('notifications')"
+            >
+                <i data-lucide="bell"></i>
+                <strong>Notifications</strong>
+                <small>View your notifications</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="notificationSettingsButton"
+            >
+                <i data-lucide="sliders-horizontal"></i>
+                <strong>Notification Settings</strong>
+                <small>Choose what you receive</small>
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         HELP & SUPPORT
+         ===================================================== -->
+
+    <div class="chart-card settings-card">
+
+        <div class="settings-card-heading">
+
+            <span class="settings-icon">
+                <i data-lucide="life-buoy"></i>
+            </span>
+
+            <div>
+                <h3>Help & Support</h3>
+                <p>Get help with PATRIODX.</p>
+            </div>
+
+        </div>
+
+
+        <div class="settings-grid">
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="reportProblemButton"
+            >
+                <i data-lucide="flag"></i>
+                <strong>Report a Problem</strong>
+                <small>Tell us about an issue</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="helpCenterButton"
+            >
+                <i data-lucide="circle-help"></i>
+                <strong>Help Center</strong>
+                <small>Get help with PATRIODX</small>
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         BUSINESS & SUBSCRIPTION
+         ===================================================== -->
+
+    <div class="chart-card settings-card">
+
+        <div class="settings-card-heading">
+
+            <span class="settings-icon">
+                <i data-lucide="briefcase-business"></i>
+            </span>
+
+            <div>
+                <h3>Business & Subscription</h3>
+                <p>Manage your PATRIODX business account.</p>
+            </div>
+
+        </div>
+
+
+        <div class="analytics-grid">
+
+            <div class="analytics-card">
+                <span>
+                    <i data-lucide="building-2"></i>
+                </span>
+
+                <p>Business Name</p>
+
+                <strong id="accountBusinessName">
+                    —
+                </strong>
+            </div>
+
+
+            <div class="analytics-card">
+                <span>
+                    <i data-lucide="credit-card"></i>
+                </span>
+
+                <p>Current Plan</p>
+
+                <strong id="accountPlan">
+                    FREE
+                </strong>
+            </div>
+
+
+            <div class="analytics-card">
+                <span>
+                    <i data-lucide="activity"></i>
+                </span>
+
+                <p>Account Status</p>
+
+                <strong id="accountStatus">
+                    Active
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="form-buttons">
+
+            <button
+                type="button"
+                id="proUpgradeButton"
+                onclick="startProPlan()"
+            >
+                <i data-lucide="rocket"></i>
+                Upgrade to Pro — $9/month
+            </button>
+
+
+            <button
+                type="button"
+                class="secondary-btn"
+                onclick="startBusinessPlan()"
+            >
+                <i data-lucide="briefcase-business"></i>
+                Choose Business — $19/month
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         PLAN USAGE
+         ===================================================== -->
+
+    <div class="chart-card settings-card">
+
+        <div class="settings-card-heading">
+
+            <span class="settings-icon">
+                <i data-lucide="chart-column"></i>
+            </span>
+
+            <div>
+                <h3>Plan Usage</h3>
+                <p>See how much of your current plan you are using.</p>
+            </div>
+
+        </div>
+
+
+        <div class="overview-grid">
+
+            <div>
+                <span>Products</span>
+                <strong id="accountProductsUsage">0 / 20</strong>
+            </div>
+
+            <div>
+                <span>Customers</span>
+                <strong id="accountCustomersUsage">0 / 20</strong>
+            </div>
+
+            <div>
+                <span>Sales This Month</span>
+                <strong id="accountSalesUsage">0 / 30</strong>
+            </div>
+
+            <div>
+                <span>Invoices This Month</span>
+                <strong id="accountInvoicesUsage">0 / 5</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DANGER ZONE
+         ===================================================== -->
+
+    <div class="danger-zone">
+
+        <div>
+
+            <p class="eyebrow">
+                <i data-lucide="triangle-alert"></i>
+                DANGER ZONE
+            </p>
+
+            <h3>
+                Delete Account
+            </h3>
+
+            <p>
+                Permanently remove your PATRIODX account and associated data.
+            </p>
+
+        </div>
+
+
+        <div class="data-actions">
+
+            <button
+                type="button"
+                class="danger-btn"
+                onclick="deleteAccount()"
+            >
+                <i data-lucide="trash-2"></i>
+                Delete Account
+            </button>
+
+        </div>
+
+    </div>
+
 </section>
 <!-- =========================================================
      BUSINESS DATA
