@@ -8574,7 +8574,20 @@ function setupNotificationActions() {
 /* ---------------------------------------------------------
    NOTIFICATION FILTERS
 --------------------------------------------------------- */
+function setNotificationFilter(filter, button) {
 
+    notificationFilter = filter;
+
+    document
+        .querySelectorAll(".notification-filter")
+        .forEach(item => {
+            item.classList.remove("active");
+        });
+
+    button.classList.add("active");
+
+    renderNotifications();
+}
 function setupNotificationFilters() {
 
     const filters =
