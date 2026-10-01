@@ -3027,7 +3027,28 @@ function setupModalBehavior() {
         });
 }
 
+function openAddStoryModal() {
+    const modal = document.getElementById("addStoryModal");
 
+    if (!modal) {
+        console.error("Add Story modal not found.");
+        return;
+    }
+
+    modal.style.display = "flex";
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+}
+
+function closeAddStoryModal() {
+    const modal = document.getElementById("addStoryModal");
+
+    if (!modal) return;
+
+    modal.style.display = "none";
+}
 // =========================================================
 // CONTACT
 // =========================================================
