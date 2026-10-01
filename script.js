@@ -4648,7 +4648,12 @@ function setupForms() {
         );
 }
 
-
+    document
+        .getElementById("addStoryForm")
+        ?.addEventListener(
+            "submit",
+            submitPATRIODXStory
+        );
 // =========================================================
 // START PATRIODX
 // =========================================================
@@ -11874,3 +11879,139 @@ function openGlobalSearchProfile(profileId) {
 
 
 setupGlobalSearch();
+async function submitPATRIODXStory(event) {
+
+    event.preventDefault();
+
+    const fileInput =
+        document.getElementById("storyMedia");
+
+    const button =
+        document.getElementById("postStoryButton");
+
+    if (!fileInput || !fileInput.files.length) {
+        alert("Please select a photo or video.");
+        return;
+    }
+
+    if (!currentUser) {
+        alert("Please sign in again.");
+        return;
+    }
+
+    const file = fileInput.files[0];
+
+    const isImage =
+        file.type.startsWith("image/");
+
+    const isVideo =
+        file.type.startsWith("video/");
+
+    if (!isImage && !isVideo) {
+        alert("Please select an image or video.");
+        return;
+    }
+
+    if (file.size > 50 * 1024 * 1024) {
+        alert("Story files must be smaller than 50 MB.");
+        return;
+    }
+
+    button.disabled = true;
+    button.innerHTML =
+        '<i data-lucide="loader-circle"></i> Posting...';
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+
+    try {
+
+        const extension =
+            file.name.split(".").pop().toLowerCase();
+
+        const filePath =
+            `stories/${currentUser.id}/${crypto.randomUUID()}.${extension}`;
+
+        const { error: uploadError } =
+            await supabaseClient
+                .storage
+                .from("patriodx-media")
+                .upload(
+                    filePath,
+                    file,
+                    {
+                        cacheControl: "3600",
+                        upsert: false,
+                        contentType: file.type
+                    }
+                );
+
+        if (uploadError) {
+            throw uploadError;
+        }
+
+        const { data: publicData } =
+            supabaseClient
+                .storage
+                .from("patriodx-media")
+                .getPublicUrl(filePath);
+
+        const mediaUrl =
+            publicData.publicUrl;
+
+        const { error: storyError } =
+            await supabaseClient
+                .from("stories")
+                .insert({
+                    user_id: currentUser.id,
+                    media_url: mediaUrl,
+                    media_type: isImage
+                        ? "image"
+                        : "video"
+                });
+
+        if (storyError) {
+            throw storyError;
+        }
+
+        alert("Story posted successfully!");
+
+        closeAddStoryModal();
+
+        document.getElementById("addStoryForm")?.reset();
+
+        const preview =
+            document.getElementById("storyPreview");
+
+        if (preview) {
+            preview.style.display = "none";
+            preview.innerHTML = "";
+        }
+
+        await loadSocialPosts();
+
+    } catch (error) {
+
+        console.error(
+            "Story upload error:",
+            error
+        );
+
+        alert(
+            error.message ||
+            "Could not post your story."
+        );
+
+    } finally {
+
+        button.disabled = false;
+
+        button.innerHTML =
+            '<i data-lucide="send"></i> Post Story';
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+    }
+}
