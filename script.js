@@ -6546,9 +6546,12 @@ if (socialPostForm) {
                 button.disabled =
                     false;
 
-                button.textContent =
-                   '<i data-lucide="megaphone"></i> Post';
-            }
+               button.innerHTML =
+    '<i data-lucide="megaphone"></i> Post';
+
+if (typeof lucide !== "undefined") {
+    lucide.createIcons();
+}
 
         }
     );
@@ -7055,16 +7058,15 @@ async function deleteSocialPost(postId) {
 
 async function reportSocialPost(postId) {
 
-   if (!currentUser) {
+    if (!currentUser) {
 
-    showPATRIODXToast(
-        "Please log in to report posts.",
-        "warning"
-    );
+        showPATRIODXToast(
+            "Please log in to report posts.",
+            "warning"
+        );
 
-    return;
-}
-
+        return;
+    }
 
     const reason =
         prompt(
@@ -7073,16 +7075,16 @@ async function reportSocialPost(postId) {
             "Inappropriate content, Other"
         );
 
-
-    if (!reason) return;
-
+    if (!reason) {
+        return;
+    }
 
     const cleanReason =
         reason.trim();
 
-
-    if (!cleanReason) return;
-
+    if (!cleanReason) {
+        return;
+    }
 
     const { error } =
         await supabaseClient
@@ -7103,30 +7105,27 @@ async function reportSocialPost(postId) {
 
             });
 
+    if (error) {
 
-  if (error) {
+        console.error(
+            "Report error:",
+            error
+        );
 
-    console.error(
-        "Report error:",
-        error
-    );
+        showPATRIODXToast(
+            "Could not submit report. " +
+            error.message,
+            "error"
+        );
+
+        return;
+    }
 
     showPATRIODXToast(
-        "Could not submit report. " +
-        error.message,
-        "error"
+        "Report submitted. Thank you for helping keep PATRIODX safe.",
+        "success"
     );
-
-    return;
 }
-
-
-showPATRIODXToast(
-    "Report submitted. Thank you for helping keep PATRIODX safe.",
-    "success"
-);
-
-
 /* =========================================================
    SHARE POST
 ========================================================= */
@@ -10167,41 +10166,59 @@ async function followUser(userId) {
 
 async function unfollowUser(userId) {
 
-    if (!currentUser) return;
-
-    const button =
-        document.getElementById("publicProfileFollowButton");
-
-    if (button) {
-        button.disabled = true;
-        button.textContent = "Unfollowing...";
+    if (!currentUser) {
+        return;
     }
 
-    const { error } = await supabaseClient
-        .from("profile_follows")
-        .delete()
-        .eq("follower_id", currentUser.id)
-        .eq("following_id", userId);
+    const button =
+        document.getElementById(
+            "publicProfileFollowButton"
+        );
+
+    if (button) {
+
+        button.disabled = true;
+        button.textContent = "Unfollowing...";
+
+    }
+
+    const { error } =
+        await supabaseClient
+            .from("profile_follows")
+            .delete()
+            .eq(
+                "follower_id",
+                currentUser.id
+            )
+            .eq(
+                "following_id",
+                userId
+            );
 
     if (error) {
 
-        console.error("Unfollow error:", error);
+        console.error(
+            "Unfollow error:",
+            error
+        );
 
-     if (button) {
-    button.disabled = false;
-    button.textContent = "Following";
-}
+        if (button) {
 
-showPATRIODXToast(
-    "Could not unfollow this user.",
-    "error"
-);
+            button.disabled = false;
+            button.textContent = "Following";
 
-return;
+        }
+
+        showPATRIODXToast(
+            "Could not unfollow this user.",
+            "error"
+        );
+
+        return;
+    }
 
     await loadPublicProfile(userId);
 }
-
 
 // ------------------------------------------
 // LOAD PUBLIC PROFILE
