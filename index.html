@@ -2467,25 +2467,27 @@
         </div>
 
 
-        <div class="notifications-toolbar">
+     <div class="notifications-toolbar">
 
-            <button
-                type="button"
-                class="notification-filter active"
-                data-notification-filter="all"
-            >
-                All
-            </button>
+    <button
+        type="button"
+        class="notification-filter active"
+        data-notification-filter="all"
+        onclick="setNotificationFilter('all', this)"
+    >
+        All
+    </button>
 
-            <button
-                type="button"
-                class="notification-filter"
-                data-notification-filter="unread"
-            >
-                Unread
-            </button>
+    <button
+        type="button"
+        class="notification-filter"
+        data-notification-filter="unread"
+        onclick="setNotificationFilter('unread', this)"
+    >
+        Unread
+    </button>
 
-        </div>
+</div>
 
 
         <div
