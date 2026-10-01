@@ -4059,16 +4059,16 @@ document
     // SOCIAL
     // =========================================================
 
-    document
-        .getElementById("followersButton")
-        ?.addEventListener("click", () => {
+   document
+    .getElementById("followersButton")
+    ?.addEventListener("click", () => {
 
-            navigatePATRIODX("profile");
+        navigatePATRIODX("profile");
 
-        });
+    });
 
 
-    document
+document
     .getElementById("blockedUsersButton")
     ?.addEventListener("click", () => {
 
@@ -4079,94 +4079,93 @@ document
 
     });
 
-    document
-        .getElementById("inviteFriendsButton")
-        ?.addEventListener("click", async () => {
 
-            const inviteText =
-                "Join me on PATRIODX — Run your business smarter.";
+document
+    .getElementById("inviteFriendsButton")
+    ?.addEventListener("click", async () => {
 
-            if (
-                navigator.share &&
-                typeof navigator.share === "function"
-            ) {
+        const inviteText =
+            "Join me on PATRIODX — Run your business smarter.";
 
-                try {
+        if (
+            navigator.share &&
+            typeof navigator.share === "function"
+        ) {
 
-                    await navigator.share({
-                        title: "PATRIODX",
-                        text: inviteText,
-                        url: window.location.origin
-                    });
+            try {
 
-                } catch (error) {
+                await navigator.share({
+                    title: "PATRIODX",
+                    text: inviteText,
+                    url: window.location.origin
+                });
 
-                    if (
-                        error.name !== "AbortError"
-                    ) {
-                        console.error(error);
-                    }
+            } catch (error) {
+
+                if (
+                    error.name !== "AbortError"
+                ) {
+
+                    console.error(error);
 
                 }
 
-         } else {
-
-    showPATRIODXToast(
-        inviteText,
-        "info"
-    );
-
-}
-
             }
 
-        });
+        } else {
+
+            showPATRIODXToast(
+                inviteText,
+                "info"
+            );
+
+        }
+
+    });
 
 
-    // =========================================================
-    // CROSS-POSTING
-    // =========================================================
+// =========================================================
+// CROSS-POSTING
+// =========================================================
 
-    document
-        .getElementById("crosspostingButton")
-        ?.addEventListener("click", async () => {
+document
+    .getElementById("crosspostingButton")
+    ?.addEventListener("click", async () => {
 
-            const settings =
-                await ensureUserSettings();
+        const settings =
+            await ensureUserSettings();
 
-            if (!settings) {
-                return;
-            }
+        if (!settings) {
+            return;
+        }
 
-            const newValue =
-                !Boolean(
-                    settings.crossposting_enabled
+        const newValue =
+            !Boolean(
+                settings.crossposting_enabled
+            );
+
+        if (
+            await saveSetting(
+                "crossposting_enabled",
+                newValue
+            )
+        ) {
+
+            document
+                .getElementById(
+                    "crosspostingButton"
+                )
+                .textContent =
+                "Cross-posting: " +
+                (
+                    newValue
+                        ? "On"
+                        : "Off"
                 );
 
-            if (
-                await saveSetting(
-                    "crossposting_enabled",
-                    newValue
-                )
-            ) {
+        }
 
-                document
-                    .getElementById(
-                        "crosspostingButton"
-                    )
-                    .textContent =
-                    "Cross-posting: " +
-                    (
-                        newValue
-                            ? "On"
-                            : "Off"
-                    );
-
-            }
-
-        });
-
-
+    });
     // =========================================================
     // LIVESTREAM
     // =========================================================
