@@ -11631,3 +11631,225 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 // PATRIODX ROUTER SYNC
+/* =========================================================
+   GLOBAL SEARCH
+========================================================= */
+
+let globalSearchTimer = null;
+
+function setupGlobalSearch() {
+
+    const input =
+        document.getElementById("globalSearchInput");
+
+    const results =
+        document.getElementById("globalSearchResults");
+
+    if (!input || !results) {
+        return;
+    }
+
+    if (input.dataset.ready === "true") {
+        return;
+    }
+
+    input.dataset.ready = "true";
+
+    input.addEventListener("input", function () {
+
+        const query =
+            input.value.trim();
+
+        clearTimeout(globalSearchTimer);
+
+        if (query.length < 2) {
+            results.style.display = "none";
+            results.innerHTML = "";
+            return;
+        }
+
+        results.style.display = "block";
+
+        results.innerHTML = `
+            <div class="global-search-empty">
+                Searching...
+            </div>
+        `;
+
+        globalSearchTimer =
+            setTimeout(
+                () => performGlobalSearch(query),
+                300
+            );
+    });
+
+
+    document.addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                !event.target.closest(
+                    ".patriodx-global-search"
+                )
+            ) {
+                results.style.display = "none";
+            }
+
+        }
+    );
+}
+
+
+async function performGlobalSearch(query) {
+
+    const results =
+        document.getElementById(
+            "globalSearchResults"
+        );
+
+    if (!results || !currentUser) {
+        return;
+    }
+
+    const cleanQuery =
+        query.replace(/[%_]/g, "");
+
+    const { data, error } =
+        await supabaseClient
+            .from("profiles")
+            .select(
+                "id, username, display_name, avatar_url"
+            )
+            .or(
+                `username.ilike.%${cleanQuery}%,display_name.ilike.%${cleanQuery}%`
+            )
+            .limit(8);
+
+    if (error) {
+
+        console.error(
+            "Global search error:",
+            error
+        );
+
+        results.innerHTML = `
+            <div class="global-search-empty">
+                Search failed. Please try again.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    if (!data || !data.length) {
+
+        results.innerHTML = `
+            <div class="global-search-empty">
+                No people found for "${query}".
+            </div>
+        `;
+
+        return;
+    }
+
+
+    results.innerHTML =
+        data.map(profile => {
+
+            const name =
+                profile.display_name ||
+                profile.username ||
+                "PATRIODX User";
+
+            const username =
+                profile.username
+                    ? "@" + profile.username
+                    : "";
+
+            const avatar =
+                profile.avatar_url
+                    ? `
+                        <img
+                            src="${profile.avatar_url}"
+                            alt=""
+                        >
+                    `
+                    : `
+                        <span>
+                            ${name.charAt(0).toUpperCase()}
+                        </span>
+                    `;
+
+            return `
+                <button
+                    type="button"
+                    class="global-search-result"
+                    onclick="openGlobalSearchProfile('${profile.id}')"
+                >
+
+                    <span class="global-search-result-avatar">
+                        ${avatar}
+                    </span>
+
+                    <span class="global-search-result-content">
+
+                        <span class="global-search-result-name">
+                            ${escapeHTML(name)}
+                        </span>
+
+                        <span class="global-search-result-username">
+                            ${escapeHTML(username)}
+                        </span>
+
+                    </span>
+
+                </button>
+            `;
+
+        }).join("");
+
+
+    results.style.display = "block";
+}
+
+
+function openGlobalSearchProfile(profileId) {
+
+    const results =
+        document.getElementById(
+            "globalSearchResults"
+        );
+
+    if (results) {
+        results.style.display = "none";
+    }
+
+    const input =
+        document.getElementById(
+            "globalSearchInput"
+        );
+
+    if (input) {
+        input.value = "";
+    }
+
+    navigatePATRIODX("profile");
+
+    setTimeout(() => {
+
+        const profileInput =
+            document.getElementById(
+                "profileSearchInput"
+            );
+
+        if (profileInput) {
+            profileInput.value = "";
+        }
+
+    }, 100);
+}
+
+
+setupGlobalSearch();
