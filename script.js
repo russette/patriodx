@@ -8140,18 +8140,41 @@ const markAllNotificationsButton =
 /* ---------------------------------------------------------
    LOAD NOTIFICATIONS
 --------------------------------------------------------- */
+/* =========================================================
+   NOTIFICATIONS
+========================================================= */
+
+let notificationsCache = [];
+let notificationFilter = "all";
+
 
 async function loadNotifications() {
 
     if (!currentUser) {
-
-        if (notificationStatus) {
-            notificationStatus.textContent =
-                "Please log in to view your notifications.";
-        }
-
         return;
     }
+
+    const notificationList =
+        document.getElementById("notificationsList");
+
+    if (!notificationList) {
+        return;
+    }
+
+    notificationList.innerHTML = `
+        <div class="notifications-empty">
+            <div class="notifications-empty-icon">
+                <i data-lucide="loader-circle"></i>
+            </div>
+            <h3>Loading notifications...</h3>
+            <p>Please wait.</p>
+        </div>
+    `;
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+
 
     const { data, error } =
         await supabaseClient
@@ -8162,6 +8185,7 @@ async function loadNotifications() {
                 ascending: false
             });
 
+
     if (error) {
 
         console.error(
@@ -8169,15 +8193,29 @@ async function loadNotifications() {
             error
         );
 
-        if (notificationStatus) {
-            notificationStatus.textContent =
-                "Could not load notifications.";
+        notificationList.innerHTML = `
+            <div class="notifications-empty">
+                <div class="notifications-empty-icon">
+                    <i data-lucide="triangle-alert"></i>
+                </div>
+                <h3>Could not load notifications</h3>
+                <p>
+                    ${error.message || "Please try again."}
+                </p>
+            </div>
+        `;
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
         }
 
         return;
     }
 
-    renderNotifications(data || []);
+
+    notificationsCache = data || [];
+
+    renderNotifications();
 }
 
 
@@ -8185,31 +8223,60 @@ async function loadNotifications() {
    RENDER NOTIFICATIONS
 --------------------------------------------------------- */
 
-function renderNotifications(
-    notifications
-) {
+function renderNotifications() {
+
+    const notificationList =
+        document.getElementById("notificationsList");
 
     if (!notificationList) {
         return;
     }
 
+
+    let notifications =
+        [...notificationsCache];
+
+
+    if (notificationFilter === "unread") {
+
+        notifications =
+            notifications.filter(
+                notification =>
+                    notification.is_read !== true
+            );
+    }
+
+
     if (!notifications.length) {
 
         notificationList.innerHTML = `
-            <div class="notifications-empty-state">
-               <div>
-    <i data-lucide="bell"></i>
-</div>
-                <h3>No notifications yet</h3>
+            <div class="notifications-empty">
+
+                <div class="notifications-empty-icon">
+                    <i data-lucide="bell-off"></i>
+                </div>
+
+                <h3>
+                    ${
+                        notificationFilter === "unread"
+                            ? "You're all caught up"
+                            : "No notifications yet"
+                    }
+                </h3>
+
                 <p>
-                    Your notifications will appear here.
+                    ${
+                        notificationFilter === "unread"
+                            ? "You have no unread notifications."
+                            : "New activity will appear here."
+                    }
                 </p>
+
             </div>
         `;
 
-        if (notificationStatus) {
-            notificationStatus.textContent =
-                "You're all caught up.";
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
         }
 
         return;
@@ -8217,109 +8284,144 @@ function renderNotifications(
 
 
     notificationList.innerHTML =
-        notifications
-            .map(notification => {
+        notifications.map(notification => {
 
-                const isUnread =
-                    notification.is_read !== true;
+            const isUnread =
+                notification.is_read !== true;
 
-               let icon = "bell";
 
-if (notification.type === "like") {
-    icon = "heart";
-}
+            let icon = "bell";
 
-if (notification.type === "comment") {
-    icon = "message-circle";
-}
 
-if (notification.type === "message") {
-    icon = "mail";
-}
+            if (notification.type === "like") {
+                icon = "heart";
+            }
 
-if (notification.type === "sale") {
-    icon = "shopping-cart";
-}
+            if (notification.type === "comment") {
+                icon = "message-circle";
+            }
 
-if (notification.type === "system") {
-    icon = "settings";
-}
-                const createdAt =
-                    notification.created_at
-                        ? new Date(
-                            notification.created_at
-                        ).toLocaleString()
-                        : "";
+            if (notification.type === "message") {
+                icon = "mail";
+            }
 
-                return `
-                    <div
-                        class="notification-item ${
-                            isUnread ? "unread" : ""
-                        }"
-                    >
+            if (notification.type === "sale") {
+                icon = "shopping-cart";
+            }
 
-                        <div class="notification-icon">
-                            ${icon}
-                        </div>
+            if (notification.type === "system") {
+                icon = "settings";
+            }
 
-                        <div class="notification-content">
+            if (notification.type === "follow") {
+                icon = "user-plus";
+            }
 
-                            <h4>
+
+            const createdAt =
+                notification.created_at
+                    ? new Date(
+                        notification.created_at
+                    ).toLocaleString()
+                    : "";
+
+
+            return `
+                <div
+                    class="notification-item ${
+                        isUnread ? "unread" : ""
+                    }"
+                    onclick="handleNotificationClick('${notification.id}')"
+                >
+
+                    <div class="notification-icon">
+                        <i data-lucide="${icon}"></i>
+                    </div>
+
+
+                    <div class="notification-content">
+
+                        <p class="notification-text">
+
+                            <strong>
                                 ${
                                     notification.title ||
                                     "PATRIODX Notification"
                                 }
-                            </h4>
+                            </strong>
 
-                            <p>
-                                ${
-                                    notification.message ||
-                                    "You have a new notification."
-                                }
-                            </p>
+                            ${
+                                notification.message
+                                    ? `<br>${notification.message}`
+                                    : ""
+                            }
 
-                            <span class="notification-time">
-                                ${createdAt}
-                            </span>
+                        </p>
 
-                        </div>
 
-                        ${
-                            isUnread
-                                ? `
-                                    <button
-                                        type="button"
-                                        class="notification-read-button"
-                                        onclick="markNotificationRead('${notification.id}')"
-                                    >
-                                        Mark read
-                                    </button>
-                                `
-                                : ""
-                        }
+                        <span class="notification-time">
+                            ${createdAt}
+                        </span>
 
                     </div>
-                `;
-
-            })
-            .join("");
 
 
-    const unreadCount =
-        notifications.filter(
-            notification =>
-                notification.is_read !== true
-        ).length;
+                    ${
+                        isUnread
+                            ? `
+                                <span
+                                    class="notification-unread-dot"
+                                    aria-label="Unread"
+                                ></span>
+                            `
+                            : ""
+                    }
 
-    if (notificationStatus) {
+                </div>
+            `;
 
-        notificationStatus.textContent =
-            unreadCount > 0
-                ? `${unreadCount} unread notification${
-                    unreadCount === 1 ? "" : "s"
-                }`
-                : "You're all caught up.";
+        }).join("");
+
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
     }
+}
+
+
+/* ---------------------------------------------------------
+   NOTIFICATION CLICK
+--------------------------------------------------------- */
+
+async function handleNotificationClick(
+    notificationId
+) {
+
+    const notification =
+        notificationsCache.find(
+            item =>
+                item.id === notificationId
+        );
+
+
+    if (!notification) {
+        return;
+    }
+
+
+    if (notification.is_read !== true) {
+
+        await markNotificationRead(
+            notificationId,
+            false
+        );
+    }
+
+
+    /*
+     * We will connect notification
+     * destinations in the next step.
+     */
 }
 
 
@@ -8328,12 +8430,14 @@ if (notification.type === "system") {
 --------------------------------------------------------- */
 
 async function markNotificationRead(
-    notificationId
+    notificationId,
+    reload = true
 ) {
 
     if (!currentUser) {
         return;
     }
+
 
     const { error } =
         await supabaseClient
@@ -8341,8 +8445,14 @@ async function markNotificationRead(
             .update({
                 is_read: true
             })
-            .eq("id", notificationId)
-            .eq("user_id", currentUser.id);
+            .eq(
+                "id",
+                notificationId
+            )
+            .eq(
+                "user_id",
+                currentUser.id);
+
 
     if (error) {
 
@@ -8351,15 +8461,25 @@ async function markNotificationRead(
             error
         );
 
-        alert(
-            "Could not mark notification as read.\n\n" +
-            error.message
-        );
-
         return;
     }
 
-    await loadNotifications();
+
+    const notification =
+        notificationsCache.find(
+            item =>
+                item.id === notificationId
+        );
+
+
+    if (notification) {
+        notification.is_read = true;
+    }
+
+
+    if (reload) {
+        renderNotifications();
+    }
 }
 
 
@@ -8367,15 +8487,36 @@ async function markNotificationRead(
    MARK ALL AS READ
 --------------------------------------------------------- */
 
-if (markAllNotificationsButton) {
+function setupNotificationActions() {
 
-    markAllNotificationsButton.addEventListener(
+    const markAllButton =
+        document.getElementById(
+            "markAllNotificationsButton"
+        );
+
+
+    if (
+        !markAllButton ||
+        markAllButton.dataset.ready === "true"
+    ) {
+        return;
+    }
+
+
+    markAllButton.dataset.ready = "true";
+
+
+    markAllButton.addEventListener(
         "click",
         async function() {
 
             if (!currentUser) {
                 return;
             }
+
+
+            markAllButton.disabled = true;
+
 
             const { error } =
                 await supabaseClient
@@ -8392,6 +8533,7 @@ if (markAllNotificationsButton) {
                         false
                     );
 
+
             if (error) {
 
                 console.error(
@@ -8404,23 +8546,100 @@ if (markAllNotificationsButton) {
                     error.message
                 );
 
+                markAllButton.disabled = false;
+
                 return;
             }
 
-            await loadNotifications();
+
+            notificationsCache =
+                notificationsCache.map(
+                    notification => ({
+                        ...notification,
+                        is_read: true
+                    })
+                );
+
+
+            renderNotifications();
+
+
+            markAllButton.disabled = false;
 
         }
     );
-
 }
 
 
 /* ---------------------------------------------------------
-   LOAD NOTIFICATIONS
+   NOTIFICATION FILTERS
 --------------------------------------------------------- */
 
-if (currentUser) {
+function setupNotificationFilters() {
+
+    const filters =
+        document.querySelectorAll(
+            ".notification-filter"
+        );
+
+
+    filters.forEach(button => {
+
+        if (
+            button.dataset.ready === "true"
+        ) {
+            return;
+        }
+
+
+        button.dataset.ready = "true";
+
+
+        button.addEventListener(
+            "click",
+            function() {
+
+                filters.forEach(
+                    item =>
+                        item.classList.remove(
+                            "active"
+                        )
+                );
+
+
+                this.classList.add("active");
+
+
+                notificationFilter =
+                    this.dataset.notificationFilter ||
+                    "all";
+
+
+                renderNotifications();
+
+            }
+        );
+
+    });
+}
+
+
+/* ---------------------------------------------------------
+   INITIALIZE NOTIFICATIONS
+--------------------------------------------------------- */
+
+function setupNotifications() {
+
+    setupNotificationActions();
+
+    setupNotificationFilters();
+
     loadNotifications();
+}
+
+
+if (currentUser) {
+    setupNotifications();
 }
 
 
@@ -8452,10 +8671,7 @@ if (currentUser) {
             }
         )
         .subscribe();
-
 }
-
-
 /* ---------------------------------------------------------
    GLOBAL FUNCTION
 --------------------------------------------------------- */
