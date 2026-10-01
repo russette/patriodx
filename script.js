@@ -3490,32 +3490,27 @@ function startBusinessPlan() {
 
     if (!currentUser) {
 
-      showPATRIODXToast(
-    "Please log in before upgrading your plan.",
-    "warning"
-);
-        return;
-    }
-
-
-  if (typeof PaystackPop === "undefined") {
-
-    showPATRIODXToast(
-        "Payment system could not load. Please refresh the page and try again.",
-        "error"
-    );
-
-    return;
-}
+        showPATRIODXToast(
+            "Please log in before upgrading your plan.",
+            "warning"
+        );
 
         return;
     }
 
+    if (typeof PaystackPop === "undefined") {
+
+        showPATRIODXToast(
+            "Payment system could not load. Please refresh the page and try again.",
+            "error"
+        );
+
+        return;
+    }
 
     try {
 
         const paystack = new PaystackPop();
-
 
         paystack.newTransaction({
 
@@ -3534,7 +3529,6 @@ function startBusinessPlan() {
                 plan: "Business"
             },
 
-
             onSuccess: async function(transaction) {
 
                 console.log(
@@ -3542,11 +3536,10 @@ function startBusinessPlan() {
                     transaction
                 );
 
-
-               showPATRIODXToast(
-    "Payment received. Verifying your payment...",
-    "info"
-);
+                showPATRIODXToast(
+                    "Payment received. Verifying your payment...",
+                    "info"
+                );
 
                 await verifyPatriodxPayment(
                     transaction.reference,
@@ -3554,7 +3547,6 @@ function startBusinessPlan() {
                 );
 
             },
-
 
             onCancel: function() {
 
@@ -3564,7 +3556,6 @@ function startBusinessPlan() {
 
             },
 
-
             onError: function(error) {
 
                 console.error(
@@ -3572,16 +3563,14 @@ function startBusinessPlan() {
                     error
                 );
 
-
-showPATRIODXToast(
-    "Payment could not be completed. Please try again.",
-    "error"
-);
+                showPATRIODXToast(
+                    "Payment could not be completed. Please try again.",
+                    "error"
+                );
 
             }
 
         });
-
 
     } catch (error) {
 
@@ -3590,11 +3579,10 @@ showPATRIODXToast(
             error
         );
 
-
         showPATRIODXToast(
-    "Unable to start payment. Please try again.",
-    "error"
-);
+            "Unable to start payment. Please try again.",
+            "error"
+        );
 
     }
 }
