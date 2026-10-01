@@ -5488,124 +5488,154 @@ async function loadPATRIODXStories() {
         return;
     }
 
-    const { data: stories, error } =
-        await supabaseClient
-            .from("stories")
-            .select(`
-                id,
-                user_id,
-                media_url,
-                media_type,
-                created_at,
-                expires_at
-            `)
-            .gt(
-                "expires_at",
-                new Date().toISOString()
+    try {
+
+        const { data: stories, error } =
+            await supabaseClient
+                .from("stories")
+                .select(
+                    "id, user_id, media_url, media_type, created_at, expires_at"
+                )
+                .gt(
+                    "expires_at",
+                    new Date().toISOString()
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
+
+        if (error) {
+            throw error;
+        }
+
+        storiesContainer.innerHTML = "";
+
+        if (!stories || stories.length === 0) {
+            return;
+        }
+
+        const userIds = [
+            ...new Set(
+                stories.map(
+                    story => story.user_id
+                )
             )
-            .order(
-                "created_at",
-                {
-                    ascending: false
+        ];
+
+        const { data: profiles, error: profileError } =
+            await supabaseClient
+                .from("profiles")
+                .select(
+                    "id, username, display_name, avatar_url"
+                )
+                .in(
+                    "id",
+                    userIds
+                );
+
+        if (profileError) {
+            throw profileError;
+        }
+
+        const profileMap = {};
+
+        (profiles || []).forEach(profile => {
+            profileMap[profile.id] = profile;
+        });
+
+        stories.forEach(story => {
+
+            const profile =
+                profileMap[story.user_id];
+
+            if (!profile) {
+                return;
+            }
+
+            const name =
+                profile.display_name ||
+                profile.username ||
+                "PATRIODX User";
+
+            const storyButton =
+                document.createElement("button");
+
+            storyButton.type = "button";
+
+            storyButton.className =
+                "social-story-item";
+
+            const avatar =
+                document.createElement("span");
+
+            avatar.className =
+                "social-story-avatar";
+
+            if (profile.avatar_url) {
+
+                const image =
+                    document.createElement("img");
+
+                image.src =
+                    profile.avatar_url;
+
+                image.alt = name;
+
+                avatar.appendChild(image);
+
+            } else {
+
+                avatar.textContent =
+                    name
+                        .charAt(0)
+                        .toUpperCase();
+            }
+
+            const nameElement =
+                document.createElement("strong");
+
+            nameElement.textContent =
+                name;
+
+            storyButton.appendChild(avatar);
+            storyButton.appendChild(nameElement);
+
+            storyButton.addEventListener(
+                "click",
+                function () {
+
+                    alert(
+                        "Story viewer coming next."
+                    );
+
                 }
             );
 
-    if (error) {
+            storiesContainer.appendChild(
+                storyButton
+            );
+
+        });
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+
+        console.log(
+            "PATRIODX stories loaded:",
+            stories.length
+        );
+
+    } catch (error) {
 
         console.error(
-            "Stories loading error:",
+            "PATRIODX stories error:",
             error
         );
 
-        return;
-    }
-
-    storiesContainer.innerHTML = "";
-
-    if (!stories || !stories.length) {
-        return;
-    }
-
-    const userIds = [
-        ...new Set(
-            stories.map(
-                story => story.user_id
-            )
-        )
-    ];
-
-    const { data: profiles } =
-        await supabaseClient
-            .from("profiles")
-            .select(
-                "id, username, display_name, avatar_url"
-            )
-            .in(
-                "id",
-                userIds
-            );
-
-    const profileMap = {};
-
-    (profiles || []).forEach(profile => {
-
-        profileMap[profile.id] =
-            profile;
-
-    });
-
-    stories.forEach(story => {
-
-        const profile =
-            profileMap[story.user_id] || {};
-
-        const name =
-            profile.display_name ||
-            profile.username ||
-            "PATRIODX User";
-
-        const avatar =
-            profile.avatar_url
-                ? `
-                    <img
-                        src="${profile.avatar_url}"
-                        alt=""
-                    >
-                `
-                : `
-                    <span>
-                        ${name
-                            .charAt(0)
-                            .toUpperCase()}
-                    </span>
-                `;
-
-        const storyButton =
-            document.createElement("button");
-
-        storyButton.type = "button";
-
-        storyButton.className =
-            "social-story-item";
-
-        storyButton.innerHTML = `
-            <span class="social-story-avatar">
-                ${avatar}
-            </span>
-
-            <strong>
-                ${escapeHTML(name)}
-            </strong>
-        `;
-
-        storiesContainer.appendChild(
-            storyButton
-        );
-
-    });
-
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
     }
 }
 async function loadSocialPosts() {
