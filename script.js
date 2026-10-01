@@ -433,7 +433,87 @@ function setupNavigation() {
 
     return;
 }
+/* =========================================================
+   HEADER SEARCH
+========================================================= */
 
+function setupHeaderSearch() {
+
+    const searchButton =
+        document.getElementById(
+            "headerSearchButton"
+        );
+
+    const searchPanel =
+        document.getElementById(
+            "globalSearchPanel"
+        );
+
+    const searchInput =
+        document.getElementById(
+            "globalSearchInput"
+        );
+
+    const closeButton =
+        document.getElementById(
+            "closeGlobalSearch"
+        );
+
+    if (
+        !searchButton ||
+        !searchPanel ||
+        !searchInput ||
+        !closeButton
+    ) {
+        return;
+    }
+
+    searchButton.addEventListener(
+        "click",
+        function() {
+
+            searchPanel.style.display =
+                "block";
+
+            searchInput.focus();
+
+            if (
+                typeof lucide !==
+                "undefined"
+            ) {
+
+                lucide.createIcons();
+
+            }
+        }
+    );
+
+    closeButton.addEventListener(
+        "click",
+        function() {
+
+            searchPanel.style.display =
+                "none";
+
+            searchInput.value = "";
+
+            const results =
+                document.getElementById(
+                    "globalSearchResults"
+                );
+
+            if (results) {
+
+                results.style.display =
+                    "none";
+
+            }
+        }
+    );
+
+}
+
+setupHeaderSearch();
 // =========================================================
 // DARK MODE
 // =========================================================
