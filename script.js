@@ -3792,283 +3792,267 @@ async function saveSetting(column, value) {
     // =========================================================
     // ACCOUNT PRIVACY
     // =========================================================
+document
+    .getElementById("accountPrivacyButton")
+    ?.addEventListener("click", async () => {
 
-    document
-        .getElementById("accountPrivacyButton")
-        ?.addEventListener("click", async () => {
+        const settings =
+            await ensureUserSettings();
 
-            const settings =
-                await ensureUserSettings();
+        if (!settings) {
+            return;
+        }
 
-            if (!settings) {
-                return;
-            }
+        const choice = prompt(
+            "Account Privacy\n\n" +
+            "Choose:\n\n" +
+            "public\n" +
+            "followers\n" +
+            "private\n\n" +
+            "Current: " +
+            settings.account_privacy
+        );
 
-            const choice = prompt(
-                "Account Privacy\n\n" +
-                "Choose:\n\n" +
-                "public\n" +
-                "followers\n" +
-                "private\n\n" +
-                "Current: " +
-                settings.account_privacy
+        if (!choice) {
+            return;
+        }
+
+        const value =
+            choice.trim().toLowerCase();
+
+        if (
+            ![
+                "public",
+                "followers",
+                "private"
+            ].includes(value)
+        ) {
+
+            showPATRIODXToast(
+                "Please enter public, followers, or private.",
+                "warning"
             );
 
-            if (!choice) {
-                return;
-            }
+            return;
+        }
 
-            const value =
-                choice.trim().toLowerCase();
+        if (
+            await saveSetting(
+                "account_privacy",
+                value
+            )
+        ) {
 
-           if (
-    ![
-        "public",
-        "followers",
-        "private"
-    ].includes(value)
-) {
-
-    showPATRIODXToast(
-        "Please enter public, followers, or private.",
-        "warning"
-    );
-
-    return;
-}
-
-                return;
-            }
-
-            if (
-                await saveSetting(
-                    "account_privacy",
-                    value
+            document
+                .getElementById(
+                    "accountPrivacyButton"
                 )
-            ) {
+                .textContent =
+                "Account Privacy: " +
+                value;
 
-                document
-                    .getElementById(
-                        "accountPrivacyButton"
-                    )
-                    .textContent =
-                    "Account Privacy: " +
-                    value;
+        }
 
-            }
-
-        });
-
+    });
 
     // =========================================================
     // MESSAGE PRIVACY
     // =========================================================
 
     document
-        .getElementById("messagePrivacyButton")
-        ?.addEventListener("click", async () => {
+    .getElementById("messagePrivacyButton")
+    ?.addEventListener("click", async () => {
 
-            const settings =
-                await ensureUserSettings();
+        const settings =
+            await ensureUserSettings();
 
-            if (!settings) {
-                return;
-            }
+        if (!settings) {
+            return;
+        }
 
-            const choice = prompt(
-                "Message Privacy\n\n" +
-                "Choose:\n\n" +
-                "everyone\n" +
-                "followers\n" +
-                "nobody\n\n" +
-                "Current: " +
-                settings.message_privacy
+        const choice = prompt(
+            "Message Privacy\n\n" +
+            "Choose:\n\n" +
+            "everyone\n" +
+            "followers\n" +
+            "nobody\n\n" +
+            "Current: " +
+            settings.message_privacy
+        );
+
+        if (!choice) {
+            return;
+        }
+
+        const value =
+            choice.trim().toLowerCase();
+
+        if (
+            ![
+                "everyone",
+                "followers",
+                "nobody"
+            ].includes(value)
+        ) {
+
+            showPATRIODXToast(
+                "Please enter everyone, followers, or nobody.",
+                "warning"
             );
 
-            if (!choice) {
-                return;
-            }
+            return;
+        }
 
-            const value =
-                choice.trim().toLowerCase();
+        if (
+            await saveSetting(
+                "message_privacy",
+                value
+            )
+        ) {
 
-           if (
-    ![
-        "everyone",
-        "followers",
-        "nobody"
-    ].includes(value)
-) {
-
-    showPATRIODXToast(
-        "Please enter everyone, followers, or nobody.",
-        "warning"
-    );
-
-    return;
-}
-
-                return;
-            }
-
-            if (
-                await saveSetting(
-                    "message_privacy",
-                    value
+            document
+                .getElementById(
+                    "messagePrivacyButton"
                 )
-            ) {
+                .textContent =
+                "Message Privacy: " +
+                value;
 
-                document
-                    .getElementById(
-                        "messagePrivacyButton"
-                    )
-                    .textContent =
-                    "Message Privacy: " +
-                    value;
+        }
 
-            }
-
-        });
-
+    });
 
     // =========================================================
     // MENTION PRIVACY
     // =========================================================
 
-    document
-        .getElementById("mentionPrivacyButton")
-        ?.addEventListener("click", async () => {
+  document
+    .getElementById("mentionPrivacyButton")
+    ?.addEventListener("click", async () => {
 
-            const settings =
-                await ensureUserSettings();
+        const settings =
+            await ensureUserSettings();
 
-            if (!settings) {
-                return;
-            }
+        if (!settings) {
+            return;
+        }
 
-            const choice = prompt(
-                "Mention Privacy\n\n" +
-                "Choose:\n\n" +
-                "everyone\n" +
-                "followers\n" +
-                "nobody\n\n" +
-                "Current: " +
-                settings.mention_privacy
+        const choice = prompt(
+            "Mention Privacy\n\n" +
+            "Choose:\n\n" +
+            "everyone\n" +
+            "followers\n" +
+            "nobody\n\n" +
+            "Current: " +
+            settings.mention_privacy
+        );
+
+        if (!choice) {
+            return;
+        }
+
+        const value =
+            choice.trim().toLowerCase();
+
+        if (
+            ![
+                "everyone",
+                "followers",
+                "nobody"
+            ].includes(value)
+        ) {
+
+            showPATRIODXToast(
+                "Please enter everyone, followers, or nobody.",
+                "warning"
             );
 
-            if (!choice) {
-                return;
-            }
+            return;
+        }
 
-            const value =
-                choice.trim().toLowerCase();
-if (
-    ![
-        "everyone",
-        "followers",
-        "nobody"
-    ].includes(value)
-) {
+        if (
+            await saveSetting(
+                "mention_privacy",
+                value
+            )
+        ) {
 
-    showPATRIODXToast(
-        "Please enter everyone, followers, or nobody.",
-        "warning"
-    );
-
-    return;
-}
-
-                return;
-            }
-
-            if (
-                await saveSetting(
-                    "mention_privacy",
-                    value
+            document
+                .getElementById(
+                    "mentionPrivacyButton"
                 )
-            ) {
+                .textContent =
+                "Mention Privacy: " +
+                value;
 
-                document
-                    .getElementById(
-                        "mentionPrivacyButton"
-                    )
-                    .textContent =
-                    "Mention Privacy: " +
-                    value;
+        }
 
-            }
-
-        });
-
-
+    });
     // =========================================================
     // TAG PRIVACY
     // =========================================================
+document
+    .getElementById("tagPrivacyButton")
+    ?.addEventListener("click", async () => {
 
-    document
-        .getElementById("tagPrivacyButton")
-        ?.addEventListener("click", async () => {
+        const settings =
+            await ensureUserSettings();
 
-            const settings =
-                await ensureUserSettings();
+        if (!settings) {
+            return;
+        }
 
-            if (!settings) {
-                return;
-            }
+        const choice = prompt(
+            "Tag Privacy\n\n" +
+            "Choose:\n\n" +
+            "everyone\n" +
+            "followers\n" +
+            "nobody\n\n" +
+            "Current: " +
+            settings.tag_privacy
+        );
 
-            const choice = prompt(
-                "Tag Privacy\n\n" +
-                "Choose:\n\n" +
-                "everyone\n" +
-                "followers\n" +
-                "nobody\n\n" +
-                "Current: " +
-                settings.tag_privacy
+        if (!choice) {
+            return;
+        }
+
+        const value =
+            choice.trim().toLowerCase();
+
+        if (
+            ![
+                "everyone",
+                "followers",
+                "nobody"
+            ].includes(value)
+        ) {
+
+            showPATRIODXToast(
+                "Please enter everyone, followers, or nobody.",
+                "warning"
             );
 
-            if (!choice) {
-                return;
-            }
+            return;
+        }
 
-            const value =
-                choice.trim().toLowerCase();
+        if (
+            await saveSetting(
+                "tag_privacy",
+                value
+            )
+        ) {
 
-           if (
-    ![
-        "everyone",
-        "followers",
-        "nobody"
-    ].includes(value)
-) {
-
-    showPATRIODXToast(
-        "Please enter everyone, followers, or nobody.",
-        "warning"
-    );
-
-    return;
-}
-                return;
-            }
-
-            if (
-                await saveSetting(
-                    "tag_privacy",
-                    value
+            document
+                .getElementById(
+                    "tagPrivacyButton"
                 )
-            ) {
+                .textContent =
+                "Tag Privacy: " +
+                value;
 
-                document
-                    .getElementById(
-                        "tagPrivacyButton"
-                    )
-                    .textContent =
-                    "Tag Privacy: " +
-                    value;
+        }
 
-            }
-
-        });
+    });
 
 
     // =========================================================
