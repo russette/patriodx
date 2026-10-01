@@ -4548,7 +4548,9 @@ function setupSettingsActivity() {
     // PLAN USAGE
     // =========================================================
 
+if (typeof updateAccountUI === "function") {
     updateAccountUI();
+}
 
 }
 // =========================================================
