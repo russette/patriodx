@@ -2436,59 +2436,80 @@
 <!-- =========================================================
      PATRIODX NOTIFICATIONS
 ========================================================= -->
-
 <section id="notifications" class="section">
 
-<div class="section-heading">
-    <div>
-        <p class="eyebrow"><i data-lucide="bell"></i> PATRIODX NOTIFICATIONS</p>
-        <h2>Notifications</h2>
-        <p>Stay updated with activity across your PATRIODX account.</p>
-    </div>
-</div>
+    <div class="notifications-page">
 
-<div class="chart-card notifications-card">
+        <div class="notifications-header">
 
-    <div class="notifications-header">
+            <div>
+                <p class="eyebrow">
+                    <i data-lucide="bell"></i>
+                    NOTIFICATIONS
+                </p>
 
-        <div>
-            <h3>Your Notifications</h3>
-            <p id="notificationStatus">
-                Stay up to date with what is happening.
-            </p>
+                <h2>Notifications</h2>
+
+                <p class="notifications-subtitle">
+                    Stay up to date with activity on PATRIODX.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="secondary-btn"
+                id="markAllNotificationsButton"
+            >
+                <i data-lucide="check-check"></i>
+                Mark all as read
+            </button>
+
         </div>
 
-        <button
-            type="button"
-            id="markAllNotificationsButton"
-            class="notifications-mark-button"
+
+        <div class="notifications-toolbar">
+
+            <button
+                type="button"
+                class="notification-filter active"
+                data-notification-filter="all"
+            >
+                All
+            </button>
+
+            <button
+                type="button"
+                class="notification-filter"
+                data-notification-filter="unread"
+            >
+                Unread
+            </button>
+
+        </div>
+
+
+        <div
+            id="notificationsList"
+            class="notifications-list"
         >
-            Mark all as read
-        </button>
 
-    </div>
+            <div class="notifications-empty">
 
-    <div
-        id="notificationList"
-        class="notification-list"
-    >
+                <div class="notifications-empty-icon">
+                    <i data-lucide="bell-off"></i>
+                </div>
 
-        <div class="notifications-empty-state">
+                <h3>No notifications yet</h3>
 
-            <div><i data-lucide="bell"></i></div>
+                <p>
+                    New activity will appear here.
+                </p>
 
-            <h3>No notifications yet</h3>
-
-            <p>
-                Your notifications will appear here.
-            </p>
+            </div>
 
         </div>
 
     </div>
-
-</div>
-
 
 </section>
 <!-- =========================================================
