@@ -8402,7 +8402,124 @@ body.dark-mode .mobile-action-item {
 body.dark-mode .mobile-action-item:hover {
     background: #1e293b;
 }
+/* =========================================================
+   PATRIODX IN-SITE TOAST
+========================================================= */
 
+.patriodx-toast {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    z-index: 20000;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    max-width: min(92vw, 420px);
+
+    padding: 13px 18px;
+
+    border-radius: 14px;
+
+    background: #ffffff;
+    color: #0f172a;
+
+    box-shadow:
+        0 12px 30px rgba(15, 23, 42, 0.18);
+
+    border: 1px solid #e2e8f0;
+
+    opacity: 0;
+    pointer-events: none;
+
+    transform:
+        translate(-50%, -18px);
+
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+.patriodx-toast.show {
+    opacity: 1;
+    transform:
+        translate(-50%, 0);
+}
+
+.patriodx-toast-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+}
+
+.patriodx-toast-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.patriodx-toast-message {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.patriodx-toast.success {
+    border-color: #bfdbfe;
+}
+
+.patriodx-toast.success .patriodx-toast-icon {
+    color: #2563eb;
+}
+
+.patriodx-toast.error {
+    border-color: #fecaca;
+}
+
+.patriodx-toast.error .patriodx-toast-icon {
+    color: #dc2626;
+}
+
+.patriodx-toast.warning {
+    border-color: #fde68a;
+}
+
+.patriodx-toast.warning .patriodx-toast-icon {
+    color: #d97706;
+}
+
+.patriodx-toast.info {
+    border-color: #cbd5e1;
+}
+
+.patriodx-toast.info .patriodx-toast-icon {
+    color: #475569;
+}
+
+body.dark-mode .patriodx-toast {
+    background: #0f172a;
+    color: #f8fafc;
+    border-color: #334155;
+}
+
+@media (max-width: 640px) {
+
+    .patriodx-toast {
+        top: 14px;
+
+        max-width: calc(100vw - 28px);
+
+        padding: 12px 15px;
+
+        border-radius: 13px;
+    }
+
+    .patriodx-toast-message {
+        font-size: 13px;
+    }
+}
 body.dark-mode .mobile-action-item-icon {
     background: #172554;
     color: #60a5fa;
