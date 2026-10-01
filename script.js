@@ -149,9 +149,10 @@ function canCreate(type) {
 
         if (products.length >= limits.products) {
 
-            alert(
-                "Free plan limit reached: 20 products.\n\nUpgrade to Pro for unlimited products."
-            );
+          showPATRIODXToast(
+    "Free plan limit reached: 20 products. Upgrade to Pro for unlimited products.",
+    "warning"
+);
 
             return false;
         }
@@ -161,10 +162,10 @@ function canCreate(type) {
 
         if (customers.length >= limits.customers) {
 
-            alert(
-                "Free plan limit reached: 20 customers.\n\nUpgrade to Pro for unlimited customers."
-            );
-
+           showPATRIODXToast(
+    "Free plan limit reached: 20 customers. Upgrade to Pro for unlimited customers.",
+    "warning"
+);
             return false;
         }
     }
@@ -176,10 +177,10 @@ function canCreate(type) {
 
         if (count >= limits.salesPerMonth) {
 
-            alert(
-                "Free plan limit reached: 30 sales this month.\n\nUpgrade to Pro for unlimited sales."
-            );
-
+           showPATRIODXToast(
+    "Free plan limit reached: 30 customers. Upgrade to Pro for unlimited sales.",
+    "warning"
+);
             return false;
         }
     }
@@ -191,9 +192,10 @@ function canCreate(type) {
 
         if (count >= limits.invoicesPerMonth) {
 
-            alert(
-                "Free plan limit reached: 5 invoices this month.\n\nUpgrade to Pro for unlimited invoices."
-            );
+            showPATRIODXToast(
+    "Free plan limit reached: 5 invoices this month. Upgrade to Pro for unlimited invoices.",
+    "warning"
+);
 
             return false;
         }
@@ -216,12 +218,16 @@ async function loadUser() {
             error
         } = await supabaseClient.auth.getSession();
 
-        if (error) {
-            console.error("Session loading error:", error);
-            alert("Unable to connect to PATRIODX.");
-            return false;
-        }
+       if (error) {
+    console.error("Session loading error:", error);
 
+    showPATRIODXToast(
+        "Unable to connect to PATRIODX.",
+        "error"
+    );
+
+    return false;
+}
         if (!session || !session.user) {
             console.log("No active PATRIODX session.");
             window.location.href = "auth.html";
@@ -256,10 +262,10 @@ const business = businesses?.[0] || null;
                 businessError
             );
 
-            alert(
-                "Your PATRIODX business account could not be loaded."
-            );
-
+           showPATRIODXToast(
+    "Your PATRIODX business account could not be loaded.",
+    "error"
+);
             return false;
         }
 
@@ -269,9 +275,10 @@ const business = businesses?.[0] || null;
                 currentUser.id
             );
 
-            alert(
-                "Your PATRIODX business account could not be found."
-            );
+            showPATRIODXToast(
+    "Your PATRIODX business account could not be found.",
+    "error"
+);
 
             return false;
         }
@@ -289,9 +296,10 @@ const business = businesses?.[0] || null;
             error
         );
 
-        alert(
-            "Unable to restore your PATRIODX account."
-        );
+       showPATRIODXToast(
+    "Unable to restore your PATRIODX account.",
+    "error"
+);
 
         return false;
     }
@@ -610,9 +618,10 @@ async function saveProduct(event) {
         stock < 0
     ) {
 
-        alert(
-            "Please enter valid product details."
-        );
+     showPATRIODXToast(
+    "Please enter valid product details.",
+    "warning"
+);
 
         return;
     }
@@ -662,9 +671,10 @@ async function saveProduct(event) {
 
         console.error(result.error);
 
-        alert(
-            "Could not save product."
-        );
+      showPATRIODXToast(
+    "Could not save product.",
+    "error"
+);
 
         return;
     }
@@ -766,9 +776,15 @@ function renderProducts() {
 
 async function deleteProduct(id) {
 
-    if (!confirm("Delete this product?")) {
-        return;
-    }
+    const confirmed =
+    await showPATRIODXConfirm(
+        "Delete Product",
+        "Are you sure you want to delete this product?"
+    );
+
+if (!confirmed) {
+    return;
+}
 
     const { error } =
         await supabaseClient
@@ -787,9 +803,10 @@ async function deleteProduct(id) {
 
         console.error(error);
 
-        alert(
-            "Could not delete product."
-        );
+      showPATRIODXToast(
+    "Could not delete product.",
+    "error"
+);
 
         return;
     }
@@ -863,10 +880,10 @@ async function saveCustomer(event) {
         ).value.trim();
 
     if (!name) {
-
-        alert(
-            "Customer name is required."
-        );
+showPATRIODXToast(
+    "Customer name is required.",
+    "warning"
+);
 
         return;
     }
@@ -886,9 +903,10 @@ async function saveCustomer(event) {
 
         console.error(error);
 
-        alert(
-            "Could not save customer."
-        );
+       showPATRIODXToast(
+    "Could not save customer.",
+    "error"
+);
 
         return;
     }
@@ -998,9 +1016,15 @@ function renderCustomers() {
 
 async function deleteCustomer(id) {
 
-    if (!confirm("Delete this customer?")) {
-        return;
-    }
+  const confirmed =
+    await showPATRIODXConfirm(
+        "Delete Customer",
+        "Are you sure you want to delete this customer?"
+    );
+
+if (!confirmed) {
+    return;
+}
 
     const { error } =
         await supabaseClient
@@ -1019,9 +1043,10 @@ async function deleteCustomer(id) {
 
         console.error(error);
 
-        alert(
-            "Could not delete customer."
-        );
+       showPATRIODXToast(
+    "Could not delete customer.",
+    "error"
+);
 
         return;
     }
@@ -1155,29 +1180,35 @@ async function saveSale(event) {
             p => p.id === productId
         );
 
-    if (!product) {
+   if (!product) {
 
-        alert(
-            "Please select a product."
-        );
+    showPATRIODXToast(
+        "Please select a product.",
+        "warning"
+    );
 
-        return;
-    }
+    return;
+}
 
-    if (quantity <= 0) {
+if (quantity <= 0) {
 
-        alert(
-            "Quantity must be at least 1."
-        );
+    showPATRIODXToast(
+        "Quantity must be at least 1.",
+        "warning"
+    );
 
-        return;
-    }
+    return;
+}
 
-    if (quantity > product.stock) {
+if (quantity > product.stock) {
 
-        alert(
-            "Not enough stock."
-        );
+    showPATRIODXToast(
+        "Not enough stock.",
+        "warning"
+    );
+
+    return;
+}
 
         return;
     }
@@ -1209,10 +1240,10 @@ async function saveSale(event) {
 
         console.error(saleError);
 
-        alert(
-            "Could not record sale."
-        );
-
+      showPATRIODXToast(
+    "Could not record sale.",
+    "error"
+);
         return;
     }
 
@@ -1248,10 +1279,10 @@ async function saveSale(event) {
                 sale.id
             );
 
-        alert(
-            "Sale could not update stock."
-        );
-
+     showPATRIODXToast(
+    "Sale could not update stock.",
+    "error"
+);
         return;
     }
 
@@ -1356,9 +1387,15 @@ async function deleteSale(id) {
 
     if (!sale) return;
 
-    if (!confirm("Delete this sale?")) {
-        return;
-    }
+  const confirmed =
+    await showPATRIODXConfirm(
+        "Delete Sale",
+        "Are you sure you want to delete this sale?"
+    );
+
+if (!confirmed) {
+    return;
+}
 
     const { error } =
         await supabaseClient
@@ -1377,10 +1414,10 @@ async function deleteSale(id) {
 
         console.error(error);
 
-        alert(
-            "Could not delete sale."
-        );
-
+     showPATRIODXToast(
+    "Could not delete sale.",
+    "error"
+);
         return;
     }
 
@@ -1652,9 +1689,10 @@ async function saveInvoice(event) {
 
     if (!customer || !product) {
 
-        alert(
-            "Please select a customer and product."
-        );
+      showPATRIODXToast(
+    "Please select a customer and product.",
+    "warning"
+);
 
         return;
     }
@@ -1723,9 +1761,10 @@ async function saveInvoice(event) {
 
         console.error(error);
 
-        alert(
-            "Could not create invoice."
-        );
+    showPATRIODXToast(
+    "Could not create invoice.",
+    "error"
+);
 
         return;
     }
@@ -1925,10 +1964,10 @@ async function toggleInvoiceStatus(id) {
 
         console.error(error);
 
-        alert(
-            "Could not update invoice."
-        );
-
+       showPATRIODXToast(
+    "Could not update invoice.",
+    "error"
+);
         return;
     }
 
@@ -1939,10 +1978,15 @@ async function toggleInvoiceStatus(id) {
 
 async function deleteInvoice(id) {
 
-    if (!confirm("Delete this invoice?")) {
-        return;
-    }
+  const confirmed =
+    await showPATRIODXConfirm(
+        "Delete Invoice",
+        "Are you sure you want to delete this invoice?"
+    );
 
+if (!confirmed) {
+    return;
+}
     const { error } =
         await supabaseClient
             .from("invoices")
@@ -1960,10 +2004,10 @@ async function deleteInvoice(id) {
 
         console.error(error);
 
-        alert(
-            "Could not delete invoice."
-        );
-
+       showPATRIODXToast(
+    "Could not delete invoice.",
+    "error"
+);
         return;
     }
 
@@ -2587,10 +2631,13 @@ function openGoLiveModal() {
     const modal =
         document.getElementById("goLiveModal");
 
-    if (!modal) {
-        alert("Live settings are unavailable right now.");
-        return;
-    }
+   if (!modal) {
+    showPATRIODXToast(
+        "Live settings are unavailable right now.",
+        "error"
+    );
+    return;
+}
 
     const titleInput =
         document.getElementById("liveTitleInput");
@@ -2751,10 +2798,13 @@ function changePassword() {
 
     const modal = document.getElementById("changePasswordModal");
 
-    if (!modal) {
-        alert("Password settings are unavailable right now.");
-        return;
-    }
+   if (!modal) {
+    showPATRIODXToast(
+        "Password settings are unavailable right now.",
+        "error"
+    );
+    return;
+}
 
     document.getElementById("newPassword").value = "";
     document.getElementById("confirmPassword").value = "";
@@ -2942,9 +2992,10 @@ async function updatePATRIODXPassword() {
 
 async function deleteAccount() {
 
-    alert(
-        "Account deletion requires a secure server-side process. Your account has not been deleted."
-    );
+   showPATRIODXToast(
+    "Account deletion requires a secure server-side process. Your account has not been deleted.",
+    "error"
+);
 }
 
 // =========================================================
@@ -3149,9 +3200,10 @@ async function importBusinessData(file) {
 
     if (!file) return;
 
-    alert(
-        "Import is temporarily disabled while PATRIODX cloud storage is being finalized."
-    );
+  showPATRIODXToast(
+    "Import is temporarily disabled while PATRIODX cloud storage is being finalized.",
+    "info"
+);
 }
 
 
@@ -3164,12 +3216,12 @@ async function resetBusinessData() {
     if (!currentBusiness) return;
 
     const confirmed =
-        confirm(
+        await showPATRIODXConfirm(
+            "Reset Business Data",
             "This will permanently delete your products, customers, sales and invoices. Continue?"
         );
 
     if (!confirmed) return;
-
     const businessId =
         currentBusiness.id;
 
@@ -3230,10 +3282,10 @@ async function verifyPatriodxPayment(reference, expectedPlan) {
                 sessionError
             );
 
-            alert(
-                "Your login session has expired.\n\n" +
-                "Please log in again and try the payment."
-            );
+          showPATRIODXToast(
+    "Your login session has expired. Please log in again and try the payment.",
+    "warning"
+);
 
             return false;
         }
@@ -3275,25 +3327,23 @@ async function verifyPatriodxPayment(reference, expectedPlan) {
                 result
             );
 
-            alert(
-                "Payment was received, but PATRIODX could not verify it.\n\n" +
-                "Reference: " +
-                reference +
-                "\n\n" +
-                "Please contact support and provide this reference."
-            );
+            showPATRIODXToast(
+    "Payment was received, but PATRIODX could not verify it. Reference: " +
+    reference +
+    ". Please contact support.",
+    "error"
+);
 
             return false;
         }
 
 
-     alert(
-    "Payment verified successfully!\n\n" +
-    "Your PATRIODX " +
+     showPATRIODXToast(
+    "Payment verified successfully! Your PATRIODX " +
     result.data.plan +
-    " plan is now active."
+    " plan is now active.",
+    "success"
 );
-
 
 // Reload the business from Supabase
 // so the dashboard sees the new plan.
@@ -3316,10 +3366,10 @@ if (typeof loadBusiness === "function") {
             error
         );
 
-        alert(
-            "Payment was completed, but verification could not be completed.\n\n" +
-            "Please contact support if your plan does not update."
-        );
+    showPATRIODXToast(
+    "Payment was completed, but verification could not be completed. Please contact support if your plan does not update.",
+    "error"
+);
 
         return false;
     }
@@ -3327,37 +3377,30 @@ if (typeof loadBusiness === "function") {
 
 
 function startProPlan() {
+if (!currentUser) {
 
-    if (!currentUser) {
-
-        alert(
-            "Please log in before upgrading your plan."
-        );
-
-        return;
-    }
-
-
-    const confirmed = confirm(
-        "Upgrade to PATRIODX Pro for GHS 900/month?\n\n" +
-        "Pro includes unlimited products, customers, sales and invoices."
+    showPATRIODXToast(
+        "Please log in before upgrading your plan.",
+        "warning"
     );
 
-
-    if (!confirmed) {
-        return;
-    }
+    return;
+}
 
 
-    if (typeof PaystackPop === "undefined") {
+// Continue directly to Paystack.
+// The browser confirm popup has been removed.
 
-        alert(
-            "Payment system could not load.\n\n" +
-            "Please refresh the page and try again."
-        );
 
-        return;
-    }
+if (typeof PaystackPop === "undefined") {
+
+    showPATRIODXToast(
+        "Payment system could not load. Please refresh the page and try again.",
+        "error"
+    );
+
+    return;
+}
 
 
     try {
@@ -3391,11 +3434,10 @@ function startProPlan() {
                 );
 
 
-                alert(
-                    "Payment received.\n\n" +
-                    "Verifying your payment..."
-                );
-
+              showPATRIODXToast(
+    "Payment received. Verifying your payment...",
+    "info"
+);
 
                 await verifyPatriodxPayment(
                     transaction.reference,
@@ -3421,12 +3463,10 @@ function startProPlan() {
                     error
                 );
 
-
-                alert(
-                    "Payment could not be completed.\n\n" +
-                    "Please try again."
-                );
-
+showPATRIODXToast(
+    "Payment could not be completed. Please try again.",
+    "error"
+);
             }
 
         });
@@ -3440,10 +3480,10 @@ function startProPlan() {
         );
 
 
-        alert(
-            "Unable to start payment.\n\n" +
-            "Please try again."
-        );
+    showPATRIODXToast(
+    "Unable to start payment. Please try again.",
+    "error"
+);
 
     }
 }
@@ -3453,31 +3493,23 @@ function startBusinessPlan() {
 
     if (!currentUser) {
 
-        alert(
-            "Please log in before upgrading your plan."
-        );
-
+      showPATRIODXToast(
+    "Please log in before upgrading your plan.",
+    "warning"
+);
         return;
     }
 
 
-    const confirmed = confirm(
-        "Upgrade to PATRIODX Business for GHS 1,900/month?\n\n" +
-        "Business includes unlimited products, customers, sales and invoices."
+  if (typeof PaystackPop === "undefined") {
+
+    showPATRIODXToast(
+        "Payment system could not load. Please refresh the page and try again.",
+        "error"
     );
 
-
-    if (!confirmed) {
-        return;
-    }
-
-
-    if (typeof PaystackPop === "undefined") {
-
-        alert(
-            "Payment system could not load.\n\n" +
-            "Please refresh the page and try again."
-        );
+    return;
+}
 
         return;
     }
@@ -3514,11 +3546,10 @@ function startBusinessPlan() {
                 );
 
 
-                alert(
-                    "Payment received.\n\n" +
-                    "Verifying your payment..."
-                );
-
+               showPATRIODXToast(
+    "Payment received. Verifying your payment...",
+    "info"
+);
 
                 await verifyPatriodxPayment(
                     transaction.reference,
@@ -3545,10 +3576,10 @@ function startBusinessPlan() {
                 );
 
 
-                alert(
-                    "Payment could not be completed.\n\n" +
-                    "Please try again."
-                );
+showPATRIODXToast(
+    "Payment could not be completed. Please try again.",
+    "error"
+);
 
             }
 
@@ -3563,10 +3594,10 @@ function startBusinessPlan() {
         );
 
 
-        alert(
-            "Unable to start payment.\n\n" +
-            "Please try again."
-        );
+        showPATRIODXToast(
+    "Unable to start payment. Please try again.",
+    "error"
+);
 
     }
 }
@@ -3601,24 +3632,39 @@ function setupSettingsActivity() {
     // SETTINGS DATABASE HELPERS
     // =========================================================
 
-    async function ensureUserSettings() {
+   async function ensureUserSettings() {
 
-        if (!currentUser) {
-            alert("Please log in again.");
-            return null;
-        }
+    if (!currentUser) {
 
-        const { data, error } = await supabaseClient
+        showPATRIODXToast(
+            "Please log in again.",
+            "warning"
+        );
+
+        return null;
+    }
+
+    const { data, error } =
+        await supabaseClient
             .from("user_settings")
             .select("*")
             .eq("user_id", currentUser.id)
             .maybeSingle();
 
-        if (error) {
-            console.error("Settings load error:", error);
-            alert("Could not load your settings.");
-            return null;
-        }
+    if (error) {
+
+        console.error(
+            "Settings load error:",
+            error
+        );
+
+        showPATRIODXToast(
+            "Could not load your settings.",
+            "error"
+        );
+
+        return null;
+    }
 
         if (data) {
             return data;
@@ -3632,110 +3678,132 @@ function setupSettingsActivity() {
                 })
                 .select()
                 .single();
+if (insertError) {
 
-        if (insertError) {
-            console.error(
-                "Settings creation error:",
-                insertError
-            );
+    console.error(
+        "Settings creation error:",
+        insertError
+    );
 
-            alert("Could not create your settings.");
-            return null;
-        }
+    showPATRIODXToast(
+        "Could not create your settings.",
+        "error"
+    );
 
-        return newSettings;
+    return null;
+}
+
+return newSettings;
+}
+
+
+async function saveSetting(column, value) {
+
+    if (!currentUser) {
+
+        showPATRIODXToast(
+            "Please log in again.",
+            "warning"
+        );
+
+        return false;
     }
 
-
-    async function saveSetting(column, value) {
-
-        if (!currentUser) {
-            alert("Please log in again.");
-            return false;
-        }
-
-        const { error } = await supabaseClient
+    const { error } =
+        await supabaseClient
             .from("user_settings")
             .upsert(
                 {
                     user_id: currentUser.id,
                     [column]: value,
-                    updated_at: new Date().toISOString()
+                    updated_at:
+                        new Date().toISOString()
                 },
                 {
                     onConflict: "user_id"
                 }
             );
 
-        if (error) {
+    if (error) {
 
-            console.error(
-                "Settings save error:",
-                error
-            );
+        console.error(
+            "Settings save error:",
+            error
+        );
 
-            alert(
-                "Could not save this setting. Please try again."
-            );
+        showPATRIODXToast(
+            "Could not save this setting. Please try again.",
+            "error"
+        );
 
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
-
+    return true;
+}
     // =========================================================
     // ACCOUNT
     // =========================================================
 
-    document
-        .getElementById("changeEmailButton")
-        ?.addEventListener("click", async () => {
+ document
+    .getElementById("changeEmailButton")
+    ?.addEventListener("click", async () => {
 
-            if (!currentUser) {
-                alert("Please log in again.");
-                return;
-            }
+        if (!currentUser) {
 
-            const newEmail = prompt(
+            showPATRIODXToast(
+                "Please log in again.",
+                "warning"
+            );
+
+            return;
+        }
+
+        const newEmail =
+            window.prompt(
                 "Enter your new email address:"
             );
 
-            if (!newEmail) {
-                return;
-            }
+        if (!newEmail) {
+            return;
+        }
 
-            const email = newEmail.trim();
+        const email =
+            newEmail.trim();
 
-            if (!email.includes("@")) {
-                alert("Please enter a valid email address.");
-                return;
-            }
+        if (!email.includes("@")) {
 
-            const { error } =
-                await supabaseClient.auth.updateUser({
-                    email: email
-                });
-
-            if (error) {
-
-                console.error(error);
-
-                alert(
-                    "Could not change your email. Please try again."
-                );
-
-                return;
-            }
-
-            alert(
-                "A confirmation email has been sent to your new email address."
+            showPATRIODXToast(
+                "Please enter a valid email address.",
+                "warning"
             );
 
-        });
+            return;
+        }
 
+        const { error } =
+            await supabaseClient.auth.updateUser({
+                email: email
+            });
 
+        if (error) {
+
+            console.error(error);
+
+            showPATRIODXToast(
+                "Could not change your email. Please try again.",
+                "error"
+            );
+
+            return;
+        }
+
+        showPATRIODXToast(
+            "A confirmation email has been sent to your new email address.",
+            "success"
+        );
+
+    });
     // =========================================================
     // ACCOUNT PRIVACY
     // =========================================================
@@ -3768,17 +3836,21 @@ function setupSettingsActivity() {
             const value =
                 choice.trim().toLowerCase();
 
-            if (
-                ![
-                    "public",
-                    "followers",
-                    "private"
-                ].includes(value)
-            ) {
+           if (
+    ![
+        "public",
+        "followers",
+        "private"
+    ].includes(value)
+) {
 
-                alert(
-                    "Please enter public, followers, or private."
-                );
+    showPATRIODXToast(
+        "Please enter public, followers, or private.",
+        "warning"
+    );
+
+    return;
+}
 
                 return;
             }
@@ -3835,17 +3907,21 @@ function setupSettingsActivity() {
             const value =
                 choice.trim().toLowerCase();
 
-            if (
-                ![
-                    "everyone",
-                    "followers",
-                    "nobody"
-                ].includes(value)
-            ) {
+           if (
+    ![
+        "everyone",
+        "followers",
+        "nobody"
+    ].includes(value)
+) {
 
-                alert(
-                    "Please enter everyone, followers, or nobody."
-                );
+    showPATRIODXToast(
+        "Please enter everyone, followers, or nobody.",
+        "warning"
+    );
+
+    return;
+}
 
                 return;
             }
@@ -3901,18 +3977,21 @@ function setupSettingsActivity() {
 
             const value =
                 choice.trim().toLowerCase();
+if (
+    ![
+        "everyone",
+        "followers",
+        "nobody"
+    ].includes(value)
+) {
 
-            if (
-                ![
-                    "everyone",
-                    "followers",
-                    "nobody"
-                ].includes(value)
-            ) {
+    showPATRIODXToast(
+        "Please enter everyone, followers, or nobody.",
+        "warning"
+    );
 
-                alert(
-                    "Please enter everyone, followers, or nobody."
-                );
+    return;
+}
 
                 return;
             }
@@ -3969,18 +4048,21 @@ function setupSettingsActivity() {
             const value =
                 choice.trim().toLowerCase();
 
-            if (
-                ![
-                    "everyone",
-                    "followers",
-                    "nobody"
-                ].includes(value)
-            ) {
+           if (
+    ![
+        "everyone",
+        "followers",
+        "nobody"
+    ].includes(value)
+) {
 
-                alert(
-                    "Please enter everyone, followers, or nobody."
-                );
+    showPATRIODXToast(
+        "Please enter everyone, followers, or nobody.",
+        "warning"
+    );
 
+    return;
+}
                 return;
             }
 
@@ -4018,16 +4100,15 @@ function setupSettingsActivity() {
 
 
     document
-        .getElementById("blockedUsersButton")
-        ?.addEventListener("click", () => {
+    .getElementById("blockedUsersButton")
+    ?.addEventListener("click", () => {
 
-            alert(
-                "Blocked Users\n\n" +
-                "Blocked account management will be added here."
-            );
+        showPATRIODXToast(
+            "Blocked account management will be added here.",
+            "info"
+        );
 
-        });
-
+    });
 
     document
         .getElementById("inviteFriendsButton")
@@ -4059,9 +4140,14 @@ function setupSettingsActivity() {
 
                 }
 
-            } else {
+         } else {
 
-                alert(inviteText);
+    showPATRIODXToast(
+        inviteText,
+        "info"
+    );
+
+}
 
             }
 
@@ -4152,9 +4238,10 @@ function setupSettingsActivity() {
                 ].includes(value)
             ) {
 
-                alert(
-                    "Please enter everyone, followers, or private."
-                );
+               showPATRIODXToast(
+    "Please enter everyone, followers, or private.",
+    "warning"
+);
 
                 return;
             }
@@ -4211,20 +4298,21 @@ function setupSettingsActivity() {
             const value =
                 choice.trim().toLowerCase();
 
-            if (
-                ![
-                    "everyone",
-                    "followers",
-                    "private"
-                ].includes(value)
-            ) {
+          if (
+    ![
+        "everyone",
+        "followers",
+        "private"
+    ].includes(value)
+) {
 
-                alert(
-                    "Please enter everyone, followers, or private."
-                );
+    showPATRIODXToast(
+        "Please enter everyone, followers, or private.",
+        "warning"
+    );
 
-                return;
-            }
+    return;
+}
 
             if (
                 await saveSetting(
@@ -4718,21 +4806,22 @@ async function logoutUser() {
             .auth
             .signOut();
 
-    if (error) {
+ if (error) {
 
-        console.error(error);
+    console.error(error);
 
-        alert(
-            "Could not log out. Please try again."
-        );
+    showPATRIODXToast(
+        "Could not log out. Please try again.",
+        "error"
+    );
 
-        if (button) {
+    if (button) {
 
-            button.disabled = false;
+        button.disabled = false;
 
-            button.textContent =
-                "Logout";
-        }
+        button.textContent =
+            "Logout";
+    }
 
         return;
     }
@@ -5208,28 +5297,32 @@ if (socialImageInput) {
             if (!file) return;
 
 
-            if (!file.type.startsWith("image/")) {
+           if (!file.type.startsWith("image/")) {
 
-                alert(
-                    "Please select an image file."
-                );
+    showPATRIODXToast(
+        "Please select an image file.",
+        "warning"
+    );
 
+    return;
+}
                 this.value = "";
 
                 return;
             }
 
 
-            if (file.size > 10 * 1024 * 1024) {
+           if (file.size > 10 * 1024 * 1024) {
 
-                alert(
-                    "Photo must be smaller than 10 MB."
-                );
+    showPATRIODXToast(
+        "Photo must be smaller than 10 MB.",
+        "warning"
+    );
 
-                this.value = "";
+    this.value = "";
 
-                return;
-            }
+    return;
+}
 
 
             if (socialVideoInput) {
@@ -5246,7 +5339,6 @@ if (socialImageInput) {
 /* =========================================================
    VIDEO SELECTED
 ========================================================= */
-
 if (socialVideoInput) {
 
     socialVideoInput.addEventListener(
@@ -5261,8 +5353,9 @@ if (socialVideoInput) {
 
             if (!file.type.startsWith("video/")) {
 
-                alert(
-                    "Please select a video file."
+                showPATRIODXToast(
+                    "Please select a video file.",
+                    "warning"
                 );
 
                 this.value = "";
@@ -5273,8 +5366,9 @@ if (socialVideoInput) {
 
             if (file.size > 50 * 1024 * 1024) {
 
-                alert(
-                    "Video must be smaller than 50 MB."
+                showPATRIODXToast(
+                    "Video must be smaller than 50 MB.",
+                    "warning"
                 );
 
                 this.value = "";
@@ -5292,8 +5386,6 @@ if (socialVideoInput) {
         }
     );
 }
-
-
 /* =========================================================
    CLEAR MEDIA
 ========================================================= */
@@ -5608,10 +5700,10 @@ async function loadPATRIODXStories() {
             storyButton.addEventListener(
                 "click",
                 function () {
-
-                    alert(
-                        "Story viewer coming next."
-                    );
+showPATRIODXToast(
+    "Story viewer is coming next.",
+    "info"
+);
 
                 }
             );
@@ -6336,7 +6428,6 @@ setupSocialFeedTabs();
 /* =========================================================
    CREATE POST
 ========================================================= */
-
 if (socialPostForm) {
 
     socialPostForm.addEventListener(
@@ -6348,8 +6439,9 @@ if (socialPostForm) {
 
             if (!currentUser) {
 
-                alert(
-                    "Please log in before creating a post."
+                showPATRIODXToast(
+                    "Please log in before creating a post.",
+                    "warning"
                 );
 
                 return;
@@ -6370,8 +6462,9 @@ if (socialPostForm) {
                 !selectedSocialFile
             ) {
 
-                alert(
-                    "Please write something or select a photo/video."
+                showPATRIODXToast(
+                    "Please write something or select a photo/video.",
+                    "warning"
                 );
 
                 return;
@@ -6479,10 +6572,11 @@ if (socialPostForm) {
                 );
 
 
-                alert(
-                    "Could not create your post.\n\n" +
-                    error.message
-                );
+               showPATRIODXToast(
+    "Could not create your post. " +
+    error.message,
+    "error"
+);
 
 
                 button.disabled =
@@ -6500,13 +6594,13 @@ if (socialPostForm) {
 /* =========================================================
    LIKE POST
 ========================================================= */
-
 async function likeSocialPost(postId) {
 
     if (!currentUser) {
 
-        alert(
-            "Please log in to like posts."
+        showPATRIODXToast(
+            "Please log in to like posts.",
+            "warning"
         );
 
         return;
@@ -6531,8 +6625,9 @@ async function likeSocialPost(postId) {
 
         if (error.code === "23505") {
 
-            alert(
-                "You already liked this post."
+            showPATRIODXToast(
+                "You already liked this post.",
+                "info"
             );
 
         } else {
@@ -6542,9 +6637,10 @@ async function likeSocialPost(postId) {
                 error
             );
 
-            alert(
-                "Could not like this post.\n\n" +
-                error.message
+            showPATRIODXToast(
+                "Could not like this post. " +
+                error.message,
+                "error"
             );
         }
 
@@ -6555,10 +6651,11 @@ async function likeSocialPost(postId) {
     await refreshSocialPostStats(
         postId
     );
-    await refreshHomePostStats(postId);
+
+    await refreshHomePostStats(
+        postId
+    );
 }
-
-
 /* =========================================================
    REFRESH POST COUNTS
 ========================================================= */
@@ -6756,15 +6853,15 @@ async function submitSocialComment(
     event.preventDefault();
 
 
-    if (!currentUser) {
+ if (!currentUser) {
 
-        alert(
-            "Please log in before commenting."
-        );
+    showPATRIODXToast(
+        "Please log in before commenting.",
+        "warning"
+    );
 
-        return;
-    }
-
+    return;
+}
 
     const input =
         document.getElementById(
@@ -6821,11 +6918,11 @@ async function submitSocialComment(
             "Comment error:",
             error
         );
-
-        alert(
-            "Could not add comment.\n\n" +
-            error.message
-        );
+showPATRIODXToast(
+    "Could not add comment. " +
+    error.message,
+    "error"
+);
 
         button.disabled = false;
 
@@ -6860,10 +6957,10 @@ async function deleteSocialPost(postId) {
 
 
     const confirmed =
-        confirm(
-            "Delete this post?\n\nThis cannot be undone."
+        await showPATRIODXConfirm(
+            "Delete Post",
+            "Delete this post? This cannot be undone."
         );
-
 
     if (!confirmed) return;
 
@@ -6881,24 +6978,24 @@ async function deleteSocialPost(postId) {
             .single();
 
 
-    if (postError) {
+ if (postError) {
 
-        alert(
-            "Could not find this post."
-        );
+    showPATRIODXToast(
+        "Could not find this post.",
+        "error"
+    );
 
-        return;
-    }
-
-
+    return;
+}
     if (
         post.user_id !==
         currentUser.id
     ) {
 
-        alert(
-            "You can only delete your own posts."
-        );
+      showPATRIODXToast(
+    "You can only delete your own posts.",
+    "warning"
+);
 
         return;
     }
@@ -6925,11 +7022,11 @@ async function deleteSocialPost(postId) {
             error
         );
 
-        alert(
-            "Could not delete post.\n\n" +
-            error.message
-        );
-
+      showPATRIODXToast(
+    "Could not delete post. " +
+    error.message,
+    "error"
+);
         return;
     }
 
@@ -6994,14 +7091,15 @@ async function deleteSocialPost(postId) {
 
 async function reportSocialPost(postId) {
 
-    if (!currentUser) {
+   if (!currentUser) {
 
-        alert(
-            "Please log in to report posts."
-        );
+    showPATRIODXToast(
+        "Please log in to report posts.",
+        "warning"
+    );
 
-        return;
-    }
+    return;
+}
 
 
     const reason =
@@ -7042,27 +7140,27 @@ async function reportSocialPost(postId) {
             });
 
 
-    if (error) {
+  if (error) {
 
-        console.error(
-            "Report error:",
-            error
-        );
-
-        alert(
-            "Could not submit report.\n\n" +
-            error.message
-        );
-
-        return;
-    }
-
-
-    alert(
-       "<i data-lucide=\"flag\"></i> Report submitted.\n\n" +
-        "Thank you for helping keep PATRIODX safe."
+    console.error(
+        "Report error:",
+        error
     );
+
+    showPATRIODXToast(
+        "Could not submit report. " +
+        error.message,
+        "error"
+    );
+
+    return;
 }
+
+
+showPATRIODXToast(
+    "Report submitted. Thank you for helping keep PATRIODX safe.",
+    "success"
+);
 
 
 /* =========================================================
@@ -7090,44 +7188,46 @@ async function shareSocialPost(postId) {
 
     try {
 
-        if (navigator.share) {
+       if (navigator.share) {
 
-            await navigator.share(
-                shareData
-            );
+    await navigator.share(
+        shareData
+    );
 
-            return;
-        }
-
-
-        await navigator.clipboard.writeText(
-            shareUrl
-        );
+    return;
+}
 
 
-        alert(
-           "Post link copied to clipboard!"
-        );
-
-    } catch (error) {
-
-        if (
-            error.name ===
-            "AbortError"
-        ) {
-            return;
-        }
+await navigator.clipboard.writeText(
+    shareUrl
+);
 
 
-        console.error(
-            "Share error:",
-            error
-        );
+showPATRIODXToast(
+    "Post link copied to clipboard!",
+    "success"
+);
 
-        alert(
-            "Could not share this post."
-        );
+} catch (error) {
+
+    if (
+        error.name ===
+        "AbortError"
+    ) {
+        return;
     }
+
+
+    console.error(
+        "Share error:",
+        error
+    );
+
+    showPATRIODXToast(
+        "Could not share this post.",
+        "error"
+    );
+}
 }
 
 
@@ -7565,10 +7665,15 @@ async function submitHomeComment(event, postId) {
 
     event.preventDefault();
 
-    if (!currentUser) {
-        alert("Please sign in first.");
-        return;
-    }
+   if (!currentUser) {
+
+    showPATRIODXToast(
+        "Please sign in first.",
+        "warning"
+    );
+
+    return;
+}
 
     const input =
         document.getElementById(
@@ -7619,10 +7724,11 @@ async function submitHomeComment(event, postId) {
             error
         );
 
-        alert(
-            "Could not post comment: " +
-            error.message
-        );
+     showPATRIODXToast(
+    "Could not post comment: " +
+    error.message,
+    "error"
+);
 
         if (button) {
             button.disabled = false;
@@ -8060,7 +8166,6 @@ async function loadMessages(
 /* =========================================================
    SEND MESSAGE
 ========================================================= */
-
 if (messageForm) {
 
     messageForm.addEventListener(
@@ -8072,8 +8177,9 @@ if (messageForm) {
 
             if (!currentUser) {
 
-                alert(
-                    "Please log in before sending messages."
+                showPATRIODXToast(
+                    "Please log in before sending messages.",
+                    "warning"
                 );
 
                 return;
@@ -8082,8 +8188,9 @@ if (messageForm) {
 
             if (!activeConversationId) {
 
-                alert(
-                    "Please select a conversation first."
+                showPATRIODXToast(
+                    "Please select a conversation first.",
+                    "warning"
                 );
 
                 return;
@@ -8125,9 +8232,10 @@ if (messageForm) {
                     error
                 );
 
-                alert(
-                    "Could not send message.\n\n" +
-                    error.message
+                showPATRIODXToast(
+                    "Could not send message. " +
+                    error.message,
+                    "error"
                 );
 
                 messageSendButton.disabled =
@@ -8152,8 +8260,6 @@ if (messageForm) {
     );
 
 }
-
-
 /* =========================================================
    REALTIME MESSAGES
 ========================================================= */
@@ -8216,8 +8322,9 @@ if (newConversationButton) {
 
             if (!currentUser) {
 
-                alert(
-                    "Please log in first."
+                showPATRIODXToast(
+                    "Please log in first.",
+                    "warning"
                 );
 
                 return;
@@ -8242,9 +8349,10 @@ if (newConversationButton) {
                     conversationError
                 );
 
-                alert(
-                    "Could not create conversation.\n\n" +
-                    conversationError.message
+                showPATRIODXToast(
+                    "Could not create conversation. " +
+                    conversationError.message,
+                    "error"
                 );
 
                 return;
@@ -8269,9 +8377,10 @@ if (newConversationButton) {
                     memberError
                 );
 
-                alert(
-                    "Conversation was created, but you could not be added.\n\n" +
-                    memberError.message
+                showPATRIODXToast(
+                    "Conversation was created, but you could not be added. " +
+                    memberError.message,
+                    "error"
                 );
 
                 return;
@@ -8758,30 +8867,30 @@ function setupNotificationActions() {
                         false
                     );
 
-            if (error) {
+           if (error) {
 
-                console.error(
-                    "Could not mark all notifications as read:",
-                    error
-                );
+    console.error(
+        "Could not mark all notifications as read:",
+        error
+    );
 
-                alert(
-                    "Could not mark notifications as read.\n\n" +
-                    error.message
-                );
+    showPATRIODXToast(
+        "Could not mark notifications as read. " +
+        error.message,
+        "error"
+    );
 
-                markAllButton.disabled = false;
+    markAllButton.disabled = false;
 
-                markAllButton.innerHTML =
-                    '<i data-lucide="check-check"></i> Mark all as read';
+    markAllButton.innerHTML =
+        '<i data-lucide="check-check"></i> Mark all as read';
 
-                if (typeof lucide !== "undefined") {
-                    lucide.createIcons();
-                }
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
 
-                return;
-            }
-
+    return;
+}
             notificationsCache =
                 notificationsCache.map(
                     notification => ({
@@ -9090,10 +9199,14 @@ if (editProfileButton && profileEditor) {
     editProfileButton.addEventListener("click", function () {
 
         if (!currentProfile) {
-            alert("Your profile is still loading. Please try again.");
+
+            showPATRIODXToast(
+                "Your profile is still loading. Please try again.",
+                "warning"
+            );
+
             return;
         }
-
         /* Fill the editor with the current profile */
 
         if (profileUsernameInput) {
@@ -9411,7 +9524,12 @@ window.savePATRIODXProfile = async function(event) {
     }
 
     if (!currentUser) {
-        alert("Please log in first.");
+
+        showPATRIODXToast(
+            "Please log in first.",
+            "warning"
+        );
+
         return;
     }
 
@@ -9439,21 +9557,32 @@ window.savePATRIODXProfile = async function(event) {
     const bio =
         bioInput.value.trim();
 
-   if (
-    username.length < 3 ||
-    username.length > 30 ||
-    !/^[a-z0-9_.]+$/.test(username)
-) {
-    alert(
-        "Username must be 3–30 characters and can only contain letters, numbers, underscores, and periods."
-    );
-    return;
-}
 
-    if (!displayName) {
-        alert("Please enter a display name.");
+    if (
+        username.length < 3 ||
+        username.length > 30 ||
+        !/^[a-z0-9_.]+$/.test(username)
+    ) {
+
+        showPATRIODXToast(
+            "Username must be 3–30 characters and can only contain letters, numbers, underscores, and periods.",
+            "warning"
+        );
+
         return;
     }
+
+
+    if (!displayName) {
+
+        showPATRIODXToast(
+            "Please enter a display name.",
+            "warning"
+        );
+
+        return;
+    }
+
 
     try {
 
@@ -9482,7 +9611,6 @@ window.savePATRIODXProfile = async function(event) {
                 );
             }
         }
-
         /* =========================================
            PROFILE PICTURE
         ========================================= */
@@ -9532,42 +9660,44 @@ window.savePATRIODXProfile = async function(event) {
 
         currentProfile = data;
 
-        renderMyProfile();
+renderMyProfile();
 
-        if (avatarInput) {
-            avatarInput.value = "";
-        }
+if (avatarInput) {
+    avatarInput.value = "";
+}
 
-        if (profileEditor) {
-            profileEditor.style.display = "none";
-        }
+if (profileEditor) {
+    profileEditor.style.display = "none";
+}
 
-        alert(
-            "Your PATRIODX profile has been updated!"
-        );
+showPATRIODXToast(
+    "Your PATRIODX profile has been updated!",
+    "success"
+);
 
-        await loadMyProfilePosts();
+await loadMyProfilePosts();
 
-    } catch (error) {
+} catch (error) {
 
-        console.error(
-            "PATRIODX PROFILE SAVE ERROR:",
-            error
-        );
+    console.error(
+        "PATRIODX PROFILE SAVE ERROR:",
+        error
+    );
 
-        alert(
-            "Could not save your profile.\n\n" +
-            error.message
-        );
+    showPATRIODXToast(
+        "Could not save your profile. " +
+        error.message,
+        "error"
+    );
 
-    } finally {
+} finally {
 
-        if (saveButton) {
-            saveButton.disabled = false;
-            saveButton.textContent = "Save Profile";
-        }
-
+    if (saveButton) {
+        saveButton.disabled = false;
+        saveButton.textContent = "Save Profile";
     }
+
+}
 };
 
 
@@ -9842,11 +9972,15 @@ function openProfileEditor() {
 
     const editor = document.getElementById("profileEditor");
 
-    if (!editor) {
-        alert("Profile editor could not be found.");
-        return;
-    }
+  if (!editor) {
 
+    showPATRIODXToast(
+        "Profile editor could not be found.",
+        "error"
+    );
+
+    return;
+}
     if (currentProfile) {
 
         const usernameInput =
@@ -10005,7 +10139,12 @@ async function isFollowingUser(userId) {
 async function followUser(userId) {
 
     if (!currentUser) {
-        alert("Please sign in first.");
+
+        showPATRIODXToast(
+            "Please sign in first.",
+            "warning"
+        );
+
         return;
     }
 
@@ -10038,9 +10177,18 @@ async function followUser(userId) {
         }
 
         if (error.code === "23505") {
-            alert("You are already following this user.");
+
+            showPATRIODXToast(
+                "You are already following this user.",
+                "info"
+            );
+
         } else {
-            alert("Could not follow this user.");
+
+            showPATRIODXToast(
+                "Could not follow this user.",
+                "error"
+            );
         }
 
         return;
@@ -10048,7 +10196,6 @@ async function followUser(userId) {
 
     await loadPublicProfile(userId);
 }
-
 
 // ------------------------------------------
 // UNFOLLOW USER
@@ -10076,15 +10223,17 @@ async function unfollowUser(userId) {
 
         console.error("Unfollow error:", error);
 
-        if (button) {
-            button.disabled = false;
-            button.textContent = "Following";
-        }
+     if (button) {
+    button.disabled = false;
+    button.textContent = "Following";
+}
 
-        alert("Could not unfollow this user.");
+showPATRIODXToast(
+    "Could not unfollow this user.",
+    "error"
+);
 
-        return;
-    }
+return;
 
     await loadPublicProfile(userId);
 }
@@ -10111,10 +10260,15 @@ async function loadPublicProfile(userId) {
         return;
     }
 
-    if (!profile) {
-        alert("Profile not found.");
-        return;
-    }
+   if (!profile) {
+
+    showPATRIODXToast(
+        "Profile not found.",
+        "error"
+    );
+
+    return;
+}
 
 
     const card =
@@ -11674,11 +11828,15 @@ if (
 
 async function startVerificationPlan() {
 
-    if (!currentUser) {
-        alert("Please log in before getting verified.");
-        return;
-    }
+   if (!currentUser) {
 
+    showPATRIODXToast(
+        "Please log in before getting verified.",
+        "warning"
+    );
+
+    return;
+}
     const choice = prompt(
       "PATRIODX VERIFIED\n\n" +
         "Choose your verification plan:\n\n" +
@@ -11692,16 +11850,17 @@ async function startVerificationPlan() {
     }
 
     let plan;
-
-    if (choice.trim() === "1") {
-        plan = "monthly";
-    } else if (choice.trim() === "2") {
-        plan = "yearly";
-    } else {
-        alert("Please enter 1 for Monthly or 2 for Yearly.");
-        return;
-    }
-
+if (choice.trim() === "1") {
+    plan = "monthly";
+} else if (choice.trim() === "2") {
+    plan = "yearly";
+} else {
+    showPATRIODXToast(
+        "Please enter 1 for Monthly or 2 for Yearly.",
+        "warning"
+    );
+    return;
+}
     try {
 
         const {
@@ -11710,10 +11869,15 @@ async function startVerificationPlan() {
             }
         } = await supabaseClient.auth.getSession();
 
-        if (!session || !session.access_token) {
-            alert("Your login session has expired. Please log in again.");
-            return;
-        }
+       if (!session || !session.access_token) {
+
+    showPATRIODXToast(
+        "Your login session has expired. Please log in again.",
+        "warning"
+    );
+
+    return;
+}
 
         const response = await fetch(
             "https://businessos-wine-eight.vercel.app/api/initialize-verification",
@@ -11757,16 +11921,17 @@ async function startVerificationPlan() {
 
     } catch (error) {
 
-        console.error(
-            "PATRIODX VERIFICATION ERROR:",
-            error
-        );
+       console.error(
+    "PATRIODX VERIFICATION ERROR:",
+    error
+);
 
-        alert(
-            "Could not start verification.\n\n" +
-            error.message
-        );
-    }
+showPATRIODXToast(
+    "Could not start verification. " +
+    error.message,
+    "error"
+);
+}
 }
 
 window.startVerificationPlan =
@@ -12051,33 +12216,57 @@ async function submitPATRIODXStory(event) {
     const button =
         document.getElementById("postStoryButton");
 
-    if (!fileInput || !fileInput.files.length) {
-        alert("Please select a photo or video.");
-        return;
-    }
+   if (!fileInput || !fileInput.files.length) {
 
-    if (!currentUser) {
-        alert("Please sign in again.");
-        return;
-    }
+    showPATRIODXToast(
+        "Please select a photo or video.",
+        "warning"
+    );
 
-    const file = fileInput.files[0];
+    return;
+}
 
-    const isImage =
-        file.type.startsWith("image/");
 
-    const isVideo =
-        file.type.startsWith("video/");
+if (!currentUser) {
 
-    if (!isImage && !isVideo) {
-        alert("Please select an image or video.");
-        return;
-    }
+    showPATRIODXToast(
+        "Please sign in again.",
+        "warning"
+    );
 
-    if (file.size > 50 * 1024 * 1024) {
-        alert("Story files must be smaller than 50 MB.");
-        return;
-    }
+    return;
+}
+
+
+const file = fileInput.files[0];
+
+const isImage =
+    file.type.startsWith("image/");
+
+const isVideo =
+    file.type.startsWith("video/");
+
+
+if (!isImage && !isVideo) {
+
+    showPATRIODXToast(
+        "Please select an image or video.",
+        "warning"
+    );
+
+    return;
+}
+
+
+if (file.size > 50 * 1024 * 1024) {
+
+    showPATRIODXToast(
+        "Story files must be smaller than 50 MB.",
+        "warning"
+    );
+
+    return;
+}
 
     button.disabled = true;
     button.innerHTML =
@@ -12163,11 +12352,11 @@ async function submitPATRIODXStory(event) {
             error
         );
 
-        alert(
-            error.message ||
-            "Could not post your story."
-        );
-
+    showPATRIODXToast(
+    error.message ||
+    "Could not post your story.",
+    "error"
+);
     } finally {
 
         button.disabled = false;
