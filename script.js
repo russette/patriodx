@@ -8494,29 +8494,47 @@ function setupNotificationActions() {
             "markAllNotificationsButton"
         );
 
+    if (!markAllButton) {
+        return;
+    }
 
     if (
-        !markAllButton ||
         markAllButton.dataset.ready === "true"
     ) {
         return;
     }
 
-
     markAllButton.dataset.ready = "true";
-
 
     markAllButton.addEventListener(
         "click",
-        async function() {
+        async function () {
 
             if (!currentUser) {
                 return;
             }
 
+            const unreadNotifications =
+                notificationsCache.filter(
+                    notification =>
+                        notification.is_read !== true
+                );
+
+            if (!unreadNotifications.length) {
+
+                renderNotifications();
+
+                return;
+            }
 
             markAllButton.disabled = true;
 
+            markAllButton.innerHTML =
+                '<i data-lucide="loader-circle"></i> Marking...';
+
+            if (typeof lucide !== "undefined") {
+                lucide.createIcons();
+            }
 
             const { error } =
                 await supabaseClient
@@ -8533,7 +8551,6 @@ function setupNotificationActions() {
                         false
                     );
 
-
             if (error) {
 
                 console.error(
@@ -8548,9 +8565,15 @@ function setupNotificationActions() {
 
                 markAllButton.disabled = false;
 
+                markAllButton.innerHTML =
+                    '<i data-lucide="check-check"></i> Mark all as read';
+
+                if (typeof lucide !== "undefined") {
+                    lucide.createIcons();
+                }
+
                 return;
             }
-
 
             notificationsCache =
                 notificationsCache.map(
@@ -8560,17 +8583,37 @@ function setupNotificationActions() {
                     })
                 );
 
+            notificationFilter = "all";
+
+            document
+                .querySelectorAll(".notification-filter")
+                .forEach(button => {
+                    button.classList.remove("active");
+                });
+
+            const allButton =
+                document.querySelector(
+                    '[data-notification-filter="all"]'
+                );
+
+            if (allButton) {
+                allButton.classList.add("active");
+            }
 
             renderNotifications();
 
-
             markAllButton.disabled = false;
+
+            markAllButton.innerHTML =
+                '<i data-lucide="check-check"></i> Mark all as read';
+
+            if (typeof lucide !== "undefined") {
+                lucide.createIcons();
+            }
 
         }
     );
 }
-
-
 /* ---------------------------------------------------------
    NOTIFICATION FILTERS
 --------------------------------------------------------- */
