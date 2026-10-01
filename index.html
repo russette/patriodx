@@ -31,10 +31,10 @@
 <!-- =========================================================
      PATRIODX PLATFORM HEADER
 ========================================================= -->
-<header class="patriodx-header">
+<header class="patriodx-header patriodx-clean-header">
 
-    <!-- BRAND -->
-    <div class="patriodx-brand">
+    <!-- LEFT: MOBILE MENU -->
+    <div class="patriodx-header-left">
 
         <button
             type="button"
@@ -46,35 +46,74 @@
             <i data-lucide="menu"></i>
         </button>
 
-        <a
-            href="#home"
-            class="patriodx-logo"
-        >
-            <img
-                src="assets/patriodx-logo.jpeg"
-                alt="PATRIODX"
-            >
+    </div>
 
-            <span>PATRIODX</span>
-        </a>
+
+    <!-- CENTER: PATRIODX BRAND -->
+    <a
+        href="#home"
+        class="patriodx-centered-logo"
+        aria-label="PATRIODX Home"
+    >
+
+        <img
+            src="assets/patriodx-logo.jpeg"
+            alt="PATRIODX"
+        >
+
+        <span>PATRIODX</span>
+
+    </a>
+
+
+    <!-- RIGHT: SEARCH -->
+    <div class="patriodx-header-right">
+
+        <button
+            type="button"
+            id="headerSearchButton"
+            class="header-search-button"
+            aria-label="Search PATRIODX"
+            title="Search PATRIODX"
+        >
+            <i data-lucide="search"></i>
+        </button>
 
     </div>
 
 
-    <!-- SEARCH ONLY -->
-    <div class="patriodx-global-search">
+    <!-- SEARCH PANEL -->
+    <div
+        id="globalSearchPanel"
+        class="global-search-panel"
+        style="display:none;"
+    >
 
-        <i
-            data-lucide="search"
-            class="header-search-icon"
-        ></i>
+        <div class="global-search-panel-inner">
 
-        <input
-            type="search"
-            id="globalSearchInput"
-            placeholder="Search PATRIODX..."
-            autocomplete="off"
-        >
+            <i
+                data-lucide="search"
+                class="global-search-panel-icon"
+            ></i>
+
+            <input
+                type="search"
+                id="globalSearchInput"
+                placeholder="Search PATRIODX..."
+                autocomplete="off"
+            >
+
+            <button
+                type="button"
+                id="closeGlobalSearch"
+                class="global-search-close"
+                aria-label="Close search"
+                title="Close search"
+            >
+                <i data-lucide="x"></i>
+            </button>
+
+        </div>
 
         <div
             id="globalSearchResults"
