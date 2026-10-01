@@ -5436,10 +5436,10 @@ async function getSocialCounts(postId) {
     };
 }
 
-
 /* =========================================================
    LOAD SOCIAL POSTS
 ========================================================= */
+
 function setupSocialFeedTabs() {
 
     const latestButton =
@@ -5478,13 +5478,143 @@ function setupSocialFeedTabs() {
         await loadSocialPosts();
     });
 }
+
+async function loadPATRIODXStories() {
+
+    const storiesContainer =
+        document.getElementById("socialOtherStories");
+
+    if (!storiesContainer || !currentUser) {
+        return;
+    }
+
+    const { data: stories, error } =
+        await supabaseClient
+            .from("stories")
+            .select(`
+                id,
+                user_id,
+                media_url,
+                media_type,
+                created_at,
+                expires_at
+            `)
+            .gt(
+                "expires_at",
+                new Date().toISOString()
+            )
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+    if (error) {
+
+        console.error(
+            "Stories loading error:",
+            error
+        );
+
+        return;
+    }
+
+    storiesContainer.innerHTML = "";
+
+    if (!stories || !stories.length) {
+        return;
+    }
+
+    const userIds = [
+        ...new Set(
+            stories.map(
+                story => story.user_id
+            )
+        )
+    ];
+
+    const { data: profiles } =
+        await supabaseClient
+            .from("profiles")
+            .select(
+                "id, username, display_name, avatar_url"
+            )
+            .in(
+                "id",
+                userIds
+            );
+
+    const profileMap = {};
+
+    (profiles || []).forEach(profile => {
+
+        profileMap[profile.id] =
+            profile;
+
+    });
+
+    stories.forEach(story => {
+
+        const profile =
+            profileMap[story.user_id] || {};
+
+        const name =
+            profile.display_name ||
+            profile.username ||
+            "PATRIODX User";
+
+        const avatar =
+            profile.avatar_url
+                ? `
+                    <img
+                        src="${profile.avatar_url}"
+                        alt=""
+                    >
+                `
+                : `
+                    <span>
+                        ${name
+                            .charAt(0)
+                            .toUpperCase()}
+                    </span>
+                `;
+
+        const storyButton =
+            document.createElement("button");
+
+        storyButton.type = "button";
+
+        storyButton.className =
+            "social-story-item";
+
+        storyButton.innerHTML = `
+            <span class="social-story-avatar">
+                ${avatar}
+            </span>
+
+            <strong>
+                ${escapeHTML(name)}
+            </strong>
+        `;
+
+        storiesContainer.appendChild(
+            storyButton
+        );
+
+    });
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+}
 async function loadSocialPosts() {
+
+    await loadPATRIODXStories();
 
     if (!socialFeed) {
         return;
     }
-
-
     /* =========================================================
        LOADING STATE
     ========================================================= */
