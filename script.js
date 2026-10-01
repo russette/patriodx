@@ -5262,47 +5262,43 @@ if (socialImageInput) {
             const file =
                 this.files?.[0];
 
-            if (!file) return;
+            if (!file) {
+                return;
+            }
 
+            if (!file.type.startsWith("image/")) {
 
-           if (!file.type.startsWith("image/")) {
+                showPATRIODXToast(
+                    "Please select an image file.",
+                    "warning"
+                );
 
-    showPATRIODXToast(
-        "Please select an image file.",
-        "warning"
-    );
-
-    return;
-}
                 this.value = "";
 
                 return;
             }
 
+            if (file.size > 10 * 1024 * 1024) {
 
-           if (file.size > 10 * 1024 * 1024) {
+                showPATRIODXToast(
+                    "Photo must be smaller than 10 MB.",
+                    "warning"
+                );
 
-    showPATRIODXToast(
-        "Photo must be smaller than 10 MB.",
-        "warning"
-    );
+                this.value = "";
 
-    this.value = "";
-
-    return;
-}
-
+                return;
+            }
 
             if (socialVideoInput) {
                 socialVideoInput.value = "";
             }
 
-
             showSocialMediaPreview(file);
+
         }
     );
 }
-
 
 /* =========================================================
    VIDEO SELECTED
