@@ -12175,3 +12175,98 @@ async function submitPATRIODXStory(event) {
         }
     }
 }
+/* =========================================================
+   MOBILE CREATE SHEET
+========================================================= */
+
+function openMobileCreateSheet() {
+
+    const sheet =
+        document.getElementById(
+            "mobileCreateSheet"
+        );
+
+    if (!sheet) {
+        return;
+    }
+
+    sheet.style.display = "flex";
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+}
+
+
+function closeMobileCreateSheet() {
+
+    const sheet =
+        document.getElementById(
+            "mobileCreateSheet"
+        );
+
+    if (!sheet) {
+        return;
+    }
+
+    sheet.style.display = "none";
+}
+
+
+function setupMobileCreateSheet() {
+
+    const createButton =
+        document.getElementById(
+            "mobileCreateButton"
+        );
+
+    const closeButton =
+        document.getElementById(
+            "mobileCreateClose"
+        );
+
+    const sheet =
+        document.getElementById(
+            "mobileCreateSheet"
+        );
+
+    if (!createButton || !closeButton || !sheet) {
+        return;
+    }
+
+    if (
+        createButton.dataset.createReady ===
+        "true"
+    ) {
+        return;
+    }
+
+    createButton.dataset.createReady =
+        "true";
+
+    createButton.addEventListener(
+        "click",
+        openMobileCreateSheet
+    );
+
+    closeButton.addEventListener(
+        "click",
+        closeMobileCreateSheet
+    );
+
+    sheet.addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                event.target === sheet
+            ) {
+                closeMobileCreateSheet();
+            }
+
+        }
+    );
+}
+
+
+setupMobileCreateSheet();
