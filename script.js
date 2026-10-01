@@ -8393,35 +8393,54 @@ function renderNotifications() {
    NOTIFICATION CLICK
 --------------------------------------------------------- */
 
-async function handleNotificationClick(
-    notificationId
-) {
+async function handleNotificationClick(notificationId) {
 
     const notification =
         notificationsCache.find(
-            item =>
-                item.id === notificationId
+            item => item.id === notificationId
         );
-
 
     if (!notification) {
         return;
     }
 
-
     if (notification.is_read !== true) {
-
         await markNotificationRead(
             notificationId,
             false
         );
     }
 
+    const type =
+        (notification.type || "").toLowerCase();
 
-    /*
-     * We will connect notification
-     * destinations in the next step.
-     */
+    if (
+        type === "like" ||
+        type === "comment"
+    ) {
+        navigatePATRIODX("social");
+        return;
+    }
+
+    if (type === "message") {
+        navigatePATRIODX("messaging");
+        return;
+    }
+
+    if (type === "follow") {
+        navigatePATRIODX("profile");
+        return;
+    }
+
+    if (type === "sale") {
+        navigatePATRIODX("sales");
+        return;
+    }
+
+    if (type === "system") {
+        navigatePATRIODX("home");
+        return;
+    }
 }
 
 
