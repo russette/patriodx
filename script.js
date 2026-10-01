@@ -6392,6 +6392,7 @@ setupSocialFeedTabs();
 /* =========================================================
    CREATE POST
 ========================================================= */
+
 if (socialPostForm) {
 
     socialPostForm.addEventListener(
@@ -6399,7 +6400,6 @@ if (socialPostForm) {
         async function(event) {
 
             event.preventDefault();
-
 
             if (!currentUser) {
 
@@ -6411,7 +6411,6 @@ if (socialPostForm) {
                 return;
             }
 
-
             const content =
                 document
                     .getElementById(
@@ -6419,7 +6418,6 @@ if (socialPostForm) {
                     )
                     .value
                     .trim();
-
 
             if (
                 !content &&
@@ -6434,25 +6432,20 @@ if (socialPostForm) {
                 return;
             }
 
-
             const button =
                 document.getElementById(
                     "socialPostButton"
                 );
-
 
             button.disabled = true;
 
             button.textContent =
                 "Uploading...";
 
-
             try {
 
                 let imageUrl = null;
-
                 let videoUrl = null;
-
 
                 if (selectedSocialFile) {
 
@@ -6460,7 +6453,6 @@ if (socialPostForm) {
                         await uploadSocialMedia(
                             selectedSocialFile
                         );
-
 
                     if (
                         selectedSocialFile.type
@@ -6474,10 +6466,8 @@ if (socialPostForm) {
 
                         videoUrl =
                             uploadedUrl;
-
                     }
                 }
-
 
                 const { error } =
                     await supabaseClient
@@ -6502,11 +6492,9 @@ if (socialPostForm) {
 
                         });
 
-
                 if (error) {
                     throw error;
                 }
-
 
                 document
                     .getElementById(
@@ -6514,19 +6502,19 @@ if (socialPostForm) {
                     )
                     .value = "";
 
-
                 clearSocialMedia();
-
 
                 button.disabled =
                     false;
 
-                button.textContent =
-                   '<i data-lucide="megaphone"></i> Post';
+                button.innerHTML =
+                    '<i data-lucide="megaphone"></i> Post';
 
+                if (typeof lucide !== "undefined") {
+                    lucide.createIcons();
+                }
 
                 await loadSocialPosts();
-
 
             } catch (error) {
 
@@ -6535,24 +6523,22 @@ if (socialPostForm) {
                     error
                 );
 
-
-               showPATRIODXToast(
-    "Could not create your post. " +
-    error.message,
-    "error"
-);
-
+                showPATRIODXToast(
+                    "Could not create your post. " +
+                    error.message,
+                    "error"
+                );
 
                 button.disabled =
                     false;
 
-               button.innerHTML =
-    '<i data-lucide="megaphone"></i> Post';
+                button.innerHTML =
+                    '<i data-lucide="megaphone"></i> Post';
 
-if (typeof lucide !== "undefined") {
-    lucide.createIcons();
-}
-
+                if (typeof lucide !== "undefined") {
+                    lucide.createIcons();
+                }
+            }
         }
     );
 }
@@ -6561,6 +6547,7 @@ if (typeof lucide !== "undefined") {
 /* =========================================================
    LIKE POST
 ========================================================= */
+
 async function likeSocialPost(postId) {
 
     if (!currentUser) {
@@ -6572,7 +6559,6 @@ async function likeSocialPost(postId) {
 
         return;
     }
-
 
     const { error } =
         await supabaseClient
@@ -6586,7 +6572,6 @@ async function likeSocialPost(postId) {
                     currentUser.id
 
             });
-
 
     if (error) {
 
@@ -6613,7 +6598,6 @@ async function likeSocialPost(postId) {
 
         return;
     }
-
 
     await refreshSocialPostStats(
         postId
