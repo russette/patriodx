@@ -1210,9 +1210,6 @@ if (quantity > product.stock) {
     return;
 }
 
-        return;
-    }
-
     const total =
         Number(product.price) *
         quantity;
