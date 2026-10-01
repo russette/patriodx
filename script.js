@@ -12137,7 +12137,10 @@ async function submitPATRIODXStory(event) {
             throw storyError;
         }
 
-        alert("Story posted successfully!");
+      showPATRIODXToast(
+    "Story posted successfully.",
+    "success"
+);
 
         closeAddStoryModal();
 
@@ -12272,3 +12275,81 @@ function setupMobileCreateSheet() {
 
 
 setupMobileCreateSheet();
+/* =========================================================
+   PATRIODX IN-SITE TOAST NOTIFICATIONS
+========================================================= */
+
+function showPATRIODXToast(message, type = "info") {
+
+    let toast =
+        document.getElementById("patriodxToast");
+
+    if (!toast) {
+
+        toast =
+            document.createElement("div");
+
+        toast.id = "patriodxToast";
+
+        toast.innerHTML = `
+            <span
+                id="patriodxToastIcon"
+                class="patriodx-toast-icon"
+            ></span>
+
+            <span
+                id="patriodxToastMessage"
+                class="patriodx-toast-message"
+            ></span>
+        `;
+
+        document.body.appendChild(toast);
+    }
+
+    const icon =
+        document.getElementById(
+            "patriodxToastIcon"
+        );
+
+    const messageElement =
+        document.getElementById(
+            "patriodxToastMessage"
+        );
+
+    if (messageElement) {
+        messageElement.textContent = message;
+    }
+
+    toast.className =
+        "patriodx-toast " + type;
+
+    if (icon) {
+
+        const icons = {
+            success: "check-circle",
+            error: "circle-alert",
+            warning: "triangle-alert",
+            info: "info"
+        };
+
+        icon.innerHTML =
+            `<i data-lucide="${icons[type] || "info"}"></i>`;
+    }
+
+    toast.classList.add("show");
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+
+    clearTimeout(
+        toast._hideTimer
+    );
+
+    toast._hideTimer =
+        setTimeout(() => {
+
+            toast.classList.remove("show");
+
+        }, 3000);
+}
