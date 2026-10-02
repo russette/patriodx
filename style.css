@@ -8584,7 +8584,71 @@ body.dark-mode .mobile-action-item-icon {
 }
 
 .patriodx-centered-logo img {
-    width: 38px;
+    width: 38px;/* =========================================================
+   PATRIODX — HIDE OLD SIDEBAR
+========================================================= */
+
+.patriodx-sidebar,
+.sidebar,
+.main-sidebar {
+    display: none !important;
+}
+
+/* =========================================================
+   PATRIODX — MAIN CONTENT
+========================================================= */
+
+main,
+.patriodx-main,
+.main-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* =========================================================
+   PATRIODX — HEADER
+========================================================= */
+
+.patriodx-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+
+    min-height: 72px;
+    padding: 0 24px;
+
+    box-sizing: border-box;
+
+    background: var(--header-bg, #ffffff);
+
+    border-bottom: 1px solid
+        var(--border-color, #e2e8f0);
+}
+   /* =========================================================
+   PREVENT HEADER FROM COVERING HOME CONTENT
+========================================================= */
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+main {
+    position: relative;
+    z-index: 1;
+    padding-top: 24px;
+}
+
+#home {
+    position: relative;
+    scroll-margin-top: 90px;
+}
     height: 38px;
 
     object-fit: cover;
