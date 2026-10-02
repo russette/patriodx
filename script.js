@@ -3874,14 +3874,15 @@ async function saveSetting(column, value) {
             return;
         }
 
-        const newEmail =
-            window.prompt(
-                "Enter your new email address:"
-            );
+       const newEmail =
+    await showPATRIODXInput(
+        "Change Email",
+        "Enter your new email address:"
+    );
 
-        if (!newEmail) {
-            return;
-        }
+if (!newEmail) {
+    return;
+}
 
         const email =
             newEmail.trim();
@@ -3933,20 +3934,17 @@ document
             return;
         }
 
-        const choice = prompt(
-            "Account Privacy\n\n" +
-            "Choose:\n\n" +
-            "public\n" +
-            "followers\n" +
-            "private\n\n" +
-            "Current: " +
-            settings.account_privacy
-        );
+       const choice =
+    await showPATRIODXInput(
+        "Account Privacy",
+        "Choose: public, followers, or private.<br><br>" +
+        "Current: " +
+        settings.account_privacy
+    );
 
-        if (!choice) {
-            return;
-        }
-
+if (!choice) {
+    return;
+}
         const value =
             choice.trim().toLowerCase();
 
@@ -4000,20 +3998,17 @@ document
             return;
         }
 
-        const choice = prompt(
-            "Message Privacy\n\n" +
-            "Choose:\n\n" +
-            "everyone\n" +
-            "followers\n" +
-            "nobody\n\n" +
-            "Current: " +
-            settings.message_privacy
-        );
+   const choice =
+    await showPATRIODXInput(
+        "Message Privacy",
+        "Choose: everyone, followers, or nobody.<br><br>" +
+        "Current: " +
+        settings.message_privacy
+    );
 
-        if (!choice) {
-            return;
-        }
-
+if (!choice) {
+    return;
+}
         const value =
             choice.trim().toLowerCase();
 
@@ -4067,19 +4062,17 @@ document
             return;
         }
 
-        const choice = prompt(
-            "Mention Privacy\n\n" +
-            "Choose:\n\n" +
-            "everyone\n" +
-            "followers\n" +
-            "nobody\n\n" +
-            "Current: " +
-            settings.mention_privacy
-        );
+      const choice =
+    await showPATRIODXInput(
+        "Mention Privacy",
+        "Choose: everyone, followers, or nobody.<br><br>" +
+        "Current: " +
+        settings.mention_privacy
+    );
 
-        if (!choice) {
-            return;
-        }
+if (!choice) {
+    return;
+}
 
         const value =
             choice.trim().toLowerCase();
@@ -4132,20 +4125,17 @@ document
             return;
         }
 
-        const choice = prompt(
-            "Tag Privacy\n\n" +
-            "Choose:\n\n" +
-            "everyone\n" +
-            "followers\n" +
-            "nobody\n\n" +
-            "Current: " +
-            settings.tag_privacy
-        );
+      const choice =
+    await showPATRIODXInput(
+        "Tag Privacy",
+        "Choose: everyone, followers, or nobody.<br><br>" +
+        "Current: " +
+        settings.tag_privacy
+    );
 
-        if (!choice) {
-            return;
-        }
-
+if (!choice) {
+    return;
+}
         const value =
             choice.trim().toLowerCase();
 
@@ -4311,19 +4301,17 @@ document
                 return;
             }
 
-            const choice = prompt(
-                "Livestream Privacy\n\n" +
-                "Choose:\n\n" +
-                "everyone\n" +
-                "followers\n" +
-                "private\n\n" +
-                "Current: " +
-                settings.livestream_privacy
-            );
+          const choice =
+    await showPATRIODXInput(
+        "Livestream Privacy",
+        "Choose: everyone, followers, or private.<br><br>" +
+        "Current: " +
+        settings.livestream_privacy
+    );
 
-            if (!choice) {
-                return;
-            }
+if (!choice) {
+    return;
+}
 
             const value =
                 choice.trim().toLowerCase();
@@ -4379,20 +4367,17 @@ document
                 return;
             }
 
-            const choice = prompt(
-                "Story Privacy\n\n" +
-                "Choose:\n\n" +
-                "everyone\n" +
-                "followers\n" +
-                "private\n\n" +
-                "Current: " +
-                settings.story_privacy
-            );
+           const choice =
+    await showPATRIODXInput(
+        "Story Privacy",
+        "Choose: everyone, followers, or private.<br><br>" +
+        "Current: " +
+        settings.story_privacy
+    );
 
-            if (!choice) {
-                return;
-            }
-
+if (!choice) {
+    return;
+}
             const value =
                 choice.trim().toLowerCase();
 
@@ -4881,6 +4866,23 @@ if (settingsLogoutButton) {
     settingsLogoutButton.addEventListener(
         "click",
         logoutUser
+    );
+}
+    const addAccountButton =
+    document.getElementById(
+        "addAccountButton"
+    );
+
+if (addAccountButton) {
+
+    addAccountButton.addEventListener(
+        "click",
+        function() {
+
+            window.location.href =
+                "auth.html";
+
+        }
     );
 }
   renderAll();
@@ -7193,16 +7195,17 @@ async function reportSocialPost(postId) {
         return;
     }
 
-    const reason =
-        prompt(
-            "Why are you reporting this post?\n\n" +
-            "Examples: Spam, Scam, Harassment, " +
-            "Inappropriate content, Other"
-        );
+const reason =
+    await showPATRIODXInput(
+        "Report Post",
+        "Why are you reporting this post?<br><br>" +
+        "Examples: Spam, Scam, Harassment, " +
+        "Inappropriate content, Other"
+    );
 
-    if (!reason) {
-        return;
-    }
+if (!reason) {
+    return;
+}
 
     const cleanReason =
         reason.trim();
@@ -11931,7 +11934,252 @@ if (
 // =========================================================
 // PATRIODX BLUE CHECK VERIFICATION
 // =========================================================
+function showPATRIODXVerificationPlan() {
 
+    return new Promise(function(resolve) {
+
+        const overlay =
+            document.createElement("div");
+
+        overlay.className =
+            "patriodx-confirm-overlay";
+
+        overlay.innerHTML = `
+            <div class="patriodx-confirm-modal">
+
+                <h3>PATRIODX VERIFIED</h3>
+
+                <p>
+                    Choose your verification plan.
+                </p>
+
+                <div class="verification-plan-options">
+
+                    <button
+                        type="button"
+                        class="verification-plan-option"
+                        data-plan="1"
+                    >
+                        <strong>Monthly</strong>
+                        <span>GHS 58.09</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="verification-plan-option"
+                        data-plan="2"
+                    >
+                        <strong>Yearly</strong>
+                        <span>GHS 580.95</span>
+                    </button>
+
+                </div>
+
+                <div class="patriodx-confirm-actions">
+
+                    <button
+                        type="button"
+                        class="secondary-btn"
+                        id="verificationCancelButton"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="button"
+                        id="verificationContinueButton"
+                        class="primary-btn"
+                        disabled
+                    >
+                        Continue
+                    </button>
+
+                </div>
+
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        let selectedPlan = null;
+
+        const options =
+            overlay.querySelectorAll(
+                ".verification-plan-option"
+            );
+
+        const continueButton =
+            overlay.querySelector(
+                "#verificationContinueButton"
+            );
+
+        const cancelButton =
+            overlay.querySelector(
+                "#verificationCancelButton"
+            );
+
+        options.forEach(function(option) {
+
+            option.addEventListener(
+                "click",
+                function() {
+
+                    options.forEach(function(item) {
+                        item.classList.remove(
+                            "selected"
+                        );
+                    });
+
+                    option.classList.add(
+                        "selected"
+                    );
+
+                    selectedPlan =
+                        option.dataset.plan;
+
+                    continueButton.disabled =
+                        false;
+                }
+            );
+
+        });
+
+        cancelButton.addEventListener(
+            "click",
+            function() {
+
+                overlay.remove();
+
+                resolve(null);
+            }
+        );
+
+        continueButton.addEventListener(
+            "click",
+            function() {
+
+                overlay.remove();
+
+                resolve(selectedPlan);
+            }
+        );
+
+    });
+}
+// =========================================================
+// PATRIODX INPUT MODAL
+// =========================================================
+
+function showPATRIODXInput(title, message) {
+
+    return new Promise(function(resolve) {
+
+        const overlay =
+            document.createElement("div");
+
+        overlay.className =
+            "patriodx-confirm-overlay";
+
+        overlay.innerHTML = `
+            <div class="patriodx-confirm-modal">
+
+                <h3>${title}</h3>
+
+                <p>${message}</p>
+
+                <input
+                    type="text"
+                    id="patriodxInputField"
+                    class="patriodx-input"
+                    autocomplete="off"
+                >
+
+                <div class="patriodx-confirm-actions">
+
+                    <button
+                        type="button"
+                        class="secondary-btn"
+                        id="patriodxInputCancel"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="button"
+                        class="primary-btn"
+                        id="patriodxInputContinue"
+                    >
+                        Continue
+                    </button>
+
+                </div>
+
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        const input =
+            overlay.querySelector(
+                "#patriodxInputField"
+            );
+
+        const cancel =
+            overlay.querySelector(
+                "#patriodxInputCancel"
+            );
+
+        const continueButton =
+            overlay.querySelector(
+                "#patriodxInputContinue"
+            );
+
+        input.focus();
+
+        cancel.addEventListener(
+            "click",
+            function() {
+
+                overlay.remove();
+
+                resolve(null);
+            }
+        );
+
+        continueButton.addEventListener(
+            "click",
+            function() {
+
+                const value =
+                    input.value.trim();
+
+                overlay.remove();
+
+                resolve(value || null);
+            }
+        );
+
+        input.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (event.key === "Enter") {
+
+                    continueButton.click();
+
+                }
+
+                if (event.key === "Escape") {
+
+                    cancel.click();
+
+                }
+
+            }
+        );
+
+    });
+}
 async function startVerificationPlan() {
 
    if (!currentUser) {
@@ -11943,17 +12191,12 @@ async function startVerificationPlan() {
 
     return;
 }
-    const choice = prompt(
-      "PATRIODX VERIFIED\n\n" +
-        "Choose your verification plan:\n\n" +
-        "1 = Monthly — GHS 58.09\n" +
-        "2 = Yearly — GHS 580.95\n\n" +
-        "Enter 1 or 2:"
-    );
+  const choice =
+    await showPATRIODXVerificationPlan();
 
-    if (choice === null) {
-        return;
-    }
+if (choice === null) {
+    return;
+}
 
     let plan;
 if (choice.trim() === "1") {
