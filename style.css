@@ -8526,186 +8526,35 @@ body.dark-mode .mobile-action-item-icon {
     color: #60a5fa;
 }
 /* =========================================================
-   CLEAN PATRIODX HEADER
-========================================================= */
-
-.patriodx-clean-header {
-    position: relative;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    min-height: 72px;
-    padding: 0 24px;
-}
-
-
-/* LEFT */
-
-.patriodx-header-left {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-}
-
-
-/* CENTER LOGO */
-
-.patriodx-centered-logo {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-
-    text-decoration: none;
-
-    color: #2563eb;
-
-    font-family:
-        "Cinzel Decorative",
-        "Copperplate",
-        "Papyrus",
-        fantasy;
-
-    font-size: 23px;
-    font-weight: 900;
-    letter-spacing: 2px;
-
-    text-shadow:
-        0 2px 8px rgba(37, 99, 235, 0.18);
-
-    transition:
-        transform 0.2s ease,
-        opacity 0.2s ease;
-}
-
-.patriodx-centered-logo:hover {
-    transform: scale(1.03);
-    opacity: 0.92;
-}
-
-.patriodx-centered-logo img {
-    width: 38px;/* =========================================================
-   PATRIODX — HIDE OLD SIDEBAR
-========================================================= */
-
-.patriodx-sidebar,
-.sidebar,
-.main-sidebar {
-    display: none !important;
-}
-
-/* =========================================================
-   PATRIODX — MAIN CONTENT
-========================================================= */
-
-main,
-.patriodx-main,
-.main-content {
-    position: relative;
-    z-index: 1;
-}
-
-/* =========================================================
-   PATRIODX — HEADER
+   PATRIODX HEADER — FINAL
 ========================================================= */
 
 .patriodx-header {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-
-    width: 100%;
-
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-
-    min-height: 72px;
-    padding: 0 24px;
-
-    box-sizing: border-box;
-
-    background: var(--header-bg, #ffffff);
-
-    border-bottom: 1px solid
-        var(--border-color, #e2e8f0);
-}
-   /* =========================================================
-   PREVENT HEADER FROM COVERING HOME CONTENT
-========================================================= */
-
-body {
-    margin: 0;
-    padding: 0;
-}
-
-main {
-    position: relative;
-    z-index: 1;
-    padding-top: 24px;
-}
-
-#home {
-    position: relative;
-    scroll-margin-top: 90px;
-}
-    height: 38px;
-
-    object-fit: cover;
-
-    border-radius: 10px;
-
-    box-shadow:
-        0 4px 14px rgba(37, 99, 235, 0.22);
-}
-/* =========================================================
-   FIX PATRIODX HEADER COVERING HOME
-========================================================= */
-
-.patriodx-header {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 1000 !important;
-}
-
-/* Give the Home section breathing room */
-main.container {
-    position: relative;
-    z-index: 1;
-    padding-top: 20px !important;
-}
-
-#home {
-    position: relative;
-    scroll-margin-top: 90px;
-}
-/* =========================================================
-   PATRIODX HEADER — POSITION ONLY
-   Does not change page features
-========================================================= */
-
-.patriodx-header {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 1000 !important;
-
+    position: relative !important;
     width: 100% !important;
     height: 72px !important;
-    padding: 0 28px !important;
+    min-height: 72px !important;
+    padding: 0 24px !important;
+    margin: 0 !important;
     box-sizing: border-box !important;
 
     display: grid !important;
     grid-template-columns: 1fr auto 1fr !important;
     align-items: center !important;
+
+    background: var(--header-bg, #ffffff) !important;
+    border-bottom: 1px solid var(--border-color, #e2e8f0) !important;
+
+    z-index: 1000 !important;
 }
 
-/* LEFT */
+/* Hamburger */
 .patriodx-header-left {
     grid-column: 1 !important;
     justify-self: start !important;
 }
 
-/* CENTER */
+/* PATRIODX — exact center of screen */
 .patriodx-centered-logo {
     grid-column: 2 !important;
     justify-self: center !important;
@@ -8713,9 +8562,12 @@ main.container {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+
+    margin: 0 !important;
+    transform: none !important;
 }
 
-/* RIGHT */
+/* Search */
 .patriodx-header-right {
     grid-column: 3 !important;
     justify-self: end !important;
@@ -8725,12 +8577,33 @@ main.container {
     justify-content: flex-end !important;
 }
 
-/* SEARCH */
-.header-search-button {
-    margin: 0 !important;
+/* Logo image */
+.patriodx-centered-logo img {
+    width: 38px !important;
+    height: 38px !important;
+    object-fit: cover !important;
+    border-radius: 10px !important;
 }
 
-/* DO NOT LET THE HEADER CHANGE THE PAGE LAYOUT */
-main.container {
-    margin-top: 0 !important;
+/* =========================================================
+   SIDEBAR — KEEP IT
+========================================================= */
+
+#patriodxSidebar {
+    display: block !important;
+    position: fixed !important;
+    top: 72px !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    height: calc(100vh - 72px) !important;
+    z-index: 900 !important;
+}
+
+/* =========================================================
+   MAIN CONTENT
+========================================================= */
+
+main {
+    position: relative !important;
+    z-index: 1 !important;
 }
