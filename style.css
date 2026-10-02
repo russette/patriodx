@@ -8919,3 +8919,15 @@ body.dark-mode .mobile-bottom-nav {
 .settings-danger-button:hover {
     background: rgba(220, 38, 38, 0.08);
 }
+/* =========================================================
+   FIX — BUSINESS SUBSCRIPTION TEXT
+========================================================= */
+
+#accountPlan,
+#accountStatus,
+#accountBusinessName {
+    white-space: nowrap !important;
+    display: inline-block !important;
+    min-width: max-content !important;
+    width: auto !important;
+}
