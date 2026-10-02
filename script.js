@@ -523,40 +523,81 @@ function setupDarkMode() {
     const button =
         document.getElementById("themeToggle");
 
-    if (!button) return;
+    const settingsToggle =
+        document.getElementById(
+            "settingsDarkModeToggle"
+        );
 
     const savedTheme =
         localStorage.getItem("patriodxTheme");
 
-    function updateThemeButton() {
+    function isDarkMode() {
 
-        const dark =
-            document.body.classList.contains("dark-mode");
-
-        button.innerHTML =
-            dark
-                ? '<i data-lucide="sun"></i>'
-                : '<i data-lucide="moon"></i>';
-
-        if (typeof lucide !== "undefined") {
-            lucide.createIcons();
-        }
-
-        button.setAttribute(
-            "aria-label",
-            dark
-                ? "Switch to light mode"
-                : "Switch to dark mode"
-        );
-
-        button.setAttribute(
-            "title",
-            dark
-                ? "Switch to light mode"
-                : "Switch to dark mode"
+        return document.body.classList.contains(
+            "dark-mode"
         );
     }
 
+    function updateThemeUI() {
+
+        const dark = isDarkMode();
+
+        // Existing header/sidebar dark-mode button
+        if (button) {
+
+            button.innerHTML =
+                dark
+                    ? '<i data-lucide="sun"></i>'
+                    : '<i data-lucide="moon"></i>';
+
+            button.setAttribute(
+                "aria-label",
+                dark
+                    ? "Switch to light mode"
+                    : "Switch to dark mode"
+            );
+
+            button.setAttribute(
+                "title",
+                dark
+                    ? "Switch to light mode"
+                    : "Switch to dark mode"
+            );
+        }
+
+        // Settings & Activity toggle
+        if (settingsToggle) {
+
+            settingsToggle.checked = dark;
+        }
+
+        if (
+            typeof lucide !== "undefined"
+        ) {
+
+            lucide.createIcons();
+        }
+    }
+
+    function setDarkMode(dark) {
+
+        document.body.classList.toggle(
+            "dark-mode",
+            dark
+        );
+
+        localStorage.setItem(
+            "patriodxTheme",
+            dark
+                ? "dark"
+                : "light"
+        );
+
+        updateThemeUI();
+    }
+
+
+    // Load saved theme
     if (savedTheme === "dark") {
 
         document.body.classList.add(
@@ -564,29 +605,38 @@ function setupDarkMode() {
         );
     }
 
-    updateThemeButton();
 
-    button.addEventListener(
-        "click",
-        function() {
+    // Existing dark-mode button
+    if (button) {
 
-            document.body.classList.toggle(
-                "dark-mode"
-            );
+        button.addEventListener(
+            "click",
+            function() {
 
-            const dark =
-                document.body.classList.contains(
-                    "dark-mode"
+                setDarkMode(
+                    !isDarkMode()
                 );
+            }
+        );
+    }
 
-            localStorage.setItem(
-                "patriodxTheme",
-                dark ? "dark" : "light"
-            );
 
-            updateThemeButton();
-        }
-    );
+    // Settings & Activity dark-mode toggle
+    if (settingsToggle) {
+
+        settingsToggle.addEventListener(
+            "change",
+            function() {
+
+                setDarkMode(
+                    settingsToggle.checked
+                );
+            }
+        );
+    }
+
+
+    updateThemeUI();
 }
 // =========================================================
 // PRODUCT MODAL
@@ -4814,7 +4864,7 @@ await loadMyProfile();
 
     setupForms();
 setupSettingsActivity();
-  
+ setupAccountCenter(); 
     document
         .getElementById("logoutButton")
         ?.addEventListener(
@@ -12586,4 +12636,108 @@ function showPATRIODXToast(message, type = "info") {
             toast.classList.remove("show");
 
         }, 3000);
+}
+// =========================================================
+// ACCOUNT CENTER
+// =========================================================
+
+function setupAccountCenter() {
+
+    const button =
+        document.getElementById("accountCenterButton");
+
+    const panel =
+        document.getElementById("accountCenter");
+
+    const closeButton =
+        document.getElementById("closeAccountCenter");
+
+    const settingsButton =
+        document.getElementById(
+            "settingsActivityButton"
+        );
+
+    if (!button || !panel) return;
+
+
+    // Open / close Account Center
+    button.addEventListener("click", function(event) {
+
+        event.stopPropagation();
+
+        const isOpen =
+            panel.style.display !== "none";
+
+        panel.style.display =
+            isOpen ? "none" : "block";
+
+        if (
+            typeof lucide !== "undefined"
+        ) {
+            lucide.createIcons();
+        }
+    });
+
+
+    // Close button
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            function() {
+
+                panel.style.display = "none";
+            }
+        );
+    }
+
+
+    // Settings & Activity
+    if (settingsButton) {
+
+        settingsButton.addEventListener(
+            "click",
+            function() {
+
+                panel.style.display = "none";
+
+                // Open existing Settings section
+                const settingsSection =
+                    document.getElementById(
+                        "settings"
+                    );
+
+                if (settingsSection) {
+
+                    settingsSection.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+
+                } else {
+
+                    console.log(
+                        "Settings section not found."
+                    );
+                }
+            }
+        );
+    }
+
+
+    // Close when clicking outside
+    document.addEventListener(
+        "click",
+        function(event) {
+
+            if (
+                panel.style.display !== "none" &&
+                !panel.contains(event.target) &&
+                !button.contains(event.target)
+            ) {
+
+                panel.style.display = "none";
+            }
+        }
+    );
 }
