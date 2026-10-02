@@ -4871,7 +4871,18 @@ setupSettingsActivity();
             "click",
             logoutUser
         );
+const settingsLogoutButton =
+    document.getElementById(
+        "settingsLogoutButton"
+    );
 
+if (settingsLogoutButton) {
+
+    settingsLogoutButton.addEventListener(
+        "click",
+        logoutUser
+    );
+}
   renderAll();
 
 await loadHomePosts();
@@ -12636,4 +12647,27 @@ function showPATRIODXToast(message, type = "info") {
             toast.classList.remove("show");
 
         }, 3000);
+}
+const openProfileButton =
+    document.getElementById("openProfileButton");
+
+if (openProfileButton) {
+
+    openProfileButton.addEventListener(
+        "click",
+        function() {
+
+            const profileSection =
+                document.getElementById("profile");
+
+            if (profileSection) {
+
+                profileSection.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+            }
+        }
+    );
 }
