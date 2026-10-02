@@ -79,7 +79,15 @@
         >
             <i data-lucide="search"></i>
         </button>
-
+<button
+    type="button"
+    id="accountCenterButton"
+    class="account-center-button"
+    aria-label="Open Account Center"
+    title="Account Center"
+>
+    <i data-lucide="user-circle"></i>
+</button>
     </div>
 
 
@@ -122,7 +130,72 @@
         ></div>
 
     </div>
+<!-- =========================================================
+     PATRIODX ACCOUNT CENTER
+========================================================= -->
 
+<div
+    id="accountCenter"
+    class="account-center"
+    style="display: none;"
+>
+
+    <div class="account-center-header">
+        <strong>Account Center</strong>
+
+        <button
+            type="button"
+            id="closeAccountCenter"
+            aria-label="Close Account Center"
+        >
+            <i data-lucide="x"></i>
+        </button>
+    </div>
+
+    <div class="account-center-profile">
+        <div class="account-avatar">
+            <i data-lucide="user"></i>
+        </div>
+
+        <div>
+            <strong id="accountCenterName">PATRIODX Account</strong>
+            <span id="accountCenterEmail">Account settings</span>
+        </div>
+    </div>
+
+    <div class="account-center-menu">
+
+    <button type="button" id="accountButton">
+        <i data-lucide="user"></i>
+        <span>Account</span>
+    </button>
+
+    <button type="button" id="addAccountButton">
+        <i data-lucide="user-plus"></i>
+        <span>Add Account</span>
+    </button>
+
+    <button type="button" id="settingsActivityButton">
+        <i data-lucide="settings"></i>
+        <span>Settings &amp; Activity</span>
+    </button>
+
+</div>
+
+    <div class="account-center-footer">
+
+        <button
+            type="button"
+            id="accountLogoutButton"
+            class="account-logout-button"
+        >
+            <i data-lucide="log-out"></i>
+            <span>Log Out</span>
+        </button>
+
+    </div>
+
+</div>
 </header>
 <!-- =========================================================
      PATRIODX DESKTOP SIDEBAR
@@ -2427,6 +2500,40 @@
             </div>
 
         </div>
+
+    </div>
+
+</section>
+    <!-- =========================================================
+     APPEARANCE
+========================================================= -->
+
+<section class="settings-section">
+
+    <h2>Appearance</h2>
+
+    <p class="settings-description">
+        Customize how PATRIODX looks.
+    </p>
+
+    <div class="settings-card">
+
+        <div class="settings-card-content">
+            <strong>Dark Mode</strong>
+
+            <span>
+                Switch between light and dark appearance.
+            </span>
+        </div>
+
+        <label class="settings-toggle">
+            <input
+                type="checkbox"
+                id="settingsDarkModeToggle"
+            >
+
+            <span class="settings-toggle-slider"></span>
+        </label>
 
     </div>
 
