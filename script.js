@@ -4864,7 +4864,7 @@ await loadMyProfile();
 
     setupForms();
 setupSettingsActivity();
- setupAccountCenter(); 
+
     document
         .getElementById("logoutButton")
         ?.addEventListener(
@@ -12636,108 +12636,4 @@ function showPATRIODXToast(message, type = "info") {
             toast.classList.remove("show");
 
         }, 3000);
-}
-// =========================================================
-// ACCOUNT CENTER
-// =========================================================
-
-function setupAccountCenter() {
-
-    const button =
-        document.getElementById("accountCenterButton");
-
-    const panel =
-        document.getElementById("accountCenter");
-
-    const closeButton =
-        document.getElementById("closeAccountCenter");
-
-    const settingsButton =
-        document.getElementById(
-            "settingsActivityButton"
-        );
-
-    if (!button || !panel) return;
-
-
-    // Open / close Account Center
-    button.addEventListener("click", function(event) {
-
-        event.stopPropagation();
-
-        const isOpen =
-            panel.style.display !== "none";
-
-        panel.style.display =
-            isOpen ? "none" : "block";
-
-        if (
-            typeof lucide !== "undefined"
-        ) {
-            lucide.createIcons();
-        }
-    });
-
-
-    // Close button
-    if (closeButton) {
-
-        closeButton.addEventListener(
-            "click",
-            function() {
-
-                panel.style.display = "none";
-            }
-        );
-    }
-
-
-    // Settings & Activity
-    if (settingsButton) {
-
-        settingsButton.addEventListener(
-            "click",
-            function() {
-
-                panel.style.display = "none";
-
-                // Open existing Settings section
-                const settingsSection =
-                    document.getElementById(
-                        "settings"
-                    );
-
-                if (settingsSection) {
-
-                    settingsSection.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
-                    });
-
-                } else {
-
-                    console.log(
-                        "Settings section not found."
-                    );
-                }
-            }
-        );
-    }
-
-
-    // Close when clicking outside
-    document.addEventListener(
-        "click",
-        function(event) {
-
-            if (
-                panel.style.display !== "none" &&
-                !panel.contains(event.target) &&
-                !button.contains(event.target)
-            ) {
-
-                panel.style.display = "none";
-            }
-        }
-    );
 }
