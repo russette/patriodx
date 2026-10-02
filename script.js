@@ -10879,7 +10879,9 @@ function navigatePATRIODX(page) {
     }
 
 
-    /* Hide every main app page */
+    /* =====================================================
+       HIDE EVERY MAIN APP PAGE
+    ===================================================== */
 
     PATRIODX_PAGES.forEach(id => {
 
@@ -10891,7 +10893,9 @@ function navigatePATRIODX(page) {
     });
 
 
-    /* Hide extra sections */
+    /* =====================================================
+       HIDE EXTRA SECTIONS
+    ===================================================== */
 
     PATRIODX_EXTRA_SECTIONS.forEach(selector => {
 
@@ -10906,7 +10910,30 @@ function navigatePATRIODX(page) {
     });
 
 
-    /* Show selected page */
+    /* =====================================================
+       HIDE SETTINGS-ONLY CONTENT
+       These belong ONLY to Settings & Activity.
+    ===================================================== */
+
+    if (page !== "account") {
+
+        document
+            .querySelectorAll(
+                "#settingsAppearance, " +
+                "#account .settings-card"
+            )
+            .forEach(element => {
+
+                patriodxHide(element);
+
+            });
+
+    }
+
+
+    /* =====================================================
+       SHOW SELECTED PAGE
+    ===================================================== */
 
     const selected =
         document.getElementById(page);
@@ -10914,24 +10941,31 @@ function navigatePATRIODX(page) {
     patriodxShow(selected);
 
 
-    /* Home */
+    /* =====================================================
+       HOME
+    ===================================================== */
 
-  if (page === "home") {
+    if (page === "home") {
 
-    document
-        .querySelectorAll(
-           ".landing-section, .features-section, .pricing-section, .final-cta"
-        )
-        .forEach(element => {
+        document
+            .querySelectorAll(
+                ".landing-section, " +
+                ".features-section, " +
+                ".pricing-section, " +
+                ".final-cta"
+            )
+            .forEach(element => {
 
-            patriodxShow(element);
+                patriodxShow(element);
 
-        });
+            });
 
-}
+    }
 
 
-    /* Dashboard */
+    /* =====================================================
+       DASHBOARD
+    ===================================================== */
 
     if (page === "dashboard") {
 
@@ -10948,7 +10982,9 @@ function navigatePATRIODX(page) {
     }
 
 
-    /* Account */
+    /* =====================================================
+       ACCOUNT / SETTINGS
+    ===================================================== */
 
     if (page === "account") {
 
@@ -10962,10 +10998,35 @@ function navigatePATRIODX(page) {
 
             });
 
+
+        /* Show Appearance */
+
+        const appearance =
+            document.getElementById(
+                "settingsAppearance"
+            );
+
+        patriodxShow(appearance);
+
+
+        /* Show Settings cards */
+
+        document
+            .querySelectorAll(
+                "#account .settings-card"
+            )
+            .forEach(element => {
+
+                patriodxShow(element);
+
+            });
+
     }
 
 
-    /* Active sidebar */
+    /* =====================================================
+       ACTIVE SIDEBAR
+    ===================================================== */
 
     document
         .querySelectorAll(".sidebar-link")
@@ -10987,7 +11048,9 @@ function navigatePATRIODX(page) {
         });
 
 
-    /* Active mobile navigation */
+    /* =====================================================
+       ACTIVE MOBILE NAVIGATION
+    ===================================================== */
 
     document
         .querySelectorAll(".mobile-nav-link")
@@ -11010,7 +11073,9 @@ function navigatePATRIODX(page) {
         });
 
 
-    /* Update URL */
+    /* =====================================================
+       UPDATE URL
+    ===================================================== */
 
     history.pushState(
         { page: page },
@@ -11019,14 +11084,20 @@ function navigatePATRIODX(page) {
     );
 
 
-   /* Reset the view position without smooth scrolling */
+    /* =====================================================
+       RESET VIEW POSITION
+    ===================================================== */
 
-window.scrollTo({
-    top: 0,
-    left: 0,
-    behavior: "instant"
-});
-    /* Close mobile sidebar */
+    window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "instant"
+    });
+
+
+    /* =====================================================
+       CLOSE MOBILE SIDEBAR
+    ===================================================== */
 
     const sidebar =
         document.getElementById(
@@ -11034,14 +11105,14 @@ window.scrollTo({
         );
 
     if (sidebar) {
+
         sidebar.classList.remove(
             "mobile-open"
         );
+
     }
 
 }
-
-
 /* =========================================================
    OLD scrollToSection COMPATIBILITY
 ========================================================= */
