@@ -8931,3 +8931,135 @@ body.dark-mode .mobile-bottom-nav {
     min-width: max-content !important;
     width: auto !important;
 }
+/* =========================================================
+   PATRIODX — VERIFICATION PLAN MODAL
+========================================================= */
+
+.patriodx-confirm-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    padding: 20px !important;
+
+    background: rgba(0, 0, 0, 0.55) !important;
+
+    z-index: 99999 !important;
+
+    box-sizing: border-box !important;
+}
+
+.patriodx-confirm-modal {
+    width: min(420px, 100%) !important;
+
+    padding: 24px !important;
+
+    background: #ffffff !important;
+    color: #111827 !important;
+
+    border-radius: 18px !important;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.25) !important;
+
+    box-sizing: border-box !important;
+}
+
+.patriodx-confirm-modal h3 {
+    margin: 0 0 8px !important;
+    font-size: 20px !important;
+}
+
+.patriodx-confirm-modal p {
+    margin: 0 0 20px !important;
+    color: #6b7280 !important;
+}
+
+.verification-plan-options {
+    display: grid !important;
+    gap: 12px !important;
+    margin-bottom: 20px !important;
+}
+
+.verification-plan-option {
+    width: 100% !important;
+
+    padding: 16px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    border: 1px solid #d1d5db !important;
+    border-radius: 12px !important;
+
+    background: #ffffff !important;
+    color: #111827 !important;
+
+    cursor: pointer !important;
+    text-align: left !important;
+
+    transition: 0.2s ease !important;
+}
+
+.verification-plan-option:hover {
+    border-color: #2563eb !important;
+}
+
+.verification-plan-option.selected {
+    border-color: #2563eb !important;
+    background: rgba(37, 99, 235, 0.08) !important;
+}
+
+.verification-plan-option strong,
+.verification-plan-option span {
+    display: block !important;
+}
+
+.verification-plan-option span {
+    color: #6b7280 !important;
+}
+
+.patriodx-confirm-actions {
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+}
+
+.patriodx-confirm-actions button {
+    cursor: pointer !important;
+}
+
+#verificationContinueButton:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+}
+
+/* DARK MODE */
+
+body.dark-mode .patriodx-confirm-modal {
+    background: #181b21 !important;
+    color: #f1f5f9 !important;
+}
+
+body.dark-mode .patriodx-confirm-modal p {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .verification-plan-option {
+    background: #181b21 !important;
+    color: #f1f5f9 !important;
+    border-color: #343a46 !important;
+}
+
+body.dark-mode .verification-plan-option span {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .verification-plan-option.selected {
+    background: rgba(37, 99, 235, 0.15) !important;
+    border-color: #2563eb !important;
+}
