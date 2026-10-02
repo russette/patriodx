@@ -10910,27 +10910,7 @@ function navigatePATRIODX(page) {
     });
 
 
-    /* =====================================================
-       HIDE SETTINGS-ONLY CONTENT
-       These belong ONLY to Settings & Activity.
-    ===================================================== */
-
-    if (page !== "account") {
-
-        document
-            .querySelectorAll(
-                "#settingsAppearance, " +
-                "#account .settings-card"
-            )
-            .forEach(element => {
-
-                patriodxHide(element);
-
-            });
-
-    }
-
-
+   
     /* =====================================================
        SHOW SELECTED PAGE
     ===================================================== */
