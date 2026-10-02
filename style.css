@@ -4146,25 +4146,26 @@ textarea:focus-visible {
 /* ---------- HEADER ---------- */
 
 .patriodx-header {
-    position: fixed;
+    position: sticky;
     top: 0;
-    left: 0;
-    right: 0;
-    height: 68px;
     z-index: 1000;
 
-    display: flex;
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    justify-content: space-between;
 
-    padding: 0 22px;
+    min-height: 72px;
+    padding: 0 24px;
 
-    background: var(--card-bg, #ffffff);
-    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    background: var(--header-bg, #ffffff);
 
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid
+        var(--border-color, #e2e8f0);
+
+    box-sizing: border-box;
 }
-
 /* ---------- BRAND ---------- */
 
 .patriodx-brand {
@@ -8549,6 +8550,10 @@ body.dark-mode .mobile-action-item-icon {
 
 /* CENTER LOGO */
 
+/* =========================================================
+   CENTER PATRIODX BRAND
+========================================================= */
+
 .patriodx-centered-logo {
     display: inline-flex;
     align-items: center;
@@ -8559,9 +8564,17 @@ body.dark-mode .mobile-action-item-icon {
 
     color: #2563eb;
 
-    font-size: 22px;
+    font-family:
+        "Cinzel Decorative",
+        "Copperplate",
+        fantasy;
+
+    font-size: 23px;
     font-weight: 900;
-    letter-spacing: 1.5px;
+    letter-spacing: 2px;
+
+    text-shadow:
+        0 2px 8px rgba(37, 99, 235, 0.18);
 
     transition:
         transform 0.2s ease,
@@ -8569,8 +8582,8 @@ body.dark-mode .mobile-action-item-icon {
 }
 
 .patriodx-centered-logo:hover {
-    transform: translateY(-1px);
-    opacity: 0.9;
+    transform: scale(1.03);
+    opacity: 0.92;
 }
 
 .patriodx-centered-logo img {
@@ -8582,9 +8595,8 @@ body.dark-mode .mobile-action-item-icon {
     border-radius: 10px;
 
     box-shadow:
-        0 4px 12px rgba(37, 99, 235, 0.18);
+        0 4px 14px rgba(37, 99, 235, 0.22);
 }
-
 
 /* RIGHT */
 
