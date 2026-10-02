@@ -8658,3 +8658,24 @@ main {
     box-shadow:
         0 4px 14px rgba(37, 99, 235, 0.22);
 }
+/* =========================================================
+   FIX PATRIODX HEADER COVERING HOME
+========================================================= */
+
+.patriodx-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+}
+
+/* Give the Home section breathing room */
+main.container {
+    position: relative;
+    z-index: 1;
+    padding-top: 20px !important;
+}
+
+#home {
+    position: relative;
+    scroll-margin-top: 90px;
+}
