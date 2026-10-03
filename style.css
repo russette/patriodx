@@ -9076,3 +9076,21 @@ body.dark-mode .verification-plan-option.selected {
     background: rgba(37, 99, 235, 0.15) !important;
     border-color: #2563eb !important;
 }
+/* =========================================================
+   PATRIODX MOBILE MENU — FINAL
+========================================================= */
+
+@media (max-width: 768px) {
+
+    #patriodxSidebar {
+        left: -270px !important;
+        top: 58px !important;
+        width: 250px !important;
+        transition: left 0.25s ease !important;
+    }
+
+    #patriodxSidebar.mobile-open {
+        left: 0 !important;
+    }
+
+}
