@@ -8301,83 +8301,100 @@ if (conversationUserSearch) {
 /* =========================================================
    LOAD CONVERSATIONS
 ========================================================= */
-
 async function loadConversations() {
 
-    if (!conversationList || !currentUser) {
+    if (!currentUser || !conversationList) {
         return;
     }
 
-
     conversationList.innerHTML = `
         <div class="messaging-empty-state">
-           <div><i data-lucide="clock-3"></i></div>
+            <div>
+                <i data-lucide="loader-circle"></i>
+            </div>
             <p>Loading conversations...</p>
         </div>
     `;
 
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
 
-    const { data: memberships, error } =
+    /* =====================================================
+       GET CONVERSATION MEMBERSHIPS
+    ===================================================== */
+
+    const { data: memberships, error: membershipError } =
         await supabaseClient
             .from("conversation_members")
-            .select("conversation_id")
+            .select(
+                "conversation_id, user_id"
+            )
             .eq(
                 "user_id",
                 currentUser.id
             );
 
-
-    if (error) {
+    if (membershipError) {
 
         console.error(
             "Could not load conversation memberships:",
-            error
+            membershipError
         );
 
         conversationList.innerHTML = `
             <div class="messaging-empty-state">
-               <div><i data-lucide="triangle-alert"></i></div>
-                <p>Could not load conversations.</p>
-            </div>
-        `;
-
-        return;
-    }
-
-
-    if (
-        !memberships ||
-        memberships.length === 0
-    ) {
-
-        conversationList.innerHTML = `
-            <div class="messaging-empty-state">
-               <div><i data-lucide="message-circle"></i></div>
-
-                <h3>
-                    No conversations
-                </h3>
-
+                <div>
+                    <i data-lucide="triangle-alert"></i>
+                </div>
+                <h3>Could not load conversations</h3>
                 <p>
-                    Start a conversation with
-                    someone on PATRIODX.
+                    ${safe(membershipError.message)}
                 </p>
-
             </div>
         `;
 
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+
         return;
     }
-
 
     const conversationIds =
-        memberships.map(
+        (memberships || []).map(
             member =>
                 member.conversation_id
         );
 
+    if (!conversationIds.length) {
 
-    const { data: conversations, error: conversationsError } =
+        conversationList.innerHTML = `
+            <div class="messaging-empty-state">
+                <div>
+                    <i data-lucide="message-circle"></i>
+                </div>
+                <h3>No conversations</h3>
+                <p>
+                    Start a conversation with
+                    someone on PATRIODX.
+                </p>
+            </div>
+        `;
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+
+        return;
+    }
+
+
+    /* =====================================================
+       GET CONVERSATIONS
+    ===================================================== */
+
+    const { data: conversations, error: conversationError } =
         await supabaseClient
             .from("conversations")
             .select("*")
@@ -8392,112 +8409,267 @@ async function loadConversations() {
                 }
             );
 
-
-    if (conversationsError) {
+    if (conversationError) {
 
         console.error(
             "Could not load conversations:",
-            conversationsError
+            conversationError
         );
 
         conversationList.innerHTML = `
             <div class="messaging-empty-state">
-               <div><i data-lucide="triangle-alert"></i></div>
+                <div>
+                    <i data-lucide="triangle-alert"></i>
+                </div>
+                <h3>Could not load conversations</h3>
                 <p>
-                    Could not load conversations.
+                    ${safe(conversationError.message)}
                 </p>
             </div>
         `;
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
 
         return;
     }
 
 
-    if (
-        !conversations ||
-        conversations.length === 0
-    ) {
+    /* =====================================================
+       GET ALL MEMBERS FOR THESE CONVERSATIONS
+    ===================================================== */
+
+    const { data: allMembers, error: allMembersError } =
+        await supabaseClient
+            .from("conversation_members")
+            .select(
+                "conversation_id, user_id"
+            )
+            .in(
+                "conversation_id",
+                conversationIds
+            );
+
+    if (allMembersError) {
+
+        console.error(
+            "Could not load conversation members:",
+            allMembersError
+        );
 
         conversationList.innerHTML = `
             <div class="messaging-empty-state">
-             <div><i data-lucide="message-circle"></i></div>
-                <h3>No conversations</h3>
+                <div>
+                    <i data-lucide="triangle-alert"></i>
+                </div>
+                <h3>Could not load conversations</h3>
                 <p>
-                    Start a conversation with
-                    someone on PATRIODX.
+                    ${safe(allMembersError.message)}
                 </p>
             </div>
         `;
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
 
         return;
     }
 
 
-    conversationList.innerHTML =
-        conversations.map(
-            conversation => {
+    /* =====================================================
+       FIND THE OTHER USERS
+    ===================================================== */
 
-               const name =
-    "PATRIODX Conversation";
-
-                return `
-                   <div
-    class="conversation-item ${
-        activeConversationId === conversation.id
-            ? "active"
-            : ""
-    }"
-    data-conversation-id="${conversation.id}"
->
-                        <div class="conversation-avatar">
-                            <i data-lucide="message-circle"></i>
-                        </div>
-
-                        <div class="conversation-info">
-
-                            <div class="conversation-name">
-                                ${safe(name)}
-                            </div>
-
-                            <div class="conversation-preview">
-                                Open conversation
-                            </div>
-
-                        </div>
-
-                    </div>
-                `;
-
-            }
-             ).join("");
+    const otherUserIds = [
+        ...new Set(
+            (allMembers || [])
+                .filter(
+                    member =>
+                        member.user_id !==
+                        currentUser.id
+                )
+                .map(
+                    member =>
+                        member.user_id
+                )
+        )
+    ];
 
 
-    conversationList
-        .querySelectorAll(".conversation-item")
-        .forEach(item => {
+    /* =====================================================
+       LOAD OTHER USERS' PROFILES
+    ===================================================== */
 
-            item.addEventListener(
-                "click",
-                function() {
+    let profiles = [];
 
-                    const conversationId =
-                        this.dataset.conversationId;
+    if (otherUserIds.length) {
 
-                    if (!conversationId) {
-                        return;
-                    }
+        const { data: profileData, error: profileError } =
+            await supabaseClient
+                .from("profiles")
+                .select(
+                    "id, username, display_name"
+                )
+                .in(
+                    "id",
+                    otherUserIds
+                );
 
-                    openConversation(
-                        conversationId
-                    );
+        if (profileError) {
 
-                }
+            console.error(
+                "Could not load conversation profiles:",
+                profileError
             );
 
-        });
+        } else {
 
+            profiles =
+                profileData || [];
+        }
+    }
+
+
+    /* =====================================================
+       CREATE QUICK PROFILE LOOKUP
+    ===================================================== */
+
+    const profileMap =
+        new Map(
+            profiles.map(
+                profile => [
+                    profile.id,
+                    profile
+                ]
+            )
+        );
+
+
+    /* =====================================================
+       RENDER CONVERSATIONS
+    ===================================================== */
+
+    conversationList.innerHTML =
+        (conversations || [])
+            .map(
+                conversation => {
+
+                    const members =
+                        (allMembers || []).filter(
+                            member =>
+                                member.conversation_id ===
+                                conversation.id
+                        );
+
+                    const otherMember =
+                        members.find(
+                            member =>
+                                member.user_id !==
+                                currentUser.id
+                        );
+
+                    const otherProfile =
+                        otherMember
+                            ? profileMap.get(
+                                otherMember.user_id
+                            )
+                            : null;
+
+                    const displayName =
+                        otherProfile?.display_name ||
+                        otherProfile?.username ||
+                        "PATRIODX Conversation";
+
+                    const username =
+                        otherProfile?.username
+                            ? `@${otherProfile.username}`
+                            : "";
+
+                    return `
+                        <button
+                            type="button"
+                            class="conversation-item ${
+                                activeConversationId ===
+                                conversation.id
+                                    ? "active"
+                                    : ""
+                            }"
+                            data-conversation-id="${
+                                conversation.id
+                            }"
+                        >
+
+                            <div class="conversation-avatar">
+                                <i data-lucide="user"></i>
+                            </div>
+
+                            <div class="conversation-info">
+
+                                <strong>
+                                    ${safe(displayName)}
+                                </strong>
+
+                                ${
+                                    username
+                                        ? `
+                                            <span>
+                                                ${safe(username)}
+                                            </span>
+                                        `
+                                        : `
+                                            <span>
+                                                PATRIODX Conversation
+                                            </span>
+                                        `
+                                }
+
+                            </div>
+
+                        </button>
+                    `;
+                }
+            )
+            .join("");
+
+
+    /* =====================================================
+       CLICK HANDLERS
+    ===================================================== */
+
+    conversationList
+        .querySelectorAll(
+            ".conversation-item"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    function() {
+
+                        const conversationId =
+                            this.dataset
+                                .conversationId;
+
+                        if (!conversationId) {
+                            return;
+                        }
+
+                        openConversation(
+                            conversationId
+                        );
+                    }
+                );
+            }
+        );
+
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
 }
-
 /* =========================================================
    OPEN CONVERSATION
 ========================================================= */
