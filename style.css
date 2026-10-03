@@ -8758,13 +8758,24 @@ main.container {
 
 .settings-toggle-slider {
     position: absolute;
-    inset: 0;
+
+    top: 0;
+    left: 0;
+
+    width: 46px;
+    height: 26px;
 
     border-radius: 999px;
 
-    background: #d1d5db;
+    background: #9ca3af;
+
+    border: 2px solid #6b7280;
+
+    box-sizing: border-box;
 
     transition: 0.2s;
+
+    display: block;
 }
 
 .settings-toggle-slider::before {
@@ -8775,12 +8786,14 @@ main.container {
     width: 20px;
     height: 20px;
 
-    left: 3px;
-    top: 3px;
+    left: 1px;
+    top: 1px;
 
     border-radius: 50%;
 
     background: #ffffff;
+
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 
     transition: 0.2s;
 }
