@@ -8124,21 +8124,99 @@ function renderConversationUsers() {
 }
 
 
-async function createConversationWithUser(
-    otherUserId
-) {
-
-    if (
-        !currentUser ||
-        !otherUserId
-    ) {
+async function createConversationWithUser(otherUserId) {
+    if (!currentUser || !otherUserId) {
         return;
     }
 
+    /*
+     * First check whether a conversation already exists
+     * between the current user and the selected user.
+     */
+
+    const { data: myMemberships, error: myMembershipError } =
+        await supabaseClient
+            .from("conversation_members")
+            .select("conversation_id")
+            .eq("user_id", currentUser.id);
+
+    if (myMembershipError) {
+        console.error(
+            "Could not load your conversations:",
+            myMembershipError
+        );
+
+        showPATRIODXToast(
+            "Could not check existing conversations. " +
+            myMembershipError.message,
+            "error"
+        );
+
+        return;
+    }
+
+    const myConversationIds =
+        (myMemberships || [])
+            .map(member => member.conversation_id);
+
+    if (myConversationIds.length) {
+        const { data: otherMemberships, error: otherMembershipError } =
+            await supabaseClient
+                .from("conversation_members")
+                .select("conversation_id")
+                .eq("user_id", otherUserId)
+                .in(
+                    "conversation_id",
+                    myConversationIds
+                );
+
+        if (otherMembershipError) {
+            console.error(
+                "Could not check the selected user's conversations:",
+                otherMembershipError
+            );
+
+            showPATRIODXToast(
+                "Could not check existing conversations. " +
+                otherMembershipError.message,
+                "error"
+            );
+
+            return;
+        }
+
+        const sharedConversation =
+            (otherMemberships || [])[0];
+
+        if (sharedConversation) {
+            const existingConversationId =
+                sharedConversation.conversation_id;
+
+            if (newConversationModal) {
+                newConversationModal.style.display =
+                    "none";
+            }
+
+            if (conversationUserSearch) {
+                conversationUserSearch.value = "";
+            }
+
+            await loadConversations();
+            await openConversation(
+                existingConversationId
+            );
+
+            return;
+        }
+    }
+
+    /*
+     * No existing conversation was found.
+     * Create a new one.
+     */
 
     const conversationId =
         crypto.randomUUID();
-
 
     const { error: conversationError } =
         await supabaseClient
@@ -8147,9 +8225,7 @@ async function createConversationWithUser(
                 id: conversationId
             });
 
-
     if (conversationError) {
-
         console.error(
             "Could not create conversation:",
             conversationError
@@ -8164,138 +8240,75 @@ async function createConversationWithUser(
         return;
     }
 
+    /*
+     * Add the current user first.
+     */
 
     const { error: currentMemberError } =
-    await supabaseClient
-        .from("conversation_members")
-        .insert({
-            conversation_id:
-                conversationId,
-            user_id:
-                currentUser.id
-        });
+        await supabaseClient
+            .from("conversation_members")
+            .insert({
+                conversation_id:
+                    conversationId,
+                user_id:
+                    currentUser.id
+            });
 
-if (currentMemberError) {
-    console.error(
-        "Could not add current user:",
-        currentMemberError
-    );
+    if (currentMemberError) {
+        console.error(
+            "Could not add current user:",
+            currentMemberError
+        );
 
-    showPATRIODXToast(
-        "Could not join the conversation. " +
-        currentMemberError.message,
-        "error"
-    );
+        showPATRIODXToast(
+            "Could not join the conversation. " +
+            currentMemberError.message,
+            "error"
+        );
 
-    return;
-}
+        return;
+    }
 
+    /*
+     * Then add the selected user.
+     */
 
-const { error: otherMemberError } =
-    await supabaseClient
-        .from("conversation_members")
-        .insert({
-            conversation_id:
-                conversationId,
-            user_id:
-                otherUserId
-        });
+    const { error: otherMemberError } =
+        await supabaseClient
+            .from("conversation_members")
+            .insert({
+                conversation_id:
+                    conversationId,
+                user_id:
+                    otherUserId
+            });
 
-if (otherMemberError) {
-    console.error(
-        "Could not add conversation member:",
-        otherMemberError
-    );
+    if (otherMemberError) {
+        console.error(
+            "Could not add the selected user:",
+            otherMemberError
+        );
 
-    showPATRIODXToast(
-        "Could not add the selected user. " +
-        otherMemberError.message,
-        "error"
-    );
+        showPATRIODXToast(
+            "Could not add the selected user. " +
+            otherMemberError.message,
+            "error"
+        );
 
-    return;
-}
-
-
-
+        return;
+    }
 
     if (newConversationModal) {
         newConversationModal.style.display =
             "none";
     }
 
-
     if (conversationUserSearch) {
         conversationUserSearch.value = "";
     }
 
-
     await loadConversations();
-
-    await openConversation(
-        conversationId
-    );
-}
-
-
-if (newConversationButton) {
-
-    newConversationButton.addEventListener(
-        "click",
-        async function() {
-
-            if (!currentUser) {
-
-                showPATRIODXToast(
-                    "Please log in first.",
-                    "warning"
-                );
-
-                return;
-            }
-
-
-            if (newConversationModal) {
-
-                newConversationModal.style.display =
-                    "flex";
-
-            }
-
-
-            await loadConversationUsers();
-
-        }
-    );
-}
-
-
-if (closeNewConversationModal) {
-
-    closeNewConversationModal.addEventListener(
-        "click",
-        function() {
-
-            if (newConversationModal) {
-
-                newConversationModal.style.display =
-                    "none";
-
-            }
-
-        }
-    );
-
-}
-
-
-if (conversationUserSearch) {
-
-    conversationUserSearch.addEventListener(
-        "input",
-        renderConversationUsers
-    );
-
+    await openConversation(conversationId);
 }
 
 /* =========================================================
@@ -8611,19 +8624,15 @@ async function loadConversations() {
                                     ${safe(displayName)}
                                 </strong>
 
-                                ${
-                                    username
-                                        ? `
-                                            <span>
-                                                ${safe(username)}
-                                            </span>
-                                        `
-                                        : `
-                                            <span>
-                                                PATRIODX Conversation
-                                            </span>
-                                        `
-                                }
+                               ${
+    username
+        ? `
+            <span>
+                ${safe(username)}
+            </span>
+        `
+        : ""
+}
 
                             </div>
 
