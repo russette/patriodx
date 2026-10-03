@@ -8558,14 +8558,30 @@ async function loadConversations() {
                 ]
             )
         );
+const visibleConversations =
+    (conversations || []).filter(
+        conversation => {
+            const members =
+                (allMembers || []).filter(
+                    member =>
+                        member.conversation_id ===
+                        conversation.id
+                );
 
+            return members.some(
+                member =>
+                    member.user_id !==
+                    currentUser.id
+            );
+        }
+    );
 
     /* =====================================================
        RENDER CONVERSATIONS
     ===================================================== */
 
     conversationList.innerHTML =
-        (conversations || [])
+      (visibleConversations || [])
             .map(
                 conversation => {
 
