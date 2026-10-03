@@ -6968,94 +6968,123 @@ async function loadSocialComments(postId) {
     }
 
 
-    commentsList.innerHTML =
+   const commentUserIds = [
+    ...new Set(
         comments
-            .map(comment => {
+            .map(comment => comment.user_id)
+            .filter(Boolean)
+    )
+];
 
-               const { data: commentProfile } =
-    await supabaseClient
-        .from("profiles")
-        .select(
-            "username, display_name, avatar_url"
-        )
-        .eq(
-            "id",
-            comment.user_id
-        )
-        .single();
+let commentProfiles = [];
 
-const isOwnComment =
-    comment.user_id ===
-    currentUser?.id;
+if (commentUserIds.length) {
 
-const author =
-    isOwnComment
-        ? "You"
-        : (
-            commentProfile?.display_name ||
-            commentProfile?.username ||
-            "PATRIODX User"
+    const { data: profileData, error: profileError } =
+        await supabaseClient
+            .from("profiles")
+            .select(
+                "id, username, display_name, avatar_url"
+            )
+            .in(
+                "id",
+                commentUserIds
+            );
+
+    if (profileError) {
+
+        console.error(
+            "Could not load comment author profiles:",
+            profileError
         );
 
+    } else {
 
-                return `
-
-                    <div class="social-comment">
-
-                      <div
-    class="social-comment-avatar"
->
-    ${
-        commentProfile?.avatar_url
-            ? `
-                <img
-                    src="${safe(commentProfile.avatar_url)}"
-                    alt="${safe(author)}"
-                    loading="lazy"
-                >
-            `
-            : `
-                <span>
-                    ${safe(
-                        (author || "P")
-                            .charAt(0)
-                            .toUpperCase()
-                    )}
-                </span>
-            `
+        commentProfiles =
+            profileData || [];
     }
-</div>
+}
 
-                        <div
-                            class="social-comment-content"
-                        >
+const commentProfileMap =
+    new Map(
+        commentProfiles.map(
+            profile => [
+                profile.id,
+                profile
+            ]
+        )
+    );
 
-                            <strong>
-                                ${safe(author)}
-                            </strong>
 
-                            <p>
-                                ${safe(
-                                    comment.content
-                                )}
-                            </p>
+commentsList.innerHTML =
+    comments
+        .map(comment => {
 
-                            <small>
-                                ${formatDate(
-                                    comment.created_at
-                                )}
-                            </small>
+            const commentProfile =
+                commentProfileMap.get(
+                    comment.user_id
+                );
 
-                        </div>
+            const isOwnComment =
+                comment.user_id ===
+                currentUser?.id;
+
+            const author =
+                isOwnComment
+                    ? "You"
+                    : (
+                        commentProfile?.display_name ||
+                        commentProfile?.username ||
+                        "PATRIODX User"
+                    );
+
+            return `
+
+                <div class="social-comment">
+
+                    <div class="social-comment-avatar">
+                        ${
+                            commentProfile?.avatar_url
+                                ? `
+                                    <img
+                                        src="${safe(commentProfile.avatar_url)}"
+                                        alt="${safe(author)}"
+                                        loading="lazy"
+                                    >
+                                `
+                                : `
+                                    <span>
+                                        ${safe(
+                                            (author || "P")
+                                                .charAt(0)
+                                                .toUpperCase()
+                                        )}
+                                    </span>
+                                `
+                        }
+                    </div>
+
+                    <div class="social-comment-content">
+
+                        <strong>
+                            ${safe(author)}
+                        </strong>
+
+                        <p>
+                            ${safe(comment.content)}
+                        </p>
+
+                        <small>
+                            ${formatDate(comment.created_at)}
+                        </small>
 
                     </div>
 
-                `;
+                </div>
 
-            })
-            .join("");
-
-
+            `;
+        })
+        .join("");
     await refreshSocialPostStats(
         postId
     );
