@@ -622,18 +622,32 @@ function setupDarkMode() {
 
 
     // Settings & Activity dark-mode toggle
-    if (settingsToggle) {
+   if (settingsToggle) {
 
-        settingsToggle.addEventListener(
-            "change",
-            function() {
+    settingsToggle.addEventListener(
+        "change",
+        function() {
 
-                setDarkMode(
-                    settingsToggle.checked
-                );
-            }
-        );
-    }
+            const enabled =
+                this.checked;
+
+            document.body.classList.toggle(
+                "dark-mode",
+                enabled
+            );
+
+            localStorage.setItem(
+                "patriodxTheme",
+                enabled
+                    ? "dark"
+                    : "light"
+            );
+
+            updateThemeUI();
+
+        }
+    );
+}
 
 
     updateThemeUI();
