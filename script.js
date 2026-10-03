@@ -7872,7 +7872,416 @@ const newConversationButton =
 let activeConversationId = null;
 
 let messagingRealtimeChannel = null;
+// =========================================================
+// NEW CONVERSATION USER PICKER
+// =========================================================
 
+const newConversationModal =
+    document.getElementById(
+        "newConversationModal"
+    );
+
+const closeNewConversationModal =
+    document.getElementById(
+        "closeNewConversationModal"
+    );
+
+const conversationUserSearch =
+    document.getElementById(
+        "conversationUserSearch"
+    );
+
+const conversationUserList =
+    document.getElementById(
+        "conversationUserList"
+    );
+
+
+let conversationUsers = [];
+
+
+async function loadConversationUsers() {
+
+    if (!conversationUserList || !currentUser) {
+        return;
+    }
+
+    conversationUserList.innerHTML = `
+        <div class="messaging-empty-state">
+            <div>
+                <i data-lucide="loader-circle"></i>
+            </div>
+            <p>Loading users...</p>
+        </div>
+    `;
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+
+    const { data, error } =
+        await supabaseClient
+            .from("profiles")
+            .select(
+                "id, username, display_name"
+            )
+            .neq(
+                "id",
+                currentUser.id
+            )
+            .order(
+                "display_name",
+                {
+                    ascending: true
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Could not load conversation users:",
+            error
+        );
+
+        conversationUserList.innerHTML = `
+            <div class="messaging-empty-state">
+                <div>
+                    <i data-lucide="triangle-alert"></i>
+                </div>
+
+                <p>
+                    Could not load users.
+                </p>
+            </div>
+        `;
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+
+        return;
+    }
+
+
+    conversationUsers =
+        data || [];
+
+
+    renderConversationUsers();
+}
+
+
+function renderConversationUsers() {
+
+    if (!conversationUserList) {
+        return;
+    }
+
+
+    const search =
+        (
+            conversationUserSearch?.value ||
+            ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    const users =
+        conversationUsers.filter(
+            user => {
+
+                const name =
+                    (
+                        user.display_name ||
+                        ""
+                    ).toLowerCase();
+
+                const username =
+                    (
+                        user.username ||
+                        ""
+                    ).toLowerCase();
+
+                return (
+                    name.includes(search) ||
+                    username.includes(search)
+                );
+
+            }
+        );
+
+
+    if (!users.length) {
+
+        conversationUserList.innerHTML = `
+            <div class="messaging-empty-state">
+
+                <div>
+                    <i data-lucide="user-x"></i>
+                </div>
+
+                <h3>
+                    No users found
+                </h3>
+
+                <p>
+                    Try a different search.
+                </p>
+
+            </div>
+        `;
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+
+        return;
+    }
+
+
+    conversationUserList.innerHTML =
+        users.map(
+            user => {
+
+                const name =
+                    user.display_name ||
+                    user.username ||
+                    "PATRIODX User";
+
+                const username =
+                    user.username
+                        ? `@${user.username}`
+                        : "";
+
+                return `
+                    <button
+                        type="button"
+                        class="conversation-user-item"
+                        data-user-id="${user.id}"
+                    >
+
+                        <div class="conversation-user-avatar">
+                            <i data-lucide="user"></i>
+                        </div>
+
+                        <div class="conversation-user-info">
+
+                            <strong>
+                                ${safe(name)}
+                            </strong>
+
+                            ${
+                                username
+                                    ? `
+                                        <span>
+                                            ${safe(username)}
+                                        </span>
+                                    `
+                                    : ""
+                            }
+
+                        </div>
+
+                    </button>
+                `;
+
+            }
+        ).join("");
+
+
+    conversationUserList
+        .querySelectorAll(
+            ".conversation-user-item"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                function() {
+
+                    const userId =
+                        this.dataset.userId;
+
+                    if (!userId) {
+                        return;
+                    }
+
+                    createConversationWithUser(
+                        userId
+                    );
+
+                }
+            );
+
+        });
+
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+}
+
+
+async function createConversationWithUser(
+    otherUserId
+) {
+
+    if (
+        !currentUser ||
+        !otherUserId
+    ) {
+        return;
+    }
+
+
+    const conversationId =
+        crypto.randomUUID();
+
+
+    const { error: conversationError } =
+        await supabaseClient
+            .from("conversations")
+            .insert({
+                id: conversationId
+            });
+
+
+    if (conversationError) {
+
+        console.error(
+            "Could not create conversation:",
+            conversationError
+        );
+
+        showPATRIODXToast(
+            "Could not create conversation. " +
+            conversationError.message,
+            "error"
+        );
+
+        return;
+    }
+
+
+    const { error: memberError } =
+        await supabaseClient
+            .from("conversation_members")
+            .insert([
+                {
+                    conversation_id:
+                        conversationId,
+
+                    user_id:
+                        currentUser.id
+                },
+
+                {
+                    conversation_id:
+                        conversationId,
+
+                    user_id:
+                        otherUserId
+                }
+            ]);
+
+
+    if (memberError) {
+
+        console.error(
+            "Could not add conversation members:",
+            memberError
+        );
+
+        showPATRIODXToast(
+            "Could not add users to the conversation. " +
+            memberError.message,
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (newConversationModal) {
+        newConversationModal.style.display =
+            "none";
+    }
+
+
+    if (conversationUserSearch) {
+        conversationUserSearch.value = "";
+    }
+
+
+    await loadConversations();
+
+    await openConversation(
+        conversationId
+    );
+}
+
+
+if (newConversationButton) {
+
+    newConversationButton.addEventListener(
+        "click",
+        async function() {
+
+            if (!currentUser) {
+
+                showPATRIODXToast(
+                    "Please log in first.",
+                    "warning"
+                );
+
+                return;
+            }
+
+
+            if (newConversationModal) {
+
+                newConversationModal.style.display =
+                    "flex";
+
+            }
+
+
+            await loadConversationUsers();
+
+        }
+    );
+}
+
+
+if (closeNewConversationModal) {
+
+    closeNewConversationModal.addEventListener(
+        "click",
+        function() {
+
+            if (newConversationModal) {
+
+                newConversationModal.style.display =
+                    "none";
+
+            }
+
+        }
+    );
+
+}
+
+
+if (conversationUserSearch) {
+
+    conversationUserSearch.addEventListener(
+        "input",
+        renderConversationUsers
+    );
+
+}
 
 /* =========================================================
    LOAD CONVERSATIONS
