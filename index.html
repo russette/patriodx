@@ -2509,7 +2509,77 @@
     </div>
 
 </section>
-   
+   <!-- =========================================================
+     NEW CONVERSATION MODAL
+========================================================= -->
+
+<div
+    id="newConversationModal"
+    class="messaging-modal"
+    style="display: none;"
+>
+
+    <div class="messaging-modal-content">
+
+        <div class="messaging-modal-header">
+
+            <div>
+                <p class="eyebrow">
+                    <i data-lucide="message-circle-plus"></i>
+                    NEW CONVERSATION
+                </p>
+
+                <h3>
+                    Start a conversation
+                </h3>
+            </div>
+
+            <button
+                type="button"
+                id="closeNewConversationModal"
+                class="messaging-modal-close"
+                aria-label="Close"
+            >
+                <i data-lucide="x"></i>
+            </button>
+
+        </div>
+
+
+        <p class="messaging-modal-description">
+            Choose someone from PATRIODX to start chatting.
+        </p>
+
+
+        <input
+            type="text"
+            id="conversationUserSearch"
+            class="messaging-user-search"
+            placeholder="Search users..."
+            autocomplete="off"
+        >
+
+
+        <div
+            id="conversationUserList"
+            class="conversation-user-list"
+        >
+
+            <div class="messaging-empty-state">
+                <div>
+                    <i data-lucide="loader-circle"></i>
+                </div>
+
+                <p>
+                    Loading users...
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 <!-- =========================================================
      ANALYTICS
 ========================================================= -->
