@@ -6175,7 +6175,57 @@ async function loadSocialPosts() {
         return;
     }
 
+/* =========================================================
+   LOAD POST AUTHOR PROFILES
+========================================================= */
 
+const postUserIds = [
+    ...new Set(
+        posts
+            .map(post => post.user_id)
+            .filter(Boolean)
+    )
+];
+
+let postProfiles = [];
+
+if (postUserIds.length) {
+
+    const { data: profileData, error: profileError } =
+        await supabaseClient
+            .from("profiles")
+            .select(
+                "id, username, display_name, avatar_url"
+            )
+            .in(
+                "id",
+                postUserIds
+            );
+
+    if (profileError) {
+
+        console.error(
+            "Could not load post author profiles:",
+            profileError
+        );
+
+    } else {
+
+        postProfiles =
+            profileData || [];
+
+    }
+}
+
+const postProfileMap =
+    new Map(
+        postProfiles.map(
+            profile => [
+                profile.id,
+                profile
+            ]
+        )
+    );
     /* =========================================================
        GET LIKE / COMMENT COUNTS
     ========================================================= */
@@ -6232,16 +6282,25 @@ async function loadSocialPosts() {
                     post.user_id === currentUser?.id;
 
 
-                const author =
-                    isOwnPost
-                        ? (
-                            currentBusiness?.name ||
-                            currentUser?.user_metadata?.business_name ||
-                            currentUser?.user_metadata?.full_name ||
-                            currentUser?.email ||
-                            "You"
-                        )
-                        : "PATRIODX User";
+               const authorProfile =
+    postProfileMap.get(
+        post.user_id
+    );
+
+const author =
+    authorProfile?.display_name ||
+    authorProfile?.username ||
+    (
+        isOwnPost
+            ? (
+                currentBusiness?.name ||
+                currentUser?.user_metadata?.business_name ||
+                currentUser?.user_metadata?.full_name ||
+                currentUser?.email ||
+                "You"
+            )
+            : "PATRIODX User"
+    );
 
 
                 const image =
@@ -6288,10 +6347,27 @@ async function loadSocialPosts() {
 
                         <div class="social-post-header">
 
-                            <div class="social-post-avatar">
-                                <i data-lucide="user"></i>
-                            </div>
-
+                           <div class="social-post-avatar">
+    ${
+        authorProfile?.avatar_url
+            ? `
+                <img
+                    src="${safe(authorProfile.avatar_url)}"
+                    alt="${safe(author)}"
+                    loading="lazy"
+                >
+            `
+            : `
+                <span>
+                    ${safe(
+                        (author || "P")
+                            .charAt(0)
+                            .toUpperCase()
+                    )}
+                </span>
+            `
+    }
+</div>
 
                             <div class="social-post-author-area">
 
@@ -6896,22 +6972,59 @@ async function loadSocialComments(postId) {
         comments
             .map(comment => {
 
-                const author =
-                    comment.user_id ===
-                    currentUser?.id
-                        ? "You"
-                        : "PATRIODX User";
+               const { data: commentProfile } =
+    await supabaseClient
+        .from("profiles")
+        .select(
+            "username, display_name, avatar_url"
+        )
+        .eq(
+            "id",
+            comment.user_id
+        )
+        .single();
+
+const isOwnComment =
+    comment.user_id ===
+    currentUser?.id;
+
+const author =
+    isOwnComment
+        ? "You"
+        : (
+            commentProfile?.display_name ||
+            commentProfile?.username ||
+            "PATRIODX User"
+        );
 
 
                 return `
 
                     <div class="social-comment">
 
-                        <div
-                            class="social-comment-avatar"
-                        >
-                           <i data-lucide="user"></i>
-                        </div>
+                      <div
+    class="social-comment-avatar"
+>
+    ${
+        commentProfile?.avatar_url
+            ? `
+                <img
+                    src="${safe(commentProfile.avatar_url)}"
+                    alt="${safe(author)}"
+                    loading="lazy"
+                >
+            `
+            : `
+                <span>
+                    ${safe(
+                        (author || "P")
+                            .charAt(0)
+                            .toUpperCase()
+                    )}
+                </span>
+            `
+    }
+</div>
 
                         <div
                             class="social-comment-content"
