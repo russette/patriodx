@@ -8217,21 +8217,6 @@ if (otherMemberError) {
 }
 
 
-    if (memberError) {
-
-        console.error(
-            "Could not add conversation members:",
-            memberError
-        );
-
-        showPATRIODXToast(
-            "Could not add users to the conversation. " +
-            memberError.message,
-            "error"
-        );
-
-        return;
-    }
 
 
     if (newConversationModal) {
