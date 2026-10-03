@@ -10981,12 +10981,30 @@ function navigatePATRIODX(page) {
 
         /* Show Appearance */
 
-        const appearance =
-            document.getElementById(
-                "settingsAppearance"
-            );
+      const appearance =
+    document.getElementById(
+        "settingsAppearance"
+    );
 
-        patriodxShow(appearance);
+if (appearance) {
+    appearance.style.setProperty(
+        "display",
+        "block",
+        "important"
+    );
+
+    appearance.style.setProperty(
+        "visibility",
+        "visible",
+        "important"
+    );
+
+    appearance.style.setProperty(
+        "opacity",
+        "1",
+        "important"
+    );
+}
 
 
         /* Show Settings cards */
