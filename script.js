@@ -8785,12 +8785,44 @@ function renderNotifications() {
         }).join("");
 
 
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
-    }
+   if (typeof lucide !== "undefined") {
+    lucide.createIcons();
 }
 
+updateNotificationUnreadBadge();
+}
 
+function updateNotificationUnreadBadge() {
+
+    const badge =
+        document.getElementById(
+            "notificationUnreadBadge"
+        );
+
+    if (!badge) {
+        return;
+    }
+
+    const unreadCount =
+        notificationsCache.filter(
+            notification =>
+                notification.is_read !== true
+        ).length;
+
+    if (unreadCount <= 0) {
+
+        badge.style.display = "none";
+
+        return;
+    }
+
+    badge.textContent =
+        unreadCount > 99
+            ? "99+"
+            : unreadCount;
+
+    badge.style.display = "inline-flex";
+}
 /* ---------------------------------------------------------
    NOTIFICATION CLICK
 --------------------------------------------------------- */
