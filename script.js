@@ -8165,26 +8165,56 @@ async function createConversationWithUser(
     }
 
 
-    const { error: memberError } =
-        await supabaseClient
-            .from("conversation_members")
-            .insert([
-                {
-                    conversation_id:
-                        conversationId,
+    const { error: currentMemberError } =
+    await supabaseClient
+        .from("conversation_members")
+        .insert({
+            conversation_id:
+                conversationId,
+            user_id:
+                currentUser.id
+        });
 
-                    user_id:
-                        currentUser.id
-                },
+if (currentMemberError) {
+    console.error(
+        "Could not add current user:",
+        currentMemberError
+    );
 
-                {
-                    conversation_id:
-                        conversationId,
+    showPATRIODXToast(
+        "Could not join the conversation. " +
+        currentMemberError.message,
+        "error"
+    );
 
-                    user_id:
-                        otherUserId
-                }
-            ]);
+    return;
+}
+
+
+const { error: otherMemberError } =
+    await supabaseClient
+        .from("conversation_members")
+        .insert({
+            conversation_id:
+                conversationId,
+            user_id:
+                otherUserId
+        });
+
+if (otherMemberError) {
+    console.error(
+        "Could not add conversation member:",
+        otherMemberError
+    );
+
+    showPATRIODXToast(
+        "Could not add the selected user. " +
+        otherMemberError.message,
+        "error"
+    );
+
+    return;
+}
 
 
     if (memberError) {
