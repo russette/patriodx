@@ -4841,6 +4841,53 @@ function setupForms() {
             "submit",
             submitPATRIODXStory
         );
+/* =========================================================
+   SOCIAL COMMENTS REALTIME
+========================================================= */
+
+function setupSocialCommentsRealtime() {
+
+    if (
+        !supabaseClient ||
+        !currentUser
+    ) {
+        return;
+    }
+
+    supabaseClient
+        .channel("patriodx-social-comments")
+        .on(
+            "postgres_changes",
+            {
+                event: "INSERT",
+                schema: "public",
+                table: "comments"
+            },
+            function(payload) {
+
+                const newComment =
+                    payload.new;
+
+                if (!newComment?.post_id) {
+                    return;
+                }
+
+                const commentsList =
+                    document.getElementById(
+                        `comments-list-${newComment.post_id}`
+                    );
+
+                if (!commentsList) {
+                    return;
+                }
+
+                loadSocialComments(
+                    newComment.post_id
+                );
+            }
+        )
+        .subscribe();
+}
 // =========================================================
 // START PATRIODX
 // =========================================================
@@ -4863,7 +4910,7 @@ await loadMyProfile();
 
     setupForms();
 setupSettingsActivity();
-
+setupSocialCommentsRealtime();
     document
         .getElementById("logoutButton")
         ?.addEventListener(
@@ -7182,7 +7229,74 @@ showPATRIODXToast(
         return;
     }
 
+/* =========================================================
+   COMMENT NOTIFICATION
+========================================================= */
 
+const { data: postData, error: postError } =
+    await supabaseClient
+        .from("posts")
+        .select("user_id")
+        .eq("id", postId)
+        .single();
+
+if (postError) {
+
+    console.error(
+        "Could not find post owner:",
+        postError
+    );
+
+} else if (
+    postData?.user_id &&
+    postData.user_id !== currentUser.id
+) {
+
+    const { data: commenterProfile } =
+        await supabaseClient
+            .from("profiles")
+            .select(
+                "display_name, username"
+            )
+            .eq(
+                "id",
+                currentUser.id
+            )
+            .single();
+
+    const commenterName =
+        commenterProfile?.display_name ||
+        commenterProfile?.username ||
+        "PATRIODX User";
+
+    const { error: notificationError } =
+        await supabaseClient
+            .from("notifications")
+            .insert({
+
+                user_id:
+                    postData.user_id,
+
+                type:
+                    "comment",
+
+                title:
+                    `${commenterName} commented on your post`,
+
+                message:
+                    content
+
+            });
+
+    if (notificationError) {
+
+        console.error(
+            "Comment notification error:",
+            notificationError
+        );
+
+    }
+}
     input.value = "";
 
     button.disabled = false;
