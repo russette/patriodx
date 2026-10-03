@@ -8736,26 +8736,71 @@ async function openConversation(
     }
 
 
-    const title =
-    "PATRIODX Conversation";
+  const members =
+    await supabaseClient
+        .from("conversation_members")
+        .select("user_id")
+        .eq(
+            "conversation_id",
+            conversationId
+        );
 
-    document.getElementById(
-        "chatHeader"
-    ).innerHTML = `
+let otherUser = null;
 
-        <div>
+if (!members.error) {
 
-            <h3>
-                ${safe(title)}
-            </h3>
+    const otherMember =
+        (members.data || []).find(
+            member =>
+                member.user_id !==
+                currentUser.id
+        );
 
-            <p>
-                PATRIODX conversation
-            </p>
+    if (otherMember) {
 
-        </div>
+        const { data: profile } =
+            await supabaseClient
+                .from("profiles")
+                .select(
+                    "username, display_name"
+                )
+                .eq(
+                    "id",
+                    otherMember.user_id
+                )
+                .single();
 
-    `;
+        otherUser = profile;
+    }
+}
+
+const title =
+    otherUser?.display_name ||
+    otherUser?.username ||
+    "PATRIODX User";
+
+const username =
+    otherUser?.username
+        ? `@${otherUser.username}`
+        : "PATRIODX";
+
+document.getElementById(
+    "chatHeader"
+).innerHTML = `
+
+    <div>
+
+        <h3>
+            ${safe(title)}
+        </h3>
+
+        <p>
+            ${safe(username)}
+        </p>
+
+    </div>
+
+`;
 
 
     await loadMessages(
@@ -8971,17 +9016,91 @@ if (messageForm) {
             }
 
 
-            messageInput.value = "";
+          messageInput.value = "";
 
 
-            messageSendButton.disabled =
-                false;
+/*
+ * Create a notification for the other
+ * participant in this conversation.
+ */
 
+const { data: conversationMembers } =
+    await supabaseClient
+        .from("conversation_members")
+        .select("user_id")
+        .eq(
+            "conversation_id",
+            activeConversationId
+        );
 
-            await loadMessages(
-                activeConversationId
+if (conversationMembers) {
+
+    const recipient =
+        conversationMembers.find(
+            member =>
+                member.user_id !==
+                currentUser.id
+        );
+
+    if (recipient) {
+
+       const { data: senderProfile } =
+    await supabaseClient
+        .from("profiles")
+        .select("display_name, username")
+        .eq(
+            "id",
+            currentUser.id
+        )
+        .single();
+
+const senderName =
+    senderProfile?.display_name ||
+    senderProfile?.username ||
+    "PATRIODX User";
+
+        const { error: notificationError } =
+            await supabaseClient
+                .from("notifications")
+                .insert({
+                    user_id:
+                        recipient.user_id,
+
+                    type:
+                        "message",
+
+                    title:
+                        senderName,
+
+                    message:
+                        "sent you a message.",
+
+                    related_id:
+                        activeConversationId,
+
+                    is_read:
+                        false
+                });
+
+        if (notificationError) {
+
+            console.error(
+                "Could not create message notification:",
+                notificationError
             );
 
+        }
+    }
+}
+
+
+messageSendButton.disabled =
+    false;
+
+
+await loadMessages(
+    activeConversationId
+);
         }
     );
 
