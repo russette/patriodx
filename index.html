@@ -223,10 +223,23 @@
         <span data-i18n="messages">Messages</span>
     </a>
 
-    <a href="#notifications" class="sidebar-link" data-page="notifications">
-        <span><i data-lucide="bell"></i></span>
-        <span data-i18n="notifications">Notifications</span>
-    </a>
+   <a href="#notifications" class="sidebar-link" data-page="notifications">
+    <span class="sidebar-notification-icon">
+        <i data-lucide="bell"></i>
+    </span>
+
+    <span data-i18n="notifications">
+        Notifications
+    </span>
+
+    <span
+        id="notificationUnreadBadge"
+        class="notification-unread-badge"
+        style="display: none;"
+    >
+        0
+    </span>
+</a>
 
 </div>
 
