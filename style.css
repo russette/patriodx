@@ -9376,3 +9376,98 @@ body.dark-mode .conversation-user-info span {
     }
 
 }
+.conversation-item {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 12px;
+
+    border: none;
+    border-radius: 12px;
+
+    background: transparent;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        transform 0.15s ease;
+}
+
+.conversation-item:hover {
+    background: #f1f5f9;
+}
+
+.conversation-item.active {
+    background: #eff6ff;
+}
+
+.conversation-avatar {
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.conversation-info {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+.conversation-info strong {
+    color: #0f172a;
+
+    font-size: 14px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.conversation-info span {
+    color: #64748b;
+
+    font-size: 12px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* DARK MODE */
+
+body.dark-mode .conversation-item:hover {
+    background: #1f2937;
+}
+
+body.dark-mode .conversation-item.active {
+    background: #172554;
+}
+
+body.dark-mode .conversation-info strong {
+    color: #f8fafc;
+}
+
+body.dark-mode .conversation-info span {
+    color: #94a3b8;
+}
