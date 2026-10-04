@@ -5698,7 +5698,31 @@ async function getSocialCounts(postId) {
 
     };
 }
+async function hasLikedSocialPost(postId) {
 
+    if (!currentUser) {
+        return false;
+    }
+
+    const { data, error } =
+        await supabaseClient
+            .from("post_likes")
+            .select("id")
+            .eq("post_id", postId)
+            .eq("user_id", currentUser.id)
+            .maybeSingle();
+
+    if (error) {
+        console.error(
+            "Could not check post like:",
+            error
+        );
+
+        return false;
+    }
+
+    return !!data;
+}
 /* =========================================================
    LOAD SOCIAL POSTS
 ========================================================= */
@@ -6841,52 +6865,101 @@ async function likeSocialPost(postId) {
         return;
     }
 
-    const { error } =
-        await supabaseClient
-            .from("post_likes")
-            .insert({
+    try {
 
-                post_id:
-                    postId,
+        const alreadyLiked =
+            await hasLikedSocialPost(postId);
 
-                user_id:
-                    currentUser.id
+        if (alreadyLiked) {
 
-            });
+            const { error } =
+                await supabaseClient
+                    .from("post_likes")
+                    .delete()
+                    .eq(
+                        "post_id",
+                        postId
+                    )
+                    .eq(
+                        "user_id",
+                        currentUser.id
+                    );
 
-    if (error) {
-
-        if (error.code === "23505") {
-
-            showPATRIODXToast(
-                "You already liked this post.",
-                "info"
-            );
+            if (error) {
+                throw error;
+            }
 
         } else {
 
-            console.error(
-                "Like error:",
-                error
-            );
+            const { error } =
+                await supabaseClient
+                    .from("post_likes")
+                    .insert({
+                        post_id:
+                            postId,
 
-            showPATRIODXToast(
-                "Could not like this post. " +
-                error.message,
-                "error"
-            );
+                        user_id:
+                            currentUser.id
+                    });
+
+            if (error) {
+                throw error;
+            }
         }
 
+        await refreshSocialPostStats(
+            postId
+        );
+
+        await refreshHomePostStats(
+            postId
+        );
+
+        await updateSocialLikeButton(
+            postId
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Like toggle error:",
+            error
+        );
+
+        showPATRIODXToast(
+            "Could not update your like. " +
+            error.message,
+            "error"
+        );
+    }
+}
+async function updateSocialLikeButton(postId) {
+
+    const button =
+        document.querySelector(
+            `.social-like-button[data-post-id="${postId}"]`
+        );
+
+    if (!button) {
         return;
     }
 
-    await refreshSocialPostStats(
-        postId
+    const liked =
+        await hasLikedSocialPost(postId);
+
+    button.classList.toggle(
+        "liked",
+        liked
     );
 
-    await refreshHomePostStats(
-        postId
-    );
+    button.innerHTML =
+        liked
+            ? '<i data-lucide="heart"></i> Liked'
+            : '<i data-lucide="heart"></i> Like';
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
 }
 /* =========================================================
    REFRESH POST COUNTS
