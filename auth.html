@@ -167,13 +167,26 @@
 
         <form id="authForm">
 
-          <div class="form-group" id="nameGroup" style="display:none;">
+         <div class="form-group" id="nameGroup" style="display:none;">
     <label for="name">Business Name</label>
 
     <input
         type="text"
         id="name"
         placeholder="Your business name"
+    >
+</div>
+
+<div class="form-group" id="usernameGroup" style="display:none;">
+    <label for="username">Username</label>
+
+    <input
+        type="text"
+        id="username"
+        placeholder="@yourusername"
+        minlength="3"
+        maxlength="30"
+        autocomplete="username"
     >
 </div>
 
@@ -282,7 +295,11 @@ const switchArea =
 
 const nameGroup =
     document.getElementById("nameGroup");
+const usernameGroup =
+    document.getElementById("usernameGroup");
 
+const usernameInput =
+    document.getElementById("username");
 const emailGroup =
     document.getElementById("emailGroup");
 
@@ -329,7 +346,8 @@ function showResetForm() {
 
     nameGroup.style.display =
         "none";
-
+usernameGroup.style.display =
+    "none";
 
     forgotGroup.style.display =
         "none";
@@ -379,7 +397,8 @@ function showLoginForm() {
 
     nameGroup.style.display =
         "none";
-
+usernameGroup.style.display =
+    "none";
 
     forgotGroup.style.display =
         "block";
@@ -419,12 +438,14 @@ function updateForm() {
         switchButton.textContent =
             "Sign In";
 
-        nameGroup.style.display =
-            "block";
+      nameGroup.style.display =
+    "block";
 
-        forgotGroup.style.display =
-            "none";
+usernameGroup.style.display =
+    "block";
 
+forgotGroup.style.display =
+    "none";
     } else {
 
         showLoginForm();
@@ -545,7 +566,10 @@ form.addEventListener("submit", async (event) => {
         document.getElementById("name")
             .value
             .trim();
-
+const username =
+    usernameInput.value
+        .trim()
+        .toLowerCase();
 
     submitButton.disabled =
         true;
@@ -627,7 +651,29 @@ form.addEventListener("submit", async (event) => {
                 );
 
             }
+if (!username) {
 
+    throw new Error(
+        "Please choose a username."
+    );
+
+}
+
+if (username.length < 3) {
+
+    throw new Error(
+        "Username must be at least 3 characters."
+    );
+
+}
+
+if (!/^[a-z0-9_]+$/.test(username)) {
+
+    throw new Error(
+        "Username can only contain letters, numbers, and underscores."
+    );
+
+}
 
             const { data, error } =
                 await supabaseClient.auth
@@ -637,12 +683,15 @@ form.addEventListener("submit", async (event) => {
 
                         password: password,
 
-                        options: {
-                            data: {
-                                business_name:
-                                    businessName
-                            }
-                        }
+                       options: {
+    data: {
+        business_name:
+            businessName,
+
+        username:
+            username
+    }
+}
 
                     });
 
