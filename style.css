@@ -9471,3 +9471,162 @@ body.dark-mode .conversation-info strong {
 body.dark-mode .conversation-info span {
     color: #94a3b8;
 }
+/* =========================================================
+   PUBLIC PROFILE FOLLOWER / FOLLOWING LIST
+   ========================================================= */
+
+.profile-stat-button {
+    appearance: none;
+    border: none;
+    background: transparent;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.profile-stat-button strong {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.profile-stat-button span {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.profile-stat-button:hover span {
+    color: #2563eb;
+}
+
+.profile-follow-list {
+    width: 100%;
+    margin-top: 18px;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 12px;
+    box-sizing: border-box;
+}
+
+.profile-follow-list-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    margin: 0;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease;
+}
+
+.profile-follow-list-item:hover {
+    background: #f3f4f6;
+}
+
+.profile-follow-list-item:active {
+    transform: scale(0.99);
+}
+
+.profile-follow-list-avatar {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e5e7eb;
+    color: #6b7280;
+}
+
+.profile-follow-list-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-follow-list-avatar svg {
+    width: 20px;
+    height: 20px;
+}
+
+.profile-follow-list-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.profile-follow-list-info strong {
+    font-size: 14px;
+    font-weight: 700;
+    color: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.profile-follow-list-info span {
+    font-size: 13px;
+    color: #6b7280;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Dark mode */
+
+body.dark-mode .profile-follow-list {
+    border-top-color: #374151;
+}
+
+body.dark-mode .profile-follow-list-item:hover {
+    background: #1f2937;
+}
+
+body.dark-mode .profile-follow-list-avatar {
+    background: #374151;
+    color: #d1d5db;
+}
+
+body.dark-mode .profile-follow-list-info span,
+body.dark-mode .profile-stat-button span {
+    color: #9ca3af;
+}
+
+body.dark-mode .profile-stat-button:hover span {
+    color: #60a5fa;
+}
+
+/* Mobile */
+
+@media (max-width: 768px) {
+
+    .profile-follow-list-item {
+        padding: 10px 8px;
+    }
+
+    .profile-follow-list-avatar {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+    }
+
+}
