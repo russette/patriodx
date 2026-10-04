@@ -4900,6 +4900,7 @@ async function startPATRIODX() {
 
     await loadData();
 await loadMyProfile();
+    setupNotifications();
     loadPlan();
 
     setupSearch();
