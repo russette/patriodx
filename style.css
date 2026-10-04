@@ -6576,13 +6576,20 @@ label {
     display: flex;
     align-items: center;
     justify-content: center;
+
     width: 68px;
     height: 68px;
+
     margin: 0 auto 7px;
+
     border-radius: 50%;
     border: 3px solid #2563eb;
+
     background: #eef2ff;
-    overflow: visible;
+
+    overflow: hidden;
+
+    box-sizing: border-box;
 }
 
 .social-story-avatar > span:first-child {
@@ -6598,7 +6605,12 @@ label {
 .social-story-avatar img {
     width: 100%;
     height: 100%;
+
+    display: block;
+
     object-fit: cover;
+
+    border-radius: 50%;
 }
 
 .social-story-avatar svg {
