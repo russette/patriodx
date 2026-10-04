@@ -4761,7 +4761,82 @@
 
 
 </main>
+<!-- =========================================================
+     PATRIODX STORY VIEWER
+========================================================= -->
 
+<div
+    id="patriodxStoryViewer"
+    class="patriodx-story-viewer"
+    style="display:none;"
+>
+
+    <button
+        type="button"
+        id="storyViewerClose"
+        class="story-viewer-close"
+        aria-label="Close story"
+        title="Close"
+    >
+        <i data-lucide="x"></i>
+    </button>
+
+    <div class="story-viewer-progress">
+        <div
+            id="storyViewerProgress"
+            class="story-viewer-progress-bar"
+        ></div>
+    </div>
+
+    <div class="story-viewer-header">
+
+        <div
+            id="storyViewerAvatar"
+            class="story-viewer-avatar"
+        ></div>
+
+        <div class="story-viewer-user">
+
+            <strong
+                id="storyViewerUsername"
+            >
+                PATRIODX User
+            </strong>
+
+            <span
+                id="storyViewerTime"
+            >
+                Just now
+            </span>
+
+        </div>
+
+    </div>
+
+    <div
+        id="storyViewerContent"
+        class="story-viewer-content"
+    ></div>
+
+    <button
+        type="button"
+        id="storyViewerPrevious"
+        class="story-viewer-nav story-viewer-previous"
+        aria-label="Previous story"
+    >
+        <i data-lucide="chevron-left"></i>
+    </button>
+
+    <button
+        type="button"
+        id="storyViewerNext"
+        class="story-viewer-nav story-viewer-next"
+        aria-label="Next story"
+    >
+        <i data-lucide="chevron-right"></i>
+    </button>
+
+</div>
 <!-- =========================================================
      ADD STORY MODAL
 ========================================================= -->
