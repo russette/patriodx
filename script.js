@@ -10306,13 +10306,16 @@ async function loadMyProfile() {
                 .from("profiles")
                 .insert({
 
-                    id:
-                        currentUser.id,
+    id:
+        currentUser.id,
 
-                    display_name:
-                        defaultName
+    display_name:
+        defaultName,
 
-                })
+    username:
+        currentUser.user_metadata?.username || null
+
+})
                 .select()
                 .single();
 
