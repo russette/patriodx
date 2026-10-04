@@ -11342,7 +11342,8 @@ async function followUser(userId) {
         return;
     }
 
-    await loadPublicProfile(userId);
+   await loadPublicProfile(userId);
+await loadMyFollowCounts();
 }
 
 // ------------------------------------------
@@ -11402,7 +11403,8 @@ async function unfollowUser(userId) {
         return;
     }
 
-    await loadPublicProfile(userId);
+   await loadPublicProfile(userId);
+await loadMyFollowCounts();
 }
 
 // ------------------------------------------
