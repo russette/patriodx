@@ -5766,6 +5766,11 @@ function setupSocialFeedTabs() {
     });
 }
 
+let patriodxStoryViewerStories = [];
+let patriodxStoryViewerIndex = 0;
+let patriodxStoryViewerTimer = null;
+
+
 async function loadPATRIODXStories() {
 
     const storiesContainer =
@@ -5799,6 +5804,9 @@ async function loadPATRIODXStories() {
         }
 
         storiesContainer.innerHTML = "";
+
+        patriodxStoryViewerStories = [];
+        patriodxStoryViewerIndex = 0;
 
         if (!stories || stories.length === 0) {
             return;
@@ -5847,6 +5855,16 @@ async function loadPATRIODXStories() {
                 profile.username ||
                 "PATRIODX User";
 
+            const storyData = {
+                ...story,
+                profile: profile,
+                name: name
+            };
+
+            patriodxStoryViewerStories.push(
+                storyData
+            );
+
             const storyButton =
                 document.createElement("button");
 
@@ -5890,13 +5908,16 @@ async function loadPATRIODXStories() {
             storyButton.appendChild(avatar);
             storyButton.appendChild(nameElement);
 
+            const storyIndex =
+                patriodxStoryViewerStories.length - 1;
+
             storyButton.addEventListener(
                 "click",
                 function () {
-showPATRIODXToast(
-    "Story viewer is coming next.",
-    "info"
-);
+
+                    openPATRIODXStoryViewer(
+                        storyIndex
+                    );
 
                 }
             );
@@ -5913,7 +5934,7 @@ showPATRIODXToast(
 
         console.log(
             "PATRIODX stories loaded:",
-            stories.length
+            patriodxStoryViewerStories.length
         );
 
     } catch (error) {
@@ -5924,6 +5945,544 @@ showPATRIODXToast(
         );
 
     }
+}
+
+
+/* =========================================================
+   PATRIODX STORY VIEWER
+========================================================= */
+
+async function recordPATRIODXStoryView(story) {
+
+    if (!currentUser || !story) {
+        return;
+    }
+
+    if (story.user_id === currentUser.id) {
+        return;
+    }
+
+    try {
+
+        const { error } =
+            await supabaseClient
+                .from("story_views")
+                .upsert(
+                    {
+                        story_id: story.id,
+                        viewer_id: currentUser.id
+                    },
+                    {
+                        onConflict:
+                            "story_id,viewer_id"
+                    }
+                );
+
+        if (error) {
+            console.error(
+                "Could not record story view:",
+                error
+            );
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Story view error:",
+            error
+        );
+
+    }
+}
+
+
+function openPATRIODXStoryViewer(index) {
+
+    const viewer =
+        document.getElementById(
+            "patriodxStoryViewer"
+        );
+
+    if (!viewer) {
+        console.error(
+            "PATRIODX story viewer was not found."
+        );
+        return;
+    }
+
+    if (
+        !patriodxStoryViewerStories.length
+    ) {
+        return;
+    }
+
+    patriodxStoryViewerIndex =
+        Math.max(
+            0,
+            Math.min(
+                index,
+                patriodxStoryViewerStories.length - 1
+            )
+        );
+
+    viewer.style.display = "flex";
+
+    document.body.style.overflow = "hidden";
+
+    renderPATRIODXStoryViewer();
+}
+
+
+async function renderPATRIODXStoryViewer() {
+
+    const story =
+        patriodxStoryViewerStories[
+            patriodxStoryViewerIndex
+        ];
+
+    if (!story) {
+        closePATRIODXStoryViewer();
+        return;
+    }
+
+    const viewerContent =
+        document.getElementById(
+            "storyViewerContent"
+        );
+
+    const avatar =
+        document.getElementById(
+            "storyViewerAvatar"
+        );
+
+    const username =
+        document.getElementById(
+            "storyViewerUsername"
+        );
+
+    const time =
+        document.getElementById(
+            "storyViewerTime"
+        );
+
+    const progress =
+        document.getElementById(
+            "storyViewerProgress"
+        );
+
+    if (
+        !viewerContent ||
+        !avatar ||
+        !username ||
+        !time ||
+        !progress
+    ) {
+        return;
+    }
+
+    clearTimeout(
+        patriodxStoryViewerTimer
+    );
+
+    progress.style.transition = "none";
+    progress.style.width = "0%";
+
+    const profile =
+        story.profile || {};
+
+    const name =
+        story.name ||
+        profile.display_name ||
+        profile.username ||
+        "PATRIODX User";
+
+    username.textContent = name;
+
+    avatar.innerHTML = "";
+
+    if (profile.avatar_url) {
+
+        const image =
+            document.createElement("img");
+
+        image.src =
+            profile.avatar_url;
+
+        image.alt = name;
+
+        avatar.appendChild(image);
+
+    } else {
+
+        avatar.textContent =
+            name
+                .charAt(0)
+                .toUpperCase();
+    }
+
+    time.textContent =
+        formatPATRIODXStoryTime(
+            story.created_at
+        );
+
+    viewerContent.innerHTML = "";
+
+    if (
+        story.media_type &&
+        story.media_type
+            .toLowerCase()
+            .startsWith("video")
+    ) {
+
+        const video =
+            document.createElement("video");
+
+        video.src =
+            story.media_url;
+
+        video.controls = true;
+
+        video.autoplay = true;
+
+        video.playsInline = true;
+
+        viewerContent.appendChild(video);
+
+        video.addEventListener(
+            "loadedmetadata",
+            function () {
+
+                const duration =
+                    Math.min(
+                        Math.max(
+                            video.duration || 5,
+                            3
+                        ),
+                        15
+                    );
+
+                startPATRIODXStoryProgress(
+                    duration
+                );
+
+            },
+            {
+                once: true
+            }
+        );
+
+        video.addEventListener(
+            "ended",
+            function () {
+
+                showNextPATRIODXStory();
+
+            }
+        );
+
+    } else {
+
+        const image =
+            document.createElement("img");
+
+        image.src =
+            story.media_url;
+
+        image.alt =
+            "PATRIODX Story";
+
+        viewerContent.appendChild(image);
+
+        startPATRIODXStoryProgress(5);
+    }
+
+    await recordPATRIODXStoryView(
+        story
+    );
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+}
+
+
+function startPATRIODXStoryProgress(
+    duration
+) {
+
+    const progress =
+        document.getElementById(
+            "storyViewerProgress"
+        );
+
+    if (!progress) {
+        return;
+    }
+
+    clearTimeout(
+        patriodxStoryViewerTimer
+    );
+
+    progress.style.transition = "none";
+    progress.style.width = "0%";
+
+    requestAnimationFrame(
+        function () {
+
+            progress.style.transition =
+                `width ${duration}s linear`;
+
+            progress.style.width = "100%";
+
+        }
+    );
+
+    patriodxStoryViewerTimer =
+        setTimeout(
+            function () {
+
+                showNextPATRIODXStory();
+
+            },
+            duration * 1000
+        );
+}
+
+
+function showPreviousPATRIODXStory() {
+
+    if (
+        patriodxStoryViewerIndex <= 0
+    ) {
+
+        return;
+    }
+
+    patriodxStoryViewerIndex--;
+
+    renderPATRIODXStoryViewer();
+}
+
+
+function showNextPATRIODXStory() {
+
+    if (
+        patriodxStoryViewerIndex >=
+        patriodxStoryViewerStories.length - 1
+    ) {
+
+        closePATRIODXStoryViewer();
+
+        return;
+    }
+
+    patriodxStoryViewerIndex++;
+
+    renderPATRIODXStoryViewer();
+}
+
+
+function closePATRIODXStoryViewer() {
+
+    clearTimeout(
+        patriodxStoryViewerTimer
+    );
+
+    const viewer =
+        document.getElementById(
+            "patriodxStoryViewer"
+        );
+
+    if (viewer) {
+        viewer.style.display = "none";
+    }
+
+    document.body.style.overflow = "";
+
+    const progress =
+        document.getElementById(
+            "storyViewerProgress"
+        );
+
+    if (progress) {
+
+        progress.style.transition = "none";
+
+        progress.style.width = "0%";
+    }
+
+    const viewerContent =
+        document.getElementById(
+            "storyViewerContent"
+        );
+
+    if (viewerContent) {
+        viewerContent.innerHTML = "";
+    }
+}
+
+
+function formatPATRIODXStoryTime(
+    createdAt
+) {
+
+    if (!createdAt) {
+        return "Just now";
+    }
+
+    const created =
+        new Date(createdAt);
+
+    const now =
+        new Date();
+
+    const difference =
+        Math.floor(
+            (now - created) / 1000
+        );
+
+    if (difference < 60) {
+        return "Just now";
+    }
+
+    const minutes =
+        Math.floor(
+            difference / 60
+        );
+
+    if (minutes < 60) {
+        return (
+            minutes +
+            (minutes === 1
+                ? " minute ago"
+                : " minutes ago")
+        );
+    }
+
+    const hours =
+        Math.floor(
+            minutes / 60
+        );
+
+    if (hours < 24) {
+        return (
+            hours +
+            (hours === 1
+                ? " hour ago"
+                : " hours ago")
+        );
+    }
+
+    const days =
+        Math.floor(
+            hours / 24
+        );
+
+    return (
+        days +
+        (days === 1
+            ? " day ago"
+            : " days ago")
+    );
+}
+
+
+function setupPATRIODXStoryViewer() {
+
+    const closeButton =
+        document.getElementById(
+            "storyViewerClose"
+        );
+
+    const previousButton =
+        document.getElementById(
+            "storyViewerPrevious"
+        );
+
+    const nextButton =
+        document.getElementById(
+            "storyViewerNext"
+        );
+
+    if (
+        !closeButton ||
+        !previousButton ||
+        !nextButton
+    ) {
+        return;
+    }
+
+    if (
+        closeButton.dataset.ready === "true"
+    ) {
+        return;
+    }
+
+    closeButton.dataset.ready = "true";
+
+    closeButton.addEventListener(
+        "click",
+        function () {
+
+            closePATRIODXStoryViewer();
+
+        }
+    );
+
+    previousButton.addEventListener(
+        "click",
+        function () {
+
+            showPreviousPATRIODXStory();
+
+        }
+    );
+
+    nextButton.addEventListener(
+        "click",
+        function () {
+
+            showNextPATRIODXStory();
+
+        }
+    );
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            const viewer =
+                document.getElementById(
+                    "patriodxStoryViewer"
+                );
+
+            if (
+                !viewer ||
+                viewer.style.display === "none"
+            ) {
+                return;
+            }
+
+            if (event.key === "Escape") {
+
+                closePATRIODXStoryViewer();
+
+            }
+
+            if (event.key === "ArrowLeft") {
+
+                showPreviousPATRIODXStory();
+
+            }
+
+            if (event.key === "ArrowRight") {
+
+                showNextPATRIODXStory();
+
+            }
+
+        }
+    );
 }
 async function loadSocialPosts() {
 
@@ -12777,7 +13336,7 @@ function startPATRIODXNavigation() {
     setupPATRIODXLogo();
 
     setupPATRIODXMobileMenu();
-
+setupPATRIODXStoryViewer();
 
     let startingPage =
         window.location.hash
