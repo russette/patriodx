@@ -7930,13 +7930,14 @@ async function loadHomePosts() {
 
                    <div class="social-post-actions-bar">
 
-    <button
-        type="button"
-        class="social-action-button"
-        onclick="likeSocialPost('${post.id}')"
-    >
-        <i data-lucide="heart"></i> Like
-    </button>
+   <button
+    type="button"
+    class="social-action-button social-like-button"
+    data-post-id="${post.id}"
+    onclick="likeSocialPost('${post.id}')"
+>
+    <i data-lucide="heart"></i> Like
+</button>
 
     <button
         type="button"
