@@ -3246,7 +3246,18 @@ textarea:focus-visible {
     justify-content: center;
     background: rgba(128, 128, 128, 0.15);
 }
+.social-comment-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
 
+.social-comment-avatar svg {
+    width: 18px;
+    height: 18px;
+}
 .social-comment-content {
     flex: 1;
 }
