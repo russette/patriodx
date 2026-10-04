@@ -110,18 +110,305 @@ module.exports = async function handler(req, res) {
             const payment =
                 event.data || {};
 
-            const metadata =
-                payment.metadata || {};
+           const metadata =
+    payment.metadata || {};
 
 
-            /*
-            ONLY PROCESS PATRIODX
-            VERIFICATION PAYMENTS
-            */
+/*
+CHECK FOR RECURRING
+VERIFICATION PAYMENT
+*/
 
-            if (
-                metadata.verification !== true
-            ) {
+const recurringSubscriptionCode =
+    payment.subscription?.subscription_code ||
+    payment.subscription_code ||
+    metadata.subscription_code ||
+    null;
+if (recurringSubscriptionCode) {
+
+    const {
+        data: existingSubscription,
+        error: recurringLookupError
+    } =
+        await supabaseAdmin
+            .from("verification_subscriptions")
+            .select(
+                "id, user_id, plan, status"
+            )
+            .eq(
+                "subscription_code",
+                recurringSubscriptionCode
+            )
+            .maybeSingle();
+
+    if (recurringLookupError) {
+
+        console.error(
+            "RECURRING VERIFICATION LOOKUP ERROR:",
+            recurringLookupError
+        );
+
+        return res.status(500).json({
+            status: false,
+            error:
+                "Unable to process recurring verification"
+        });
+
+    }
+
+    if (existingSubscription) {
+
+        let renewalMonths;
+
+        if (
+            existingSubscription.plan ===
+            "monthly"
+        ) {
+
+            renewalMonths = 1;
+
+        } else if (
+            existingSubscription.plan ===
+            "yearly"
+        ) {
+
+            renewalMonths = 12;
+
+        } else {
+
+            console.error(
+                "Invalid recurring verification plan:",
+                existingSubscription.plan
+            );
+
+            return res.status(400).json({
+                status: false,
+                error:
+                    "Invalid recurring verification plan"
+            });
+
+        }
+
+
+        /*
+        VERIFY RENEWAL AMOUNT
+        */
+
+        const renewalAmount =
+            existingSubscription.plan ===
+            "monthly"
+                ? 5809
+                : 58095;
+
+
+        if (
+            payment.currency !==
+            "GHS"
+        ) {
+
+            console.error(
+                "Invalid recurring verification currency:",
+                payment.currency
+            );
+
+            return res.status(400).json({
+                status: false,
+                error:
+                    "Invalid recurring verification currency"
+            });
+
+        }
+
+
+        if (
+            Number(payment.amount) !==
+            renewalAmount
+        ) {
+
+            console.error(
+                "Invalid recurring verification amount:",
+                {
+                    received:
+                        payment.amount,
+                    expected:
+                        renewalAmount
+                }
+            );
+
+            return res.status(400).json({
+                status: false,
+                error:
+                    "Invalid recurring verification payment amount"
+            });
+
+        }
+
+
+        /*
+        EXTEND VERIFICATION
+        */
+
+        const renewedAt =
+            new Date();
+
+        const renewedExpiresAt =
+            new Date(
+                renewedAt
+            );
+
+        renewedExpiresAt.setMonth(
+            renewedExpiresAt.getMonth() +
+            renewalMonths
+        );
+
+
+        /*
+        UPDATE SUBSCRIPTION
+        */
+
+        const {
+            error:
+                renewalUpdateError
+        } =
+            await supabaseAdmin
+                .from(
+                    "verification_subscriptions"
+                )
+                .update(
+                    {
+
+                        status:
+                            "active",
+
+                        expires_at:
+                            renewedExpiresAt
+                                .toISOString(),
+
+                        provider_reference:
+                            payment.reference,
+
+                        updated_at:
+                            renewedAt
+                                .toISOString()
+
+                    }
+                )
+                .eq(
+                    "id",
+                    existingSubscription.id
+                );
+
+
+        if (
+            renewalUpdateError
+        ) {
+
+            console.error(
+                "RECURRING VERIFICATION UPDATE ERROR:",
+                renewalUpdateError
+            );
+
+            return res.status(500).json({
+                status: false,
+                error:
+                    "Unable to renew verification subscription"
+            });
+
+        }
+
+
+        /*
+        KEEP BLUE CHECK ACTIVE
+        */
+
+        const {
+            error:
+                renewalProfileError
+        } =
+            await supabaseAdmin
+                .from(
+                    "profiles"
+                )
+                .update(
+                    {
+
+                        is_verified:
+                            true,
+
+                        verification_plan:
+                            existingSubscription.plan,
+
+                        verification_expires_at:
+                            renewedExpiresAt
+                                .toISOString(),
+
+                        updated_at:
+                            renewedAt
+                                .toISOString()
+
+                    }
+                )
+                .eq(
+                    "id",
+                    existingSubscription.user_id
+                );
+
+
+        if (
+            renewalProfileError
+        ) {
+
+            console.error(
+                "RECURRING PROFILE UPDATE ERROR:",
+                renewalProfileError
+            );
+
+            return res.status(500).json({
+                status: false,
+                error:
+                    "Unable to renew verification"
+            });
+
+        }
+
+
+        console.log(
+            "BLUE CHECK RENEWED:",
+            {
+                userId:
+                    existingSubscription.user_id,
+
+                plan:
+                    existingSubscription.plan,
+
+                reference:
+                    payment.reference,
+
+                expiresAt:
+                    renewedExpiresAt
+                        .toISOString()
+            }
+        );
+
+
+        return res.status(200).json({
+            status: true,
+            message:
+                "Verification renewed"
+        });
+
+    }
+}
+
+
+/*
+ONLY PROCESS PATRIODX
+VERIFICATION PAYMENTS
+*/
+
+if (
+    metadata.verification !== true
+) {
 
                 return res.status(200).json({
                     status: true,
