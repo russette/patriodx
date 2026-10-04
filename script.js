@@ -11229,7 +11229,6 @@ async function getProfileFollowCounts(userId) {
 // ------------------------------------------
 // LOAD FOLLOWERS / FOLLOWING LIST
 // ------------------------------------------
-
 async function loadProfileFollowList(userId, type) {
 
     const list =
@@ -11257,25 +11256,19 @@ async function loadProfileFollowList(userId, type) {
             ? "follower_id"
             : "following_id";
 
-    const { data, error } =
-        await supabaseClient
-            .from("profile_follows")
-            .select(`
-                ${userColumn},
-                profiles:${userColumn} (
-                    id,
-                    username,
-                    display_name,
-                    avatar_url
-                )
-            `)
-            .eq(column, userId);
+    const {
+        data: followRows,
+        error: followError
+    } = await supabaseClient
+        .from("profile_follows")
+        .select(userColumn)
+        .eq(column, userId);
 
-    if (error) {
+    if (followError) {
 
         console.error(
             "Follow list error:",
-            error
+            followError
         );
 
         list.innerHTML = `
@@ -11287,12 +11280,12 @@ async function loadProfileFollowList(userId, type) {
         return;
     }
 
-    const profiles =
-        (data || [])
-            .map(row => row.profiles)
+    const userIds =
+        (followRows || [])
+            .map(row => row[userColumn])
             .filter(Boolean);
 
-    if (profiles.length === 0) {
+    if (userIds.length === 0) {
 
         list.innerHTML = `
             <div class="social-empty-state">
@@ -11309,56 +11302,95 @@ async function loadProfileFollowList(userId, type) {
         return;
     }
 
-    list.innerHTML = profiles.map(profile => {
+    const {
+        data: profiles,
+        error: profileError
+    } = await supabaseClient
+        .from("profiles")
+        .select(
+            "id, username, display_name, avatar_url"
+        )
+        .in("id", userIds);
 
-        const avatar =
-            profile.avatar_url
-                ? `
-                    <img
-                        src="${profile.avatar_url}"
-                        alt="Profile"
-                    >
-                `
-                : `
-                    <i data-lucide="user"></i>
-                `;
+    if (profileError) {
 
-        return `
-            <button
-                type="button"
-                class="profile-follow-list-item"
-                data-user-id="${profile.id}"
-            >
+        console.error(
+            "Follow list profile error:",
+            profileError
+        );
 
-                <div class="profile-follow-list-avatar">
-                    ${avatar}
-                </div>
-
-                <div class="profile-follow-list-info">
-
-                    <strong>
-                        ${escapeHTML(
-                            profile.display_name ||
-                            "PATRIODX User"
-                        )}
-                    </strong>
-
-                    <span>
-                        ${
-                            profile.username
-                                ? "@" +
-                                  escapeHTML(
-                                      profile.username
-                                  )
-                                : ""
-                        }
-                    </span>
-
-                </div>
-
-            </button>
+        list.innerHTML = `
+            <div class="social-empty-state">
+                <p>Could not load profiles.</p>
+            </div>
         `;
-    }).join("");
+
+        return;
+    }
+
+    if (!profiles || profiles.length === 0) {
+
+        list.innerHTML = `
+            <div class="social-empty-state">
+                <p>No profiles found.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+    list.innerHTML =
+        profiles.map(profile => {
+
+            const avatar =
+                profile.avatar_url
+                    ? `
+                        <img
+                            src="${profile.avatar_url}"
+                            alt="Profile"
+                        >
+                    `
+                    : `
+                        <i data-lucide="user"></i>
+                    `;
+
+            return `
+                <button
+                    type="button"
+                    class="profile-follow-list-item"
+                    data-user-id="${profile.id}"
+                >
+
+                    <div class="profile-follow-list-avatar">
+                        ${avatar}
+                    </div>
+
+                    <div class="profile-follow-list-info">
+
+                        <strong>
+                            ${escapeHTML(
+                                profile.display_name ||
+                                "PATRIODX User"
+                            )}
+                        </strong>
+
+                        <span>
+                            ${
+                                profile.username
+                                    ? "@" +
+                                      escapeHTML(
+                                          profile.username
+                                      )
+                                    : ""
+                            }
+                        </span>
+
+                    </div>
+
+                </button>
+            `;
+
+        }).join("");
 
     if (typeof lucide !== "undefined") {
         lucide.createIcons();
