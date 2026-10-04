@@ -9641,3 +9641,13 @@ body.dark-mode .profile-stat-button:hover span {
     }
 
 }
+.social-like-button.liked {
+    color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.1) !important;
+}
+
+.social-like-button.liked svg {
+    color: #ef4444 !important;
+    fill: #ef4444 !important;
+    stroke: #ef4444 !important;
+}
