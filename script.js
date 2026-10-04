@@ -10337,7 +10337,7 @@ async function loadMyProfile() {
 
 
     renderMyProfile();
-
+await loadMyFollowCounts();
     await loadMyProfilePosts();
 }
 
