@@ -7634,7 +7634,21 @@ window.reportSocialPost =
 function getPATRIODXBadge(profile) {
 
     if (!profile) return "";
+if (
+    profile.is_verified &&
+    profile.verification_expires_at
+) {
+    const expiresAt =
+        new Date(
+            profile.verification_expires_at
+        );
 
+    if (
+        expiresAt <= new Date()
+    ) {
+        return "";
+    }
+}
     if (profile.is_owner) {
         return `
             <span
