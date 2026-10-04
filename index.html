@@ -1617,22 +1617,38 @@
             </div>
 
 
-            <div class="profile-stats">
+          <div class="profile-stats">
 
-                <div>
-                    <strong id="publicProfilePostCount">0</strong>
-                    <span data-i18n="posts">Posts</span>
-                </div>
+    <div>
+        <strong id="publicProfilePostCount">0</strong>
+        <span data-i18n="posts">Posts</span>
+    </div>
 
-                <div>
-                    <strong id="profileFollowerCount">0</strong>
-                    <span data-i18n="followers">Followers</span>
-                </div>
+    <button
+        type="button"
+        class="profile-stat-button"
+        id="publicProfileFollowersButton"
+    >
+        <strong id="publicProfileFollowerCount">0</strong>
+        <span data-i18n="followers">Followers</span>
+    </button>
 
-                <div>
-                    <strong id="profileFollowingCount">0</strong>
-                    <span data-i18n="following">Following</span>
-                </div>
+    <button
+        type="button"
+        class="profile-stat-button"
+        id="publicProfileFollowingButton"
+    >
+        <strong id="publicProfileFollowingCount">0</strong>
+        <span data-i18n="following">Following</span>
+    </button>
+
+</div>
+
+<div
+    id="publicProfileFollowList"
+    class="profile-follow-list"
+    style="display:none;"
+></div>
 
             </div>
 
