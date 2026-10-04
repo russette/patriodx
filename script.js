@@ -11226,8 +11226,214 @@ async function getProfileFollowCounts(userId) {
         following: following || 0
     };
 }
+// ------------------------------------------
+// LOAD FOLLOWERS / FOLLOWING LIST
+// ------------------------------------------
 
+async function loadProfileFollowList(userId, type) {
 
+    const list =
+        document.getElementById(
+            "publicProfileFollowList"
+        );
+
+    if (!list || !userId) return;
+
+    list.style.display = "block";
+
+    list.innerHTML = `
+        <div class="social-empty-state">
+            <p>Loading...</p>
+        </div>
+    `;
+
+    const column =
+        type === "followers"
+            ? "following_id"
+            : "follower_id";
+
+    const userColumn =
+        type === "followers"
+            ? "follower_id"
+            : "following_id";
+
+    const { data, error } =
+        await supabaseClient
+            .from("profile_follows")
+            .select(`
+                ${userColumn},
+                profiles:${userColumn} (
+                    id,
+                    username,
+                    display_name,
+                    avatar_url
+                )
+            `)
+            .eq(column, userId);
+
+    if (error) {
+
+        console.error(
+            "Follow list error:",
+            error
+        );
+
+        list.innerHTML = `
+            <div class="social-empty-state">
+                <p>Could not load this list.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+    const profiles =
+        (data || [])
+            .map(row => row.profiles)
+            .filter(Boolean);
+
+    if (profiles.length === 0) {
+
+        list.innerHTML = `
+            <div class="social-empty-state">
+                <p>
+                    ${
+                        type === "followers"
+                            ? "No followers yet."
+                            : "Not following anyone yet."
+                    }
+                </p>
+            </div>
+        `;
+
+        return;
+    }
+
+    list.innerHTML = profiles.map(profile => {
+
+        const avatar =
+            profile.avatar_url
+                ? `
+                    <img
+                        src="${profile.avatar_url}"
+                        alt="Profile"
+                    >
+                `
+                : `
+                    <i data-lucide="user"></i>
+                `;
+
+        return `
+            <button
+                type="button"
+                class="profile-follow-list-item"
+                data-user-id="${profile.id}"
+            >
+
+                <div class="profile-follow-list-avatar">
+                    ${avatar}
+                </div>
+
+                <div class="profile-follow-list-info">
+
+                    <strong>
+                        ${escapeHTML(
+                            profile.display_name ||
+                            "PATRIODX User"
+                        )}
+                    </strong>
+
+                    <span>
+                        ${
+                            profile.username
+                                ? "@" +
+                                  escapeHTML(
+                                      profile.username
+                                  )
+                                : ""
+                        }
+                    </span>
+
+                </div>
+
+            </button>
+        `;
+    }).join("");
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+
+    list
+        .querySelectorAll(
+            ".profile-follow-list-item"
+        )
+        .forEach(item => {
+
+            item.addEventListener(
+                "click",
+                function() {
+
+                    const targetUserId =
+                        this.getAttribute(
+                            "data-user-id"
+                        );
+
+                    loadPublicProfile(
+                        targetUserId
+                    );
+
+                }
+            );
+
+        });
+}
+// ------------------------------------------
+// FOLLOWER / FOLLOWING BUTTONS
+// ------------------------------------------
+
+function setupPublicProfileFollowLists() {
+
+    const followersButton =
+        document.getElementById(
+            "publicProfileFollowersButton"
+        );
+
+    const followingButton =
+        document.getElementById(
+            "publicProfileFollowingButton"
+        );
+
+    if (followersButton) {
+
+        followersButton.onclick =
+            function() {
+
+                if (!viewedProfileUserId) return;
+
+                loadProfileFollowList(
+                    viewedProfileUserId,
+                    "followers"
+                );
+            };
+    }
+
+    if (followingButton) {
+
+        followingButton.onclick =
+            function() {
+
+                if (!viewedProfileUserId) return;
+
+                loadProfileFollowList(
+                    viewedProfileUserId,
+                    "following"
+                );
+            };
+    }
+}
+
+setupPublicProfileFollowLists();
 // ------------------------------------------
 // LOAD OWN FOLLOW COUNTS
 // ------------------------------------------
