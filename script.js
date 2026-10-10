@@ -917,8 +917,89 @@ function renderProducts() {
 
     `).join("");
 }
-async function showPATRIODXConfirm(title, message) {
-    return window.confirm(`${title}\n\n${message}`);
+function showPATRIODXConfirm(title, message) {
+    return new Promise((resolve) => {
+        const overlay = document.createElement("div");
+
+        overlay.className = "patriodx-confirm-overlay";
+
+        overlay.innerHTML = `
+            <div
+                class="patriodx-confirm-modal"
+                role="alertdialog"
+                aria-modal="true"
+                aria-labelledby="patriodxConfirmTitle"
+                aria-describedby="patriodxConfirmMessage"
+            >
+                <h3 id="patriodxConfirmTitle"></h3>
+
+                <p id="patriodxConfirmMessage"></p>
+
+                <div class="patriodx-confirm-actions">
+                    <button
+                        type="button"
+                        class="secondary-btn"
+                        id="patriodxConfirmCancel"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="button"
+                        class="danger-btn"
+                        id="patriodxConfirmDelete"
+                    >
+                        Delete
+                    </button>
+                </div>
+            </div>
+        `;
+
+        overlay.querySelector("#patriodxConfirmTitle").textContent = title;
+        overlay.querySelector("#patriodxConfirmMessage").textContent = message;
+
+        const cancelButton = overlay.querySelector("#patriodxConfirmCancel");
+        const deleteButton = overlay.querySelector("#patriodxConfirmDelete");
+
+        let finished = false;
+
+        function closeDialog(confirmed) {
+            if (finished) return;
+
+            finished = true;
+
+            document.removeEventListener("keydown", handleKeydown);
+            overlay.remove();
+
+            resolve(confirmed);
+        }
+
+        function handleKeydown(event) {
+            if (event.key === "Escape") {
+                closeDialog(false);
+            }
+        }
+
+        cancelButton.addEventListener("click", () => {
+            closeDialog(false);
+        });
+
+        deleteButton.addEventListener("click", () => {
+            closeDialog(true);
+        });
+
+        overlay.addEventListener("click", (event) => {
+            if (event.target === overlay) {
+                closeDialog(false);
+            }
+        });
+
+        document.addEventListener("keydown", handleKeydown);
+
+        document.body.appendChild(overlay);
+
+        cancelButton.focus();
+    });
 }
 async function deleteProduct(id) {
 
@@ -14924,7 +15005,4 @@ if (openProfileButton) {
             }
         }
     );
-}
-async function showPATRIODXConfirm(title, message) {
-    return window.confirm(`${title}\n\n${message}`);
 }
