@@ -12653,9 +12653,58 @@ if (badgeElement) {
             </article>
         `;
 
-    }).join("");
-}
+      }).join("");
 
+    // Make public profile posts clickable
+    postsElement
+        .querySelectorAll(".social-post-card")
+        .forEach((card, index) => {
+
+            const post = posts[index];
+
+            if (!post) return;
+
+            card.style.cursor = "pointer";
+            card.setAttribute("role", "button");
+            card.setAttribute("tabindex", "0");
+            card.setAttribute("aria-label", "Open post");
+
+            function openThisPost() {
+                openProfilePostViewer({
+                    imageUrl: post.image_url || "",
+                    videoUrl: post.video_url || "",
+                    author:
+                        profile.display_name ||
+                        "PATRIODX User",
+                    caption: post.content || "",
+                    date: post.created_at
+                        ? new Date(post.created_at).toLocaleString()
+                        : ""
+                });
+            }
+
+            card.addEventListener("click", function (event) {
+
+                // Preserve video playback controls
+                if (event.target.closest("video, button, a")) {
+                    return;
+                }
+
+                openThisPost();
+            });
+
+            card.addEventListener("keydown", function (event) {
+
+                if (
+                    event.target === card &&
+                    (event.key === "Enter" || event.key === " ")
+                ) {
+                    event.preventDefault();
+                    openThisPost();
+                }
+            });
+        });
+}
 function escapeHTML(value) {
     return String(value ?? "")
         .replace(/&/g, "&amp;")
@@ -15014,3 +15063,94 @@ if (openProfileButton) {
         }
     );
 }
+/* =========================================================
+PATRIODX — PUBLIC PROFILE POST VIEWER
+========================================================= */
+
+function openProfilePostViewer(postData) {
+const viewer = document.getElementById("profilePostViewer");
+const mediaContainer = document.getElementById("profilePostViewerMedia");
+const authorContainer = document.getElementById("profilePostViewerAuthor");
+const captionContainer = document.getElementById("profilePostViewerCaption");
+const dateContainer = document.getElementById("profilePostViewerDate");
+
+
+if (
+    !viewer ||
+    !mediaContainer ||
+    !authorContainer ||
+    !captionContainer ||
+    !dateContainer ||
+    !postData
+) {
+    return;
+}
+
+mediaContainer.replaceChildren();
+
+if (postData.imageUrl) {
+    const image = document.createElement("img");
+    image.src = postData.imageUrl;
+    image.alt = "Post image";
+    mediaContainer.appendChild(image);
+} else if (postData.videoUrl) {
+    const video = document.createElement("video");
+    video.src = postData.videoUrl;
+    video.controls = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    mediaContainer.appendChild(video);
+} else {
+    const emptyMedia = document.createElement("div");
+    emptyMedia.className = "profile-post-viewer-text-only";
+    emptyMedia.textContent = "Text post";
+    mediaContainer.appendChild(emptyMedia);
+}
+
+authorContainer.textContent = postData.author || "PATRIODX User";
+captionContainer.textContent = postData.caption || "";
+dateContainer.textContent = postData.date || "";
+
+viewer.style.display = "flex";
+viewer.setAttribute("aria-hidden", "false");
+document.body.style.overflow = "hidden";
+
+if (window.lucide) {
+    lucide.createIcons();
+}
+
+
+}
+
+function closeProfilePostViewer() {
+const viewer = document.getElementById("profilePostViewer");
+const mediaContainer = document.getElementById("profilePostViewerMedia");
+
+
+if (!viewer) return;
+
+viewer.style.display = "none";
+viewer.setAttribute("aria-hidden", "true");
+document.body.style.overflow = "";
+
+if (mediaContainer) {
+    const video = mediaContainer.querySelector("video");
+
+    if (video) {
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+    }
+
+    mediaContainer.replaceChildren();
+}
+
+
+}
+
+/* Close the viewer with Escape */
+document.addEventListener("keydown", function (event) {
+if (event.key === "Escape") {
+closeProfilePostViewer();
+}
+});
