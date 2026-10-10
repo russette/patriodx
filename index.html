@@ -5406,5 +5406,59 @@ if ("serviceWorker" in navigator) {
 
 </div>
 </div>
+    <!-- PATRIODX PROFILE POST VIEWER -->
+
+<div
+    id="profilePostViewer"
+    class="profile-post-viewer"
+    style="display: none;"
+    aria-hidden="true"
+>
+    <div
+        class="profile-post-viewer-overlay"
+        onclick="closeProfilePostViewer()"
+    ></div>
+
+<div
+    class="profile-post-viewer-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-label="View profile post"
+>
+    <button
+        type="button"
+        class="profile-post-viewer-close"
+        onclick="closeProfilePostViewer()"
+        aria-label="Close post"
+    >
+        <i data-lucide="x"></i>
+    </button>
+
+    <div
+        id="profilePostViewerMedia"
+        class="profile-post-viewer-media"
+    ></div>
+
+    <div class="profile-post-viewer-details">
+        <div
+            id="profilePostViewerAuthor"
+            class="profile-post-viewer-author"
+        ></div>
+
+        <div
+            id="profilePostViewerCaption"
+            class="profile-post-viewer-caption"
+        ></div>
+
+        <div
+            id="profilePostViewerDate"
+            class="profile-post-viewer-date"
+        ></div>
+    </div>
+</div>
+
+
+</div>
+
 </body>
 </html>
