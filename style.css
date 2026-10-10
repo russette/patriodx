@@ -10433,3 +10433,65 @@ padding-left: 12px;
     font-size: 18px;
 }
 }
+/* =========================================================
+PATRIODX — INSTAGRAM-INSPIRED PROFILE POST GRID
+========================================================= */
+
+/* Profile posts become a responsive photo grid */
+.profile-posts:has(.social-post-card),
+.public-profile-posts:has(.social-post-card) {
+display: grid;
+grid-template-columns: repeat(3, minmax(0, 1fr));
+gap: 4px;
+align-items: start;
+}
+
+/* Individual profile post */
+.profile-posts .social-post-card,
+.public-profile-posts .social-post-card {
+min-width: 0;
+margin: 0;
+border-radius: 4px;
+overflow: hidden;
+box-shadow: none;
+}
+
+/* Hide post details in the grid preview */
+.profile-posts .social-post-header,
+.profile-posts .social-post-content,
+.public-profile-posts .social-post-header,
+.public-profile-posts .social-post-content {
+display: none;
+}
+
+/* Consistent image tiles */
+.profile-posts .social-post-image,
+.public-profile-posts .social-post-image {
+display: block;
+width: 100%;
+aspect-ratio: 1 / 1;
+max-height: none;
+object-fit: cover;
+border-radius: 0;
+margin: 0;
+}
+
+/* Keep videos inside the same grid */
+.profile-posts .social-post-card video,
+.public-profile-posts .social-post-card video {
+background: #111;
+}
+
+/* Mobile spacing */
+@media (max-width: 600px) {
+.profile-posts:has(.social-post-card),
+.public-profile-posts:has(.social-post-card) {
+gap: 2px;
+}
+}
+
+/* Preserve empty-state readability */
+.profile-posts:has(.social-empty-state),
+.public-profile-posts:has(.social-empty-state) {
+display: block;
+}
