@@ -10157,3 +10157,279 @@ body.dark-mode .social-post-card {
         height: 20px !important;
     }
 }
+/* =========================================================
+PATRIODX — INSTAGRAM-INSPIRED PROFILE ENHANCEMENTS
+Visual improvements only. Preserve existing functionality.
+========================================================= */
+
+/* Profile cards */
+.profile-page-card,
+.public-profile-card {
+border-radius: 18px;
+overflow: hidden;
+background: var(--card-bg, #ffffff);
+border: 1px solid var(--border-color, rgba(128, 128, 128, 0.18));
+box-shadow: 0 3px 12px rgba(0, 0, 0, 0.035);
+}
+
+/* Profile cover */
+.profile-cover {
+position: relative;
+height: 230px;
+background:
+radial-gradient(
+circle at 85% 20%,
+rgba(99, 102, 241, 0.5),
+transparent 35%
+),
+linear-gradient(135deg, #111827, #312e81, #4338ca);
+}
+
+/* Profile header */
+.profile-header {
+align-items: flex-end;
+gap: 20px;
+padding: 0 26px 22px;
+margin-top: -58px;
+}
+
+/* Profile picture */
+.profile-avatar {
+position: relative;
+flex-shrink: 0;
+width: 124px;
+height: 124px;
+min-width: 124px;
+border: 5px solid var(--card-bg, #ffffff);
+background: #eef2ff;
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.profile-avatar img,
+.profile-avatar-image {
+width: 100%;
+height: 100%;
+object-fit: cover;
+border-radius: 50%;
+}
+
+/* Profile information */
+.profile-main-info {
+min-width: 0;
+padding-top: 0;
+padding-bottom: 5px;
+}
+
+.profile-main-info h2 {
+font-size: 24px;
+font-weight: 750;
+letter-spacing: -0.5px;
+overflow-wrap: anywhere;
+}
+
+.profile-username {
+margin: 5px 0;
+font-size: 14px;
+color: #777;
+overflow-wrap: anywhere;
+}
+
+.profile-bio {
+max-width: 620px;
+margin-top: 10px;
+line-height: 1.6;
+overflow-wrap: anywhere;
+}
+
+/* Edit and follow buttons */
+.profile-edit-button {
+flex-shrink: 0;
+min-height: 40px;
+padding: 10px 18px;
+border-radius: 10px;
+font: inherit;
+font-size: 14px;
+font-weight: 650;
+transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.profile-edit-button:hover {
+opacity: 0.9;
+}
+
+.profile-edit-button:active {
+transform: scale(0.98);
+}
+
+/* Followers, following and post counts */
+.profile-stats {
+gap: 0;
+justify-content: flex-start;
+padding: 18px 26px;
+border-top: 1px solid var(--border-color, rgba(128, 128, 128, 0.15));
+}
+
+.profile-stats > div {
+min-width: 100px;
+padding-right: 28px;
+}
+
+.profile-stats strong {
+font-size: 19px;
+font-weight: 750;
+}
+
+.profile-stats span {
+font-size: 13px;
+}
+
+/* Profile search */
+.profile-search-card {
+border-radius: 16px;
+}
+
+.profile-search-form input {
+min-height: 44px;
+border-radius: 11px;
+}
+
+.profile-search-form button {
+min-height: 44px;
+border-radius: 11px;
+font-weight: 650;
+}
+
+.profile-search-result {
+border: 1px solid transparent;
+transition:
+background 0.18s ease,
+border-color 0.18s ease;
+}
+
+.profile-search-result:hover {
+transform: none;
+background: rgba(128, 128, 128, 0.06);
+border-color: var(--border-color, rgba(128, 128, 128, 0.15));
+}
+
+/* Profile posts section */
+.profile-posts,
+.public-profile-posts {
+margin-top: 26px;
+}
+
+/* Profile editor */
+.profile-editor {
+border-radius: 16px;
+}
+
+.profile-editor input,
+.profile-editor textarea {
+border-radius: 11px;
+}
+
+.profile-editor input:focus,
+.profile-editor textarea:focus {
+outline: 2px solid rgba(37, 99, 235, 0.2);
+border-color: #2563eb;
+}
+
+/* Dark mode */
+body.dark-mode .profile-page-card,
+body.dark-mode .public-profile-card,
+body.dark-mode .profile-search-card {
+background: var(--card-bg, #111827);
+border-color: var(--border-color, #374151);
+box-shadow: none;
+}
+
+body.dark-mode .profile-avatar {
+border-color: var(--card-bg, #111827);
+}
+
+/* Mobile layout */
+@media (max-width: 700px) {
+.profile-cover {
+height: 170px;
+}
+
+
+.profile-header {
+    align-items: flex-start;
+    gap: 12px;
+    padding: 0 16px 18px;
+    margin-top: -46px;
+}
+
+.profile-avatar {
+    width: 94px;
+    height: 94px;
+    min-width: 94px;
+    border-width: 4px;
+}
+
+.profile-main-info {
+    flex: 1;
+    min-width: 0;
+    padding-top: 48px;
+}
+
+.profile-main-info h2 {
+    font-size: 20px;
+}
+
+.profile-bio {
+    font-size: 14px;
+}
+
+.profile-edit-button {
+    width: 100%;
+}
+
+.profile-stats {
+    justify-content: space-around;
+    padding: 15px 8px;
+}
+
+.profile-stats > div {
+    min-width: 0;
+    padding: 0 8px;
+    text-align: center;
+}
+
+.profile-stats strong {
+    font-size: 18px;
+}
+
+.profile-stats span {
+    font-size: 12px;
+}
+
+.public-profile-card .profile-header {
+    align-items: flex-start;
+}
+
+
+}
+
+@media (max-width: 420px) {
+.profile-header {
+gap: 8px;
+padding-right: 12px;
+padding-left: 12px;
+}
+
+.profile-avatar {
+    width: 78px;
+    height: 78px;
+    min-width: 78px;
+}
+
+.profile-main-info {
+    padding-top: 42px;
+}
+
+.profile-main-info h2 {
+    font-size: 18px;
+}
+}
