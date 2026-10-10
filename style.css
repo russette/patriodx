@@ -6547,113 +6547,197 @@ label {
 
 
 /* =========================================================
-   STORIES
+STORIES — INSTAGRAM-INSPIRED DESIGN
 ========================================================= */
 
-.social-stories {
-    display: flex;
-    gap: 14px;
-    margin-top: 20px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    scrollbar-width: thin;
+.social-stories-card {
+width: 100%;
+min-width: 0;
+padding: 18px;
+border-radius: 16px;
+overflow: hidden;
 }
+
+.social-stories-card .social-section-title {
+margin-bottom: 18px;
+}
+
+.social-stories-card .social-section-title h3 {
+display: flex;
+align-items: center;
+gap: 8px;
+font-size: 17px;
+font-weight: 700;
+}
+
+.social-stories-card .social-section-title h3 svg {
+width: 19px;
+height: 19px;
+}
+
+.social-stories-card .social-section-title p {
+margin-top: 5px;
+font-size: 13px;
+color: #8a8d91;
+}
+
+/* Horizontal story strip */
+
+.social-stories {
+display: flex;
+align-items: flex-start;
+gap: 15px;
+width: 100%;
+margin-top: 12px;
+padding: 3px 2px 10px;
+overflow-x: auto;
+overflow-y: hidden;
+scrollbar-width: none;
+-webkit-overflow-scrolling: touch;
+}
+
+.social-stories::-webkit-scrollbar {
+display: none;
+}
+
+/* Individual story */
 
 .social-story-item {
-    position: relative;
-    flex: 0 0 82px;
-    width: 82px;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-    padding: 0;
-    text-align: center;
+position: relative;
+display: flex;
+flex: 0 0 72px;
+flex-direction: column;
+align-items: center;
+width: 72px;
+min-width: 72px;
+padding: 0;
+border: 0;
+background: transparent;
+color: inherit;
+cursor: pointer;
+text-align: center;
+-webkit-tap-highlight-color: transparent;
 }
+
+/* Gradient story ring */
 
 .social-story-avatar {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    width: 68px;
-    height: 68px;
-
-    margin: 0 auto 7px;
-
-    border-radius: 50%;
-    border: 3px solid #2563eb;
-
-    background: #eef2ff;
-
-    overflow: hidden;
-
-    box-sizing: border-box;
+position: relative;
+display: flex;
+align-items: center;
+justify-content: center;
+width: 66px;
+height: 66px;
+margin: 0 auto 7px;
+padding: 3px;
+border: 0;
+border-radius: 50%;
+background: linear-gradient(
+45deg,
+#feda75,
+#fa7e1e,
+#d62976,
+#962fbf,
+#4f5bd5
+);
+box-sizing: border-box;
+overflow: visible;
 }
 
+/* Inner circular avatar */
+
 .social-story-avatar > span:first-child {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    overflow: hidden;
+display: flex;
+align-items: center;
+justify-content: center;
+width: 100%;
+height: 100%;
+border: 2px solid var(--card-bg, #ffffff);
+border-radius: 50%;
+background: var(--card-bg, #ffffff);
+overflow: hidden;
+box-sizing: border-box;
 }
 
 .social-story-avatar img {
-    width: 100%;
-    height: 100%;
-
-    display: block;
-
-    object-fit: cover;
-
-    border-radius: 50%;
+display: block;
+width: 100%;
+height: 100%;
+object-fit: cover;
+border-radius: 50%;
 }
 
 .social-story-avatar svg {
-    width: 28px;
-    height: 28px;
-    color: #2563eb;
+width: 27px;
+height: 27px;
+color: #8b5cf6;
 }
 
+/* Add-story badge */
+
 .social-story-add {
-    position: absolute;
-    right: -2px;
-    bottom: -2px;
-    width: 23px;
-    height: 23px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: #2563eb;
-    color: white;
-    border: 2px solid white;
+position: absolute;
+right: -1px;
+bottom: -1px;
+z-index: 2;
+display: flex;
+align-items: center;
+justify-content: center;
+width: 22px;
+height: 22px;
+border: 2px solid var(--card-bg, #ffffff);
+border-radius: 50%;
+background: #0095f6;
+color: #ffffff;
+box-sizing: border-box;
 }
 
 .social-story-add svg {
-    width: 13px;
-    height: 13px;
-    color: white;
+width: 13px;
+height: 13px;
+color: #ffffff;
+stroke-width: 3;
 }
+
+/* Story username */
 
 .social-story-item strong {
-    display: block;
-    font-size: 12px;
-    line-height: 1.3;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+display: block;
+width: 100%;
+overflow: hidden;
+color: inherit;
+font-size: 11px;
+font-weight: 500;
+line-height: 1.4;
+text-align: center;
+text-overflow: ellipsis;
+white-space: nowrap;
 }
+
+/* Other users' stories */
 
 .social-other-stories {
-    display: flex;
-    gap: 14px;
+display: flex;
+flex: 0 0 auto;
+align-items: flex-start;
+gap: 15px;
 }
 
+/* Subtle interaction */
+
+.social-story-item:hover .social-story-avatar {
+filter: brightness(0.96);
+}
+
+.social-story-item:active {
+transform: scale(0.97);
+}
+
+.social-story-item:focus-visible {
+outline: 2px solid #0095f6;
+outline-offset: 4px;
+border-radius: 8px;
+}
 
 /* =========================================================
    CREATE POST
@@ -9910,5 +9994,166 @@ body.dark-mode .profile-stat-button:hover span {
 
     .story-viewer-next {
         right: 10px;
+    }
+}
+/* =========================================================
+   PATRIODX SOCIAL — INSTAGRAM-INSPIRED FEED POLISH
+   Visual changes only; preserve existing functionality.
+========================================================= */
+
+/* Clean post cards */
+.social-post-card {
+    padding: 0 !important;
+    overflow: hidden;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 14px;
+    background: var(--card-bg, #ffffff);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.035);
+}
+
+/* Post header */
+.social-post-header {
+    gap: 11px;
+    padding: 14px 15px 10px;
+    margin-bottom: 0;
+}
+
+/* Profile pictures */
+.social-post-avatar {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+/* Author name */
+.social-post-author {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Post caption */
+.social-post-content {
+    padding: 8px 15px 14px;
+    font-size: 14px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+/* Photo and video area */
+.social-media-wrapper {
+    width: 100%;
+    overflow: hidden;
+    background: #000000;
+}
+
+/* Preserve the original media proportions */
+.social-post-image,
+.social-post-video {
+    display: block;
+    width: 100%;
+    max-height: 600px;
+    object-fit: contain;
+    margin: 0;
+    border-radius: 0;
+}
+
+/* Post statistics */
+.social-post-stats {
+    padding: 10px 15px;
+    font-size: 13px;
+}
+
+/* Simple, evenly spaced action icons */
+.social-post-actions-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 4px;
+    padding: 3px 8px;
+    border-top: 1px solid var(--border-color, #e5e7eb);
+    border-bottom: 0;
+}
+
+/* Icon buttons */
+.social-action-button {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 8px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition:
+        background 0.18s ease,
+        transform 0.18s ease;
+}
+
+/* Consistent icon size */
+.social-action-button svg {
+    width: 21px !important;
+    height: 21px !important;
+}
+
+/* Subtle interaction */
+.social-action-button:hover {
+    background: rgba(128, 128, 128, 0.09);
+}
+
+.social-action-button:active {
+    transform: scale(0.94);
+}
+
+/* Preserve the red liked-heart appearance */
+.social-like-button.liked {
+    color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.08) !important;
+}
+
+.social-like-button.liked svg {
+    color: #ef4444 !important;
+    fill: #ef4444 !important;
+    stroke: #ef4444 !important;
+}
+
+/* Dark mode */
+body.dark-mode .social-post-card {
+    background: var(--card-bg, #111827);
+    border-color: var(--border-color, #374151);
+    box-shadow: none;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .social-post-card {
+        border-radius: 12px;
+    }
+
+    .social-post-header {
+        padding: 12px 13px 9px;
+    }
+
+    .social-post-content {
+        padding: 8px 13px 12px;
+    }
+
+    .social-post-stats {
+        padding: 9px 13px;
+    }
+
+    .social-action-button {
+        min-height: 44px;
+        padding: 7px 4px;
+    }
+
+    .social-action-button svg {
+        width: 20px !important;
+        height: 20px !important;
     }
 }
