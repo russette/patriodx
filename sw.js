@@ -10,8 +10,8 @@ const APP_FILES = [
     "./privacy.html",
     "./terms.html",
     "./manifest.json",
-    "./assets/patriodx-logo.jpeg"
-    "./assets/patriodx-icon-512.png"
+"./assets/patriodx-logo.jpeg",
+"./assets/patriodx-icon-512.png"
 ];
 
 self.addEventListener("install", event => {
