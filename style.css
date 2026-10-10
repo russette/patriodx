@@ -10495,3 +10495,179 @@ gap: 2px;
 .public-profile-posts:has(.social-empty-state) {
 display: block;
 }
+/* =========================================================
+PATRIODX — PROFILE POST VIEWER
+========================================================= */
+
+.profile-post-viewer {
+position: fixed;
+inset: 0;
+z-index: 10000;
+display: none;
+align-items: center;
+justify-content: center;
+padding: 24px;
+box-sizing: border-box;
+}
+
+.profile-post-viewer-overlay {
+position: absolute;
+inset: 0;
+background: rgba(0, 0, 0, 0.86);
+backdrop-filter: blur(5px);
+}
+
+.profile-post-viewer-dialog {
+position: relative;
+z-index: 1;
+display: flex;
+width: min(100%, 1000px);
+max-height: 90vh;
+min-height: 300px;
+overflow: hidden;
+border-radius: 14px;
+background: #ffffff;
+color: #111827;
+box-shadow: 0 20px 70px rgba(0, 0, 0, 0.35);
+}
+
+.profile-post-viewer-close {
+position: absolute;
+top: 12px;
+right: 12px;
+z-index: 3;
+display: flex;
+align-items: center;
+justify-content: center;
+width: 40px;
+height: 40px;
+padding: 0;
+border: 0;
+border-radius: 50%;
+background: rgba(0, 0, 0, 0.7);
+color: #ffffff;
+cursor: pointer;
+}
+
+.profile-post-viewer-close svg {
+width: 22px;
+height: 22px;
+}
+
+.profile-post-viewer-media {
+display: flex;
+flex: 1 1 65%;
+align-items: center;
+justify-content: center;
+min-width: 0;
+min-height: 300px;
+background: #000000;
+}
+
+.profile-post-viewer-media img,
+.profile-post-viewer-media video {
+display: block;
+width: 100%;
+height: 100%;
+max-height: 90vh;
+object-fit: contain;
+}
+
+.profile-post-viewer-details {
+display: flex;
+flex: 0 0 300px;
+flex-direction: column;
+gap: 14px;
+min-width: 0;
+padding: 24px 20px;
+overflow-y: auto;
+box-sizing: border-box;
+}
+
+.profile-post-viewer-author {
+padding-bottom: 14px;
+border-bottom: 1px solid #e5e7eb;
+font-size: 15px;
+font-weight: 700;
+overflow-wrap: anywhere;
+}
+
+.profile-post-viewer-caption {
+font-size: 14px;
+line-height: 1.65;
+white-space: pre-wrap;
+overflow-wrap: anywhere;
+}
+
+.profile-post-viewer-date {
+margin-top: auto;
+color: #6b7280;
+font-size: 12px;
+}
+
+.profile-post-viewer-text-only {
+padding: 32px;
+color: #ffffff;
+font-size: 18px;
+line-height: 1.6;
+white-space: pre-wrap;
+overflow-wrap: anywhere;
+}
+
+/* Mobile viewer */
+@media (max-width: 700px) {
+.profile-post-viewer {
+padding: 12px;
+}
+
+
+.profile-post-viewer-dialog {
+    flex-direction: column;
+    width: 100%;
+    max-height: 94vh;
+    min-height: 0;
+    overflow-y: auto;
+    border-radius: 12px;
+}
+
+.profile-post-viewer-media {
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 220px;
+    max-height: 55vh;
+}
+
+.profile-post-viewer-media img,
+.profile-post-viewer-media video {
+    width: 100%;
+    height: auto;
+    max-height: 55vh;
+}
+
+.profile-post-viewer-details {
+    flex: 0 0 auto;
+    width: 100%;
+    padding: 18px;
+}
+
+.profile-post-viewer-close {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+}
+
+
+}
+
+body.dark-mode .profile-post-viewer-dialog {
+background: #111827;
+color: #f9fafb;
+}
+
+body.dark-mode .profile-post-viewer-author {
+border-color: #374151;
+}
+
+body.dark-mode .profile-post-viewer-date {
+color: #9ca3af;
+}
