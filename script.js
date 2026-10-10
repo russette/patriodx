@@ -7228,6 +7228,7 @@ const author =
                         <button
                             type="button"
                             class="social-action-button social-like-button"
+                            data-post-id="${post.id}"
                             onclick="likeSocialPost('${post.id}')"
                             aria-label="Like post"
                             title="Like"
