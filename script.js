@@ -7575,33 +7575,32 @@ async function likeSocialPost(postId) {
 }
 async function updateSocialLikeButton(postId) {
 
-    const button =
-        document.querySelector(
-            `.social-like-button[data-post-id="${postId}"]`
-        );
+    const buttons = document.querySelectorAll(
+        `.social-like-button[data-post-id="${postId}"]`
+    );
 
-    if (!button) {
+    if (buttons.length === 0) {
         return;
     }
 
-    const liked =
-        await hasLikedSocialPost(postId);
+    const liked = await hasLikedSocialPost(postId);
 
-    button.classList.toggle(
-        "liked",
-        liked
-    );
+    buttons.forEach((button) => {
 
-   button.innerHTML =
-    '<i data-lucide="heart"></i>';
+        button.classList.toggle("liked", liked);
 
-button.setAttribute(
-    "aria-label",
-    liked ? "Unlike post" : "Like post"
-);
+        button.innerHTML =
+            '<i data-lucide="heart"></i>';
 
-button.title =
-    liked ? "Unlike" : "Like";
+        button.setAttribute(
+            "aria-label",
+            liked ? "Unlike post" : "Like post"
+        );
+
+        button.title = liked ? "Unlike" : "Like";
+
+    });
+
     if (typeof lucide !== "undefined") {
         lucide.createIcons();
     }
