@@ -917,7 +917,9 @@ function renderProducts() {
 
     `).join("");
 }
-
+async function showPATRIODXConfirm(title, message) {
+    return window.confirm(`${title}\n\n${message}`);
+}
 async function deleteProduct(id) {
 
     const confirmed =
