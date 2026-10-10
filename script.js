@@ -14923,3 +14923,6 @@ if (openProfileButton) {
         }
     );
 }
+async function showPATRIODXConfirm(title, message) {
+    return window.confirm(`${title}\n\n${message}`);
+}
