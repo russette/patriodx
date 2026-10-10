@@ -7220,55 +7220,52 @@ const author =
                         </div>
 
 
-                        <!-- ACTION BAR -->
+                    
+                    <!-- ACTION BAR -->
 
-                        <div class="social-post-actions-bar">
+                    <div class="social-post-actions-bar">
 
-                            <button
-                                type="button"
-                                class="social-action-button social-like-button"
-                                onclick="likeSocialPost('${post.id}')"
-                                aria-label="Like post"
-                            >
-                                <i data-lucide="heart"></i>
-                                <span>Like</span>
-                            </button>
+                        <button
+                            type="button"
+                            class="social-action-button social-like-button"
+                            onclick="likeSocialPost('${post.id}')"
+                            aria-label="Like post"
+                            title="Like"
+                        >
+                            <i data-lucide="heart"></i>
+                        </button>
 
+                        <button
+                            type="button"
+                            class="social-action-button"
+                            onclick="toggleComments('${post.id}')"
+                            aria-label="Comment on post"
+                            title="Comment"
+                        >
+                            <i data-lucide="message-circle"></i>
+                        </button>
 
-                            <button
-                                type="button"
-                                class="social-action-button"
-                                onclick="toggleComments('${post.id}')"
-                                aria-label="Comment on post"
-                            >
-                                <i data-lucide="message-circle"></i>
-                                <span>Comment</span>
-                            </button>
+                        <button
+                            type="button"
+                            class="social-action-button"
+                            onclick="shareSocialPost('${post.id}')"
+                            aria-label="Share post"
+                            title="Share"
+                        >
+                            <i data-lucide="share-2"></i>
+                        </button>
 
+                        <button
+                            type="button"
+                            class="social-action-button"
+                            onclick="translateSocialPost('${post.id}')"
+                            aria-label="Translate post"
+                            title="Translate"
+                        >
+                            <i data-lucide="languages"></i>
+                        </button>
 
-                            <button
-                                type="button"
-                                class="social-action-button"
-                                onclick="shareSocialPost('${post.id}')"
-                                aria-label="Share post"
-                            >
-                                <i data-lucide="share-2"></i>
-                                <span>Share</span>
-                            </button>
-
-
-                            <button
-                                type="button"
-                                class="social-action-button"
-                                onclick="translateSocialPost('${post.id}')"
-                                aria-label="Translate post"
-                            >
-                                <i data-lucide="languages"></i>
-                                <span>Translate</span>
-                            </button>
-
-                        </div>
-
+                    </div>
 
                         <!-- COMMENTS -->
 
@@ -7594,11 +7591,16 @@ async function updateSocialLikeButton(postId) {
         liked
     );
 
-    button.innerHTML =
-        liked
-            ? '<i data-lucide="heart"></i> Liked'
-            : '<i data-lucide="heart"></i> Like';
+   button.innerHTML =
+    '<i data-lucide="heart"></i>';
 
+button.setAttribute(
+    "aria-label",
+    liked ? "Unlike post" : "Like post"
+);
+
+button.title =
+    liked ? "Unlike" : "Like";
     if (typeof lucide !== "undefined") {
         lucide.createIcons();
     }
@@ -8572,32 +8574,38 @@ async function loadHomePosts() {
 
                    <div class="social-post-actions-bar">
 
-   <button
-    type="button"
-    class="social-action-button social-like-button"
-    data-post-id="${post.id}"
-    onclick="likeSocialPost('${post.id}')"
->
-    <i data-lucide="heart"></i> Like
-</button>
+    <button
+        type="button"
+        class="social-action-button social-like-button"
+        data-post-id="${post.id}"
+        onclick="likeSocialPost('${post.id}')"
+        aria-label="Like post"
+        title="Like"
+    >
+        <i data-lucide="heart"></i>
+    </button>
 
     <button
         type="button"
         class="social-action-button"
         onclick="toggleHomeComments('${post.id}')"
+        aria-label="View comments"
+        title="Comment"
     >
-        <i data-lucide="message-circle"></i> Comment
+        <i data-lucide="message-circle"></i>
     </button>
 
     <button
         type="button"
         class="social-action-button"
         onclick="shareSocialPost('${post.id}')"
+        aria-label="Share post"
+        title="Share"
     >
-        <i data-lucide="share-2"></i> Share
+        <i data-lucide="share-2"></i>
     </button>
 
-                    </div>
+</div>
 
                 </article>
             `;
