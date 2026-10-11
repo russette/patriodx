@@ -9308,7 +9308,7 @@ async function createConversationWithUser(otherUserId) {
 }
 
 /* =========================================================
-   LOAD CONVERSATIONS
+   LOAD CONVERSATIONS — PATRIODX
 ========================================================= */
 async function loadConversations() {
 
@@ -9318,9 +9318,7 @@ async function loadConversations() {
 
     conversationList.innerHTML = `
         <div class="messaging-empty-state">
-            <div>
-                <i data-lucide="loader-circle"></i>
-            </div>
+            <div><i data-lucide="loader-circle"></i></div>
             <p>Loading conversations...</p>
         </div>
     `;
@@ -9329,383 +9327,425 @@ async function loadConversations() {
         lucide.createIcons();
     }
 
-    /* =====================================================
-       GET CONVERSATION MEMBERSHIPS
-    ===================================================== */
+    try {
 
-    const { data: memberships, error: membershipError } =
-        await supabaseClient
+        /* GET CONVERSATION MEMBERSHIPS */
+
+        const {
+            data: memberships,
+            error: membershipError
+        } = await supabaseClient
             .from("conversation_members")
-            .select(
-                "conversation_id, user_id"
+            .select("conversation_id, user_id")
+            .eq("user_id", currentUser.id);
+
+        if (membershipError) {
+            throw membershipError;
+        }
+
+        const conversationIds = [
+            ...new Set(
+                (memberships || []).map(
+                    member => member.conversation_id
+                )
             )
-            .eq(
-                "user_id",
-                currentUser.id
-            );
+        ];
 
-    if (membershipError) {
+        if (!conversationIds.length) {
 
-        console.error(
-            "Could not load conversation memberships:",
-            membershipError
-        );
-
-        conversationList.innerHTML = `
-            <div class="messaging-empty-state">
-                <div>
-                    <i data-lucide="triangle-alert"></i>
+            conversationList.innerHTML = `
+                <div class="messaging-empty-state">
+                    <div><i data-lucide="message-circle"></i></div>
+                    <h3>No conversations yet</h3>
+                    <p>Start a conversation with someone on PATRIODX.</p>
                 </div>
-                <h3>Could not load conversations</h3>
-                <p>
-                    ${safe(membershipError.message)}
-                </p>
-            </div>
-        `;
+            `;
 
-        if (typeof lucide !== "undefined") {
-            lucide.createIcons();
+            if (typeof lucide !== "undefined") {
+                lucide.createIcons();
+            }
+
+            return;
         }
 
-        return;
-    }
+        /* GET CONVERSATIONS */
 
-    const conversationIds =
-        (memberships || []).map(
-            member =>
-                member.conversation_id
-        );
-
-    if (!conversationIds.length) {
-
-        conversationList.innerHTML = `
-            <div class="messaging-empty-state">
-                <div>
-                    <i data-lucide="message-circle"></i>
-                </div>
-                <h3>No conversations</h3>
-                <p>
-                    Start a conversation with
-                    someone on PATRIODX.
-                </p>
-            </div>
-        `;
-
-        if (typeof lucide !== "undefined") {
-            lucide.createIcons();
-        }
-
-        return;
-    }
-
-
-    /* =====================================================
-       GET CONVERSATIONS
-    ===================================================== */
-
-    const { data: conversations, error: conversationError } =
-        await supabaseClient
+        const {
+            data: conversations,
+            error: conversationError
+        } = await supabaseClient
             .from("conversations")
             .select("*")
-            .in(
-                "id",
-                conversationIds
+            .in("id", conversationIds);
+
+        if (conversationError) {
+            throw conversationError;
+        }
+
+        /* GET CONVERSATION MEMBERS */
+
+        const {
+            data: allMembers,
+            error: allMembersError
+        } = await supabaseClient
+            .from("conversation_members")
+            .select("conversation_id, user_id")
+            .in("conversation_id", conversationIds);
+
+        if (allMembersError) {
+            throw allMembersError;
+        }
+
+        /* KEEP DIRECT CONVERSATIONS */
+
+        const visibleConversations =
+            (conversations || []).filter(conversation => {
+
+                const members = (allMembers || []).filter(
+                    member =>
+                        member.conversation_id === conversation.id
+                );
+
+                return members.some(
+                    member =>
+                        member.user_id !== currentUser.id
+                );
+            });
+
+        if (!visibleConversations.length) {
+
+            conversationList.innerHTML = `
+                <div class="messaging-empty-state">
+                    <div><i data-lucide="message-circle"></i></div>
+                    <h3>No conversations yet</h3>
+                    <p>Start a conversation with someone on PATRIODX.</p>
+                </div>
+            `;
+
+            if (typeof lucide !== "undefined") {
+                lucide.createIcons();
+            }
+
+            return;
+        }
+
+        /* FIND OTHER USERS */
+
+        const otherUserIds = [
+            ...new Set(
+                (allMembers || [])
+                    .filter(
+                        member =>
+                            member.user_id !== currentUser.id
+                    )
+                    .map(
+                        member => member.user_id
+                    )
             )
-            .order(
-                "created_at",
-                {
-                    ascending: false
-                }
+        ];
+
+        /* LOAD PROFILES, INCLUDING AVATARS */
+
+        let profiles = [];
+
+        if (otherUserIds.length) {
+
+            const {
+                data: profileData,
+                error: profileError
+            } = await supabaseClient
+                .from("profiles")
+                .select(
+                    "id, username, display_name, avatar_url"
+                )
+                .in("id", otherUserIds);
+
+            if (profileError) {
+                console.error(
+                    "Could not load conversation profiles:",
+                    profileError
+                );
+            } else {
+                profiles = profileData || [];
+            }
+        }
+
+        const profileMap = new Map(
+            profiles.map(
+                profile => [profile.id, profile]
+            )
+        );
+
+        /* GET LATEST MESSAGES */
+
+        const {
+            data: recentMessages,
+            error: recentMessagesError
+        } = await supabaseClient
+            .from("messages")
+            .select(
+                "conversation_id, sender_id, content, created_at"
+            )
+            .in("conversation_id", conversationIds)
+            .order("created_at", {
+                ascending: false
+            });
+
+        if (recentMessagesError) {
+            console.error(
+                "Could not load conversation previews:",
+                recentMessagesError
+            );
+        }
+
+        /* STORE THE NEWEST MESSAGE FOR EACH CONVERSATION */
+
+        const latestMessageMap = new Map();
+
+        (recentMessages || []).forEach(message => {
+
+            if (
+                !latestMessageMap.has(
+                    message.conversation_id
+                )
+            ) {
+                latestMessageMap.set(
+                    message.conversation_id,
+                    message
+                );
+            }
+        });
+
+        /* SORT BY MOST RECENT ACTIVITY */
+
+        visibleConversations.sort((a, b) => {
+
+            const messageA =
+                latestMessageMap.get(a.id);
+
+            const messageB =
+                latestMessageMap.get(b.id);
+
+            const timeA = new Date(
+                messageA?.created_at ||
+                a.created_at ||
+                0
+            ).getTime();
+
+            const timeB = new Date(
+                messageB?.created_at ||
+                b.created_at ||
+                0
+            ).getTime();
+
+            return timeB - timeA;
+        });
+
+        /* FORMAT CONVERSATION TIME */
+
+        function formatConversationTime(dateString) {
+
+            if (!dateString) {
+                return "";
+            }
+
+            const date = new Date(dateString);
+
+            if (Number.isNaN(date.getTime())) {
+                return "";
+            }
+
+            const now = new Date();
+
+            if (
+                date.toDateString() === now.toDateString()
+            ) {
+                return date.toLocaleTimeString([], {
+                    hour: "numeric",
+                    minute: "2-digit"
+                });
+            }
+
+            const yesterday = new Date();
+
+            yesterday.setDate(
+                yesterday.getDate() - 1
             );
 
-    if (conversationError) {
+            if (
+                date.toDateString() ===
+                yesterday.toDateString()
+            ) {
+                return "Yesterday";
+            }
+
+            return date.toLocaleDateString([], {
+                month: "short",
+                day: "numeric"
+            });
+        }
+
+        /* RENDER CONVERSATIONS */
+
+        conversationList.innerHTML =
+            visibleConversations.map(conversation => {
+
+                const members = (allMembers || []).filter(
+                    member =>
+                        member.conversation_id === conversation.id
+                );
+
+                const otherMember = members.find(
+                    member =>
+                        member.user_id !== currentUser.id
+                );
+
+                const otherProfile = otherMember
+                    ? profileMap.get(otherMember.user_id)
+                    : null;
+
+                const displayName =
+                    otherProfile?.display_name ||
+                    otherProfile?.username ||
+                    "PATRIODX User";
+
+                const username = otherProfile?.username
+                    ? `@${otherProfile.username}`
+                    : "";
+
+                const latestMessage =
+                    latestMessageMap.get(conversation.id);
+
+                let preview = "Start a conversation";
+
+                if (latestMessage) {
+
+                    const messageContent =
+                        latestMessage.content || "";
+
+                    preview =
+                        latestMessage.sender_id === currentUser.id
+                            ? `You: ${messageContent}`
+                            : messageContent;
+                }
+
+                const lastActivity =
+                    latestMessage?.created_at ||
+                    conversation.created_at;
+
+                const timestamp =
+                    formatConversationTime(lastActivity);
+
+                const isActive =
+                    activeConversationId === conversation.id;
+
+                const avatar = otherProfile?.avatar_url
+                    ? `
+                        <img
+                            src="${safe(otherProfile.avatar_url)}"
+                            alt="${safe(displayName)}"
+                            loading="lazy"
+                            onerror="
+                                this.style.display='none';
+                                this.nextElementSibling.style.display='flex';
+                            "
+                        >
+                        <span
+                            class="conversation-avatar-fallback"
+                            style="display:none;"
+                        >
+                            <i data-lucide="user"></i>
+                        </span>
+                    `
+                    : `
+                        <span class="conversation-avatar-fallback">
+                            <i data-lucide="user"></i>
+                        </span>
+                    `;
+
+                return `
+                    <button
+                        type="button"
+                        class="conversation-item ${
+                            isActive ? "active" : ""
+                        }"
+                        data-conversation-id="${safe(conversation.id)}"
+                    >
+
+                        <div class="conversation-avatar">
+                            ${avatar}
+                        </div>
+
+                        <div class="conversation-info">
+
+                            <strong>
+                                ${safe(displayName)}
+                            </strong>
+
+                            ${
+                                username
+                                    ? `
+                                        <span class="conversation-username">
+                                            ${safe(username)}
+                                        </span>
+                                    `
+                                    : ""
+                            }
+
+                            <span class="conversation-preview">
+                                ${safe(preview)}
+                            </span>
+
+                        </div>
+
+                        <span class="conversation-time">
+                            ${safe(timestamp)}
+                        </span>
+
+                    </button>
+                `;
+
+            }).join("");
+
+        /* RESTORE CLICK HANDLERS */
+
+        conversationList
+            .querySelectorAll(".conversation-item")
+            .forEach(button => {
+
+                button.addEventListener("click", function() {
+
+                    const conversationId =
+                        this.dataset.conversationId;
+
+                    if (conversationId) {
+                        openConversation(conversationId);
+                    }
+                });
+            });
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+
+    } catch (error) {
 
         console.error(
             "Could not load conversations:",
-            conversationError
+            error
         );
 
         conversationList.innerHTML = `
             <div class="messaging-empty-state">
-                <div>
-                    <i data-lucide="triangle-alert"></i>
-                </div>
+                <div><i data-lucide="triangle-alert"></i></div>
                 <h3>Could not load conversations</h3>
-                <p>
-                    ${safe(conversationError.message)}
-                </p>
+                <p>${safe(error.message || "Please try again.")}</p>
             </div>
         `;
 
         if (typeof lucide !== "undefined") {
             lucide.createIcons();
         }
-
-        return;
-    }
-
-
-    /* =====================================================
-       GET ALL MEMBERS FOR THESE CONVERSATIONS
-    ===================================================== */
-
-    const { data: allMembers, error: allMembersError } =
-        await supabaseClient
-            .from("conversation_members")
-            .select(
-                "conversation_id, user_id"
-            )
-            .in(
-                "conversation_id",
-                conversationIds
-            );
-
-    if (allMembersError) {
-
-        console.error(
-            "Could not load conversation members:",
-            allMembersError
-        );
-
-        conversationList.innerHTML = `
-            <div class="messaging-empty-state">
-                <div>
-                    <i data-lucide="triangle-alert"></i>
-                </div>
-                <h3>Could not load conversations</h3>
-                <p>
-                    ${safe(allMembersError.message)}
-                </p>
-            </div>
-        `;
-
-        if (typeof lucide !== "undefined") {
-            lucide.createIcons();
-        }
-
-        return;
-    }
-
-
-    /* =====================================================
-       FIND THE OTHER USERS
-    ===================================================== */
-
-    const otherUserIds = [
-        ...new Set(
-            (allMembers || [])
-                .filter(
-                    member =>
-                        member.user_id !==
-                        currentUser.id
-                )
-                .map(
-                    member =>
-                        member.user_id
-                )
-        )
-    ];
-
-
-    /* =====================================================
-       LOAD OTHER USERS' PROFILES
-    ===================================================== */
-
-    let profiles = [];
-
-    if (otherUserIds.length) {
-
-        const { data: profileData, error: profileError } =
-            await supabaseClient
-                .from("profiles")
-                .select(
-                    "id, username, display_name"
-                )
-                .in(
-                    "id",
-                    otherUserIds
-                );
-
-        if (profileError) {
-
-            console.error(
-                "Could not load conversation profiles:",
-                profileError
-            );
-
-        } else {
-
-            profiles =
-                profileData || [];
-        }
-    }
-
-
-    /* =====================================================
-       CREATE QUICK PROFILE LOOKUP
-    ===================================================== */
-
-    const profileMap =
-        new Map(
-            profiles.map(
-                profile => [
-                    profile.id,
-                    profile
-                ]
-            )
-        );
-const visibleConversations =
-    (conversations || []).filter(
-        conversation => {
-            const members =
-                (allMembers || []).filter(
-                    member =>
-                        member.conversation_id ===
-                        conversation.id
-                );
-
-            return members.some(
-                member =>
-                    member.user_id !==
-                    currentUser.id
-            );
-        }
-    );
-
-    /* =====================================================
-       RENDER CONVERSATIONS
-    ===================================================== */
-
-    conversationList.innerHTML =
-      (visibleConversations || [])
-            .map(
-                conversation => {
-
-                    const members =
-                        (allMembers || []).filter(
-                            member =>
-                                member.conversation_id ===
-                                conversation.id
-                        );
-
-                    const otherMember =
-                        members.find(
-                            member =>
-                                member.user_id !==
-                                currentUser.id
-                        );
-
-                    const otherProfile =
-                        otherMember
-                            ? profileMap.get(
-                                otherMember.user_id
-                            )
-                            : null;
-
-                    const displayName =
-                        otherProfile?.display_name ||
-                        otherProfile?.username ||
-                        "PATRIODX Conversation";
-
-                    const username =
-                        otherProfile?.username
-                            ? `@${otherProfile.username}`
-                            : "";
-
-                    return `
-                        <button
-                            type="button"
-                            class="conversation-item ${
-                                activeConversationId ===
-                                conversation.id
-                                    ? "active"
-                                    : ""
-                            }"
-                            data-conversation-id="${
-                                conversation.id
-                            }"
-                        >
-
-                          <div class="conversation-avatar">
-    ${
-        otherProfile?.avatar_url
-            ? `
-                <img
-                    src="${safe(otherProfile.avatar_url)}"
-                    alt="${safe(displayName)}"
-                    loading="lazy"
-                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                >
-                <span class="conversation-avatar-fallback" style="display:none;">
-                    <i data-lucide="user"></i>
-                </span>
-            `
-            : `
-                <span class="conversation-avatar-fallback">
-                    <i data-lucide="user"></i>
-                </span>
-            `
-    }
-</div>
-                            <div class="conversation-info">
-
-                                <strong>
-                                    ${safe(displayName)}
-                                </strong>
-
-                               ${
-    username
-        ? `
-            <span>
-                ${safe(username)}
-            </span>
-        `
-        : ""
-}
-
-                            </div>
-
-                        </button>
-                    `;
-                }
-            )
-            .join("");
-
-
-    /* =====================================================
-       CLICK HANDLERS
-    ===================================================== */
-
-    conversationList
-        .querySelectorAll(
-            ".conversation-item"
-        )
-        .forEach(
-            button => {
-
-                button.addEventListener(
-                    "click",
-                    function() {
-
-                        const conversationId =
-                            this.dataset
-                                .conversationId;
-
-                        if (!conversationId) {
-                            return;
-                        }
-
-                        openConversation(
-                            conversationId
-                        );
-                    }
-                );
-            }
-        );
-
-
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
     }
 }
 /* =========================================================
