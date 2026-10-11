@@ -15318,9 +15318,23 @@ async function refreshProfilePostViewer(postId) {
             const date = document.createElement("small");
             date.textContent = formatDate(comment.created_at);
 
-            content.append(name, text, date);
-            row.append(avatar, content);
-            commentsContainer.appendChild(row);
+           content.append(name, text, date);
+
+// Show Delete only on comments written by the current user.
+if (currentUser && comment.user_id === currentUser.id) {
+    const deleteButton = document.createElement("button");
+
+    deleteButton.type = "button";
+    deleteButton.className = "profile-comment-delete-button";
+    deleteButton.textContent = "Delete";
+    deleteButton.dataset.commentId = comment.id;
+    deleteButton.setAttribute("aria-label", "Delete your comment");
+
+    content.appendChild(deleteButton);
+}
+
+row.append(avatar, content);
+commentsContainer.appendChild(row);
         });
     } catch (error) {
         console.error("PATRIODX: Could not load post comments:", error);
@@ -15440,5 +15454,61 @@ document.getElementById("profilePostViewerShare")?.addEventListener("click", asy
         if (error.name !== "AbortError") {
             console.error("Share error:", error);
         }
+    }
+});
+/* Delete the current user's own comment. */
+document.addEventListener("click", async function (event) {
+    const button = event.target.closest(".profile-comment-delete-button");
+
+    if (!button) return;
+
+    const commentId = button.dataset.commentId;
+    const postId = window.currentProfileViewerPostId;
+
+    if (!commentId || !postId || !currentUser) {
+        showPATRIODXToast("Unable to delete this comment.", "error");
+        return;
+    }
+
+    if (!window.confirm("Are you sure you want to delete this comment?")) {
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Deleting...";
+
+    try {
+        const { data, error } = await supabaseClient
+            .from("comments")
+            .delete()
+            .eq("id", commentId)
+            .eq("user_id", currentUser.id)
+            .eq("post_id", postId)
+            .select("id");
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            throw new Error(
+                "Comment was not deleted. Check your permissions or comment ownership."
+            );
+        }
+
+        await refreshProfilePostViewer(postId);
+        await refreshSocialPostStats(postId);
+        await refreshHomePostStats(postId);
+
+        showPATRIODXToast("Comment deleted.", "success");
+
+    } catch (error) {
+        console.error("PATRIODX: Could not delete comment:", error);
+
+        showPATRIODXToast(
+            "Could not delete comment. " + error.message,
+            "error"
+        );
+
+        button.disabled = false;
+        button.textContent = "Delete";
     }
 });
