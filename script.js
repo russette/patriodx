@@ -15353,7 +15353,7 @@ document.getElementById("profilePostViewerCommentFocus")?.addEventListener("clic
 /* Submit a comment from the viewer. */
 document.getElementById("profilePostViewerCommentForm")?.addEventListener("submit", async function (event) {
     event.preventDefault();
-
+console.log("PATRIODX: Comment form submitted.");
     const postId = window.currentProfileViewerPostId;
     const input = document.getElementById("profilePostViewerCommentInput");
     const button = this.querySelector("button[type='submit']");
