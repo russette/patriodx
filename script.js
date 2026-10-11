@@ -11812,10 +11812,59 @@ async function loadMyProfilePosts() {
 
                 `;
 
-            })
+                  })
             .join("");
-}
 
+    // Make your profile posts clickable
+    profilePosts
+        .querySelectorAll(".social-post-card")
+        .forEach((card, index) => {
+
+            const post = posts[index];
+
+            if (!post) return;
+
+            card.style.cursor = "pointer";
+            card.setAttribute("role", "button");
+            card.setAttribute("tabindex", "0");
+            card.setAttribute("aria-label", "Open post");
+
+            function openThisPost() {
+                openProfilePostViewer({
+                    imageUrl: post.image_url || "",
+                    videoUrl: post.video_url || "",
+                    author:
+                        currentProfile?.display_name ||
+                        "PATRIODX User",
+                    caption: post.content || "",
+                    date: post.created_at
+                        ? formatDate(post.created_at)
+                        : ""
+                });
+            }
+
+            card.addEventListener("click", function (event) {
+
+                // Don't interrupt video controls or links
+                if (event.target.closest("video, button, a")) {
+                    return;
+                }
+
+                openThisPost();
+            });
+
+            card.addEventListener("keydown", function (event) {
+
+                if (
+                    event.target === card &&
+                    (event.key === "Enter" || event.key === " ")
+                ) {
+                    event.preventDefault();
+                    openThisPost();
+                }
+            });
+        });
+}
 
 /* =========================================================
    INITIALIZE PROFILE
