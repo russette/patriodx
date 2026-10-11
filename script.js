@@ -15626,9 +15626,14 @@ document.addEventListener("click", async function (event) {
         return;
     }
 
-    if (!window.confirm("Are you sure you want to delete this comment?")) {
-        return;
-    }
+  const confirmed = await showPATRIODXConfirm(
+    "Delete Comment",
+    "Are you sure you want to delete this comment? This action cannot be undone."
+);
+
+if (!confirmed) {
+    return;
+}
 
     button.disabled = true;
     button.textContent = "Deleting...";
