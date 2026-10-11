@@ -9789,43 +9789,38 @@ async function openConversation(
     }
 
 
-  const members =
+/* GET THE OTHER PARTICIPANT */
+
+const { data: members, error: membersError } =
     await supabaseClient
         .from("conversation_members")
         .select("user_id")
-        .eq(
-            "conversation_id",
-            conversationId
-        );
+        .eq("conversation_id", conversationId);
 
 let otherUser = null;
 
-if (!members.error) {
+if (!membersError) {
 
-    const otherMember =
-        (members.data || []).find(
-            member =>
-                member.user_id !==
-                currentUser.id
-        );
+    const otherMember = (members || []).find(
+        member => member.user_id !== currentUser.id
+    );
 
     if (otherMember) {
 
-        const { data: profile } =
+        const { data: profile, error: profileError } =
             await supabaseClient
                 .from("profiles")
-                .select(
-                    "username, display_name"
-                )
-                .eq(
-                    "id",
-                    otherMember.user_id
-                )
+                .select("username, display_name, avatar_url")
+                .eq("id", otherMember.user_id)
                 .single();
 
-        otherUser = profile;
+        if (!profileError) {
+            otherUser = profile;
+        }
     }
 }
+
+/* PREPARE THE HEADER */
 
 const title =
     otherUser?.display_name ||
@@ -9837,24 +9832,49 @@ const username =
         ? `@${otherUser.username}`
         : "PATRIODX";
 
-document.getElementById(
-    "chatHeader"
-).innerHTML = `
+const avatarHTML = otherUser?.avatar_url
+    ? `
+        <img
+            src="${safe(otherUser.avatar_url)}"
+            alt="${safe(title)}"
+            class="chat-header-avatar"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+        >
+        <span class="chat-header-avatar-fallback" style="display:none;">
+            <i data-lucide="user"></i>
+        </span>
+    `
+    : `
+        <span class="chat-header-avatar-fallback">
+            <i data-lucide="user"></i>
+        </span>
+    `;
 
-    <div>
+/* DISPLAY THE HEADER */
 
-        <h3>
-            ${safe(title)}
-        </h3>
+const chatHeader = document.getElementById("chatHeader");
 
-        <p>
-            ${safe(username)}
-        </p>
+if (chatHeader) {
 
-    </div>
+    chatHeader.innerHTML = `
+        <div class="chat-header-profile">
 
-`;
+            <div class="chat-header-avatar-wrap">
+                ${avatarHTML}
+            </div>
 
+            <div class="chat-header-details">
+                <h3>${safe(title)}</h3>
+                <p>${safe(username)}</p>
+            </div>
+
+        </div>
+    `;
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+}
 
     await loadMessages(
         conversationId
