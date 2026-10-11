@@ -5440,20 +5440,100 @@ if ("serviceWorker" in navigator) {
     ></div>
 
     <div class="profile-post-viewer-details">
-        <div
-            id="profilePostViewerAuthor"
-            class="profile-post-viewer-author"
-        ></div>
+        <!-- Post author -->
+<div
+    id="profilePostViewerAuthor"
+    class="profile-post-viewer-author"
+></div>
+
+<!-- Caption -->
+<div
+    id="profilePostViewerCaption"
+    class="profile-post-viewer-caption"
+></div>
+
+<!-- Instagram-style post interactions -->
+<div class="profile-post-viewer-actions">
+
+    <div class="profile-post-viewer-action-buttons">
+
+        <button
+            type="button"
+            id="profilePostViewerLike"
+            class="profile-post-viewer-action-button"
+            aria-label="Like post"
+            title="Like post"
+        >
+            <i data-lucide="heart"></i>
+        </button>
+
+        <button
+            type="button"
+            id="profilePostViewerCommentFocus"
+            class="profile-post-viewer-action-button"
+            aria-label="View comments"
+            title="View comments"
+        >
+            <i data-lucide="message-circle"></i>
+        </button>
+
+        <button
+            type="button"
+            id="profilePostViewerShare"
+            class="profile-post-viewer-action-button"
+            aria-label="Share post"
+            title="Share post"
+        >
+            <i data-lucide="send"></i>
+        </button>
+
+    </div>
+
+    <!-- Like count -->
+    <div
+        id="profilePostViewerLikeCount"
+        class="profile-post-viewer-like-count"
+    >
+        Loading likes...
+    </div>
+
+    <!-- Comments -->
+    <div class="profile-post-viewer-comments-section">
 
         <div
-            id="profilePostViewerCaption"
-            class="profile-post-viewer-caption"
-        ></div>
+            id="profilePostViewerComments"
+            class="profile-post-viewer-comments"
+        >
+            Loading comments...
+        </div>
 
-        <div
-            id="profilePostViewerDate"
-            class="profile-post-viewer-date"
-        ></div>
+        <form
+            id="profilePostViewerCommentForm"
+            class="profile-post-viewer-comment-form"
+        >
+            <input
+                type="text"
+                id="profilePostViewerCommentInput"
+                placeholder="Add a comment..."
+                maxlength="2000"
+                autocomplete="off"
+                aria-label="Write a comment"
+            >
+
+            <button type="submit">
+                Post
+            </button>
+        </form>
+
+    </div>
+
+</div>
+
+<!-- Post date -->
+<div
+    id="profilePostViewerDate"
+    class="profile-post-viewer-date"
+></div>
     </div>
 </div>
 
