@@ -5730,35 +5730,39 @@ async function uploadSocialMedia(file) {
 
 
 /* =========================================================
-   GET POST COUNTS
+GET POST COUNTS
 ========================================================= */
 
 async function getSocialCounts(postId) {
-    const [likesResult, commentsResult] = await Promise.all([
-        supabaseClient
-            .from("post_likes")
-            .select("id", { count: "exact", head: true })
-            .eq("post_id", postId),
+const [likesResult, commentsResult] = await Promise.all([
+supabaseClient
+.from("post_likes")
+.select("id", { count: "exact", head: true })
+.eq("post_id", postId),
 
-        supabaseClient
-            .from("comments")
-            .select("id", { count: "exact", head: true })
-            .eq("post_id", postId)
-    ]);
 
-    if (likesResult.error) {
-        throw likesResult.error;
-    }
+    supabaseClient
+        .from("comments")
+        .select("id", { count: "exact", head: true })
+        .eq("post_id", postId)
+        .is("parent_comment_id", null)
+]);
 
-    if (commentsResult.error) {
-        throw commentsResult.error;
-    }
-
-    return {
-        likes: likesResult.count ?? 0,
-        comments: commentsResult.count ?? 0
-    };
+if (likesResult.error) {
+    throw likesResult.error;
 }
+
+if (commentsResult.error) {
+    throw commentsResult.error;
+}
+
+return {
+    likes: likesResult.count ?? 0,
+    comments: commentsResult.count ?? 0
+};
+
+}
+
 /* =========================================================
    CHECK IF CURRENT USER LIKED A POST
 ========================================================= */
@@ -7582,39 +7586,43 @@ async function updateSocialLikeButton(postId) {
     }
 }
 /* =========================================================
-   REFRESH POST COUNTS
+REFRESH POST COUNTS
 ========================================================= */
 
 async function refreshSocialPostStats(postId) {
-
-    const stats =
-        await getSocialCounts(
-            postId
-        );
+if (!postId) return;
 
 
-    const statsElement =
-        document.getElementById(
-            `social-stats-${postId}`
-        );
+try {
+    const stats = await getSocialCounts(postId);
 
+    const statsElement = document.getElementById(
+        `social-stats-${postId}`
+    );
 
     if (!statsElement) return;
 
-
     statsElement.innerHTML = `
-
         <span>
-    <i data-lucide="heart"></i> ${stats.likes}
-</span>
-
-<span>
-    <i data-lucide="message-circle"></i> ${stats.comments}
-</span>
-
+            <i data-lucide="heart"></i> ${stats.likes}
+        </span>
+        <span>
+            <i data-lucide="message-circle"></i> ${stats.comments}
+        </span>
     `;
+
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+} catch (error) {
+    console.error(
+        "PATRIODX: Could not refresh social post statistics:",
+        error
+    );
 }
 
+
+}
 
 /* =========================================================
    TOGGLE COMMENTS
@@ -8589,29 +8597,46 @@ async function loadHomePosts() {
         }).join("");
 }
 /* =========================================================
-   PATRIODX HOME POST STATS
+PATRIODX HOME POST STATS
 ========================================================= */
 
 async function refreshHomePostStats(postId) {
+if (!postId) return;
 
-    const statsElement =
-        document.querySelector(
-            `#home-post-${postId} .social-post-stats`
-        );
 
-    if (!statsElement) return;
+const statsElement = document.querySelector(
+    `#home-post-${postId} .social-post-stats`
+);
 
-    const counts =
-        await getSocialCounts(postId);
+if (!statsElement) return;
 
-   statsElement.innerHTML = `
-    <span><i data-lucide="heart"></i> ${counts.likes}</span>
-    <span><i data-lucide="message-circle"></i> ${counts.comments}</span>
+try {
+    const counts = await getSocialCounts(postId);
+
+    statsElement.innerHTML = `
+        <span>
+            <i data-lucide="heart"></i> ${counts.likes}
+        </span>
+        <span>
+            <i data-lucide="message-circle"></i> ${counts.comments}
+        </span>
     `;
+
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+} catch (error) {
+    console.error(
+        "PATRIODX: Could not refresh home post statistics:",
+        error
+    );
 }
 
-window.refreshHomePostStats =
-    refreshHomePostStats;
+
+}
+
+window.refreshHomePostStats = refreshHomePostStats;
+
 /* =========================================================
    PATRIODX HOME COMMENTS
 ========================================================= */
@@ -15200,14 +15225,12 @@ async function refreshProfilePostViewer(postId) {
     if (!postId) {
         likeCount.textContent = "Likes unavailable";
         commentsContainer.textContent = "Comments unavailable.";
-        console.error("PATRIODX: No post ID was provided.");
         return;
     }
 
     likeCount.textContent = "Loading likes...";
     commentsContainer.textContent = "Loading comments...";
 
-    // Load the like count and current user's like status.
     try {
         const stats = await getSocialCounts(postId);
 
@@ -15217,22 +15240,16 @@ async function refreshProfilePostViewer(postId) {
         const liked = await hasLikedSocialPost(postId);
 
         likeButton.classList.toggle("liked", liked);
-        likeButton.setAttribute(
-            "aria-label",
-            liked ? "Unlike post" : "Like post"
-        );
+        likeButton.setAttribute("aria-label", liked ? "Unlike post" : "Like post");
         likeButton.title = liked ? "Unlike post" : "Like post";
         likeButton.innerHTML = '<i data-lucide="heart"></i>';
 
-        if (window.lucide) {
-            lucide.createIcons();
-        }
+        if (window.lucide) lucide.createIcons();
     } catch (error) {
         console.error("PATRIODX: Could not load post likes:", error);
         likeCount.textContent = "Likes could not be loaded.";
     }
 
-    // Load comments.
     try {
         const { data: comments, error } = await supabaseClient
             .from("comments")
@@ -15240,47 +15257,69 @@ async function refreshProfilePostViewer(postId) {
             .eq("post_id", postId)
             .order("created_at", { ascending: true });
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
+
+        commentsContainer.replaceChildren();
 
         if (!comments || comments.length === 0) {
             commentsContainer.textContent = "No comments yet. Be the first!";
             return;
         }
 
-        const userIds = [
-            ...new Set(comments.map(comment => comment.user_id).filter(Boolean))
-        ];
+        const userIds = [...new Set(
+            comments.map(comment => comment.user_id).filter(Boolean)
+        )];
 
-        let profiles = [];
+        const commentIds = comments.map(comment => comment.id);
 
-        if (userIds.length > 0) {
-            const { data, error: profileError } = await supabaseClient
-                .from("profiles")
-                .select("id, username, display_name, avatar_url")
-                .in("id", userIds);
+        const [profileResult, commentLikeResult] = await Promise.all([
+            userIds.length
+                ? supabaseClient
+                    .from("profiles")
+                    .select("id, username, display_name, avatar_url")
+                    .in("id", userIds)
+                : Promise.resolve({ data: [], error: null }),
 
-            if (profileError) {
-                console.error(
-                    "PATRIODX: Could not load commenter profiles:",
-                    profileError
-                );
-            } else {
-                profiles = data || [];
-            }
+            supabaseClient
+                .from("comment_likes")
+                .select("comment_id, user_id")
+                .in("comment_id", commentIds)
+        ]);
+
+        if (profileResult.error) {
+            console.error("PATRIODX: Could not load profiles:", profileResult.error);
         }
+
+        if (commentLikeResult.error) {
+            throw commentLikeResult.error;
+        }
+
+        const profiles = profileResult.data || [];
+        const commentLikes = commentLikeResult.data || [];
 
         const profileMap = new Map(
             profiles.map(profile => [profile.id, profile])
         );
 
-        commentsContainer.replaceChildren();
+        const commentsByParent = new Map();
 
         comments.forEach(comment => {
-            const profile = profileMap.get(comment.user_id);
+            const parentId = comment.parent_comment_id || null;
 
-            const author = comment.user_id === currentUser?.id
+            if (!commentsByParent.has(parentId)) {
+                commentsByParent.set(parentId, []);
+            }
+
+            commentsByParent.get(parentId).push(comment);
+        });
+
+        function renderComment(comment, isReply = false) {
+            const profile = profileMap.get(comment.user_id);
+            const isOwner = Boolean(
+                currentUser && comment.user_id === currentUser.id
+            );
+
+            const author = isOwner
                 ? "You"
                 : (
                     profile?.display_name ||
@@ -15288,8 +15327,21 @@ async function refreshProfilePostViewer(postId) {
                     "PATRIODX User"
                 );
 
+            const likesForComment = commentLikes.filter(
+                item => item.comment_id === comment.id
+            );
+
+            const userLiked = Boolean(
+                currentUser &&
+                likesForComment.some(item => item.user_id === currentUser.id)
+            );
+
             const row = document.createElement("div");
-            row.className = "social-comment";
+            row.className = isReply
+                ? "social-comment social-comment-reply"
+                : "social-comment";
+
+            row.dataset.commentId = comment.id;
 
             const avatar = document.createElement("div");
             avatar.className = "social-comment-avatar";
@@ -15313,29 +15365,133 @@ async function refreshProfilePostViewer(postId) {
             name.textContent = author;
 
             const text = document.createElement("p");
+            text.className = "social-comment-text";
             text.textContent = comment.content || "";
 
             const date = document.createElement("small");
             date.textContent = formatDate(comment.created_at);
 
-           content.append(name, text, date);
+            content.append(name, text, date);
 
-// Show Delete only on comments written by the current user.
-if (currentUser && comment.user_id === currentUser.id) {
-    const deleteButton = document.createElement("button");
+            const actions = document.createElement("div");
+            actions.className = "social-comment-actions";
 
-    deleteButton.type = "button";
-    deleteButton.className = "profile-comment-delete-button";
-    deleteButton.textContent = "Delete";
-    deleteButton.dataset.commentId = comment.id;
-    deleteButton.setAttribute("aria-label", "Delete your comment");
+            const commentLikeButton = document.createElement("button");
+            commentLikeButton.type = "button";
+            commentLikeButton.className = "profile-comment-like-button";
+            commentLikeButton.dataset.commentId = comment.id;
+            commentLikeButton.textContent =
+                `${userLiked ? "♥" : "♡"} ${likesForComment.length}`;
+            commentLikeButton.setAttribute(
+                "aria-label",
+                userLiked ? "Unlike comment" : "Like comment"
+            );
+            commentLikeButton.classList.toggle("liked", userLiked);
 
-    content.appendChild(deleteButton);
-}
+            actions.appendChild(commentLikeButton);
 
-row.append(avatar, content);
-commentsContainer.appendChild(row);
-        });
+            // Replies are displayed beneath top-level comments.
+            if (!isReply) {
+                const replyButton = document.createElement("button");
+                replyButton.type = "button";
+                replyButton.className = "profile-comment-reply-button";
+                replyButton.dataset.commentId = comment.id;
+                replyButton.textContent = "Reply";
+                actions.appendChild(replyButton);
+            }
+
+            if (isOwner) {
+                const editButton = document.createElement("button");
+                editButton.type = "button";
+                editButton.className = "profile-comment-edit-button";
+                editButton.dataset.commentId = comment.id;
+                editButton.textContent = "Edit";
+                actions.appendChild(editButton);
+
+                const deleteButton = document.createElement("button");
+                deleteButton.type = "button";
+                deleteButton.className = "profile-comment-delete-button";
+                deleteButton.dataset.commentId = comment.id;
+                deleteButton.textContent = "Delete";
+                actions.appendChild(deleteButton);
+            }
+
+            content.appendChild(actions);
+            row.append(avatar, content);
+
+            if (!isReply) {
+                const replyForm = document.createElement("form");
+                replyForm.className = "profile-comment-reply-form";
+                replyForm.dataset.parentCommentId = comment.id;
+                replyForm.hidden = true;
+
+                const replyInput = document.createElement("input");
+                replyInput.type = "text";
+                replyInput.name = "reply";
+                replyInput.maxLength = 2000;
+                replyInput.placeholder = "Write a reply...";
+                replyInput.required = true;
+
+                const replySubmit = document.createElement("button");
+                replySubmit.type = "submit";
+                replySubmit.textContent = "Reply";
+
+                replyForm.append(replyInput, replySubmit);
+                row.appendChild(replyForm);
+            }
+
+            const editForm = document.createElement("form");
+            editForm.className = "profile-comment-edit-form";
+            editForm.dataset.commentId = comment.id;
+            editForm.hidden = true;
+
+            const editInput = document.createElement("input");
+            editInput.type = "text";
+            editInput.name = "editedContent";
+            editInput.maxLength = 2000;
+            editInput.value = comment.content || "";
+            editInput.required = true;
+
+            const saveButton = document.createElement("button");
+            saveButton.type = "submit";
+            saveButton.textContent = "Save";
+
+            const cancelButton = document.createElement("button");
+            cancelButton.type = "button";
+            cancelButton.textContent = "Cancel";
+            cancelButton.className = "profile-comment-edit-cancel";
+
+            editForm.append(editInput, saveButton, cancelButton);
+            row.appendChild(editForm);
+
+            return row;
+        }
+
+        function appendCommentTree(comment, isReply = false) {
+            const row = renderComment(comment, isReply);
+            commentsContainer.appendChild(row);
+
+            if (!isReply) {
+                const replies = commentsByParent.get(comment.id) || [];
+
+                replies.forEach(reply => {
+                    appendCommentTree(reply, true);
+                });
+            }
+        }
+
+        const topLevelComments = commentsByParent.get(null) || [];
+
+        if (topLevelComments.length === 0) {
+            commentsContainer.textContent = "No comments yet. Be the first!";
+        } else {
+            topLevelComments.forEach(comment => {
+                appendCommentTree(comment);
+            });
+        }
+
+        if (window.lucide) lucide.createIcons();
+
     } catch (error) {
         console.error("PATRIODX: Could not load post comments:", error);
         commentsContainer.textContent = "Comments could not be loaded.";
@@ -15510,5 +15666,202 @@ document.addEventListener("click", async function (event) {
 
         button.disabled = false;
         button.textContent = "Delete";
+    }
+});
+/* =========================================================
+   PATRIODX — COMMENT LIKE, REPLY AND EDIT HANDLERS
+========================================================= */
+
+/* Handle comment likes, reply forms, and edit forms. */
+document.addEventListener("click", async function (event) {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    const likeButton = target.closest(".profile-comment-like-button");
+    const replyButton = target.closest(".profile-comment-reply-button");
+    const editButton = target.closest(".profile-comment-edit-button");
+    const cancelButton = target.closest(".profile-comment-edit-cancel");
+
+    if (cancelButton) {
+        const editForm = cancelButton.closest(".profile-comment-edit-form");
+        if (editForm) editForm.hidden = true;
+        return;
+    }
+
+    if (replyButton) {
+        const row = replyButton.closest(".social-comment");
+        const replyForm = row?.querySelector(".profile-comment-reply-form");
+
+        if (replyForm) {
+            replyForm.hidden = !replyForm.hidden;
+
+            if (!replyForm.hidden) {
+                replyForm.querySelector("input")?.focus();
+            }
+        }
+        return;
+    }
+
+    if (editButton) {
+        const row = editButton.closest(".social-comment");
+        const editForm = row?.querySelector(".profile-comment-edit-form");
+
+        if (editForm) {
+            editForm.hidden = !editForm.hidden;
+
+            if (!editForm.hidden) {
+                editForm.querySelector("input")?.focus();
+            }
+        }
+        return;
+    }
+
+    if (!likeButton) return;
+
+    if (!currentUser) {
+        showPATRIODXToast("Please log in to like comments.", "warning");
+        return;
+    }
+
+    const commentId = likeButton.dataset.commentId;
+    const postId = window.currentProfileViewerPostId;
+
+    if (!commentId || !postId) return;
+
+    likeButton.disabled = true;
+
+    try {
+        const { data: existingLike, error: lookupError } = await supabaseClient
+            .from("comment_likes")
+            .select("id")
+            .eq("comment_id", commentId)
+            .eq("user_id", currentUser.id)
+            .maybeSingle();
+
+        if (lookupError) throw lookupError;
+
+        if (existingLike) {
+            const { error } = await supabaseClient
+                .from("comment_likes")
+                .delete()
+                .eq("comment_id", commentId)
+                .eq("user_id", currentUser.id);
+
+            if (error) throw error;
+        } else {
+            const { error } = await supabaseClient
+                .from("comment_likes")
+                .insert({
+                    comment_id: commentId,
+                    user_id: currentUser.id
+                });
+
+            if (error) throw error;
+        }
+
+        await refreshProfilePostViewer(postId);
+
+    } catch (error) {
+        console.error("PATRIODX: Could not update comment like:", error);
+        showPATRIODXToast(
+            "Could not update comment like. " + error.message,
+            "error"
+        );
+    } finally {
+        likeButton.disabled = false;
+    }
+});
+
+
+/* Submit a reply or save an edited comment. */
+document.addEventListener("submit", async function (event) {
+    const form = event.target;
+
+    if (!(form instanceof HTMLFormElement)) return;
+
+    const isReplyForm = form.classList.contains("profile-comment-reply-form");
+    const isEditForm = form.classList.contains("profile-comment-edit-form");
+
+    if (!isReplyForm && !isEditForm) return;
+
+    event.preventDefault();
+
+    if (!currentUser) {
+        showPATRIODXToast("Please log in first.", "warning");
+        return;
+    }
+
+    const postId = window.currentProfileViewerPostId;
+    const input = form.querySelector("input");
+    const button = form.querySelector("button[type='submit']");
+    const content = input?.value.trim();
+
+    if (!postId || !input || !button || !content) return;
+
+    button.disabled = true;
+    const originalText = button.textContent;
+    button.textContent = isReplyForm ? "Sending..." : "Saving...";
+
+    try {
+        if (isReplyForm) {
+            const parentCommentId = form.dataset.parentCommentId;
+
+            if (!parentCommentId) {
+                throw new Error("The parent comment could not be found.");
+            }
+
+            const { error } = await supabaseClient
+                .from("comments")
+                .insert({
+                    post_id: postId,
+                    user_id: currentUser.id,
+                    parent_comment_id: parentCommentId,
+                    content: content
+                });
+
+            if (error) throw error;
+
+            showPATRIODXToast("Reply added.", "success");
+        } else {
+            const commentId = form.dataset.commentId;
+
+            if (!commentId) {
+                throw new Error("The comment could not be found.");
+            }
+
+            const { data, error } = await supabaseClient
+                .from("comments")
+                .update({
+                    content: content,
+                    updated_at: new Date().toISOString()
+                })
+                .eq("id", commentId)
+                .eq("user_id", currentUser.id)
+                .eq("post_id", postId)
+                .select("id");
+
+            if (error) throw error;
+
+            if (!data || data.length === 0) {
+                throw new Error("The comment was not updated. Check ownership and permissions.");
+            }
+
+            showPATRIODXToast("Comment updated.", "success");
+        }
+
+        await refreshProfilePostViewer(postId);
+        await refreshSocialPostStats(postId);
+        await refreshHomePostStats(postId);
+
+    } catch (error) {
+        console.error("PATRIODX: Could not save comment change:", error);
+
+        showPATRIODXToast(
+            "Could not save. " + error.message,
+            "error"
+        );
+    } finally {
+        button.disabled = false;
+        button.textContent = originalText;
     }
 });
