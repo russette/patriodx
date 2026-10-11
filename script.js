@@ -11831,6 +11831,7 @@ async function loadMyProfilePosts() {
 
             function openThisPost() {
                 openProfilePostViewer({
+                    postId: post.id,
                     imageUrl: post.image_url || "",
                     videoUrl: post.video_url || "",
                     author:
@@ -12720,6 +12721,7 @@ if (badgeElement) {
 
             function openThisPost() {
                 openProfilePostViewer({
+                    postId: post.id,
                     imageUrl: post.image_url || "",
                     videoUrl: post.video_url || "",
                     author:
