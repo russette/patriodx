@@ -5760,6 +5760,29 @@ async function getSocialCounts(postId) {
     };
 }
 /* =========================================================
+   CHECK IF CURRENT USER LIKED A POST
+========================================================= */
+
+async function hasLikedSocialPost(postId) {
+    if (!currentUser) {
+        return false;
+    }
+
+    const { data, error } = await supabaseClient
+        .from("post_likes")
+        .select("id")
+        .eq("post_id", postId)
+        .eq("user_id", currentUser.id)
+        .maybeSingle();
+
+    if (error) {
+        console.error("Could not check post like:", error);
+        throw error;
+    }
+
+    return Boolean(data);
+}
+/* =========================================================
    LOAD SOCIAL POSTS
 ========================================================= */
 
