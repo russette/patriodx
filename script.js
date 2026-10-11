@@ -15223,7 +15223,14 @@ async function refreshProfilePostViewer(postId) {
     if (!postId || !likeCount || !likeButton || !commentsContainer) return;
 
     // Load the real like and comment counts.
-    const stats = await getSocialCounts(postId);
+const stats = await getSocialCounts(postId).catch(error => {
+    console.error("PATRIODX viewer likes error:", error);
+
+    return {
+        likes: 0,
+        comments: 0
+    };
+});
 
     likeCount.textContent =
         `${stats.likes} ${stats.likes === 1 ? "like" : "likes"}`;
