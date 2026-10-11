@@ -5734,77 +5734,30 @@ async function uploadSocialMedia(file) {
 ========================================================= */
 
 async function getSocialCounts(postId) {
-
-    const [
-        likesResult,
-        commentsResult
-    ] = await Promise.all([
-
+    const [likesResult, commentsResult] = await Promise.all([
         supabaseClient
             .from("post_likes")
-            .select(
-                "id",
-                {
-                    count: "exact",
-                    head: true
-                }
-            )
-            .eq(
-                "post_id",
-                postId
-            ),
+            .select("id", { count: "exact", head: true })
+            .eq("post_id", postId),
 
         supabaseClient
             .from("comments")
-            .select(
-                "id",
-                {
-                    count: "exact",
-                    head: true
-                }
-            )
-            .eq(
-                "post_id",
-                postId
-            )
-
+            .select("id", { count: "exact", head: true })
+            .eq("post_id", postId)
     ]);
 
+    if (likesResult.error) {
+        throw likesResult.error;
+    }
+
+    if (commentsResult.error) {
+        throw commentsResult.error;
+    }
 
     return {
-
-        likes:
-            likesResult.count || 0,
-
-        comments:
-            commentsResult.count || 0
-
+        likes: likesResult.count ?? 0,
+        comments: commentsResult.count ?? 0
     };
-}
-async function hasLikedSocialPost(postId) {
-
-    if (!currentUser) {
-        return false;
-    }
-
-    const { data, error } =
-        await supabaseClient
-            .from("post_likes")
-            .select("id")
-            .eq("post_id", postId)
-            .eq("user_id", currentUser.id)
-            .maybeSingle();
-
-    if (error) {
-        console.error(
-            "Could not check post like:",
-            error
-        );
-
-        return false;
-    }
-
-    return !!data;
 }
 /* =========================================================
    LOAD SOCIAL POSTS
@@ -15163,11 +15116,11 @@ captionContainer.textContent = postData.caption || "";
 dateContainer.textContent = postData.date || "";
 window.currentProfileViewerPostId = postData.postId;
 
-refreshProfilePostViewer(postData.postId);
 viewer.style.display = "flex";
 viewer.setAttribute("aria-hidden", "false");
 document.body.style.overflow = "hidden";
 
+refreshProfilePostViewer(postData.postId);
 if (window.lucide) {
     lucide.createIcons();
 }
@@ -15212,137 +15165,145 @@ closeProfilePostViewer();
 ========================================================= */
 
 async function refreshProfilePostViewer(postId) {
-    const viewer = document.getElementById("profilePostViewer");
-
-    if (!viewer || viewer.style.display === "none") return;
-
     const likeCount = document.getElementById("profilePostViewerLikeCount");
     const likeButton = document.getElementById("profilePostViewerLike");
     const commentsContainer = document.getElementById("profilePostViewerComments");
 
-    if (!postId || !likeCount || !likeButton || !commentsContainer) return;
-
-    // Load the real like and comment counts.
-const stats = await getSocialCounts(postId).catch(error => {
-    console.error("PATRIODX viewer likes error:", error);
-
-    return {
-        likes: 0,
-        comments: 0
-    };
-});
-
-    likeCount.textContent =
-        `${stats.likes} ${stats.likes === 1 ? "like" : "likes"}`;
-
-    // Update the heart to reflect the current user's like.
-    const liked = await hasLikedSocialPost(postId);
-
-    likeButton.classList.toggle("liked", liked);
-    likeButton.setAttribute(
-        "aria-label",
-        liked ? "Unlike post" : "Like post"
-    );
-
-    likeButton.title = liked ? "Unlike post" : "Like post";
-    likeButton.innerHTML = '<i data-lucide="heart"></i>';
-
-    if (window.lucide) {
-        lucide.createIcons();
-    }
-
-    // Load comments directly into the viewer.
-    commentsContainer.innerHTML = "<p>Loading comments...</p>";
-
-    const { data: comments, error } = await supabaseClient
-        .from("comments")
-        .select("*")
-        .eq("post_id", postId)
-        .order("created_at", { ascending: true });
-
-    if (error) {
-        console.error("Viewer comments error:", error);
-        commentsContainer.textContent = "Could not load comments.";
+    if (!likeCount || !likeButton || !commentsContainer) {
+        console.error("PATRIODX: A profile viewer interaction element is missing.");
         return;
     }
 
-    if (!comments || comments.length === 0) {
-        commentsContainer.textContent = "No comments yet. Be the first!";
+    if (!postId) {
+        likeCount.textContent = "Likes unavailable";
+        commentsContainer.textContent = "Comments unavailable.";
+        console.error("PATRIODX: No post ID was provided.");
         return;
     }
 
-    // Load the commenters' profile information.
-    const userIds = [
-        ...new Set(comments.map(comment => comment.user_id).filter(Boolean))
-    ];
+    likeCount.textContent = "Loading likes...";
+    commentsContainer.textContent = "Loading comments...";
 
-    let profiles = [];
+    // Load the like count and current user's like status.
+    try {
+        const stats = await getSocialCounts(postId);
 
-    if (userIds.length) {
-        const { data, error: profileError } = await supabaseClient
-            .from("profiles")
-            .select("id, username, display_name, avatar_url")
-            .in("id", userIds);
+        likeCount.textContent =
+            `${stats.likes} ${stats.likes === 1 ? "like" : "likes"}`;
 
-        if (profileError) {
-            console.error("Viewer comment profiles error:", profileError);
-        } else {
-            profiles = data || [];
+        const liked = await hasLikedSocialPost(postId);
+
+        likeButton.classList.toggle("liked", liked);
+        likeButton.setAttribute(
+            "aria-label",
+            liked ? "Unlike post" : "Like post"
+        );
+        likeButton.title = liked ? "Unlike post" : "Like post";
+        likeButton.innerHTML = '<i data-lucide="heart"></i>';
+
+        if (window.lucide) {
+            lucide.createIcons();
         }
+    } catch (error) {
+        console.error("PATRIODX: Could not load post likes:", error);
+        likeCount.textContent = "Likes could not be loaded.";
     }
 
-    const profileMap = new Map(profiles.map(profile => [profile.id, profile]));
+    // Load comments.
+    try {
+        const { data: comments, error } = await supabaseClient
+            .from("comments")
+            .select("*")
+            .eq("post_id", postId)
+            .order("created_at", { ascending: true });
 
-    commentsContainer.replaceChildren();
-
-    comments.forEach(comment => {
-        const profile = profileMap.get(comment.user_id);
-
-        const author = comment.user_id === currentUser?.id
-            ? "You"
-            : (
-                profile?.display_name ||
-                profile?.username ||
-                "PATRIODX User"
-            );
-
-        const row = document.createElement("div");
-        row.className = "social-comment";
-
-        const avatar = document.createElement("div");
-        avatar.className = "social-comment-avatar";
-
-        if (profile?.avatar_url) {
-            const image = document.createElement("img");
-            image.src = profile.avatar_url;
-            image.alt = author;
-            image.loading = "lazy";
-            avatar.appendChild(image);
-        } else {
-            const initial = document.createElement("span");
-            initial.textContent = author.charAt(0).toUpperCase();
-            avatar.appendChild(initial);
+        if (error) {
+            throw error;
         }
 
-        const content = document.createElement("div");
-        content.className = "social-comment-content";
+        if (!comments || comments.length === 0) {
+            commentsContainer.textContent = "No comments yet. Be the first!";
+            return;
+        }
 
-        const name = document.createElement("strong");
-        name.textContent = author;
+        const userIds = [
+            ...new Set(comments.map(comment => comment.user_id).filter(Boolean))
+        ];
 
-        const text = document.createElement("p");
-        text.textContent = comment.content || "";
+        let profiles = [];
 
-        const date = document.createElement("small");
-        date.textContent = formatDate(comment.created_at);
+        if (userIds.length > 0) {
+            const { data, error: profileError } = await supabaseClient
+                .from("profiles")
+                .select("id, username, display_name, avatar_url")
+                .in("id", userIds);
 
-        content.append(name, text, date);
-        row.append(avatar, content);
-        commentsContainer.appendChild(row);
-    });
+            if (profileError) {
+                console.error(
+                    "PATRIODX: Could not load commenter profiles:",
+                    profileError
+                );
+            } else {
+                profiles = data || [];
+            }
+        }
+
+        const profileMap = new Map(
+            profiles.map(profile => [profile.id, profile])
+        );
+
+        commentsContainer.replaceChildren();
+
+        comments.forEach(comment => {
+            const profile = profileMap.get(comment.user_id);
+
+            const author = comment.user_id === currentUser?.id
+                ? "You"
+                : (
+                    profile?.display_name ||
+                    profile?.username ||
+                    "PATRIODX User"
+                );
+
+            const row = document.createElement("div");
+            row.className = "social-comment";
+
+            const avatar = document.createElement("div");
+            avatar.className = "social-comment-avatar";
+
+            if (profile?.avatar_url) {
+                const image = document.createElement("img");
+                image.src = profile.avatar_url;
+                image.alt = author;
+                image.loading = "lazy";
+                avatar.appendChild(image);
+            } else {
+                const initial = document.createElement("span");
+                initial.textContent = author.charAt(0).toUpperCase();
+                avatar.appendChild(initial);
+            }
+
+            const content = document.createElement("div");
+            content.className = "social-comment-content";
+
+            const name = document.createElement("strong");
+            name.textContent = author;
+
+            const text = document.createElement("p");
+            text.textContent = comment.content || "";
+
+            const date = document.createElement("small");
+            date.textContent = formatDate(comment.created_at);
+
+            content.append(name, text, date);
+            row.append(avatar, content);
+            commentsContainer.appendChild(row);
+        });
+    } catch (error) {
+        console.error("PATRIODX: Could not load post comments:", error);
+        commentsContainer.textContent = "Comments could not be loaded.";
+    }
 }
-
-
 /* Like or unlike the post from the viewer. */
 document.getElementById("profilePostViewerLike")?.addEventListener("click", async function () {
     const postId = window.currentProfileViewerPostId;
