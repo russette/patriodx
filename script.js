@@ -8918,9 +8918,9 @@ async function loadConversationUsers() {
     const { data, error } =
         await supabaseClient
             .from("profiles")
-            .select(
-                "id, username, display_name"
-            )
+           .select(
+    "id, username, display_name, avatar_url"
+)
             .neq(
                 "id",
                 currentUser.id
@@ -9626,10 +9626,27 @@ const visibleConversations =
                             }"
                         >
 
-                            <div class="conversation-avatar">
-                                <i data-lucide="user"></i>
-                            </div>
-
+                          <div class="conversation-avatar">
+    ${
+        otherProfile?.avatar_url
+            ? `
+                <img
+                    src="${safe(otherProfile.avatar_url)}"
+                    alt="${safe(displayName)}"
+                    loading="lazy"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                >
+                <span class="conversation-avatar-fallback" style="display:none;">
+                    <i data-lucide="user"></i>
+                </span>
+            `
+            : `
+                <span class="conversation-avatar-fallback">
+                    <i data-lucide="user"></i>
+                </span>
+            `
+    }
+</div>
                             <div class="conversation-info">
 
                                 <strong>
