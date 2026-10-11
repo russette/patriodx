@@ -15351,14 +15351,23 @@ document.getElementById("profilePostViewerCommentFocus")?.addEventListener("clic
 
 
 /* Submit a comment from the viewer. */
-document.getElementById("profilePostViewerCommentForm")?.addEventListener("submit", async function (event) {
+document.addEventListener("submit", async function (event) {
+    const form = event.target;
+
+    if (!form || form.id !== "profilePostViewerCommentForm") {
+        return;
+    }
+
     event.preventDefault();
-console.log("PATRIODX: Comment form submitted.");
+
     const postId = window.currentProfileViewerPostId;
     const input = document.getElementById("profilePostViewerCommentInput");
-    const button = this.querySelector("button[type='submit']");
+    const button = form.querySelector("button[type='submit']");
 
-    if (!postId || !input || !button) return;
+    if (!postId || !input || !button) {
+        console.error("PATRIODX: Missing post ID, comment input, or submit button.");
+        return;
+    }
 
     if (!currentUser) {
         showPATRIODXToast("Please log in before commenting.", "warning");
@@ -15367,7 +15376,9 @@ console.log("PATRIODX: Comment form submitted.");
 
     const content = input.value.trim();
 
-    if (!content) return;
+    if (!content) {
+        return;
+    }
 
     button.disabled = true;
     button.textContent = "Sending...";
@@ -15381,7 +15392,9 @@ console.log("PATRIODX: Comment form submitted.");
                 content: content
             });
 
-        if (error) throw error;
+        if (error) {
+            throw error;
+        }
 
         input.value = "";
 
@@ -15390,12 +15403,11 @@ console.log("PATRIODX: Comment form submitted.");
         await refreshHomePostStats(postId);
 
         showPATRIODXToast("Comment added.", "success");
-
     } catch (error) {
         console.error("Viewer comment submission error:", error);
 
         showPATRIODXToast(
-            "Could not add comment. " + error.message,
+            "Could not add comment. " + (error.message || "Unknown error"),
             "error"
         );
     } finally {
@@ -15403,8 +15415,6 @@ console.log("PATRIODX: Comment form submitted.");
         button.textContent = "Post";
     }
 });
-
-
 /* Share the currently open post. */
 document.getElementById("profilePostViewerShare")?.addEventListener("click", async function () {
     const postId = window.currentProfileViewerPostId;
