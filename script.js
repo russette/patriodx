@@ -9752,176 +9752,168 @@ async function loadConversations() {
    OPEN CONVERSATION
 ========================================================= */
 
-async function openConversation(
-    conversationId
-) {
+async function openConversation(conversationId) {
 
-    activeConversationId =
-        conversationId;
-
+    activeConversationId = conversationId;
 
     await loadConversations();
 
-
     messageInput.disabled = false;
     messageSendButton.disabled = false;
-
 
     const { data: conversation, error } =
         await supabaseClient
             .from("conversations")
             .select("*")
-            .eq(
-                "id",
-                conversationId
-            )
+            .eq("id", conversationId)
             .single();
 
-
     if (error) {
-
         console.error(
             "Could not open conversation:",
             error
         );
-
         return;
     }
 
+    /* GET THE OTHER PARTICIPANT */
 
-/* GET THE OTHER PARTICIPANT */
+    const { data: members, error: membersError } =
+        await supabaseClient
+            .from("conversation_members")
+            .select("user_id")
+            .eq("conversation_id", conversationId);
 
-const { data: members, error: membersError } =
-    await supabaseClient
-        .from("conversation_members")
-        .select("user_id")
-        .eq("conversation_id", conversationId);
+    let otherUser = null;
 
-let otherUser = null;
+    if (!membersError) {
 
-if (!membersError) {
+        const otherMember = (members || []).find(
+            member => member.user_id !== currentUser.id
+        );
 
-    const otherMember = (members || []).find(
-        member => member.user_id !== currentUser.id
-    );
+        if (otherMember) {
 
-    if (otherMember) {
+            const { data: profile, error: profileError } =
+                await supabaseClient
+                    .from("profiles")
+                    .select("username, display_name, avatar_url")
+                    .eq("id", otherMember.user_id)
+                    .single();
 
-        const { data: profile, error: profileError } =
-            await supabaseClient
-                .from("profiles")
-                .select("username, display_name, avatar_url")
-                .eq("id", otherMember.user_id)
-                .single();
-
-        if (!profileError) {
-            otherUser = profile;
+            if (!profileError) {
+                otherUser = profile;
+            }
         }
     }
-}
 
-/* PREPARE THE HEADER */
+    /* PREPARE THE HEADER */
 
-const title =
-    otherUser?.display_name ||
-    otherUser?.username ||
-    "PATRIODX User";
+    const title =
+        otherUser?.display_name ||
+        otherUser?.username ||
+        "PATRIODX User";
 
-const username =
-    otherUser?.username
-        ? `@${otherUser.username}`
-        : "PATRIODX";
+    const username =
+        otherUser?.username
+            ? `@${otherUser.username}`
+            : "PATRIODX";
 
-const avatarHTML = otherUser?.avatar_url
-    ? `
-        <img
-            src="${safe(otherUser.avatar_url)}"
-            alt="${safe(title)}"
-            class="chat-header-avatar"
-            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-        >
-        <span class="chat-header-avatar-fallback" style="display:none;">
-            <i data-lucide="user"></i>
-        </span>
-    `
-    : `
-        <span class="chat-header-avatar-fallback">
-            <i data-lucide="user"></i>
-        </span>
-    `;
+    const avatarHTML = otherUser?.avatar_url
+        ? `
+            <img
+                src="${safe(otherUser.avatar_url)}"
+                alt="${safe(title)}"
+                class="chat-header-avatar"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+            >
+            <span class="chat-header-avatar-fallback" style="display:none;">
+                <i data-lucide="user"></i>
+            </span>
+        `
+        : `
+            <span class="chat-header-avatar-fallback">
+                <i data-lucide="user"></i>
+            </span>
+        `;
 
-/* DISPLAY THE HEADER */
+    /* DISPLAY THE HEADER */
 
-const chatHeader = document.getElementById("chatHeader");
+    const chatHeader = document.getElementById("chatHeader");
 
-if (chatHeader) {
+    if (chatHeader) {
 
-    chatHeader.innerHTML = `
-        <div class="chat-header-profile">
+        chatHeader.innerHTML = `
+            <div class="chat-header-profile">
 
-            <div class="chat-header-avatar-wrap">
-                ${avatarHTML}
+                <div class="chat-header-avatar-wrap">
+                    ${avatarHTML}
+                </div>
+
+                <div class="chat-header-details">
+                    <h3>${safe(title)}</h3>
+                    <p>${safe(username)}</p>
+                </div>
+
             </div>
+        `;
 
-            <div class="chat-header-details">
-                <h3>${safe(title)}</h3>
-                <p>${safe(username)}</p>
-            </div>
-
-        </div>
-    `;
-
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
     }
+
+    /* LOAD MESSAGES */
+
+    await loadMessages(conversationId);
+
+    /* MARK RECEIVED MESSAGES AS READ */
+
+    const { error: readError } =
+        await supabaseClient.rpc(
+            "mark_messages_read",
+            {
+                p_conversation_id: conversationId
+            }
+        );
+
+    if (readError) {
+        console.error(
+            "Could not mark messages as read:",
+            readError
+        );
+    } else {
+        /* Refresh messages so the read status is current. */
+        await loadMessages(conversationId);
+    }
+
+    /* KEEP REALTIME MESSAGING */
+
+    subscribeToMessages(conversationId);
 }
-
-    await loadMessages(
-        conversationId
-    );
-
-
-    subscribeToMessages(
-        conversationId
-    );
-
-}
-
-
 /* =========================================================
    LOAD MESSAGES
 ========================================================= */
 
-async function loadMessages(
-    conversationId
-) {
+async function loadMessages(conversationId) {
 
     if (!messageList) return;
 
-
     messageList.innerHTML = `
         <div class="messaging-empty-state">
-          <div><i data-lucide="clock-3"></i></div>
+            <div><i data-lucide="clock-3"></i></div>
             <p>Loading messages...</p>
         </div>
     `;
-
 
     const { data: messages, error } =
         await supabaseClient
             .from("messages")
             .select("*")
-            .eq(
-                "conversation_id",
-                conversationId
-            )
-            .order(
-                "created_at",
-                {
-                    ascending: true
-                }
-            );
-
+            .eq("conversation_id", conversationId)
+            .order("created_at", {
+                ascending: true
+            });
 
     if (error) {
 
@@ -9932,81 +9924,91 @@ async function loadMessages(
 
         messageList.innerHTML = `
             <div class="messaging-empty-state">
-               <div><i data-lucide="triangle-alert"></i></div>
-                <p>
-                    Could not load messages.
-                </p>
+                <div><i data-lucide="triangle-alert"></i></div>
+                <p>Could not load messages.</p>
             </div>
         `;
 
         return;
     }
 
-
-    if (
-        !messages ||
-        messages.length === 0
-    ) {
+    if (!messages || messages.length === 0) {
 
         messageList.innerHTML = `
             <div class="messaging-empty-state">
-               <div><i data-lucide="message-circle"></i></div>
-                <h3>
-                    No messages yet
-                </h3>
-
-                <p>
-                    Send the first message.
-                </p>
-
+                <div><i data-lucide="message-circle"></i></div>
+                <h3>No messages yet</h3>
+                <p>Send the first message.</p>
             </div>
         `;
 
         return;
     }
 
+    /*
+       Find the latest message sent by the current user.
+    */
 
-    messageList.innerHTML =
-        messages.map(
-            message => {
+    let latestOutgoingMessageId = null;
 
-                const mine =
-                    message.sender_id ===
-                    currentUser.id;
+    for (let i = messages.length - 1; i >= 0; i--) {
 
+        if (messages[i].sender_id === currentUser.id) {
+            latestOutgoingMessageId = messages[i].id;
+            break;
+        }
+    }
 
-                return `
-                    <div
-                        class="message-bubble ${
-                            mine
-                                ? "mine"
-                                : "theirs"
-                        }"
-                    >
+    /*
+       Display messages and the Seen indicator.
+    */
 
-                        <div>
-                            ${safe(message.content)}
-                        </div>
+    messageList.innerHTML = messages.map(message => {
 
-                        <span class="message-time">
-                            ${formatDate(
-                                message.created_at
-                            )}
-                        </span>
+        const mine =
+            message.sender_id === currentUser.id;
 
+        const showSeen =
+            mine &&
+            message.id === latestOutgoingMessageId &&
+            message.is_read === true;
+
+        return `
+            <div class="message-row ${
+                mine ? "mine" : "theirs"
+            }">
+
+                <div class="message-bubble ${
+                    mine ? "mine" : "theirs"
+                }">
+
+                    <div>
+                        ${safe(message.content)}
                     </div>
-                `;
 
-            }
-        ).join("");
+                    <span class="message-time">
+                        ${formatDate(message.created_at)}
+                    </span>
 
+                </div>
 
-    messageList.scrollTop =
-        messageList.scrollHeight;
+                ${
+                    showSeen
+                        ? `
+                            <div class="message-seen-status">
+                                Seen
+                            </div>
+                        `
+                        : ""
+                }
 
+            </div>
+        `;
+
+    }).join("");
+
+    messageList.scrollTop = messageList.scrollHeight;
 }
-
-
 /* =========================================================
    SEND MESSAGE
 ========================================================= */
