@@ -10352,7 +10352,104 @@ if (messageList && !messageList.dataset.reactionsReady) {
     });
 }
 
+/* ---------- PRESS-AND-HOLD MESSAGE OPTIONS ---------- */
 
+(function setupPATRIODXLongPress() {
+    if (!messageList) return;
+
+    if (messageList.dataset.longPressReady === "true") return;
+
+    messageList.dataset.longPressReady = "true";
+
+    let holdTimer = null;
+    let heldMessage = null;
+    let holdTriggered = false;
+
+    function clearHoldTimer() {
+        if (holdTimer) {
+            clearTimeout(holdTimer);
+            holdTimer = null;
+        }
+    }
+
+    function closeMessageOptions(exceptRow = null) {
+        messageList
+            .querySelectorAll(".message-row.actions-open")
+            .forEach(row => {
+                if (row !== exceptRow) {
+                    row.classList.remove("actions-open");
+                }
+            });
+    }
+
+    messageList.addEventListener("pointerdown", event => {
+        if (event.target.closest(".patriodx-message-actions")) return;
+        if (event.target.closest(".patriodx-reactions")) return;
+
+        const row = event.target.closest(".message-row[data-message-id]");
+
+        if (!row) return;
+
+        heldMessage = row;
+        holdTriggered = false;
+
+        clearHoldTimer();
+
+        holdTimer = setTimeout(() => {
+            holdTriggered = true;
+
+            closeMessageOptions(row);
+
+            row.classList.toggle("actions-open");
+
+            if (navigator.vibrate) {
+                navigator.vibrate(25);
+            }
+        }, 500);
+    });
+
+    ["pointerup", "pointercancel", "pointerleave"].forEach(eventName => {
+        messageList.addEventListener(eventName, clearHoldTimer);
+    });
+
+    messageList.addEventListener("contextmenu", event => {
+        const row = event.target.closest(".message-row[data-message-id]");
+
+        if (!row) return;
+
+        event.preventDefault();
+
+        closeMessageOptions(row);
+        row.classList.toggle("actions-open");
+    });
+
+    messageList.addEventListener("click", event => {
+        const row = event.target.closest(".message-row[data-message-id]");
+
+        if (!row) return;
+
+        if (event.target.closest(".patriodx-message-actions")) return;
+        if (event.target.closest(".patriodx-reactions")) return;
+
+        if (holdTriggered && row === heldMessage) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            holdTriggered = false;
+            return;
+        }
+
+        if (row.classList.contains("actions-open")) {
+            row.classList.remove("actions-open");
+        }
+    }, true);
+
+    document.addEventListener("click", event => {
+        if (!event.target.closest(".message-row")) {
+            closeMessageOptions();
+        }
+    });
+})();
 /* ---------- ATTACHMENT PICKER ---------- */
 
 (function setupPATRIODXAttachmentPicker() {
@@ -10423,8 +10520,7 @@ if (messageList && !messageList.dataset.reactionsReady) {
     });
 })();
 
-
-/* ---------- ENHANCEMENT STYLES ---------- */
+/* ---------- PATRIODX MESSAGING ENHANCEMENT STYLES ---------- */
 
 (function addPATRIODXMessagingStyles() {
     if (document.getElementById("patriodxMessagingStyles")) return;
@@ -10433,42 +10529,103 @@ if (messageList && !messageList.dataset.reactionsReady) {
     style.id = "patriodxMessagingStyles";
 
     style.textContent = `
+        /* Keep message controls hidden until requested */
         .patriodx-message-actions {
-            display: flex;
+            display: none;
+            align-items: center;
             flex-wrap: wrap;
-            gap: 5px;
-            margin: 5px 0;
+            gap: 7px;
+            margin: 8px 0;
+            padding: 7px 10px;
+            width: fit-content;
+            max-width: 100%;
+            background: var(--card-bg, #fff);
+            border: 1px solid var(--border-color, #e5e7eb);
+            border-radius: 24px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10);
+            animation: patriodxReactionAppear 0.16s ease-out;
         }
 
-        .patriodx-message-action,
-        .patriodx-reaction {
-            cursor: pointer;
-            border: 1px solid var(--border-color, #ddd);
+        /* Reveal controls on hover or when a message is held */
+        .message-row:hover .patriodx-message-actions,
+        .message-row.actions-open .patriodx-message-actions {
+            display: flex;
+        }
+
+        .patriodx-message-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 34px;
+            min-height: 34px;
+            padding: 5px 9px;
+            border: none;
             border-radius: 18px;
+            background: transparent;
+            color: inherit;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.15s, transform 0.15s;
+        }
+
+        .patriodx-message-action:hover {
+            background: rgba(124, 58, 237, 0.10);
+            transform: scale(1.12);
+        }
+
+        /* Delete remains accessible in the message options */
+        .patriodx-message-action.danger-btn {
+            font-size: 12px;
+            color: #dc2626;
+            padding: 6px 10px;
+        }
+
+        /* Existing reactions displayed beneath a message */
+        .patriodx-reactions {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin: 5px 0 8px;
+        }
+
+        .patriodx-reaction {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
             padding: 4px 9px;
+            border: 1px solid var(--border-color, #e5e7eb);
+            border-radius: 18px;
             background: var(--card-bg, #fff);
             color: inherit;
+            cursor: pointer;
             font-size: 12px;
+            transition: transform 0.15s;
+        }
+
+        .patriodx-reaction:hover {
+            transform: scale(1.06);
         }
 
         .patriodx-reaction.mine {
             border-color: #7c3aed;
             background: #f3e8ff;
+            color: #6d28d9;
         }
 
-        .patriodx-reactions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin: 4px 0 8px;
+        /* Subtle indication when a message is selected */
+        .message-row.actions-open .message-bubble {
+            outline: 2px solid rgba(124, 58, 237, 0.25);
+            outline-offset: 2px;
         }
 
+        /* Private image attachments */
         .patriodx-attachment-preview {
             display: block;
             max-width: min(260px, 100%);
             max-height: 280px;
-            border-radius: 12px;
             margin-top: 8px;
+            border-radius: 12px;
             object-fit: contain;
         }
 
@@ -10477,11 +10634,13 @@ if (messageList && !messageList.dataset.reactionsReady) {
             font-size: 12px;
         }
 
+        /* Typing indicator */
         .patriodx-typing-indicator {
             font-size: 12px;
-            opacity: .75;
+            opacity: 0.75;
         }
 
+        /* Presence indicators */
         .patriodx-online-dot {
             display: inline-block;
             width: 9px;
@@ -10494,9 +10653,39 @@ if (messageList && !messageList.dataset.reactionsReady) {
             background: #9ca3af;
         }
 
+        @keyframes patriodxReactionAppear {
+            from {
+                opacity: 0;
+                transform: translateY(4px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
         @media (max-width: 600px) {
             .patriodx-attachment-preview {
                 max-width: 200px;
+            }
+
+            .patriodx-message-actions {
+                gap: 5px;
+                padding: 5px 8px;
+            }
+
+            .patriodx-message-action {
+                min-width: 38px;
+                min-height: 38px;
+            }
+
+            /* On touch screens, show controls only for a selected message */
+            .message-row:hover .patriodx-message-actions {
+                display: none;
+            }
+
+            .message-row.actions-open .patriodx-message-actions {
+                display: flex;
             }
         }
     `;
