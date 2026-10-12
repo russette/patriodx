@@ -11514,3 +11514,470 @@ animation-iteration-count: 1 !important;
 transition-duration: 0.01ms !important;
 }
 }
+/* ================================================
+PATRIODX — PREMIUM VISUAL REDESIGN
+Append to the bottom of style.css
+================================================ */
+
+/* 1. Consistent visual system */
+:root {
+--px-accent: #6366f1;
+--px-accent-hover: #4f46e5;
+--px-radius: 16px;
+--px-radius-small: 11px;
+--px-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+--px-border: rgba(100, 116, 139, 0.18);
+}
+
+/* 2. Cleaner application background */
+body {
+-webkit-font-smoothing: antialiased;
+text-rendering: optimizeLegibility;
+}
+
+/* 3. Professional cards */
+.chart-card {
+border: 1px solid var(--px-border);
+border-radius: var(--px-radius);
+box-shadow: var(--px-shadow);
+overflow: hidden;
+}
+
+.chart-card:hover {
+border-color: rgba(99, 102, 241, 0.35);
+}
+
+/* 4. Consistent headings */
+.chart-card h2,
+.chart-card h3 {
+letter-spacing: -0.025em;
+}
+
+/* 5. Better buttons */
+button {
+font-weight: 600;
+border-radius: var(--px-radius-small);
+}
+
+button:focus-visible,
+a:focus-visible {
+outline: 2px solid var(--px-accent);
+outline-offset: 3px;
+}
+
+/* 6. Cleaner fields */
+input,
+textarea,
+select {
+border-radius: var(--px-radius-small);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+outline: none;
+border-color: var(--px-accent);
+box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.13);
+}
+
+/* 7. Polished chat interface */
+.chat-card {
+border-radius: var(--px-radius);
+}
+
+.chat-header {
+border-bottom: 1px solid var(--px-border);
+}
+
+.message-bubble {
+overflow-wrap: anywhere;
+}
+
+.patriodx-attachment-preview {
+display: block;
+max-width: min(100%, 360px);
+max-height: 420px;
+border-radius: 14px;
+object-fit: contain;
+}
+
+/* 8. Consistent avatar presentation */
+.chat-header-avatar,
+.chat-header-avatar-fallback {
+flex-shrink: 0;
+}
+
+/* 9. Clear interactive feedback */
+button:not(:disabled):active {
+transform: scale(0.98);
+}
+
+/* 10. Dark mode adjustments */
+body.dark-mode .chart-card,
+.dark-mode .chart-card {
+border-color: rgba(148, 163, 184, 0.17);
+box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
+}
+
+body.dark-mode .chart-card:hover,
+.dark-mode .chart-card:hover {
+border-color: rgba(129, 140, 248, 0.45);
+}
+
+body.dark-mode input:focus,
+body.dark-mode textarea:focus,
+body.dark-mode select:focus,
+.dark-mode input:focus,
+.dark-mode textarea:focus,
+.dark-mode select:focus {
+border-color: #818cf8;
+box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.16);
+}
+
+/* 11. Mobile-friendly cards */
+@media (max-width: 600px) {
+.chart-card {
+border-radius: 13px;
+}
+
+
+.patriodx-attachment-preview {
+    max-width: 100%;
+    max-height: 320px;
+}
+
+
+}
+
+/* 12. Accessibility */
+@media (prefers-reduced-motion: reduce) {
+*,
+*::before,
+*::after {
+animation-duration: 0.01ms !important;
+animation-iteration-count: 1 !important;
+transition-duration: 0.01ms !important;
+}
+}
+/* ==================================================
+PATRIODX — DASHBOARD CONTROL CENTER
+================================================== */
+
+/* Dashboard content rhythm */
+#home {
+max-width: 1500px;
+margin-inline: auto;
+padding-bottom: 36px;
+}
+
+#home h1 {
+font-size: clamp(30px, 3vw, 44px);
+line-height: 1.15;
+letter-spacing: -1.5px;
+font-weight: 800;
+margin-bottom: 14px;
+}
+
+#home h2 {
+letter-spacing: -0.7px;
+font-weight: 750;
+}
+
+/* Hero introduction */
+#home .dashboard-hero,
+#home .control-center-hero {
+position: relative;
+overflow: hidden;
+padding: clamp(24px, 4vw, 42px);
+margin-bottom: 28px;
+border-radius: 22px;
+border: 1px solid rgba(99, 102, 241, 0.24);
+background:
+radial-gradient(
+circle at 90% 10%,
+rgba(129, 140, 248, 0.20),
+transparent 35%
+),
+linear-gradient(
+135deg,
+rgba(99, 102, 241, 0.10),
+rgba(99, 102, 241, 0.025)
+);
+}
+
+#home p {
+line-height: 1.7;
+}
+
+/* Quick action cards */
+#home .quick-actions,
+#home .quick-actions-grid {
+display: grid;
+grid-template-columns: repeat(4, minmax(0, 1fr));
+gap: 16px;
+margin-block: 20px 30px;
+}
+
+#home .quick-action,
+#home .quick-action-card {
+min-width: 0;
+padding: 22px;
+border: 1px solid var(--px-border, rgba(100, 116, 139, 0.18));
+border-radius: 16px;
+background: var(--card-bg, #ffffff);
+transition:
+transform 180ms ease,
+border-color 180ms ease,
+box-shadow 180ms ease;
+}
+
+#home .quick-action:hover,
+#home .quick-action-card:hover {
+transform: translateY(-3px);
+border-color: rgba(99, 102, 241, 0.45);
+box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+}
+
+/* Statistics grid */
+#home .stats-grid,
+#home .dashboard-stats,
+#home .stat-cards {
+display: grid;
+grid-template-columns: repeat(4, minmax(0, 1fr));
+gap: 16px;
+margin-block: 22px 30px;
+}
+
+#home .stat-card,
+#home .stat-card-small,
+#home .dashboard-stat {
+min-width: 0;
+padding: 22px;
+border-radius: 16px;
+border: 1px solid var(--px-border, rgba(100, 116, 139, 0.18));
+background: var(--card-bg, #ffffff);
+}
+
+#home .stat-card h2,
+#home .stat-card-small h2,
+#home .dashboard-stat h2 {
+font-size: clamp(24px, 2.5vw, 34px);
+line-height: 1.2;
+margin-block: 12px 6px;
+overflow-wrap: anywhere;
+}
+
+/* Recent activity */
+#home .recent-activity,
+#home .activity-card {
+padding: 24px;
+border: 1px solid var(--px-border, rgba(100, 116, 139, 0.18));
+border-radius: 18px;
+background: var(--card-bg, #ffffff);
+}
+
+/* Dark mode */
+body.dark-mode #home .quick-action,
+body.dark-mode #home .quick-action-card,
+body.dark-mode #home .stat-card,
+body.dark-mode #home .stat-card-small,
+body.dark-mode #home .dashboard-stat,
+body.dark-mode #home .recent-activity,
+body.dark-mode #home .activity-card,
+.dark-mode #home .quick-action,
+.dark-mode #home .quick-action-card,
+.dark-mode #home .stat-card,
+.dark-mode #home .stat-card-small,
+.dark-mode #home .dashboard-stat,
+.dark-mode #home .recent-activity,
+.dark-mode #home .activity-card {
+background: var(--card-bg, #171923);
+border-color: rgba(148, 163, 184, 0.17);
+}
+
+/* Tablet */
+@media (max-width: 1000px) {
+#home .quick-actions,
+#home .quick-actions-grid {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+
+#home .stats-grid,
+#home .dashboard-stats,
+#home .stat-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+
+}
+
+/* Mobile */
+@media (max-width: 560px) {
+#home h1 {
+letter-spacing: -0.8px;
+}
+
+#home .quick-actions,
+#home .quick-actions-grid {
+    gap: 10px;
+}
+
+#home .quick-action,
+#home .quick-action-card {
+    padding: 16px;
+}
+
+#home .stats-grid,
+#home .dashboard-stats,
+#home .stat-cards {
+    gap: 10px;
+}
+
+#home .stat-card,
+#home .stat-card-small,
+#home .dashboard-stat {
+    padding: 15px;
+}
+
+#home .recent-activity,
+#home .activity-card {
+    padding: 18px;
+}
+
+
+}
+/* ==========================================
+PATRIODX — DASHBOARD STATISTICS
+========================================== */
+
+#home .stat-card,
+#home .stat-card-small,
+#home .dashboard-stat {
+position: relative;
+overflow: hidden;
+transition:
+transform 180ms ease,
+box-shadow 180ms ease,
+border-color 180ms ease;
+}
+
+#home .stat-card:hover,
+#home .stat-card-small:hover,
+#home .dashboard-stat:hover {
+transform: translateY(-3px);
+box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+border-color: rgba(99, 102, 241, 0.4);
+}
+
+#home .stat-card h2,
+#home .stat-card-small h2,
+#home .dashboard-stat h2 {
+font-variant-numeric: tabular-nums;
+font-weight: 800;
+letter-spacing: -1px;
+}
+
+#home .stat-card p,
+#home .stat-card-small p,
+#home .dashboard-stat p {
+line-height: 1.5;
+overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: reduce) {
+#home .stat-card,
+#home .stat-card-small,
+#home .dashboard-stat {
+transition: none;
+}
+}
+/* ==========================================
+   PATRIODX — HEADER & NAVIGATION POLISH
+   ========================================== */
+
+/* Header layout */
+.patriodx-header.patriodx-clean-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    max-width: 100%;
+    min-height: 68px;
+    box-sizing: border-box;
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background: rgba(15, 23, 42, 0.94);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+/* Keep the PATRIODX logo/name centered */
+.patriodx-header.patriodx-clean-header > a,
+.patriodx-header.patriodx-clean-header .patriodx-logo,
+.patriodx-header.patriodx-clean-header .header-logo {
+    flex-shrink: 0;
+}
+
+/* Logo image */
+.patriodx-header.patriodx-clean-header img {
+    max-width: 38px;
+    max-height: 38px;
+    object-fit: contain;
+    border-radius: 9px;
+}
+
+/* Logo name */
+.patriodx-header.patriodx-clean-header a span {
+    letter-spacing: 1.5px;
+    font-weight: 800;
+}
+
+/* Search and header buttons */
+.patriodx-header.patriodx-clean-header button {
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.patriodx-header.patriodx-clean-header button:hover {
+    transform: translateY(-1px);
+}
+
+/* Sidebar visual polish */
+#patriodxSidebar.patriodx-sidebar {
+    box-sizing: border-box;
+    padding: 20px 14px;
+    border-right: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+/* Sidebar section labels */
+#patriodxSidebar .sidebar-section-title {
+    margin: 18px 10px 8px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    opacity: 0.6;
+}
+
+/* Sidebar links */
+#patriodxSidebar a {
+    border-radius: 10px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* Responsive header */
+@media (max-width: 768px) {
+    .patriodx-header.patriodx-clean-header {
+        min-height: 60px;
+        padding: 9px 12px;
+        gap: 10px;
+    }
+
+    #patriodxSidebar.patriodx-sidebar {
+        max-width: 280px;
+    }
+}
