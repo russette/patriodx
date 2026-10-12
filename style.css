@@ -11893,60 +11893,97 @@ transition: none;
 }
 }
 /* ==========================================
-   PATRIODX — HEADER & NAVIGATION FIX
+   PATRIODX — HEADER & NAVIGATION POLISH
    ========================================== */
 
+/* HEADER */
 .patriodx-header.patriodx-clean-header {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
+    position: relative;
+    z-index: 100;
     width: 100%;
-    min-height: 64px;
-    padding: 10px 22px;
+    max-width: 100%;
+    min-height: 68px;
+    padding: 12px 24px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: 20px;
     background: var(--card-bg, #ffffff);
     border-bottom: 1px solid var(--border-color, #e5e7eb);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 3px 14px rgba(15, 23, 42, 0.05);
 }
 
-/* Prevent header contents from stretching */
-.patriodx-header.patriodx-clean-header > * {
+/* BRAND */
+.patriodx-header .patriodx-brand {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
     min-width: 0;
 }
 
-/* Logo image */
-.patriodx-header.patriodx-clean-header img {
-    width: 36px;
-    height: 36px;
-    max-width: 36px;
-    max-height: 36px;
-    object-fit: contain;
-    border-radius: 9px;
+.patriodx-header .patriodx-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
 }
 
-/* Header buttons */
-.patriodx-header.patriodx-clean-header button {
+.patriodx-header .patriodx-logo img {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.patriodx-header .patriodx-logo span {
+    white-space: nowrap;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+}
+
+/* SEARCH */
+.patriodx-header .patriodx-global-search {
+    flex: 1 1 320px;
+    width: auto;
+    max-width: 440px;
+    min-width: 160px;
+    position: relative;
+}
+
+.patriodx-header .patriodx-global-search input {
+    width: 100%;
+    height: 42px;
+    padding: 0 14px 0 42px;
+    box-sizing: border-box;
+    border-radius: 12px;
+}
+
+/* HEADER ACTIONS */
+.patriodx-header .patriodx-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex: 0 0 auto;
+    min-width: 0;
+}
+
+.patriodx-header .header-icon-button,
+.patriodx-header .header-profile-button,
+.patriodx-header .header-logout-button {
     flex-shrink: 0;
     border-radius: 10px;
-    transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.patriodx-header.patriodx-clean-header button:hover {
-    transform: translateY(-1px);
-}
-
-/* Sidebar */
+/* SIDEBAR */
 #patriodxSidebar.patriodx-sidebar {
     box-sizing: border-box;
     padding: 18px 12px;
     border-right: 1px solid var(--border-color, #e5e7eb);
 }
 
-/* Sidebar links */
 #patriodxSidebar a {
     display: flex;
     align-items: center;
@@ -11955,28 +11992,397 @@ transition: none;
     margin: 3px 0;
     border-radius: 10px;
     text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+/* TABLETS */
+@media (min-width: 769px) and (max-width: 1100px) {
+    .patriodx-header {
+        gap: 12px;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .patriodx-header .patriodx-logo span {
+        display: inline;
+    }
+
+    .patriodx-header .patriodx-global-search {
+        max-width: 360px;
+    }
+}
+
+/* PHONES */
+@media (max-width: 768px) {
+    .patriodx-header.patriodx-clean-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "brand actions"
+            "search search";
+        gap: 10px;
+        padding: 10px 12px;
+    }
+
+    .patriodx-header .patriodx-brand {
+        grid-area: brand;
+        min-width: 0;
+    }
+
+    .patriodx-header .patriodx-header-actions {
+        grid-area: actions;
+        gap: 4px;
+    }
+
+    .patriodx-header .patriodx-global-search {
+        grid-area: search;
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+    }
+
+    .patriodx-header .header-profile-name,
+    .patriodx-header .header-logout-button span {
+        display: none;
+    }
+
+    #patriodxSidebar.patriodx-sidebar {
+        max-width: 85vw;
+    }
+}
+/* ==========================================
+   PATRIODX — PREMIUM SIDEBAR
+   ========================================== */
+
+#patriodxSidebar.patriodx-sidebar {
+    padding: 22px 14px;
+    background: var(--card-bg, #ffffff);
+    border-right: 1px solid var(--border-color, #e5e7eb);
+}
+
+/* Sidebar links */
+#patriodxSidebar a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 11px 14px;
+    margin: 4px 0;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
     transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* Hover */
+#patriodxSidebar a:hover {
+    background: rgba(59, 130, 246, 0.09);
+}
+
+/* Sidebar icons */
+#patriodxSidebar svg,
+#patriodxSidebar [data-lucide] {
+    width: 19px;
+    height: 19px;
+    flex-shrink: 0;
 }
 
 /* Sidebar section headings */
 #patriodxSidebar .sidebar-section-title {
-    margin: 20px 12px 8px;
+    margin: 24px 12px 10px;
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    opacity: 0.6;
+    opacity: 0.55;
+}
+
+/* Dark mode */
+body.dark-mode #patriodxSidebar.patriodx-sidebar {
+    background: var(--card-bg, #111827);
+    border-right-color: rgba(255, 255, 255, 0.09);
+}
+
+body.dark-mode #patriodxSidebar a:hover {
+    background: rgba(96, 165, 250, 0.14);
 }
 
 /* Mobile */
 @media (max-width: 768px) {
-    .patriodx-header.patriodx-clean-header {
-        min-height: 58px;
-        padding: 8px 12px;
-        gap: 8px;
+    #patriodxSidebar.patriodx-sidebar {
+        padding: 16px 10px;
     }
 
-    #patriodxSidebar.patriodx-sidebar {
-        max-width: min(280px, 85vw);
+    #patriodxSidebar a {
+        min-height: 42px;
+        padding: 10px 12px;
     }
+}
+/* ==========================================
+   PATRIODX — PREMIUM PRODUCT CARDS
+   ========================================== */
+
+#products .product-card,
+#products .product-item,
+#products .card {
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 16px;
+    padding: 20px;
+    background: var(--card-bg, #ffffff);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#products .product-card:hover,
+#products .product-item:hover,
+#products .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.09);
+}
+
+#products .product-card h3,
+#products .product-item h3,
+#products .card h3 {
+    margin-top: 0;
+    font-size: 17px;
+    font-weight: 750;
+    line-height: 1.4;
+}
+
+#products button {
+    border-radius: 9px;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#products button:hover {
+    transform: translateY(-1px);
+}
+
+/* Dark mode */
+body.dark-mode #products .product-card,
+body.dark-mode #products .product-item,
+body.dark-mode #products .card {
+    background: var(--card-bg, #111827);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    #products .product-card,
+    #products .product-item,
+    #products .card {
+        padding: 16px;
+        border-radius: 13px;
+    }
+}
+/* ==========================================
+   PATRIODX — PREMIUM BUTTONS
+   ========================================== */
+
+button,
+.btn,
+.button,
+.primary-button,
+.secondary-button {
+    font-family: inherit;
+    font-weight: 600;
+    border-radius: 10px;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+button:hover,
+.btn:hover,
+.button:hover,
+.primary-button:hover,
+.secondary-button:hover {
+    transform: translateY(-1px);
+}
+
+button:active,
+.btn:active,
+.button:active,
+.primary-button:active,
+.secondary-button:active {
+    transform: translateY(0);
+}
+
+button:focus-visible,
+.btn:focus-visible,
+.button:focus-visible,
+.primary-button:focus-visible,
+.secondary-button:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.4);
+    outline-offset: 2px;
+}
+
+button:disabled,
+.btn:disabled,
+.button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    button,
+    .btn,
+    .button,
+    .primary-button,
+    .secondary-button {
+        transition: none;
+    }
+}
+/* ==========================================
+   PATRIODX — PREMIUM FORMS
+   ========================================== */
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+select,
+textarea {
+    font-family: inherit;
+    border-radius: 10px;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+input::placeholder,
+textarea::placeholder {
+    opacity: 0.65;
+}
+
+label {
+    font-weight: 600;
+}
+
+textarea {
+    resize: vertical;
+}
+
+@media (max-width: 768px) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+    select,
+    textarea {
+        font-size: 16px;
+    }
+}
+/* ==========================================
+   PATRIODX — LAYOUT & SPACING POLISH
+   ========================================== */
+
+/* Consistent spacing between sections */
+.section {
+    padding-top: 24px;
+    padding-bottom: 28px;
+}
+
+/* Main content readability */
+main {
+    min-width: 0;
+}
+
+/* Section headings */
+.section h1 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.section h2 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-weight: 750;
+}
+
+/* Consistent card spacing */
+.dashboard-grid,
+.stats-grid,
+.overview-grid,
+.analytics-grid,
+.pricing-grid {
+    gap: 18px;
+}
+
+/* Keep cards aligned */
+.dashboard-grid > *,
+.stats-grid > *,
+.overview-grid > *,
+.analytics-grid > *,
+.pricing-grid > * {
+    min-width: 0;
+}
+
+/* Responsive spacing */
+@media (max-width: 768px) {
+    .section {
+        padding-top: 18px;
+        padding-bottom: 22px;
+    }
+
+    .dashboard-grid,
+    .stats-grid,
+    .overview-grid,
+    .analytics-grid,
+    .pricing-grid {
+        gap: 14px;
+    }
+}
+/* ==========================================
+   PATRIODX — DARK MODE CONSISTENCY
+   ========================================== */
+
+body.dark-mode .patriodx-header,
+body.dark-mode .patriodx-header.patriodx-clean-header {
+    background: #111827;
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+    color: #f9fafb;
+}
+
+body.dark-mode #patriodxSidebar.patriodx-sidebar {
+    background: #111827;
+    border-right-color: rgba(255, 255, 255, 0.08);
+    color: #f9fafb;
+}
+
+body.dark-mode #patriodxSidebar a {
+    color: #e5e7eb;
+}
+
+body.dark-mode #patriodxSidebar a:hover {
+    background: rgba(96, 165, 250, 0.14);
+}
+
+body.dark-mode #products .product-card,
+body.dark-mode #products .product-item,
+body.dark-mode #products .card {
+    background: #111827;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #f9fafb;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+    background-color: #1f2937;
+    color: #f9fafb;
+    border-color: #374151;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: #9ca3af;
 }
