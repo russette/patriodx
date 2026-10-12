@@ -9894,121 +9894,615 @@ async function openConversation(conversationId) {
 /* =========================================================
    LOAD MESSAGES
 ========================================================= */
-
 async function loadMessages(conversationId) {
+    if (!messageList || !currentUser) return;
 
-    if (!messageList) return;
+    const requestedConversation = conversationId;
 
     messageList.innerHTML = `
         <div class="messaging-empty-state">
-            <div><i data-lucide="clock-3"></i></div>
             <p>Loading messages...</p>
         </div>
     `;
 
-    const { data: messages, error } =
-        await supabaseClient
-            .from("messages")
-            .select("*")
-            .eq("conversation_id", conversationId)
-            .order("created_at", {
-                ascending: true
-            });
+    const { data: messages, error } = await supabaseClient
+        .from("messages")
+        .select("*")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: true });
 
     if (error) {
-
-        console.error(
-            "Could not load messages:",
-            error
-        );
-
+        console.error("Could not load messages:", error);
         messageList.innerHTML = `
             <div class="messaging-empty-state">
-                <div><i data-lucide="triangle-alert"></i></div>
-                <p>Could not load messages.</p>
+                <p>Could not load messages. Please try again.</p>
             </div>
         `;
-
         return;
     }
 
-    if (!messages || messages.length === 0) {
+    if (activeConversationId !== requestedConversation) return;
 
+    if (!messages || messages.length === 0) {
         messageList.innerHTML = `
             <div class="messaging-empty-state">
-                <div><i data-lucide="message-circle"></i></div>
                 <h3>No messages yet</h3>
                 <p>Send the first message.</p>
             </div>
         `;
+        return;
+    }
+
+    const latestOutgoing = [...messages]
+        .reverse()
+        .find(message => message.sender_id === currentUser.id);
+
+    const renderedMessages = await Promise.all(
+        messages.map(async message => {
+            const mine = message.sender_id === currentUser.id;
+
+            const reactions = await getMessageReactions(message.id);
+
+            let attachmentHTML = "";
+
+            if (message.attachment_url) {
+                const imageURL = await getMessageAttachmentUrl(
+                    message.attachment_url
+                );
+
+                if (imageURL) {
+                    attachmentHTML = `
+                        <a
+                            href="${safe(imageURL)}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <img
+                                class="patriodx-attachment-preview"
+                                src="${safe(imageURL)}"
+                                alt="Image attachment"
+                                loading="lazy"
+                            >
+                        </a>
+                    `;
+                } else {
+                    attachmentHTML = `
+                        <p class="patriodx-attachment-unavailable">
+                            Image unavailable
+                        </p>
+                    `;
+                }
+            }
+
+            const showSeen =
+                mine &&
+                latestOutgoing &&
+                message.id === latestOutgoing.id &&
+                message.is_read === true;
+
+            return `
+                <div
+                    class="message-row ${mine ? "mine" : "theirs"}"
+                    data-message-id="${safe(message.id)}"
+                >
+                    <div class="message-bubble ${mine ? "mine" : "theirs"}">
+                        ${
+                            message.content
+                                ? `<div class="message-content">${safe(message.content)}</div>`
+                                : ""
+                        }
+
+                        ${attachmentHTML}
+
+                        <span class="message-time">
+                            ${safe(formatDate(message.created_at))}
+                        </span>
+                    </div>
+
+                    <div class="patriodx-message-actions">
+                        <button
+                            type="button"
+                            class="patriodx-message-action"
+                            data-react-heart="${safe(message.id)}"
+                            aria-label="React with heart"
+                            title="React with heart"
+                        >❤️</button>
+
+                        <button
+                            type="button"
+                            class="patriodx-message-action"
+                            data-react-laugh="${safe(message.id)}"
+                            aria-label="React with laughter"
+                            title="React with laughter"
+                        >😂</button>
+
+                        <button
+                            type="button"
+                            class="patriodx-message-action"
+                            data-react-like="${safe(message.id)}"
+                            aria-label="React with thumbs up"
+                            title="React with thumbs up"
+                        >👍</button>
+
+                        ${
+                            mine
+                                ? `
+                                    <button
+                                        type="button"
+                                        class="patriodx-message-action danger-btn"
+                                        data-delete-message="${safe(message.id)}"
+                                    >Delete</button>
+                                `
+                                : ""
+                        }
+                    </div>
+
+                    <div class="patriodx-reactions">
+                        ${reactions}
+                    </div>
+
+                    ${
+                        showSeen
+                            ? `<div class="message-seen-status">Seen</div>`
+                            : ""
+                    }
+                </div>
+            `;
+        })
+    );
+
+    if (activeConversationId !== requestedConversation) return;
+
+    messageList.innerHTML = renderedMessages.join("");
+    messageList.scrollTop = messageList.scrollHeight;
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+}
+/* =========================================================
+   PATRIODX MESSAGING ENHANCEMENTS
+========================================================= */
+
+async function getMessageReactions(messageId) {
+    const { data, error } = await supabaseClient
+        .from("message_reactions")
+        .select("user_id, reaction")
+        .eq("message_id", messageId);
+
+    if (error) {
+        console.error("Could not load reactions:", error);
+        return "";
+    }
+
+    const counts = {};
+
+    (data || []).forEach(item => {
+        if (!counts[item.reaction]) {
+            counts[item.reaction] = {
+                count: 0,
+                mine: false
+            };
+        }
+
+        counts[item.reaction].count++;
+
+        if (item.user_id === currentUser?.id) {
+            counts[item.reaction].mine = true;
+        }
+    });
+
+    return Object.entries(counts)
+        .map(([emoji, details]) => `
+            <button
+                type="button"
+                class="patriodx-reaction ${details.mine ? "mine" : ""}"
+                data-reaction-message="${safe(messageId)}"
+                data-reaction-emoji="${safe(emoji)}"
+            >${safe(emoji)} ${details.count}</button>
+        `)
+        .join("");
+}
+
+
+async function toggleMessageReaction(messageId, reaction) {
+    if (!currentUser) return;
+
+    const allowedReactions = ["❤️", "😂", "😮", "😢", "🔥", "👍"];
+
+    if (!allowedReactions.includes(reaction)) return;
+
+    const { data: existing, error: lookupError } =
+        await supabaseClient
+            .from("message_reactions")
+            .select("id, reaction")
+            .eq("message_id", messageId)
+            .eq("user_id", currentUser.id)
+            .maybeSingle();
+
+    if (lookupError) {
+        console.error("Reaction lookup failed:", lookupError);
+        return;
+    }
+
+    if (existing && existing.reaction === reaction) {
+        const { error } = await supabaseClient
+            .from("message_reactions")
+            .delete()
+            .eq("id", existing.id);
+
+        if (error) {
+            console.error("Could not remove reaction:", error);
+            return;
+        }
+    } else if (existing) {
+        const { error } = await supabaseClient
+            .from("message_reactions")
+            .update({ reaction })
+            .eq("id", existing.id);
+
+        if (error) {
+            console.error("Could not update reaction:", error);
+            return;
+        }
+    } else {
+        const { error } = await supabaseClient
+            .from("message_reactions")
+            .insert({
+                message_id: messageId,
+                user_id: currentUser.id,
+                reaction
+            });
+
+        if (error) {
+            console.error("Could not add reaction:", error);
+            return;
+        }
+    }
+
+    if (activeConversationId) {
+        await loadMessages(activeConversationId);
+    }
+}
+
+
+async function deleteOwnMessage(messageId) {
+    if (!currentUser) return;
+
+    const { data: message, error: lookupError } =
+        await supabaseClient
+            .from("messages")
+            .select("id, sender_id, attachment_url, conversation_id")
+            .eq("id", messageId)
+            .single();
+
+    if (lookupError || !message) {
+        console.error("Could not find message:", lookupError);
+        return;
+    }
+
+    if (message.sender_id !== currentUser.id) {
+        showPATRIODXToast(
+            "You can only delete your own messages.",
+            "warning"
+        );
+        return;
+    }
+
+    const confirmed = await showPATRIODXConfirm(
+        "Delete Message",
+        "Are you sure you want to delete this message?"
+    );
+
+    if (!confirmed) return;
+
+    const { error } = await supabaseClient
+        .from("messages")
+        .delete()
+        .eq("id", messageId)
+        .eq("sender_id", currentUser.id);
+
+    if (error) {
+        console.error("Could not delete message:", error);
+
+        showPATRIODXToast(
+            "Could not delete the message.",
+            "error"
+        );
 
         return;
     }
 
-    /*
-       Find the latest message sent by the current user.
-    */
+    if (message.attachment_url) {
+        const { error: storageError } = await supabaseClient.storage
+            .from("message-attachments")
+            .remove([message.attachment_url]);
 
-    let latestOutgoingMessageId = null;
-
-    for (let i = messages.length - 1; i >= 0; i--) {
-
-        if (messages[i].sender_id === currentUser.id) {
-            latestOutgoingMessageId = messages[i].id;
-            break;
+        if (storageError) {
+            console.warn("Attachment cleanup failed:", storageError);
         }
     }
 
-    /*
-       Display messages and the Seen indicator.
-    */
+    if (activeConversationId) {
+        await loadMessages(activeConversationId);
+    }
 
-    messageList.innerHTML = messages.map(message => {
-
-        const mine =
-            message.sender_id === currentUser.id;
-
-        const showSeen =
-            mine &&
-            message.id === latestOutgoingMessageId &&
-            message.is_read === true;
-
-        return `
-            <div class="message-row ${
-                mine ? "mine" : "theirs"
-            }">
-
-                <div class="message-bubble ${
-                    mine ? "mine" : "theirs"
-                }">
-
-                    <div>
-                        ${safe(message.content)}
-                    </div>
-
-                    <span class="message-time">
-                        ${formatDate(message.created_at)}
-                    </span>
-
-                </div>
-
-                ${
-                    showSeen
-                        ? `
-                            <div class="message-seen-status">
-                                Seen
-                            </div>
-                        `
-                        : ""
-                }
-
-            </div>
-        `;
-
-    }).join("");
-
-    messageList.scrollTop = messageList.scrollHeight;
+    showPATRIODXToast("Message deleted.", "success");
 }
+
+
+async function getMessageAttachmentUrl(path) {
+    if (!path) return null;
+
+    const { data, error } = await supabaseClient.storage
+        .from("message-attachments")
+        .createSignedUrl(path, 1800);
+
+    if (error) {
+        console.error("Could not create image link:", error);
+        return null;
+    }
+
+    return data?.signedUrl || null;
+}
+
+
+async function uploadMessageAttachment(file) {
+    if (!currentUser || !file) return null;
+
+    if (!file.type.startsWith("image/")) {
+        showPATRIODXToast("Please choose an image.", "warning");
+        return null;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+        showPATRIODXToast(
+            "Images must be 5 MB or smaller.",
+            "warning"
+        );
+        return null;
+    }
+
+    const extension =
+        file.name.split(".").pop().replace(/[^a-zA-Z0-9]/g, "") || "jpg";
+
+    const path =
+        `${currentUser.id}/${crypto.randomUUID()}.${extension}`;
+
+    const { error } = await supabaseClient.storage
+        .from("message-attachments")
+        .upload(path, file, {
+            upsert: false,
+            contentType: file.type
+        });
+
+    if (error) {
+        console.error("Image upload failed:", error);
+
+        showPATRIODXToast(
+            "Image upload failed.",
+            "error"
+        );
+
+        return null;
+    }
+
+    return path;
+}
+
+
+/* ---------- DOUBLE-CLICK / DOUBLE-TAP HEART ---------- */
+
+if (messageList && !messageList.dataset.reactionsReady) {
+    messageList.dataset.reactionsReady = "true";
+
+    let lastTapTime = 0;
+    let lastTapMessage = null;
+
+    messageList.addEventListener("dblclick", event => {
+        const row = event.target.closest("[data-message-id]");
+
+        if (row) {
+            toggleMessageReaction(row.dataset.messageId, "❤️");
+        }
+    });
+
+    messageList.addEventListener("touchend", event => {
+        const row = event.target.closest("[data-message-id]");
+
+        if (!row) return;
+
+        const now = Date.now();
+        const messageId = row.dataset.messageId;
+
+        if (
+            messageId === lastTapMessage &&
+            now - lastTapTime < 350
+        ) {
+            toggleMessageReaction(messageId, "❤️");
+            lastTapTime = 0;
+            lastTapMessage = null;
+        } else {
+            lastTapTime = now;
+            lastTapMessage = messageId;
+        }
+    }, { passive: true });
+
+    messageList.addEventListener("click", event => {
+        const heart = event.target.closest("[data-react-heart]");
+        const laugh = event.target.closest("[data-react-laugh]");
+        const like = event.target.closest("[data-react-like]");
+        const existing = event.target.closest("[data-reaction-message]");
+        const deleteButton = event.target.closest("[data-delete-message]");
+
+        if (heart) {
+            toggleMessageReaction(heart.dataset.reactHeart, "❤️");
+        } else if (laugh) {
+            toggleMessageReaction(laugh.dataset.reactLaugh, "😂");
+        } else if (like) {
+            toggleMessageReaction(like.dataset.reactLike, "👍");
+        } else if (existing) {
+            toggleMessageReaction(
+                existing.dataset.reactionMessage,
+                existing.dataset.reactionEmoji
+            );
+        } else if (deleteButton) {
+            deleteOwnMessage(deleteButton.dataset.deleteMessage);
+        }
+    });
+}
+
+
+/* ---------- ATTACHMENT PICKER ---------- */
+
+(function setupPATRIODXAttachmentPicker() {
+    if (!messageForm || !messageInput) return;
+
+    if (document.getElementById("patriodxAttachmentInput")) return;
+
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.id = "patriodxAttachmentInput";
+    fileInput.accept = "image/*";
+    fileInput.hidden = true;
+
+    const attachButton = document.createElement("button");
+    attachButton.type = "button";
+    attachButton.id = "patriodxAttachButton";
+    attachButton.textContent = "📎";
+    attachButton.title = "Attach image";
+
+    const fileLabel = document.createElement("span");
+    fileLabel.id = "patriodxAttachmentName";
+    fileLabel.className = "patriodx-attachment-name";
+
+    const sendButton = document.getElementById("messageSendButton");
+
+    messageForm.insertBefore(attachButton, messageInput);
+    messageForm.appendChild(fileInput);
+
+    if (sendButton) {
+        messageForm.insertBefore(fileLabel, sendButton);
+    } else {
+        messageForm.appendChild(fileLabel);
+    }
+
+    messageInput.required = false;
+
+    attachButton.addEventListener("click", () => {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener("change", () => {
+        const file = fileInput.files?.[0];
+
+        if (!file) {
+            fileLabel.textContent = "";
+            return;
+        }
+
+        if (!file.type.startsWith("image/")) {
+            showPATRIODXToast("Choose an image file.", "warning");
+            fileInput.value = "";
+            fileLabel.textContent = "";
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            showPATRIODXToast(
+                "Images must be 5 MB or smaller.",
+                "warning"
+            );
+
+            fileInput.value = "";
+            fileLabel.textContent = "";
+            return;
+        }
+
+        fileLabel.textContent = file.name;
+    });
+})();
+
+
+/* ---------- ENHANCEMENT STYLES ---------- */
+
+(function addPATRIODXMessagingStyles() {
+    if (document.getElementById("patriodxMessagingStyles")) return;
+
+    const style = document.createElement("style");
+    style.id = "patriodxMessagingStyles";
+
+    style.textContent = `
+        .patriodx-message-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin: 5px 0;
+        }
+
+        .patriodx-message-action,
+        .patriodx-reaction {
+            cursor: pointer;
+            border: 1px solid var(--border-color, #ddd);
+            border-radius: 18px;
+            padding: 4px 9px;
+            background: var(--card-bg, #fff);
+            color: inherit;
+            font-size: 12px;
+        }
+
+        .patriodx-reaction.mine {
+            border-color: #7c3aed;
+            background: #f3e8ff;
+        }
+
+        .patriodx-reactions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin: 4px 0 8px;
+        }
+
+        .patriodx-attachment-preview {
+            display: block;
+            max-width: min(260px, 100%);
+            max-height: 280px;
+            border-radius: 12px;
+            margin-top: 8px;
+            object-fit: contain;
+        }
+
+        .patriodx-attachment-name {
+            overflow-wrap: anywhere;
+            font-size: 12px;
+        }
+
+        .patriodx-typing-indicator {
+            font-size: 12px;
+            opacity: .75;
+        }
+
+        .patriodx-online-dot {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        .patriodx-online-dot.offline {
+            background: #9ca3af;
+        }
+
+        @media (max-width: 600px) {
+            .patriodx-attachment-preview {
+                max-width: 200px;
+            }
+        }
+    `;
+
+    document.head.appendChild(style);
+})();
 /* =========================================================
    SEND MESSAGE
 ========================================================= */
@@ -10183,53 +10677,149 @@ await loadMessages(
 /* =========================================================
    REALTIME MESSAGES
 ========================================================= */
-
-function subscribeToMessages(
-    conversationId
-) {
-
+function subscribeToMessages(conversationId) {
     if (messagingRealtimeChannel) {
-
-        supabaseClient.removeChannel(
-            messagingRealtimeChannel
-        );
-
+        supabaseClient.removeChannel(messagingRealtimeChannel);
+        messagingRealtimeChannel = null;
     }
 
-
-    messagingRealtimeChannel =
-        supabaseClient
-            .channel(
-                `messages-${conversationId}`
-            )
-            .on(
-                "postgres_changes",
-                {
-                    event: "INSERT",
-                    schema: "public",
-                    table: "messages",
-                    filter:
-                        `conversation_id=eq.${conversationId}`
-                },
-                function(payload) {
-
-                    if (
-                        activeConversationId ===
-                        conversationId
-                    ) {
-
-                        loadMessages(
-                            conversationId
-                        );
-
-                    }
-
+    messagingRealtimeChannel = supabaseClient
+        .channel(`messages-${conversationId}`, {
+            config: {
+                presence: {
+                    key: currentUser.id
                 }
-            )
-            .subscribe();
+            }
+        })
 
+        .on(
+            "postgres_changes",
+            {
+                event: "*",
+                schema: "public",
+                table: "messages",
+                filter: `conversation_id=eq.${conversationId}`
+            },
+            async () => {
+                if (activeConversationId !== conversationId) return;
+
+                await loadMessages(conversationId);
+
+                const { error } = await supabaseClient.rpc(
+                    "mark_messages_read",
+                    { p_conversation_id: conversationId }
+                );
+
+                if (error) {
+                    console.error("Read receipt update failed:", error);
+                }
+            }
+        )
+
+        .on(
+            "postgres_changes",
+            {
+                event: "*",
+                schema: "public",
+                table: "message_reactions"
+            },
+            async () => {
+                if (activeConversationId === conversationId) {
+                    await loadMessages(conversationId);
+                }
+            }
+        )
+
+        .on("broadcast", { event: "typing" }, ({ payload }) => {
+            if (!payload || payload.user_id === currentUser.id) return;
+
+            const header = document.getElementById("chatHeader");
+            if (!header) return;
+
+            let indicator = document.getElementById(
+                "patriodxTypingIndicator"
+            );
+
+            if (!indicator) {
+                indicator = document.createElement("p");
+                indicator.id = "patriodxTypingIndicator";
+                indicator.className = "patriodx-typing-indicator";
+                header.appendChild(indicator);
+            }
+
+            indicator.textContent =
+                `${payload.name || "Someone"} is typing…`;
+
+            clearTimeout(window.patriodxTypingTimer);
+
+            window.patriodxTypingTimer = setTimeout(() => {
+                indicator.textContent = "";
+            }, 2000);
+        })
+
+        .on("presence", { event: "sync" }, () => {
+            const states = messagingRealtimeChannel.presenceState();
+
+            document.querySelectorAll("[data-presence-user]").forEach(node => {
+                const userId = node.dataset.presenceUser;
+                const online = Boolean(states[userId]);
+
+                node.classList.toggle("online", online);
+                node.classList.toggle("offline", !online);
+
+                node.title = online ? "Online" : "Offline";
+            });
+        })
+
+        .subscribe(async status => {
+            if (status === "SUBSCRIBED") {
+                await messagingRealtimeChannel.track({
+                    user_id: currentUser.id,
+                    online_at: new Date().toISOString()
+                });
+            }
+        });
+
+    setupPATRIODXTyping(conversationId);
 }
 
+
+function setupPATRIODXTyping(conversationId) {
+    if (!messageInput || !currentUser) return;
+
+    if (messageInput.dataset.typingReady === "true") return;
+
+    messageInput.dataset.typingReady = "true";
+
+    let lastTypingSent = 0;
+
+    messageInput.addEventListener("input", () => {
+        const now = Date.now();
+
+        if (now - lastTypingSent < 800) return;
+
+        lastTypingSent = now;
+
+        if (
+            !messagingRealtimeChannel ||
+            !activeConversationId
+        ) {
+            return;
+        }
+
+        messagingRealtimeChannel.send({
+            type: "broadcast",
+            event: "typing",
+            payload: {
+                user_id: currentUser.id,
+                name:
+                    currentUser.user_metadata?.display_name ||
+                    currentUser.user_metadata?.username ||
+                    "PATRIODX User"
+            }
+        });
+    });
+}
 /* =========================================================
    NEW CONVERSATION
 ========================================================= */
