@@ -11893,52 +11893,45 @@ transition: none;
 }
 }
 /* ==========================================
-   PATRIODX — HEADER & NAVIGATION POLISH
+   PATRIODX — HEADER & NAVIGATION FIX
    ========================================== */
 
-/* Header layout */
 .patriodx-header.patriodx-clean-header {
     position: sticky;
     top: 0;
     z-index: 1000;
     width: 100%;
-    max-width: 100%;
-    min-height: 68px;
+    min-height: 64px;
+    padding: 10px 22px;
     box-sizing: border-box;
-    padding: 10px 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
-    background: rgba(15, 23, 42, 0.94);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    gap: 16px;
+    background: var(--card-bg, #ffffff);
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
-/* Keep the PATRIODX logo/name centered */
-.patriodx-header.patriodx-clean-header > a,
-.patriodx-header.patriodx-clean-header .patriodx-logo,
-.patriodx-header.patriodx-clean-header .header-logo {
-    flex-shrink: 0;
+/* Prevent header contents from stretching */
+.patriodx-header.patriodx-clean-header > * {
+    min-width: 0;
 }
 
 /* Logo image */
 .patriodx-header.patriodx-clean-header img {
-    max-width: 38px;
-    max-height: 38px;
+    width: 36px;
+    height: 36px;
+    max-width: 36px;
+    max-height: 36px;
     object-fit: contain;
     border-radius: 9px;
 }
 
-/* Logo name */
-.patriodx-header.patriodx-clean-header a span {
-    letter-spacing: 1.5px;
-    font-weight: 800;
-}
-
-/* Search and header buttons */
+/* Header buttons */
 .patriodx-header.patriodx-clean-header button {
+    flex-shrink: 0;
+    border-radius: 10px;
     transition: background 0.2s ease, transform 0.2s ease;
 }
 
@@ -11946,38 +11939,44 @@ transition: none;
     transform: translateY(-1px);
 }
 
-/* Sidebar visual polish */
+/* Sidebar */
 #patriodxSidebar.patriodx-sidebar {
     box-sizing: border-box;
-    padding: 20px 14px;
-    border-right: 1px solid rgba(148, 163, 184, 0.16);
-}
-
-/* Sidebar section labels */
-#patriodxSidebar .sidebar-section-title {
-    margin: 18px 10px 8px;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 1.6px;
-    text-transform: uppercase;
-    opacity: 0.6;
+    padding: 18px 12px;
+    border-right: 1px solid var(--border-color, #e5e7eb);
 }
 
 /* Sidebar links */
 #patriodxSidebar a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px;
+    margin: 3px 0;
     border-radius: 10px;
+    text-decoration: none;
     transition: background 0.2s ease, color 0.2s ease;
 }
 
-/* Responsive header */
+/* Sidebar section headings */
+#patriodxSidebar .sidebar-section-title {
+    margin: 20px 12px 8px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.6;
+}
+
+/* Mobile */
 @media (max-width: 768px) {
     .patriodx-header.patriodx-clean-header {
-        min-height: 60px;
-        padding: 9px 12px;
-        gap: 10px;
+        min-height: 58px;
+        padding: 8px 12px;
+        gap: 8px;
     }
 
     #patriodxSidebar.patriodx-sidebar {
-        max-width: 280px;
+        max-width: min(280px, 85vw);
     }
 }
