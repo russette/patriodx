@@ -11338,3 +11338,27 @@ padding: 10px 12px;
 }
 
 }
+/* Instagram-style message read receipt */
+
+.message-row {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.message-row.mine {
+    align-items: flex-end;
+}
+
+.message-row.theirs {
+    align-items: flex-start;
+}
+
+.message-seen-status {
+    margin-top: 4px;
+    margin-right: 8px;
+    font-size: 11px;
+    color: var(--text-color, #777);
+    opacity: 0.8;
+}
