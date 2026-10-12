@@ -11362,3 +11362,23 @@ padding: 10px 12px;
     color: var(--text-color, #777);
     opacity: 0.8;
 }
+/* Fix message Delete button visibility in dark mode */
+.patriodx-message-actions button[data-delete-message] {
+color: #ffffff !important;
+background-color: #b91c1c !important;
+border: 1px solid #ef4444 !important;
+opacity: 1 !important;
+visibility: visible !important;
+}
+
+.patriodx-message-actions button[data-delete-message]:hover {
+background-color: #dc2626 !important;
+color: #ffffff !important;
+}
+
+/* Keep the Delete button visible when message actions are open */
+.message-row.actions-open .patriodx-message-actions button[data-delete-message] {
+display: inline-flex !important;
+color: #ffffff !important;
+background-color: #b91c1c !important;
+}
