@@ -3304,12 +3304,84 @@ textarea:focus-visible {
 
 @media (max-width: 600px) {
 
+    .social-comments {
+        width: 100%;
+        min-width: 0;
+        padding: 14px 10px;
+        overflow: visible;
+    }
+
+    .social-comments-list {
+        width: 100%;
+        min-width: 0;
+        max-height: 45vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        gap: 10px;
+    }
+
+    .social-comment {
+        width: 100%;
+        min-width: 0;
+        padding: 12px 10px;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .social-comment-avatar {
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+    }
+
+    .social-comment-content {
+        flex: 1;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .social-comment-content strong {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .social-comment-content p {
+        font-size: 15px;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+        word-break: normal;
+    }
+
+    .social-comment-content small {
+        font-size: 12px;
+    }
+
     .social-comment-form {
-        flex-direction: column;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .social-comment-form input {
+        flex: 1;
+        width: 0;
+        min-width: 0;
+        min-height: 46px;
+        padding: 10px;
+        font-size: 16px;
     }
 
     .social-comment-form button {
-        width: 100%;
+        flex: 0 0 auto;
+        width: auto;
+        min-width: 70px;
+        min-height: 46px;
+        padding: 10px 14px;
+        white-space: nowrap;
     }
 
 }
