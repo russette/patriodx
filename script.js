@@ -13563,9 +13563,14 @@ await loadMyFollowCounts();
 
 async function loadPublicProfile(userId) {
 
-    if (!userId) return;
+  if (!userId) return;
 
-    viewedProfileUserId = userId;
+// Make the Profile section visible before displaying the user.
+if (typeof navigatePATRIODX === "function") {
+    navigatePATRIODX("profile");
+}
+
+viewedProfileUserId = userId;
 
     const { data: profile, error } = await supabaseClient
         .from("profiles")
@@ -13971,37 +13976,40 @@ async function searchPATRIODXUsers(username) {
            : '<i data-lucide="user"></i>';
 
 
-        return `
-            <div
-                class="profile-search-result"
-                data-user-id="${profile.id}"
-            >
+return `
+    <button
+        type="button"
+        class="profile-search-result"
+        data-user-id="${escapeHTML(profile.id)}"
+        style="width:100%; text-align:left;"
+    >
 
-                <div class="profile-search-result-avatar">
-                    ${avatar}
-                </div>
+        <div class="profile-search-result-avatar">
+            ${avatar}
+        </div>
 
-                <div class="profile-search-result-info">
+        <div class="profile-search-result-info">
 
-                    <div class="profile-search-result-name">
-                        ${escapeHTML(
-                            profile.display_name ||
-                            "PATRIODX User"
-                        )}
-                    </div>
-
-                    <div class="profile-search-result-username">
-                        ${
-                            profile.username
-                            ? "@" + escapeHTML(profile.username)
-                            : ""
-                        }
-                    </div>
-
-                </div>
-
+            <div class="profile-search-result-name">
+                ${escapeHTML(
+                    profile.display_name ||
+                    "PATRIODX User"
+                )}
             </div>
-        `;
+
+            <div class="profile-search-result-username">
+                ${
+                    profile.username
+                        ? "@" + escapeHTML(profile.username)
+                        : ""
+                }
+            </div>
+
+        </div>
+
+    </button>
+`;
+
 
     }).join("");
 
