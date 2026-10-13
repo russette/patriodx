@@ -13025,3 +13025,127 @@ body.dark-mode textarea::placeholder {
         min-height: 44px;
     }
 }
+/* ==========================================
+   PATRIODX — MOBILE COMMENTS PANEL
+   ========================================== */
+
+@media screen and (max-width: 768px) {
+
+    /* Give the comments section proper space */
+    .social-comments {
+        display: block;
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        height: auto;
+        max-height: none;
+        margin-top: 16px;
+        padding: 16px 12px;
+        overflow: visible;
+        border-radius: 16px;
+        isolation: isolate;
+    }
+
+    /* Make the comment list readable and scrollable */
+    .social-comments-list {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        height: auto;
+        max-height: 50vh;
+        gap: 12px;
+        margin-bottom: 16px;
+        padding: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Give each comment room */
+    .social-comment {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        width: 100%;
+        min-width: 0;
+        height: auto;
+        padding: 14px 10px;
+        border-radius: 12px;
+    }
+
+    .social-comment-avatar {
+        flex: 0 0 44px;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+    }
+
+    .social-comment-content {
+        flex: 1;
+        min-width: 0;
+        font-size: 16px;
+        overflow-wrap: anywhere;
+    }
+
+    .social-comment-content strong {
+        margin-bottom: 6px;
+        font-size: 15px;
+    }
+
+    .social-comment-content p {
+        margin: 0 0 8px;
+        font-size: 16px;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    .social-comment-content small {
+        font-size: 12px;
+    }
+
+    /* Keep the input and button side by side */
+    .social-comment-form {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        min-width: 0;
+        margin-top: 14px;
+        padding: 8px 0;
+        background: transparent;
+    }
+
+    .social-comment-form input {
+        flex: 1;
+        width: 0;
+        min-width: 0;
+        min-height: 48px;
+        padding: 12px;
+        font-size: 16px;
+        border-radius: 12px;
+        scroll-margin-bottom: 180px;
+    }
+
+    .social-comment-form button {
+        flex: 0 0 auto;
+        width: auto;
+        min-width: 76px;
+        min-height: 48px;
+        padding: 12px;
+        font-size: 15px;
+        border-radius: 12px;
+    }
+
+    /* Avoid clipping comments inside the post */
+    .social-post-card {
+        height: auto;
+        max-height: none;
+        min-width: 0;
+        overflow: visible;
+    }
+}
