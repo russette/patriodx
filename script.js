@@ -7041,7 +7041,10 @@ const author =
 
                         <div class="social-post-header">
 
-                           <div class="social-post-avatar">
+                       <div
+    class="social-post-avatar"
+    ${authorProfile?.id ? `role="button" tabindex="0" data-profile-user-id="${safe(authorProfile.id)}" aria-label="View ${safe(author)}'s profile"` : ""}
+>
     ${
         authorProfile?.avatar_url
             ? `
@@ -7062,13 +7065,13 @@ const author =
             `
     }
 </div>
-
                             <div class="social-post-author-area">
 
-                                <div class="social-post-author">
-
-                                    ${safe(author)}
-
+                               <div
+    class="social-post-author"
+    ${authorProfile?.id ? `role="button" tabindex="0" data-profile-user-id="${safe(authorProfile.id)}" aria-label="View ${safe(author)}'s profile"` : ""}
+>
+    ${safe(author)}
                                     ${
                                         isOwnPost
                                             ? `
@@ -7298,15 +7301,82 @@ const author =
             })
             .join("");
 
+// Open a user's public profile from their post name or avatar.
+socialFeed
+    .querySelectorAll("[data-profile-user-id]")
+    .forEach(element => {
+        element.addEventListener("click", function () {
+            const userId = this.getAttribute("data-profile-user-id");
 
+            if (userId && typeof loadPublicProfile === "function") {
+                loadPublicProfile(userId);
+
+                const publicProfileCard =
+                    document.getElementById("publicProfileCard");
+
+                if (publicProfileCard) {
+                    publicProfileCard.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+                }
+            }
+        });
+
+        element.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                this.click();
+            }
+        });
+    });
     /* =========================================================
        LUCIDE
     ========================================================= */
 
-    if (typeof lucide !== "undefined") {
+  if (typeof lucide !== "undefined") {
 
     requestAnimationFrame(() => {
         lucide.createIcons();
+    });
+
+}
+
+// Restore each post's saved like state.
+if (currentUser && typeof updateSocialLikeButton === "function") {
+
+    requestAnimationFrame(async () => {
+
+        const likeButtons = document.querySelectorAll(
+            ".social-like-button[data-post-id]"
+        );
+
+        const postIds = [
+            ...new Set(
+                Array.from(likeButtons).map(
+                    button => button.dataset.postId
+                )
+            )
+        ];
+
+        for (const postId of postIds) {
+
+            try {
+
+                await updateSocialLikeButton(postId);
+
+            } catch (error) {
+
+                console.error(
+                    "Could not restore post like state:",
+                    postId,
+                    error
+                );
+
+            }
+
+        }
+
     });
 
 }
