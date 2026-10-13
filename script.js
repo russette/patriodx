@@ -7840,28 +7840,35 @@ commentsList.innerHTML =
         .map(comment => {
 
             const commentProfile =
-                commentProfileMap.get(
-                    comment.user_id
-                );
+                commentProfileMap.get(comment.user_id);
 
             const isOwnComment =
-                comment.user_id ===
-                currentUser?.id;
+                comment.user_id === currentUser?.id;
 
-            const author =
-                isOwnComment
-                    ? "You"
-                    : (
-                        commentProfile?.display_name ||
-                        commentProfile?.username ||
-                        "PATRIODX User"
-                    );
+            const author = isOwnComment
+                ? "You"
+                : (
+                    commentProfile?.display_name ||
+                    commentProfile?.username ||
+                    "PATRIODX User"
+                );
+
+            const profileButton = commentProfile?.id
+                ? `
+                    data-profile-user-id="${safe(commentProfile.id)}"
+                    role="button"
+                    tabindex="0"
+                    aria-label="View ${safe(author)}'s profile"
+                `
+                : "";
 
             return `
-
                 <div class="social-comment">
 
-                    <div class="social-comment-avatar">
+                    <div
+                        class="social-comment-avatar"
+                        ${profileButton}
+                    >
                         ${
                             commentProfile?.avatar_url
                                 ? `
@@ -7885,13 +7892,13 @@ commentsList.innerHTML =
 
                     <div class="social-comment-content">
 
-                        <strong>
+                        <strong
+                            ${profileButton}
+                        >
                             ${safe(author)}
                         </strong>
 
-                        <p>
-                            ${safe(comment.content)}
-                        </p>
+                        <p>${safe(comment.content)}</p>
 
                         <small>
                             ${formatDate(comment.created_at)}
@@ -7900,10 +7907,46 @@ commentsList.innerHTML =
                     </div>
 
                 </div>
-
             `;
         })
         .join("");
+
+// Open the commenter's public profile when clicked.
+commentsList
+    .querySelectorAll("[data-profile-user-id]")
+    .forEach(element => {
+
+        element.style.cursor = "pointer";
+
+        element.addEventListener("click", function () {
+
+            const userId =
+                this.getAttribute("data-profile-user-id");
+
+            if (userId && typeof loadPublicProfile === "function") {
+
+                loadPublicProfile(userId);
+
+                const profileCard =
+                    document.getElementById("publicProfileCard");
+
+                if (profileCard) {
+                    profileCard.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+                }
+            }
+        });
+
+        element.addEventListener("keydown", function (event) {
+
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                this.click();
+            }
+        });
+    });
     await refreshSocialPostStats(
         postId
     );
