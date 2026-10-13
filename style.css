@@ -12675,3 +12675,207 @@ body.dark-mode textarea::placeholder {
         padding: 10px;
     }
 }
+
+
+/* ========================================
+   PATRIODX — MOBILE EXPERIENCE IMPROVEMENTS
+   ======================================== */
+
+@media screen and (max-width: 768px) {
+
+    /* Prevent content from overflowing the phone */
+    html,
+    body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    /* Give the main content comfortable spacing */
+    main,
+    .main-content,
+    .dashboard-content {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    /* Make cards fit the available screen */
+    .chart-card,
+    .social-post-card,
+    .profile-page-card,
+    .public-profile-card,
+    .profile-search-card {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        border-radius: 16px;
+    }
+
+    /* Make text readable */
+    p,
+    .social-comment-content,
+    .profile-search-result-info {
+        overflow-wrap: anywhere;
+        word-break: normal;
+        line-height: 1.6;
+    }
+
+    /* Make post actions easier to tap */
+    .social-post-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .social-post-actions button,
+    .social-post-actions a {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    /* Improve the comments area */
+    .social-comments {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        padding: 16px;
+        margin-top: 12px;
+        border-radius: 16px;
+        overflow: visible;
+    }
+
+    .social-comments-list {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        max-height: 45vh;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .social-comment {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px 0;
+    }
+
+    .social-comment-avatar {
+        flex: 0 0 42px;
+        width: 42px;
+        height: 42px;
+    }
+
+    .social-comment-content {
+        flex: 1;
+        min-width: 0;
+        font-size: 15px;
+    }
+
+    .social-comment-content p {
+        margin: 5px 0;
+        font-size: 15px;
+    }
+
+    /* Make the comment input comfortable to use */
+    .social-comment-form {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        min-width: 0;
+        margin-top: 12px;
+    }
+
+    .social-comment-form input {
+        flex: 1;
+        width: 0;
+        min-width: 0;
+        min-height: 46px;
+        padding: 12px;
+        font-size: 16px;
+    }
+
+    .social-comment-form button {
+        flex-shrink: 0;
+        min-width: 46px;
+        min-height: 46px;
+    }
+
+    /* Improve profile search on phones */
+    .profile-search-form {
+        display: flex;
+        align-items: stretch;
+        gap: 8px;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .profile-search-form input {
+        flex: 1;
+        width: 0;
+        min-width: 0;
+        min-height: 46px;
+        font-size: 16px;
+    }
+
+    .profile-search-form button {
+        flex-shrink: 0;
+        min-height: 46px;
+        padding: 10px 14px;
+    }
+
+    /* Make profile search results easier to tap */
+    .profile-search-result {
+        width: 100%;
+        min-height: 64px;
+        padding: 12px;
+    }
+
+    .profile-search-result-avatar {
+        flex-shrink: 0;
+    }
+
+    /* Stop long names and links breaking the layout */
+    .social-post-card img,
+    .profile-page-card img,
+    .public-profile-card img {
+        max-width: 100%;
+    }
+}
+
+@media screen and (max-width: 380px) {
+
+    .social-comments {
+        padding: 12px;
+    }
+
+    .social-post-actions {
+        gap: 4px;
+    }
+
+    .social-post-actions button,
+    .social-post-actions a {
+        padding: 8px;
+        font-size: 13px;
+    }
+
+    .profile-search-form {
+        gap: 6px;
+    }
+
+    .profile-search-form button {
+        padding: 8px;
+    }
+}
