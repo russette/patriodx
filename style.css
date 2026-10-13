@@ -12604,3 +12604,74 @@ body.dark-mode textarea::placeholder {
         font-size: 14px;
     }
 }
+/* PATRIODX profile search — mobile layout */
+
+#profile .profile-search-card {
+    width: 100%;
+    min-width: 0;
+    padding: 18px;
+}
+
+#profile .profile-search-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    width: 100%;
+}
+
+#profile .profile-search-form input {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    font-size: 16px;
+}
+
+#profile .profile-search-form button {
+    min-height: 46px;
+    padding: 10px 16px;
+}
+
+#profile .profile-search-results {
+    width: 100%;
+    min-width: 0;
+}
+
+#profile .profile-search-result {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 66px;
+    padding: 12px;
+    color: inherit;
+    background: transparent;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 14px;
+    cursor: pointer;
+    transform: none;
+    box-shadow: none;
+}
+
+#profile .profile-search-result:active {
+    background: rgba(37, 99, 235, 0.08);
+}
+
+#profile .profile-search-result-info {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 380px) {
+    #profile .profile-search-card {
+        padding: 12px;
+    }
+
+    #profile .profile-search-form {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 6px;
+    }
+
+    #profile .profile-search-form button {
+        padding: 10px;
+    }
+}
