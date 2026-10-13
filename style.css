@@ -12386,3 +12386,94 @@ body.dark-mode input::placeholder,
 body.dark-mode textarea::placeholder {
     color: #9ca3af;
 }
+/* =========================================
+   PATRIODX MOBILE COMMENTS FIX
+========================================= */
+
+.social-comments {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding: 14px;
+    margin-top: 12px;
+    overflow: visible;
+}
+
+.social-comments-list {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    max-height: 320px;
+    overflow-y: auto;
+    overflow-wrap: anywhere;
+}
+
+.social-comment-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    margin-top: 12px;
+}
+
+.social-comment-form input {
+    flex: 1;
+    width: 0;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.social-comment-form button {
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .social-post-card {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .social-comments {
+        padding: 12px;
+        border-radius: 12px;
+    }
+
+    .social-comments-list {
+        max-height: 260px;
+    }
+
+    .social-comment-form input {
+        font-size: 16px;
+        min-height: 44px;
+    }
+
+    .social-comment-form button {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+/* =========================================
+   PATRIODX MOBILE COMMENT KEYBOARD FIX
+========================================= */
+
+@media (max-width: 768px) {
+    .social-comments {
+        scroll-margin-bottom: 140px;
+    }
+
+    .social-comment-form {
+        position: sticky;
+        bottom: 12px;
+        z-index: 20;
+        background: var(--card-bg, #ffffff);
+        padding: 8px 0;
+    }
+
+    .social-comment-form input {
+        scroll-margin-bottom: 140px;
+    }
+}
