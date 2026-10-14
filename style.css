@@ -13087,3 +13087,68 @@ body.dark-mode textarea::placeholder {
         overflow: visible;
     }
 }
+/* PATRIODX — MOBILE COMMENTS LAYOUT */
+@media screen and (max-width: 768px) {
+    .social-post-card {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    .social-comments {
+        display: block;
+        width: 100%;
+        height: auto !important;
+        max-height: none !important;
+        min-width: 0;
+        padding: 14px 12px;
+        overflow: visible !important;
+        box-sizing: border-box;
+    }
+
+    .social-comments-list {
+        width: 100%;
+        min-width: 0;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    .social-comment {
+        width: 100%;
+        min-width: 0;
+        align-items: flex-start;
+        box-sizing: border-box;
+    }
+
+    .social-comment-content {
+        flex: 1;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .social-comment-form {
+        display: flex;
+        position: relative;
+        width: 100%;
+        min-width: 0;
+        gap: 8px;
+        padding-bottom: 12px;
+        box-sizing: border-box;
+    }
+
+    .social-comment-form input {
+        flex: 1;
+        width: 0;
+        min-width: 0;
+        height: 48px;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+
+    .social-comment-form button {
+        flex: 0 0 46px;
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
+    }
+}
