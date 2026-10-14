@@ -11694,58 +11694,180 @@ function updateNotificationUnreadBadge() {
     badge.style.display = "inline-flex";
 }
 /* ---------------------------------------------------------
-   NOTIFICATION CLICK
+NOTIFICATION CLICK
 --------------------------------------------------------- */
 
 async function handleNotificationClick(notificationId) {
 
-    const notification =
-        notificationsCache.find(
-            item => item.id === notificationId
-        );
 
-    if (!notification) {
-        return;
-    }
+const notification =
+    notificationsCache.find(
+        item => item.id === notificationId
+    );
 
-    if (notification.is_read !== true) {
-        await markNotificationRead(
-            notificationId,
-            false
-        );
-    }
+if (!notification) {
+    return;
+}
 
-    const type =
-        (notification.type || "").toLowerCase();
+if (notification.is_read !== true) {
+    await markNotificationRead(
+        notificationId,
+        false
+    );
+}
 
-    if (
-        type === "like" ||
-        type === "comment"
-    ) {
+const type =
+    (notification.type || "").toLowerCase();
+
+/* -----------------------------------------------------
+   LIKE / COMMENT — OPEN THE SPECIFIC POST
+----------------------------------------------------- */
+
+if (
+    type === "like" ||
+    type === "comment"
+) {
+
+    const postId = notification.related_id;
+
+    if (!postId) {
         navigatePATRIODX("social");
         return;
     }
 
-    if (type === "message") {
-        navigatePATRIODX("messaging");
+    navigatePATRIODX("social");
+
+    // Wait for the Social page to become visible.
+    await new Promise(resolve =>
+        requestAnimationFrame(() =>
+            requestAnimationFrame(resolve)
+        )
+    );
+
+    // Load the feed so the target post can be found.
+    await loadSocialPosts();
+
+    const postElement =
+        document.getElementById(
+            `social-post-${postId}`
+        );
+
+    if (!postElement) {
+
+        showPATRIODXToast(
+            "This post isn't available in the current feed.",
+            "info"
+        );
+
         return;
     }
 
-    if (type === "follow") {
-        navigatePATRIODX("profile");
-        return;
+    postElement.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+
+    // Highlight the post briefly.
+    postElement.classList.add(
+        "notification-post-highlight"
+    );
+
+    window.setTimeout(() => {
+        postElement.classList.remove(
+            "notification-post-highlight"
+        );
+    }, 2500);
+
+    // Open the comments panel for comment notifications.
+    if (type === "comment") {
+
+        const commentsPanel =
+            document.getElementById(
+                `comments-${postId}`
+            );
+
+        if (
+            commentsPanel &&
+            typeof toggleComments === "function"
+        ) {
+
+            if (
+                getComputedStyle(commentsPanel).display === "none"
+            ) {
+                toggleComments(postId);
+            }
+
+        }
+
     }
 
-    if (type === "sale") {
-        navigatePATRIODX("sales");
-        return;
-    }
-
-    if (type === "system") {
-        navigatePATRIODX("home");
-        return;
-    }
+    return;
 }
+
+/* -----------------------------------------------------
+   MESSAGE
+----------------------------------------------------- */
+
+if (type === "message") {
+    navigatePATRIODX("messaging");
+    return;
+}
+
+/* -----------------------------------------------------
+   FOLLOW — OPEN THE FOLLOWER'S PUBLIC PROFILE
+----------------------------------------------------- */
+
+if (type === "follow") {
+
+    const followerId =
+        notification.related_id;
+
+    navigatePATRIODX("profile");
+
+    if (
+        followerId &&
+        typeof loadPublicProfile === "function"
+    ) {
+
+        await loadPublicProfile(followerId);
+
+        const profileCard =
+            document.getElementById(
+                "publicProfileCard"
+            );
+
+        if (profileCard) {
+            profileCard.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+
+    }
+
+    return;
+}
+
+/* -----------------------------------------------------
+   SALE
+----------------------------------------------------- */
+
+if (type === "sale") {
+    navigatePATRIODX("sales");
+    return;
+}
+
+/* -----------------------------------------------------
+   SYSTEM
+----------------------------------------------------- */
+
+if (type === "system") {
+    navigatePATRIODX("home");
+}
+
+
+}
+
 
 
 /* ---------------------------------------------------------
