@@ -905,6 +905,122 @@ function closeCustomerModal() {
     }
 }
 
+// =========================================================
+// SAVE PRODUCT — ADD AND EDIT
+// =========================================================
+
+async function saveProduct(event) {
+    event.preventDefault();
+
+    if (!currentBusiness) {
+        showPATRIODXToast(
+            "Your business could not be loaded. Please try again.",
+            "error"
+        );
+        return;
+    }
+
+    const productId =
+        document.getElementById("productId").value.trim();
+
+    // Apply creation limits only to new products.
+    if (!productId && !canCreate("product")) {
+        return;
+    }
+
+    const name =
+        document.getElementById("productName").value.trim();
+
+    const price =
+        Number(document.getElementById("productPrice").value);
+
+    const stock =
+        Number(document.getElementById("productStock").value);
+
+    if (!name) {
+        showPATRIODXToast(
+            "Product name is required.",
+            "warning"
+        );
+        return;
+    }
+
+    if (
+        document.getElementById("productPrice").value === "" ||
+        !Number.isFinite(price) ||
+        price < 0
+    ) {
+        showPATRIODXToast(
+            "Enter a valid product price.",
+            "warning"
+        );
+        return;
+    }
+
+    if (
+        document.getElementById("productStock").value === "" ||
+        !Number.isInteger(stock) ||
+        stock < 0
+    ) {
+        showPATRIODXToast(
+            "Enter a valid stock quantity.",
+            "warning"
+        );
+        return;
+    }
+
+    const productData = {
+        business_id: currentBusiness.id,
+        name,
+        price,
+        stock
+    };
+
+    let query;
+
+    if (productId) {
+        // Update the existing product belonging to this business.
+        query = supabaseClient
+            .from("products")
+            .update(productData)
+            .eq("id", productId)
+            .eq("business_id", currentBusiness.id);
+    } else {
+        // Create a new product.
+        query = supabaseClient
+            .from("products")
+            .insert(productData);
+    }
+
+    const { error } = await query;
+
+    if (error) {
+        console.error("PATRIODX save product error:", error);
+
+        showPATRIODXToast(
+            productId
+                ? "Could not update product."
+                : "Could not save product.",
+            "error"
+        );
+        return;
+    }
+
+    closeProductModal();
+
+    await loadData();
+
+    renderAll();
+
+    showPATRIODXToast(
+        productId
+            ? "Product updated successfully."
+            : "Product saved successfully.",
+        "success"
+    );
+}
+
+
 async function saveCustomer(event) {
 
     event.preventDefault();
