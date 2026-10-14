@@ -652,183 +652,7 @@ function setupDarkMode() {
 
     updateThemeUI();
 }
-// =========================================================
-// PRODUCT MODAL
-// =========================================================
 
-function openProductModal(productId = null) {
-
-    const modal =
-        document.getElementById("productModal");
-
-    const form =
-        document.getElementById("productForm");
-
-    if (!modal || !form) return;
-
-    editingProductId =
-        productId;
-
-    form.reset();
-
-    document.getElementById(
-        "productId"
-    ).value = "";
-
-    document.getElementById(
-        "productModalTitle"
-    ).textContent =
-        productId
-            ? "Edit Product"
-            : "Add Product";
-
-    if (productId) {
-
-        const product =
-            products.find(
-                p => p.id === productId
-            );
-
-        if (!product) return;
-
-        document.getElementById(
-            "productId"
-        ).value =
-            product.id;
-
-        document.getElementById(
-            "productName"
-        ).value =
-            product.name;
-
-        document.getElementById(
-            "productPrice"
-        ).value =
-            product.price;
-
-        document.getElementById(
-            "productStock"
-        ).value =
-            product.stock;
-    }
-
-    modal.classList.add("active");
-}
-
-function closeProductModal() {
-
-    const modal =
-        document.getElementById(
-            "productModal"
-        );
-
-    if (modal) {
-        modal.classList.remove(
-            "active"
-        );
-    }
-
-    editingProductId = null;
-}
-
-async function saveProduct(event) {
-
-    event.preventDefault();
-
-    if (!currentBusiness) return;
-
-    const name =
-        document.getElementById(
-            "productName"
-        ).value.trim();
-
-    const price =
-        Number(
-            document.getElementById(
-                "productPrice"
-            ).value
-        );
-
-    const stock =
-        Number(
-            document.getElementById(
-                "productStock"
-            ).value
-        );
-
-    if (
-        !name ||
-        price < 0 ||
-        stock < 0
-    ) {
-
-     showPATRIODXToast(
-    "Please enter valid product details.",
-    "warning"
-);
-
-        return;
-    }
-
-    let result;
-
-    if (editingProductId) {
-
-        result =
-            await supabaseClient
-                .from("products")
-                .update({
-                    name,
-                    price,
-                    stock,
-                    updated_at:
-                        new Date().toISOString()
-                })
-                .eq(
-                    "id",
-                    editingProductId
-                )
-                .eq(
-                    "business_id",
-                    currentBusiness.id
-                );
-
-    } else {
-
-        if (!canCreate("product")) {
-            return;
-        }
-
-        result =
-            await supabaseClient
-                .from("products")
-                .insert({
-                    business_id:
-                        currentBusiness.id,
-                    name,
-                    price,
-                    stock
-                });
-    }
-
-    if (result.error) {
-
-        console.error(result.error);
-
-      showPATRIODXToast(
-    "Could not save product.",
-    "error"
-);
-
-        return;
-    }
-
-    closeProductModal();
-
-    await loadData();
-
-    renderAll();
-}
 
 
 // =========================================================
@@ -11720,88 +11544,93 @@ const type =
     (notification.type || "").toLowerCase();
 
 /* -----------------------------------------------------
-   LIKE / COMMENT — OPEN THE SPECIFIC POST
+LIKE / COMMENT — OPEN THE POST IN THE EXISTING VIEWER
 ----------------------------------------------------- */
 
 if (
-    type === "like" ||
-    type === "comment"
+type === "like" ||
+type === "comment"
 ) {
+const postId = notification.related_id;
 
-    const postId = notification.related_id;
 
-    if (!postId) {
-        navigatePATRIODX("social");
-        return;
-    }
-
-    navigatePATRIODX("social");
-
-    // Wait for the Social page to become visible.
-    await new Promise(resolve =>
-        requestAnimationFrame(() =>
-            requestAnimationFrame(resolve)
-        )
+if (!postId) {
+    showPATRIODXToast(
+        "This notification has no linked post.",
+        "info"
     );
+    return;
+}
 
-    // Load the feed so the target post can be found.
-    await loadSocialPosts();
+try {
+    // Fetch the exact post linked to this notification.
+    const { data: post, error: postError } =
+        await supabaseClient
+            .from("posts")
+            .select("*")
+            .eq("id", postId)
+            .maybeSingle();
 
-    const postElement =
-        document.getElementById(
-            `social-post-${postId}`
-        );
+    if (postError) throw postError;
 
-    if (!postElement) {
-
+    if (!post) {
         showPATRIODXToast(
-            "This post isn't available in the current feed.",
+            "This post is no longer available.",
             "info"
         );
-
         return;
     }
 
-    postElement.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
+    // Fetch the post author's profile.
+    const { data: authorProfile, error: profileError } =
+        await supabaseClient
+            .from("profiles")
+            .select("display_name, username")
+            .eq("id", post.user_id)
+            .maybeSingle();
+
+    if (profileError) throw profileError;
+
+    const author =
+        authorProfile?.display_name ||
+        authorProfile?.username ||
+        "PATRIODX User";
+
+    // Reuse the existing Instagram-style post viewer.
+    openProfilePostViewer({
+        postId: post.id,
+        imageUrl: post.image_url || "",
+        videoUrl: post.video_url || "",
+        author: author,
+        caption: post.content || "",
+        date: post.created_at
+            ? formatDate(post.created_at)
+            : ""
     });
 
-    // Highlight the post briefly.
-    postElement.classList.add(
-        "notification-post-highlight"
-    );
-
-    window.setTimeout(() => {
-        postElement.classList.remove(
-            "notification-post-highlight"
-        );
-    }, 2500);
-
-    // Open the comments panel for comment notifications.
+    // For comment notifications, focus the comment input.
     if (type === "comment") {
-
-        const commentsPanel =
-            document.getElementById(
-                `comments-${postId}`
-            );
-
-        if (
-            commentsPanel &&
-            typeof toggleComments === "function"
-        ) {
-
-            if (
-                getComputedStyle(commentsPanel).display === "none"
-            ) {
-                toggleComments(postId);
-            }
-
-        }
-
+        window.setTimeout(() => {
+            document
+                .getElementById("profilePostViewerCommentInput")
+                ?.focus();
+        }, 300);
     }
 
-    return;
+} catch (error) {
+    console.error(
+        "Could not open notification post:",
+        error
+    );
+
+    showPATRIODXToast(
+        "Could not open this post. Please try again.",
+        "error"
+    );
+}
+
+return;
+
 }
 
 /* -----------------------------------------------------
