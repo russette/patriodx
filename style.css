@@ -13210,3 +13210,10 @@ body.dark-mode textarea::placeholder {
         gap: 3px;
     }
 }
+/* Highlight a post opened from a notification */
+.social-post-card.notification-post-highlight {
+outline: 3px solid var(--primary-color, #6c63ff);
+outline-offset: 4px;
+border-radius: 14px;
+transition: outline-color 0.3s ease;
+}
