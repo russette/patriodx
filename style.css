@@ -13087,37 +13087,65 @@ body.dark-mode textarea::placeholder {
         overflow: visible;
     }
 }
-/* PATRIODX — MOBILE COMMENTS LAYOUT */
-@media screen and (max-width: 768px) {
+/* =========================================
+   PATRIODX — MOBILE COMMENT EXPERIENCE
+========================================= */
+
+@media (max-width: 768px) {
+
     .social-post-card {
-        height: auto !important;
-        max-height: none !important;
-        overflow: visible !important;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        height: auto;
+        max-height: none;
+        overflow: visible;
     }
 
     .social-comments {
         display: block;
         width: 100%;
-        height: auto !important;
-        max-height: none !important;
+        max-width: 100%;
         min-width: 0;
-        padding: 14px 12px;
-        overflow: visible !important;
+        margin: 0;
+        padding: 16px 10px;
         box-sizing: border-box;
+        overflow: visible;
     }
 
     .social-comments-list {
+        display: flex;
+        flex-direction: column;
         width: 100%;
+        max-width: 100%;
         min-width: 0;
-        max-height: none !important;
-        overflow: visible !important;
+        max-height: 45vh;
+        margin: 0 0 14px;
+        padding: 0;
+        gap: 14px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
     }
 
     .social-comment {
+        display: flex;
+        align-items: flex-start;
         width: 100%;
         min-width: 0;
-        align-items: flex-start;
+        margin: 0;
+        padding: 10px 4px;
+        gap: 9px;
         box-sizing: border-box;
+    }
+
+    .social-comment-avatar {
+        flex: 0 0 34px;
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
     }
 
     .social-comment-content {
@@ -13126,14 +13154,31 @@ body.dark-mode textarea::placeholder {
         overflow-wrap: anywhere;
     }
 
+    .social-comment-content strong {
+        font-size: 14px;
+    }
+
+    .social-comment-content p {
+        font-size: 15px;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    .social-comment-content small {
+        font-size: 12px;
+    }
+
     .social-comment-form {
         display: flex;
         position: relative;
+        align-items: center;
         width: 100%;
         min-width: 0;
+        margin: 0;
+        padding: 8px 0;
         gap: 8px;
-        padding-bottom: 12px;
         box-sizing: border-box;
+        background: var(--card-bg, #ffffff);
     }
 
     .social-comment-form input {
@@ -13141,6 +13186,7 @@ body.dark-mode textarea::placeholder {
         width: 0;
         min-width: 0;
         height: 48px;
+        padding: 0 12px;
         font-size: 16px;
         box-sizing: border-box;
     }
@@ -13150,5 +13196,17 @@ body.dark-mode textarea::placeholder {
         width: 46px;
         height: 46px;
         min-width: 46px;
+    }
+
+    .social-post-actions-bar {
+        position: relative;
+        z-index: 1;
+    }
+
+    .social-action-button {
+        min-width: 0;
+        padding: 6px 2px;
+        font-size: 11px;
+        gap: 3px;
     }
 }
