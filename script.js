@@ -4909,7 +4909,43 @@ async function logoutUser() {
     window.location.href =
         "auth.html";
 }
+// =========================================================
+// PRODUCT MODAL — RESTORE MISSING FUNCTIONS
+// =========================================================
 
+function openProductModal() {
+    const modal = document.getElementById("productModal");
+    const form = document.getElementById("productForm");
+    const title = document.getElementById("productModalTitle");
+    const productId = document.getElementById("productId");
+
+    if (!modal) {
+        console.error("PATRIODX: Product modal was not found.");
+        return;
+    }
+
+    if (form) {
+        form.reset();
+    }
+
+    if (productId) {
+        productId.value = "";
+    }
+
+    if (title) {
+        title.textContent = "Add Product";
+    }
+
+    modal.style.display = "flex";
+}
+
+function closeProductModal() {
+    const modal = document.getElementById("productModal");
+
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
 
 // =========================================================
 // MAKE HTML ONCLICK FUNCTIONS GLOBAL
