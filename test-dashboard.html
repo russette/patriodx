@@ -5,19 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PATRIODX | Test Dashboard</title>
-    <style>
-        :root {
-            color-scheme: dark;
-            --background: #0b1020;
-            --panel: #151d32;
-            --border: #293650;
-            --text: #f3f6ff;
-            --muted: #9ba9c4;
-            --accent: #7c9cff;
-            --green: #5ce0a0;
-            --red: #ff8181;
-        }
 
+
+<style>
+    :root {
+        color-scheme: dark;
+        --background: #0b1020;
+        --panel: #151d32;
+        --border: #293650;
+        --text: #f3f6ff;
+        --muted: #9ba9c4;
+        --accent: #7c9cff;
+        --green: #5ce0a0;
+        --red: #ff8181;
+    }
 
     * { box-sizing: border-box; }
 
@@ -45,7 +46,10 @@
         text-transform: uppercase;
     }
 
-    h1 { margin: 10px 0; font-size: clamp(28px, 5vw, 40px); }
+    h1 {
+        margin: 10px 0;
+        font-size: clamp(28px, 5vw, 40px);
+    }
 
     .description {
         max-width: 650px;
@@ -78,7 +82,10 @@
 
     .card { padding: 20px; }
 
-    .card-label { color: var(--muted); font-size: 13px; }
+    .card-label {
+        color: var(--muted);
+        font-size: 13px;
+    }
 
     .card-value {
         margin-top: 12px;
@@ -86,9 +93,15 @@
         font-weight: bold;
     }
 
-    .panel { padding: 20px; margin-top: 18px; }
+    .panel {
+        padding: 20px;
+        margin-top: 18px;
+    }
 
-    h2 { margin-top: 0; font-size: 19px; }
+    h2 {
+        margin-top: 0;
+        font-size: 19px;
+    }
 
     .actions {
         display: flex;
@@ -114,7 +127,10 @@
         color: var(--text);
     }
 
-    button:disabled { opacity: 0.55; cursor: wait; }
+    button:disabled {
+        opacity: 0.55;
+        cursor: wait;
+    }
 
     .status {
         min-height: 24px;
@@ -126,7 +142,10 @@
     .status.success { color: var(--green); }
     .status.error { color: var(--red); }
 
-    .bot-list { display: grid; gap: 10px; }
+    .bot-list {
+        display: grid;
+        gap: 10px;
+    }
 
     .bot {
         display: flex;
@@ -150,7 +169,12 @@
     }
 
     .bot-name { font-weight: bold; }
-    .bot-handle { margin-top: 5px; color: var(--muted); font-size: 13px; }
+
+    .bot-handle {
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 13px;
+    }
 
     .tag {
         margin-left: auto;
@@ -176,13 +200,14 @@
 
 
 </head>
+
 <body>
 <main>
     <header>
         <div class="eyebrow">PATRIODX · Private Testing</div>
         <h1>Test Bot Dashboard</h1>
         <p class="description">
-            Monitor your five test identities and verify simulated follows
+            Monitor five test identities and verify simulated follows
             and likes in the separate PATRIODX-Test database.
         </p>
     </header>
@@ -199,14 +224,17 @@
         <div class="card-label">Test bots</div>
         <div class="card-value" id="botCount">—</div>
     </div>
+
     <div class="card">
         <div class="card-label">Simulated follows</div>
         <div class="card-value" id="followCount">—</div>
     </div>
+
     <div class="card">
         <div class="card-label">Simulated likes</div>
         <div class="card-value" id="likeCount">—</div>
     </div>
+
     <div class="card">
         <div class="card-label">Owner test posts</div>
         <div class="card-value" id="postCount">—</div>
@@ -216,28 +244,30 @@
 <section class="panel">
     <h2>Test controls</h2>
     <p class="description">
-        Run the protected test API or refresh the displayed statistics.
+        Refresh statistics or run the isolated test API.
     </p>
+
     <div class="actions">
         <button id="runButton" type="button">Run Test Bots</button>
         <button id="refreshButton" class="secondary" type="button">
             Refresh Statistics
         </button>
     </div>
+
     <p id="status" class="status" role="status" aria-live="polite">
-        Ready. Refresh statistics to begin.
+        Loading test statistics...
     </p>
 </section>
 
 <section class="panel">
     <h2>Test bot identities</h2>
     <div id="botList" class="bot-list">
-        <p class="status">Bot names will appear after a successful run.</p>
+        <p class="status">Loading bot identities...</p>
     </div>
 </section>
 
 <p class="footer">
-    PATRIODX testing tool. Keep the test API secret private.
+    PATRIODX testing tool. Keep your API secret private.
     Never place server-side secrets in this HTML file.
 </p>
 
@@ -258,27 +288,35 @@
         document.getElementById(id).textContent = String(value);
     }
 
-    function renderBots(count) {
+    function renderBots(bots) {
         const list = document.getElementById("botList");
         list.replaceChildren();
 
-        for (let i = 1; i <= count; i++) {
+        if (!Array.isArray(bots) || bots.length === 0) {
+            const empty = document.createElement("p");
+            empty.className = "status";
+            empty.textContent = "No test bots found.";
+            list.appendChild(empty);
+            return;
+        }
+
+        bots.forEach((bot, index) => {
             const row = document.createElement("div");
             row.className = "bot";
 
             const avatar = document.createElement("div");
             avatar.className = "avatar";
-            avatar.textContent = String(i).padStart(2, "0");
+            avatar.textContent = String(index + 1).padStart(2, "0");
 
             const details = document.createElement("div");
 
             const name = document.createElement("div");
             name.className = "bot-name";
-            name.textContent = "PATRIODX Test Bot " + String(i).padStart(2, "0");
+            name.textContent = bot.display_name || bot.username;
 
             const handle = document.createElement("div");
             handle.className = "bot-handle";
-            handle.textContent = "patriodx_test_bot_" + String(i).padStart(2, "0");
+            handle.textContent = "@" + bot.username;
 
             const tag = document.createElement("span");
             tag.className = "tag";
@@ -286,13 +324,73 @@
 
             details.append(name, handle);
             row.append(avatar, details, tag);
-            list.append(row);
+            list.appendChild(row);
+        });
+    }
+
+    async function readJson(response) {
+        const text = await response.text();
+
+        try {
+            return JSON.parse(text);
+        } catch {
+            throw new Error(
+                "The API returned an unexpected response. Check the Vercel deployment."
+            );
+        }
+    }
+
+    async function refreshStats(showSuccess = true) {
+        refreshButton.disabled = true;
+
+        if (showSuccess) {
+            setStatus("Loading statistics from PATRIODX-Test...");
+        }
+
+        try {
+            const secret = prompt(
+                "Enter your saved TEST_BOTS_CRON_SECRET. Do not share it."
+            );
+
+            if (!secret) {
+                setStatus("Statistics request cancelled.");
+                return;
+            }
+
+            const response = await fetch("/api/test-bot-stats", {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + secret
+                },
+                cache: "no-store"
+            });
+
+            const result = await readJson(response);
+
+            if (!response.ok || result.success !== true) {
+                throw new Error(result.error || "Could not load statistics.");
+            }
+
+            showNumber("botCount", result.totalBots ?? 0);
+            showNumber("followCount", result.followsRecorded ?? 0);
+            showNumber("likeCount", result.likesRecorded ?? 0);
+            showNumber("postCount", result.ownerTestPosts ?? 0);
+
+            renderBots(result.bots);
+
+            if (showSuccess) {
+                setStatus("Statistics loaded successfully.", "success");
+            }
+        } catch (error) {
+            setStatus(error.message || "Statistics request failed.", "error");
+        } finally {
+            refreshButton.disabled = false;
         }
     }
 
     async function runTest() {
         const secret = prompt(
-            "Enter your saved TEST_BOTS_CRON_SECRET. Do not share it with anyone."
+            "Enter your saved TEST_BOTS_CRON_SECRET. Do not share it."
         );
 
         if (!secret) {
@@ -314,49 +412,58 @@
                 body: JSON.stringify({})
             });
 
-            const result = await response.json();
+            const result = await readJson(response);
 
             if (!response.ok || result.success !== true) {
-                throw new Error(result.error || "The test request failed.");
+                throw new Error(result.error || "The test run failed.");
             }
 
-            showNumber("botCount", result.bots ?? 0);
             setStatus(
                 "Test completed. " + result.bots +
-                " bots processed; " + result.ownerPostsFound +
-                " owner test posts found. Check statistics for saved records.",
+                " bots processed. Refreshing statistics...",
                 "success"
             );
 
-            renderBots(result.bots ?? 0);
-            await refreshStats(false);
+            await refreshStatsWithSecret(secret);
         } catch (error) {
-            setStatus(
-                error.message || "Unable to run the test.",
-                "error"
-            );
+            setStatus(error.message || "Test run failed.", "error");
         } finally {
             runButton.disabled = false;
             refreshButton.disabled = false;
         }
     }
 
-    async function refreshStats(showMessage = true) {
-        /*
-         * The current API only supports running the test.
-         * It does not provide a read-only statistics endpoint.
-         * Therefore, do not pretend this button can query the database.
-         */
-        if (showMessage) {
-            setStatus(
-                "The current API has no read-only statistics endpoint yet. " +
-                "Use Run Test Bots to retrieve the latest run summary."
+    async function refreshStatsWithSecret(secret) {
+        const response = await fetch("/api/test-bot-stats", {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + secret
+            },
+            cache: "no-store"
+        });
+
+        const result = await readJson(response);
+
+        if (!response.ok || result.success !== true) {
+            throw new Error(
+                result.error || "The test ran, but statistics could not be refreshed."
             );
         }
+
+        showNumber("botCount", result.totalBots ?? 0);
+        showNumber("followCount", result.followsRecorded ?? 0);
+        showNumber("likeCount", result.likesRecorded ?? 0);
+        showNumber("postCount", result.ownerTestPosts ?? 0);
+
+        renderBots(result.bots);
+
+        setStatus("Test completed. Statistics updated.", "success");
     }
 
     runButton.addEventListener("click", runTest);
     refreshButton.addEventListener("click", () => refreshStats(true));
+
+    refreshStats(false);
 </script>
 
 </body>
