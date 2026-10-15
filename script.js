@@ -13675,20 +13675,33 @@ if (typeof navigatePATRIODX === "function") {
 
 viewedProfileUserId = userId;
 
-// Hide the current user's profile while viewing another person.
+
+// Hide your own profile while viewing another user.
 const ownProfileElements = [
-document.getElementById("profileCover"),
-document.getElementById("profileAvatar"),
-document.getElementById("profilePostCount")?.closest(".profile-stats"),
-document.getElementById("profileFollowerCount")?.closest(".profile-stats"),
-document.getElementById("profileFollowingCount")?.closest(".profile-stats"),
-document.getElementById("profileEditor"),
-document.getElementById("profilePosts")?.closest(".profile-posts")
+    document.getElementById("profileCover"),
+    document.getElementById("profileAvatar")?.closest(".profile-header"),
+    document.getElementById("profilePostCount")?.closest(".profile-stats"),
+    document.getElementById("profileEditor"),
+    document.getElementById("profilePosts")?.closest(".profile-posts")
 ];
 
 ownProfileElements.forEach(element => {
-if (element) element.style.display = "none";
+    if (element) {
+        element.style.display = "none";
+    }
 });
+
+// Hide the "Your Profile" heading.
+const profileSection = document.getElementById("profile");
+
+if (profileSection) {
+    profileSection.querySelectorAll(":scope > .section-heading")
+        .forEach(heading => {
+            heading.style.display = "none";
+        });
+}
+
+
 
     const { data: profile, error } = await supabaseClient
         .from("profiles")
