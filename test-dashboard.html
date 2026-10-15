@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PATRIODX | Test Dashboard</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --background: #0b1020;
+            --panel: #151d32;
+            --border: #293650;
+            --text: #f3f6ff;
+            --muted: #9ba9c4;
+            --accent: #7c9cff;
+            --green: #5ce0a0;
+            --red: #ff8181;
+        }
+
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        padding: 28px 16px;
+        background: var(--background);
+        color: var(--text);
+        font-family: Arial, sans-serif;
+    }
+
+    main {
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    header { margin-bottom: 26px; }
+
+    .eyebrow {
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    h1 { margin: 10px 0; font-size: clamp(28px, 5vw, 40px); }
+
+    .description {
+        max-width: 650px;
+        color: var(--muted);
+        line-height: 1.6;
+    }
+
+    .notice {
+        padding: 14px 16px;
+        margin: 22px 0;
+        border: 1px solid #64502b;
+        border-radius: 12px;
+        background: #282115;
+        color: #f5d99a;
+        line-height: 1.5;
+    }
+
+    .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 14px;
+        margin: 24px 0;
+    }
+
+    .card, .panel {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: var(--panel);
+    }
+
+    .card { padding: 20px; }
+
+    .card-label { color: var(--muted); font-size: 13px; }
+
+    .card-value {
+        margin-top: 12px;
+        font-size: 32px;
+        font-weight: bold;
+    }
+
+    .panel { padding: 20px; margin-top: 18px; }
+
+    h2 { margin-top: 0; font-size: 19px; }
+
+    .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 18px 0;
+    }
+
+    button {
+        padding: 12px 18px;
+        border: 0;
+        border-radius: 9px;
+        background: var(--accent);
+        color: #081126;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    button.secondary {
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text);
+    }
+
+    button:disabled { opacity: 0.55; cursor: wait; }
+
+    .status {
+        min-height: 24px;
+        color: var(--muted);
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .status.success { color: var(--green); }
+    .status.error { color: var(--red); }
+
+    .bot-list { display: grid; gap: 10px; }
+
+    .bot {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+    }
+
+    .avatar {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+        place-items: center;
+        border-radius: 50%;
+        background: #26365a;
+        color: #d9e3ff;
+        font-weight: bold;
+    }
+
+    .bot-name { font-weight: bold; }
+    .bot-handle { margin-top: 5px; color: var(--muted); font-size: 13px; }
+
+    .tag {
+        margin-left: auto;
+        padding: 5px 8px;
+        border-radius: 20px;
+        background: #173d34;
+        color: var(--green);
+        font-size: 11px;
+    }
+
+    .footer {
+        margin-top: 26px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 500px) {
+        body { padding: 20px 12px; }
+        .panel { padding: 15px; }
+    }
+</style>
+
+
+</head>
+<body>
+<main>
+    <header>
+        <div class="eyebrow">PATRIODX · Private Testing</div>
+        <h1>Test Bot Dashboard</h1>
+        <p class="description">
+            Monitor your five test identities and verify simulated follows
+            and likes in the separate PATRIODX-Test database.
+        </p>
+    </header>
+
+
+<div class="notice">
+    <strong>Test environment only.</strong>
+    These are database simulation records, not real followers or likes
+    on your live PATRIODX profile.
+</div>
+
+<section class="cards" aria-label="Test statistics">
+    <div class="card">
+        <div class="card-label">Test bots</div>
+        <div class="card-value" id="botCount">—</div>
+    </div>
+    <div class="card">
+        <div class="card-label">Simulated follows</div>
+        <div class="card-value" id="followCount">—</div>
+    </div>
+    <div class="card">
+        <div class="card-label">Simulated likes</div>
+        <div class="card-value" id="likeCount">—</div>
+    </div>
+    <div class="card">
+        <div class="card-label">Owner test posts</div>
+        <div class="card-value" id="postCount">—</div>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>Test controls</h2>
+    <p class="description">
+        Run the protected test API or refresh the displayed statistics.
+    </p>
+    <div class="actions">
+        <button id="runButton" type="button">Run Test Bots</button>
+        <button id="refreshButton" class="secondary" type="button">
+            Refresh Statistics
+        </button>
+    </div>
+    <p id="status" class="status" role="status" aria-live="polite">
+        Ready. Refresh statistics to begin.
+    </p>
+</section>
+
+<section class="panel">
+    <h2>Test bot identities</h2>
+    <div id="botList" class="bot-list">
+        <p class="status">Bot names will appear after a successful run.</p>
+    </div>
+</section>
+
+<p class="footer">
+    PATRIODX testing tool. Keep the test API secret private.
+    Never place server-side secrets in this HTML file.
+</p>
+
+
+</main>
+
+<script>
+    const runButton = document.getElementById("runButton");
+    const refreshButton = document.getElementById("refreshButton");
+    const statusElement = document.getElementById("status");
+
+    function setStatus(message, type = "") {
+        statusElement.textContent = message;
+        statusElement.className = "status" + (type ? " " + type : "");
+    }
+
+    function showNumber(id, value) {
+        document.getElementById(id).textContent = String(value);
+    }
+
+    function renderBots(count) {
+        const list = document.getElementById("botList");
+        list.replaceChildren();
+
+        for (let i = 1; i <= count; i++) {
+            const row = document.createElement("div");
+            row.className = "bot";
+
+            const avatar = document.createElement("div");
+            avatar.className = "avatar";
+            avatar.textContent = String(i).padStart(2, "0");
+
+            const details = document.createElement("div");
+
+            const name = document.createElement("div");
+            name.className = "bot-name";
+            name.textContent = "PATRIODX Test Bot " + String(i).padStart(2, "0");
+
+            const handle = document.createElement("div");
+            handle.className = "bot-handle";
+            handle.textContent = "patriodx_test_bot_" + String(i).padStart(2, "0");
+
+            const tag = document.createElement("span");
+            tag.className = "tag";
+            tag.textContent = "TEST";
+
+            details.append(name, handle);
+            row.append(avatar, details, tag);
+            list.append(row);
+        }
+    }
+
+    async function runTest() {
+        const secret = prompt(
+            "Enter your saved TEST_BOTS_CRON_SECRET. Do not share it with anyone."
+        );
+
+        if (!secret) {
+            setStatus("Test cancelled. No request was sent.");
+            return;
+        }
+
+        runButton.disabled = true;
+        refreshButton.disabled = true;
+        setStatus("Running the isolated test...");
+
+        try {
+            const response = await fetch("/api/test-bots", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + secret,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({})
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || result.success !== true) {
+                throw new Error(result.error || "The test request failed.");
+            }
+
+            showNumber("botCount", result.bots ?? 0);
+            setStatus(
+                "Test completed. " + result.bots +
+                " bots processed; " + result.ownerPostsFound +
+                " owner test posts found. Check statistics for saved records.",
+                "success"
+            );
+
+            renderBots(result.bots ?? 0);
+            await refreshStats(false);
+        } catch (error) {
+            setStatus(
+                error.message || "Unable to run the test.",
+                "error"
+            );
+        } finally {
+            runButton.disabled = false;
+            refreshButton.disabled = false;
+        }
+    }
+
+    async function refreshStats(showMessage = true) {
+        /*
+         * The current API only supports running the test.
+         * It does not provide a read-only statistics endpoint.
+         * Therefore, do not pretend this button can query the database.
+         */
+        if (showMessage) {
+            setStatus(
+                "The current API has no read-only statistics endpoint yet. " +
+                "Use Run Test Bots to retrieve the latest run summary."
+            );
+        }
+    }
+
+    runButton.addEventListener("click", runTest);
+    refreshButton.addEventListener("click", () => refreshStats(true));
+</script>
+
+</body>
+</html>
