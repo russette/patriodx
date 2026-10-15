@@ -4929,14 +4929,41 @@ body {
 
 
 /* =========================================================
-   VERIFIED BADGE
+   VERIFIED BADGE — LIGHT AND DARK MODE
 ========================================================= */
 
 .verified-badge {
-    color: #2563eb !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #3b82f6 !important;
+    vertical-align: middle;
+    flex-shrink: 0;
 }
 
+.verified-badge svg {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    color: inherit !important;
+    stroke: currentColor !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
 
+/* Ensure visibility in dark mode */
+.dark-mode .verified-badge,
+body.dark-mode .verified-badge {
+    color: #60a5fa !important;
+}
+
+.dark-mode .verified-badge svg,
+body.dark-mode .verified-badge svg {
+    color: inherit !important;
+    stroke: currentColor !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
 /* =========================================================
    BLUE STAR
 ========================================================= */
