@@ -14207,6 +14207,417 @@ initializeProfileSearch();
 if (typeof loadMyFollowCounts === "function") {
     loadMyFollowCounts();
 }
+// =========================================================
+// PATRIODX DISCOVER PEOPLE
+// =========================================================
+
+let discoverPeopleLoading = false;
+
+
+// ---------------------------------------------------------
+// LOAD DISCOVERABLE PROFILES
+// ---------------------------------------------------------
+
+async function loadDiscoverPeople() {
+
+    const list = document.getElementById(
+        "discoverPeopleList"
+    );
+
+    const refreshButton = document.getElementById(
+        "refreshDiscoverPeople"
+    );
+
+    if (!list || discoverPeopleLoading) {
+        return;
+    }
+
+    if (!currentUser) {
+
+        list.innerHTML = `
+            <div class="social-empty-state">
+                <h3>Sign in to discover people</h3>
+                <p>
+                    Sign in to find people and grow your network.
+                </p>
+            </div>
+        `;
+
+        return;
+    }
+
+    discoverPeopleLoading = true;
+
+    if (refreshButton) {
+        refreshButton.disabled = true;
+    }
+
+    list.innerHTML = `
+        <div class="social-empty-state">
+            <p>Finding people to connect with...</p>
+        </div>
+    `;
+
+    try {
+
+        // Get the profiles this user already follows.
+        const {
+            data: followRows,
+            error: followError
+        } = await supabaseClient
+            .from("profile_follows")
+            .select("following_id")
+            .eq("follower_id", currentUser.id);
+
+        if (followError) {
+            throw followError;
+        }
+
+        const followingIds = new Set(
+            (followRows || [])
+                .map(row => row.following_id)
+                .filter(Boolean)
+        );
+
+        // Load real profiles from PATRIODX.
+        const {
+            data: profiles,
+            error: profilesError
+        } = await supabaseClient
+            .from("profiles")
+            .select(
+                "id, username, display_name, avatar_url, bio"
+            )
+            .limit(100);
+
+        if (profilesError) {
+            throw profilesError;
+        }
+
+        // Exclude yourself and accounts you already follow.
+        const candidates = (profiles || []).filter(
+            profile =>
+                profile.id &&
+                profile.id !== currentUser.id &&
+                !followingIds.has(profile.id)
+        );
+
+        // Shuffle the available profiles so Refresh can
+        // show a different selection.
+        for (
+            let i = candidates.length - 1;
+            i > 0;
+            i--
+        ) {
+
+            const j = Math.floor(
+                Math.random() * (i + 1)
+            );
+
+            [candidates[i], candidates[j]] = [
+                candidates[j],
+                candidates[i]
+            ];
+        }
+
+        const suggestions = candidates.slice(0, 6);
+
+        if (suggestions.length === 0) {
+
+            list.innerHTML = `
+                <div class="social-empty-state">
+                    <div class="social-empty-icon">
+                        <i data-lucide="users"></i>
+                    </div>
+
+                    <h3>No new people to suggest</h3>
+
+                    <p>
+                        Check back when more people join
+                        PATRIODX.
+                    </p>
+                </div>
+            `;
+
+            return;
+        }
+
+        list.innerHTML = suggestions.map(profile => {
+
+            const avatar = profile.avatar_url
+                ? `
+                    <img
+                        src="${escapeHTML(profile.avatar_url)}"
+                        alt=""
+                        loading="lazy"
+                    >
+                `
+                : `
+                    <i data-lucide="user"></i>
+                `;
+
+            return `
+                <article class="discover-person-card">
+
+                    <button
+                        type="button"
+                        class="discover-person-profile"
+                        data-discover-profile="${escapeHTML(profile.id)}"
+                    >
+                        <span class="discover-person-avatar">
+                            ${avatar}
+                        </span>
+
+                        <span class="discover-person-info">
+                            <strong>
+                                ${escapeHTML(
+                                    profile.display_name ||
+                                    "PATRIODX User"
+                                )}
+                            </strong>
+
+                            <span>
+                                ${
+                                    profile.username
+                                        ? "@" + escapeHTML(
+                                            profile.username
+                                        )
+                                        : "@user"
+                                }
+                            </span>
+                        </span>
+                    </button>
+
+                    ${
+                        profile.bio
+                            ? `
+                                <p class="discover-person-bio">
+                                    ${escapeHTML(profile.bio)}
+                                </p>
+                            `
+                            : ""
+                    }
+
+                    <button
+                        type="button"
+                        class="discover-person-follow"
+                        data-discover-follow="${escapeHTML(profile.id)}"
+                    >
+                        <i data-lucide="user-plus"></i>
+                        Follow
+                    </button>
+
+                </article>
+            `;
+
+        }).join("");
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Discover People error:",
+            error
+        );
+
+        list.innerHTML = `
+            <div class="social-empty-state">
+                <h3>Couldn't load suggestions</h3>
+                <p>
+                    Please try refreshing the suggestions.
+                </p>
+            </div>
+        `;
+
+    } finally {
+
+        discoverPeopleLoading = false;
+
+        if (refreshButton) {
+            refreshButton.disabled = false;
+        }
+    }
+}
+
+
+// ---------------------------------------------------------
+// FOLLOW A SUGGESTED PERSON
+// ---------------------------------------------------------
+
+async function followDiscoveredPerson(userId, button) {
+
+    if (!currentUser) {
+
+        showPATRIODXToast(
+            "Please sign in first.",
+            "warning"
+        );
+
+        return;
+    }
+
+    if (
+        !userId ||
+        userId === currentUser.id ||
+        !button ||
+        button.disabled
+    ) {
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Following...";
+
+    try {
+
+        const { error } = await supabaseClient
+            .from("profile_follows")
+            .insert({
+                follower_id: currentUser.id,
+                following_id: userId
+            });
+
+        if (error) {
+
+            if (error.code === "23505") {
+
+                showPATRIODXToast(
+                    "You already follow this person.",
+                    "info"
+                );
+
+                await loadDiscoverPeople();
+                return;
+            }
+
+            throw error;
+        }
+
+        showPATRIODXToast(
+            "You're now following this person!",
+            "success"
+        );
+
+        // Update the existing follower/following counters.
+        if (typeof loadMyFollowCounts === "function") {
+            await loadMyFollowCounts();
+        }
+
+        // Remove the newly followed account from suggestions.
+        await loadDiscoverPeople();
+
+    } catch (error) {
+
+        console.error(
+            "Discover follow error:",
+            error
+        );
+
+        button.disabled = false;
+        button.innerHTML = `
+            <i data-lucide="user-plus"></i>
+            Follow
+        `;
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+
+        showPATRIODXToast(
+            "Could not follow this person. Please try again.",
+            "error"
+        );
+    }
+}
+
+
+// ---------------------------------------------------------
+// DISCOVER PEOPLE BUTTONS
+// ---------------------------------------------------------
+
+function initializeDiscoverPeople() {
+
+    const list = document.getElementById(
+        "discoverPeopleList"
+    );
+
+    const refreshButton = document.getElementById(
+        "refreshDiscoverPeople"
+    );
+
+    if (!list || list.dataset.initialized === "true") {
+        return;
+    }
+
+    list.dataset.initialized = "true";
+
+    list.addEventListener("click", async function(event) {
+
+        const profileButton = event.target.closest(
+            "[data-discover-profile]"
+        );
+
+        const followButton = event.target.closest(
+            "[data-discover-follow]"
+        );
+
+        if (profileButton) {
+
+            const userId = profileButton.getAttribute(
+                "data-discover-profile"
+            );
+
+            if (userId) {
+                await loadPublicProfile(userId);
+
+                const publicCard = document.getElementById(
+                    "publicProfileCard"
+                );
+
+                if (publicCard) {
+                    publicCard.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+                }
+            }
+
+            return;
+        }
+
+        if (followButton) {
+
+            const userId = followButton.getAttribute(
+                "data-discover-follow"
+            );
+
+            await followDiscoveredPerson(
+                userId,
+                followButton
+            );
+        }
+    });
+
+    if (refreshButton) {
+
+        refreshButton.addEventListener(
+            "click",
+            loadDiscoverPeople
+        );
+    }
+
+    loadDiscoverPeople();
+}
+
+
+// ---------------------------------------------------------
+// START DISCOVER PEOPLE
+// ---------------------------------------------------------
+
+initializeDiscoverPeople();
 /* =========================================================
    PATRIODX SIMPLE APP NAVIGATION
 ========================================================= */
