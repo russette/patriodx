@@ -13675,6 +13675,21 @@ if (typeof navigatePATRIODX === "function") {
 
 viewedProfileUserId = userId;
 
+// Hide the current user's profile while viewing another person.
+const ownProfileElements = [
+document.getElementById("profileCover"),
+document.getElementById("profileAvatar"),
+document.getElementById("profilePostCount")?.closest(".profile-stats"),
+document.getElementById("profileFollowerCount")?.closest(".profile-stats"),
+document.getElementById("profileFollowingCount")?.closest(".profile-stats"),
+document.getElementById("profileEditor"),
+document.getElementById("profilePosts")?.closest(".profile-posts")
+];
+
+ownProfileElements.forEach(element => {
+if (element) element.style.display = "none";
+});
+
     const { data: profile, error } = await supabaseClient
         .from("profiles")
         .select("*")
