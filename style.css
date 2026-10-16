@@ -114,79 +114,105 @@ a {
 
 
 /* =========================================================
-   HERO
+   PATRIODX BUSINESS DASHBOARD HERO
    ========================================================= */
 
 .hero {
     position: relative;
-
-    max-width: 900px;
-
-    padding: 105px 0 65px;
+    isolation: isolate;
+    width: 100%;
+    max-width: 1100px;
+    box-sizing: border-box;
+    padding: 52px 0 30px;
 }
 
 .hero::before {
     content: "";
-
     position: absolute;
-
-    top: 20px;
-    left: -180px;
-
-    width: 420px;
-    height: 420px;
-
-    background: rgba(37, 99, 235, 0.08);
-
-    filter: blur(85px);
-
-    border-radius: 50%;
-
-    pointer-events: none;
-
     z-index: -1;
+    top: 15px;
+    left: -80px;
+    width: 300px;
+    height: 300px;
+    background: rgba(37, 99, 235, 0.06);
+    filter: blur(75px);
+    border-radius: 50%;
+    pointer-events: none;
 }
 
 .eyebrow {
     margin-bottom: 12px;
-
     color: #2563eb;
-
     font-size: 11px;
     font-weight: 900;
-
     letter-spacing: 2px;
 }
 
 .hero h1 {
-    max-width: 900px;
-
-    margin-bottom: 24px;
-
-    font-size: clamp(44px, 6vw, 76px);
-
-    line-height: 1.02;
-
-    letter-spacing: -4px;
+    max-width: 760px;
+    margin: 0 0 16px;
+    color: var(--text-color, #0f172a);
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -1.5px;
 }
 
 .hero-text {
-    max-width: 700px;
-
-    margin-bottom: 32px;
-
-    color: #64748b;
-
-    font-size: 18px;
-
-    line-height: 1.8;
+    max-width: 680px;
+    margin: 0 0 25px;
+    color: var(--muted-text, #64748b);
+    font-size: 16px;
+    line-height: 1.7;
 }
 
 .hero-buttons {
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
-
     gap: 12px;
+}
+
+.hero-buttons button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 44px;
+    padding: 11px 18px;
+    border: 1px solid #2563eb;
+    border-radius: 9px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 750;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.hero-buttons button:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.hero-buttons button svg {
+    width: 17px;
+    height: 17px;
+}
+
+.hero-buttons button.secondary-btn {
+    background: var(--card-bg, #ffffff);
+    color: var(--text-color, #0f172a);
+    border-color: var(--border-color, #dbe2ea);
+}
+
+.hero-buttons button.secondary-btn:hover {
+    background: var(--input-bg, #f3f4f6);
+    border-color: #93c5fd;
 }
 
 
