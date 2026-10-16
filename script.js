@@ -7615,8 +7615,11 @@ async function updateSocialLikeButton(postId) {
 
         button.classList.toggle("liked", liked);
 
-        button.innerHTML =
-            '<i data-lucide="heart"></i>';
+      const heart = button.querySelector("i");
+
+if (heart) {
+    heart.setAttribute("data-lucide", "heart");
+}
 
         button.setAttribute(
             "aria-label",
@@ -8643,7 +8646,8 @@ async function loadHomePosts() {
                     <div class="social-post-actions-bar home-feed-actions">
                         <button
                             type="button"
-                            class="social-action-button"
+                           class="social-action-button social-like-button"
+data-post-id="${post.id}"
                             onclick="likeSocialPost('${post.id}')"
                             aria-label="Like post"
                         >
