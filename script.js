@@ -8597,12 +8597,24 @@ async function loadHomePosts() {
                     id="home-post-${post.id}"
                 >
                     <header class="social-post-header">
-                        <div class="social-post-avatar">
+                       <div
+    class="social-post-avatar"
+    data-profile-user-id="${safe(post.user_id)}"
+    role="button"
+    tabindex="0"
+    aria-label="View ${safe(author)}'s profile"
+>
                             ${avatar}
                         </div>
 
                         <div class="social-post-author-area">
-                            <div class="social-post-author">
+                           <div
+    class="social-post-author"
+    data-profile-user-id="${safe(post.user_id)}"
+    role="button"
+    tabindex="0"
+    aria-label="View ${safe(author)}'s profile"
+>
                                 ${safe(author)}
                                 ${badge}
                                 ${
@@ -8678,7 +8690,25 @@ data-post-id="${post.id}"
                 </article>
             `;
         }).join("");
+// Open the author's public profile from Home posts.
+homeFeed.querySelectorAll("[data-profile-user-id]").forEach(element => {
+    element.style.cursor = "pointer";
 
+    element.addEventListener("click", function () {
+        const userId = this.getAttribute("data-profile-user-id");
+
+        if (userId) {
+            loadPublicProfile(userId);
+        }
+    });
+
+    element.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            this.click();
+        }
+    });
+});
         if (window.lucide) {
             window.lucide.createIcons();
         }
