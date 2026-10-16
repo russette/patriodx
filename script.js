@@ -7189,50 +7189,43 @@ const author =
                     
                     <!-- ACTION BAR -->
 
-                    <div class="social-post-actions-bar">
+                   <div class="social-post-actions-bar">
 
-                        <button
-                            type="button"
-                            class="social-action-button social-like-button"
-                            data-post-id="${post.id}"
-                            onclick="likeSocialPost('${post.id}')"
-                            aria-label="Like post"
-                            title="Like"
-                        >
-                            <i data-lucide="heart"></i>
-                        </button>
+    <button
+        type="button"
+        class="social-action-button social-like-button"
+        data-post-id="${post.id}"
+        onclick="likeSocialPost('${post.id}')"
+        aria-label="Like post"
+        title="Like"
+    >
+        <i data-lucide="heart"></i>
+        <span>Like</span>
+    </button>
 
-                        <button
-                            type="button"
-                            class="social-action-button"
-                            onclick="toggleComments('${post.id}')"
-                            aria-label="Comment on post"
-                            title="Comment"
-                        >
-                            <i data-lucide="message-circle"></i>
-                        </button>
+    <button
+        type="button"
+        class="social-action-button"
+        onclick="toggleHomeComments('${post.id}')"
+        aria-label="View comments"
+        title="Comment"
+    >
+        <i data-lucide="message-circle"></i>
+        <span>Comment</span>
+    </button>
 
-                        <button
-                            type="button"
-                            class="social-action-button"
-                            onclick="shareSocialPost('${post.id}')"
-                            aria-label="Share post"
-                            title="Share"
-                        >
-                            <i data-lucide="share-2"></i>
-                        </button>
+    <button
+        type="button"
+        class="social-action-button"
+        onclick="shareSocialPost('${post.id}')"
+        aria-label="Share post"
+        title="Share"
+    >
+        <i data-lucide="share-2"></i>
+        <span>Share</span>
+    </button>
 
-                        <button
-                            type="button"
-                            class="social-action-button"
-                            onclick="translateSocialPost('${post.id}')"
-                            aria-label="Translate post"
-                            title="Translate"
-                        >
-                            <i data-lucide="languages"></i>
-                        </button>
-
-                    </div>
+</div>
 
                         <!-- COMMENTS -->
 
@@ -8483,146 +8476,144 @@ window.getPATRIODXBadge =
 
 const homeFeed =
     document.getElementById("homeFeed");
-
 async function loadHomePosts() {
-
     if (!homeFeed) return;
 
     homeFeed.innerHTML = `
         <div class="social-empty-state">
-         <div><i data-lucide="clock-3"></i></div>
             <h3>Loading your feed...</h3>
             <p>Please wait.</p>
         </div>
     `;
 
-    const { data: posts, error } =
-        await supabaseClient
+    try {
+        const { data: posts, error } = await supabaseClient
             .from("posts")
             .select("*")
-            .order("created_at", {
-                ascending: false
-            });
+            .order("created_at", { ascending: false });
 
-    if (error) {
+        if (error) throw error;
 
-        console.error(
-            "Could not load Home feed:",
-            error
+        if (!posts || posts.length === 0) {
+            homeFeed.innerHTML = `
+                <div class="social-empty-state">
+                    <h3>No posts yet</h3>
+                    <p>Be the first to share something with the PATRIODX community.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const userIds = [
+            ...new Set(posts.map(post => post.user_id).filter(Boolean))
+        ];
+
+        let profiles = [];
+
+        if (userIds.length) {
+            const { data, error: profileError } = await supabaseClient
+                .from("profiles")
+                .select(
+                    "id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at"
+                )
+                .in("id", userIds);
+
+            if (profileError) {
+                console.error("Home profile lookup failed:", profileError);
+            } else {
+                profiles = data || [];
+            }
+        }
+
+        const profileMap = new Map(
+            profiles.map(profile => [profile.id, profile])
         );
 
-        homeFeed.innerHTML = `
-            <div class="social-empty-state">
-               <div><i data-lucide="triangle-alert"></i></div>
-                <h3>Could not load your feed</h3>
-                <p>${safe(error.message)}</p>
-            </div>
-        `;
-
-        return;
-    }
-
-    if (!posts || posts.length === 0) {
-
-        homeFeed.innerHTML = `
-            <div class="social-empty-state">
-               <div><i data-lucide="globe"></i></div>
-                <h3>No posts yet</h3>
-                <p>
-                    Be the first to share something
-                    with the PATRIODX community.
-                </p>
-            </div>
-        `;
-
-        return;
-    }
-
-    const postsWithCounts =
-        await Promise.all(
-            posts.map(async post => {
-
-                const counts =
-                    await getSocialCounts(post.id);
-
-                return {
-                    ...post,
-                    ...counts
-                };
-
-            })
+        const postsWithCounts = await Promise.all(
+            posts.map(async post => ({
+                ...post,
+                ...(await getSocialCounts(post.id))
+            }))
         );
 
-    homeFeed.innerHTML =
-        postsWithCounts.map(post => {
-
-            const isOwnPost =
-                post.user_id === currentUser?.id;
+        homeFeed.innerHTML = postsWithCounts.map(post => {
+            const profile = profileMap.get(post.user_id);
+            const isOwnPost = post.user_id === currentUser?.id;
 
             const author =
-                isOwnPost
-                    ? (
-                        currentBusiness?.name ||
-                        currentUser?.user_metadata?.full_name ||
-                        currentUser?.email ||
-                        "You"
-                    )
-                    : "PATRIODX User";
+                profile?.display_name ||
+                profile?.username ||
+                (isOwnPost
+                    ? currentUser?.user_metadata?.full_name || "You"
+                    : "PATRIODX User");
 
-            const image =
-                post.image_url
-                    ? `
-                        <div class="social-media-wrapper">
-                            <img
-                                src="${safe(post.image_url)}"
-                                class="social-post-image"
-                                alt="Post image"
-                                loading="lazy"
-                            >
-                        </div>
-                    `
+            const avatar = profile?.avatar_url
+                ? `
+                    <img
+                        src="${safe(profile.avatar_url)}"
+                        alt="${safe(author)}"
+                        loading="lazy"
+                    >
+                `
+                : `<i data-lucide="user"></i>`;
+
+            const badge =
+                typeof getPATRIODXBadge === "function"
+                    ? getPATRIODXBadge(profile)
                     : "";
 
-            const video =
-                post.video_url
-                    ? `
-                        <div class="social-media-wrapper">
-                            <video
-                                src="${safe(post.video_url)}"
-                                class="social-post-video"
-                                controls
-                                preload="metadata"
-                            ></video>
-                        </div>
-                    `
-                    : "";
+            const image = post.image_url
+                ? `
+                    <div class="social-media-wrapper">
+                        <img
+                            src="${safe(post.image_url)}"
+                            class="social-post-image"
+                            alt="Photo shared by ${safe(author)}"
+                            loading="lazy"
+                        >
+                    </div>
+                `
+                : "";
+
+            const video = post.video_url
+                ? `
+                    <div class="social-media-wrapper">
+                        <video
+                            src="${safe(post.video_url)}"
+                            class="social-post-video"
+                            controls
+                            preload="metadata"
+                        ></video>
+                    </div>
+                `
+                : "";
 
             return `
                 <article
-                    class="social-post-card"
+                    class="social-post-card home-feed-post"
                     id="home-post-${post.id}"
                 >
-
-                    <div class="social-post-header">
-
+                    <header class="social-post-header">
                         <div class="social-post-avatar">
-                            <i data-lucide="user"></i>
+                            ${avatar}
                         </div>
 
                         <div class="social-post-author-area">
-
                             <div class="social-post-author">
                                 ${safe(author)}
+                                ${badge}
+                                ${
+                                    isOwnPost
+                                        ? '<span class="social-post-you">You</span>'
+                                        : ""
+                                }
                             </div>
 
                             <div class="social-post-date">
                                 ${formatDate(post.created_at)}
                             </div>
-
                         </div>
-
-                    </div>
-
+                    </header>
 
                     ${
                         post.content
@@ -8634,63 +8625,70 @@ async function loadHomePosts() {
                             : ""
                     }
 
-
                     ${image}
-
                     ${video}
 
-
                     <div class="social-post-stats">
+                        <span>
+                            <i data-lucide="heart"></i>
+                            ${Number(post.likes) || 0} likes
+                        </span>
 
-                       <span>
-    <i data-lucide="heart"></i> ${post.likes}
-</span>
-
-<span>
-    <i data-lucide="message-circle"></i> ${post.comments}
-</span>
+                        <span>
+                            <i data-lucide="message-circle"></i>
+                            ${Number(post.comments) || 0} comments
+                        </span>
                     </div>
 
+                    <div class="social-post-actions-bar home-feed-actions">
+                        <button
+                            type="button"
+                            class="social-action-button"
+                            onclick="likeSocialPost('${post.id}')"
+                            aria-label="Like post"
+                        >
+                            <i data-lucide="heart"></i>
+                            <span>Like</span>
+                        </button>
 
-                   <div class="social-post-actions-bar">
+                        <button
+                            type="button"
+                            class="social-action-button"
+                            onclick="toggleHomeComments('${post.id}')"
+                            aria-label="Comment on post"
+                        >
+                            <i data-lucide="message-circle"></i>
+                            <span>Comment</span>
+                        </button>
 
-    <button
-        type="button"
-        class="social-action-button social-like-button"
-        data-post-id="${post.id}"
-        onclick="likeSocialPost('${post.id}')"
-        aria-label="Like post"
-        title="Like"
-    >
-        <i data-lucide="heart"></i>
-    </button>
-
-    <button
-        type="button"
-        class="social-action-button"
-        onclick="toggleHomeComments('${post.id}')"
-        aria-label="View comments"
-        title="Comment"
-    >
-        <i data-lucide="message-circle"></i>
-    </button>
-
-    <button
-        type="button"
-        class="social-action-button"
-        onclick="shareSocialPost('${post.id}')"
-        aria-label="Share post"
-        title="Share"
-    >
-        <i data-lucide="share-2"></i>
-    </button>
-
-</div>
-
+                        <button
+                            type="button"
+                            class="social-action-button"
+                            onclick="shareSocialPost('${post.id}')"
+                            aria-label="Share post"
+                        >
+                            <i data-lucide="share-2"></i>
+                            <span>Share</span>
+                        </button>
+                    </div>
                 </article>
             `;
-
         }).join("");
+
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+
+    } catch (error) {
+        console.error("Could not load PATRIODX Home feed:", error);
+
+        homeFeed.innerHTML = `
+            <div class="social-empty-state">
+                <h3>Could not load your feed</h3>
+                <p>Please refresh the page and try again.</p>
+            </div>
+        `;
+    }
 }
 /* =========================================================
 PATRIODX HOME POST STATS
