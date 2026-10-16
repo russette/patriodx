@@ -6864,9 +6864,9 @@ if (postUserIds.length) {
     const { data: profileData, error: profileError } =
         await supabaseClient
             .from("profiles")
-            .select(
-                "id, username, display_name, avatar_url"
-            )
+           .select(
+    "id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at"
+)
             .in(
                 "id",
                 postUserIds
@@ -7047,7 +7047,14 @@ const author =
     class="social-post-author"
     ${authorProfile?.id ? `role="button" tabindex="0" data-profile-user-id="${safe(authorProfile.id)}" aria-label="View ${safe(author)}'s profile"` : ""}
 >
-    ${safe(author)}
+   ${safe(author)}
+
+                                    ${
+                                        typeof getPATRIODXBadge === "function"
+                                            ? getPATRIODXBadge(authorProfile)
+                                            : ""
+                                    }
+
                                     ${
                                         isOwnPost
                                             ? `
