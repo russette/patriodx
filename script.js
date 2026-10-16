@@ -660,86 +660,125 @@ function setupDarkMode() {
 // =========================================================
 
 function renderProducts() {
-
-    const container =
-        document.getElementById(
-            "productsList"
-        );
+    const container = document.getElementById("productsList");
 
     if (!container) return;
 
-    const search =
-        document.getElementById(
-            "productSearch"
-        )?.value
-            .toLowerCase()
-            .trim() || "";
+    const searchInput = document.getElementById("productSearch");
 
-    const filtered =
-        products.filter(product =>
-            product.name
-                .toLowerCase()
-                .includes(search)
-        );
+    const search = searchInput
+        ? searchInput.value.toLowerCase().trim()
+        : "";
+
+    const filtered = products.filter(product =>
+        String(product.name || "")
+            .toLowerCase()
+            .includes(search)
+    );
 
     if (!filtered.length) {
-
         container.innerHTML = `
-            <div class="empty-state">
-               <div class="empty-icon">
-    <i data-lucide="package"></i>
-</div>
-                <h3>No products yet</h3>
-                <p>Add your first product to start managing your inventory.</p>
+            <div class="empty-state business-products-empty">
+                <div class="empty-icon">
+                    <i data-lucide="package"></i>
+                </div>
+                <h3>${search ? "No matching products" : "Your inventory is empty"}</h3>
+                <p>
+                    ${
+                        search
+                            ? "Try another product name."
+                            : "Add your first product to start managing your inventory."
+                    }
+                </p>
             </div>
         `;
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
 
         return;
     }
 
-    container.innerHTML =
-        filtered.map(product => `
+    container.innerHTML = filtered.map(product => {
+        const stock = Math.max(0, Number(product.stock) || 0);
+        const price = Math.max(0, Number(product.price) || 0);
+        const inventoryValue = stock * price;
 
-        <div class="item-card">
+        let stockStatus = "In stock";
+        let stockClass = "in-stock";
+        let stockIcon = "check-circle";
 
-            <h3>${safe(product.name)}</h3>
+        if (stock === 0) {
+            stockStatus = "Out of stock";
+            stockClass = "out-of-stock";
+            stockIcon = "x-circle";
+        } else if (stock <= 5) {
+            stockStatus = "Low stock";
+            stockClass = "low-stock";
+            stockIcon = "alert-triangle";
+        }
 
-            <p>
-                Price:
-                <strong>
-                    ${money(product.price)}
-                </strong>
-            </p>
+        return `
+            <article class="item-card business-product-card">
 
-            <p>
-                Stock:
-                <strong>
-                    ${product.stock}
-                </strong>
-            </p>
+                <div class="business-product-top">
+                    <div class="business-product-icon">
+                        <i data-lucide="package"></i>
+                    </div>
 
-            <div class="card-actions">
+                    <span class="business-product-status ${stockClass}">
+                        <i data-lucide="${stockIcon}"></i>
+                        ${stockStatus}
+                    </span>
+                </div>
 
-                <button
-                    type="button"
-                    onclick="openProductModal('${product.id}')"
-                >
-                    Edit
-                </button>
+                <div class="business-product-information">
+                    <h3>${safe(product.name)}</h3>
+                    <p class="business-product-label">Selling price</p>
+                    <div class="business-product-price">
+                        ${money(price)}
+                    </div>
+                </div>
 
-                <button
-                    type="button"
-                    class="danger-btn"
-                    onclick="deleteProduct('${product.id}')"
-                >
-                    Delete
-                </button>
+                <div class="business-product-metrics">
+                    <div class="business-product-metric">
+                        <span>Quantity available</span>
+                        <strong>${stock.toLocaleString()}</strong>
+                    </div>
 
-            </div>
+                    <div class="business-product-metric">
+                        <span>Stock value</span>
+                        <strong>${money(inventoryValue)}</strong>
+                    </div>
+                </div>
 
-        </div>
+                <div class="card-actions business-product-actions">
+                    <button
+                        type="button"
+                        onclick="openProductModal('${product.id}')"
+                    >
+                        <i data-lucide="pencil"></i>
+                        Edit product
+                    </button>
 
-    `).join("");
+                    <button
+                        type="button"
+                        class="danger-btn"
+                        onclick="deleteProduct('${product.id}')"
+                    >
+                        <i data-lucide="trash-2"></i>
+                        Delete
+                    </button>
+                </div>
+
+            </article>
+        `;
+    }).join("");
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
 }
 function showPATRIODXConfirm(title, message) {
     return new Promise((resolve) => {
