@@ -13374,3 +13374,105 @@ transition: outline-color 0.3s ease;
         padding: 15px;
     }
 }
+/* PATRIODX HOME FEED — TARGETED FIX */
+
+.home-feed-post {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.home-feed-post *,
+.home-feed-post *::before,
+.home-feed-post *::after {
+    box-sizing: border-box;
+}
+
+.home-feed-post .social-post-avatar {
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 50%;
+}
+
+.home-feed-post .social-post-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.home-feed-post .social-post-author {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.home-feed-post .social-media-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.home-feed-post .social-post-image,
+.home-feed-post .social-post-video {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 600px;
+    object-fit: contain;
+}
+
+.home-feed-post .home-feed-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    min-width: 0;
+    gap: 4px;
+}
+
+.home-feed-post .home-feed-actions button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-width: 0;
+    max-width: 100%;
+    padding: 10px 4px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.home-feed-post .home-feed-actions button span {
+    display: inline;
+}
+
+.home-feed-post .social-post-stats {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 0;
+}
+
+@media (max-width: 480px) {
+    .home-feed-post .home-feed-actions button {
+        gap: 4px;
+        padding: 10px 2px;
+        font-size: 12px;
+    }
+
+    .home-feed-post .home-feed-actions button svg {
+        width: 17px;
+        height: 17px;
+        flex-shrink: 0;
+    }
+
+    .home-feed-post .social-post-content {
+        overflow-wrap: anywhere;
+    }
+}
