@@ -1130,96 +1130,128 @@ showPATRIODXToast(
 // =========================================================
 
 function renderCustomers() {
-
-    const container =
-        document.getElementById(
-            "customersList"
-        );
+    const container = document.getElementById("customersList");
 
     if (!container) return;
 
-    const search =
-        document.getElementById(
-            "customerSearch"
-        )?.value
-            .toLowerCase()
-            .trim() || "";
+    const searchInput = document.getElementById("customerSearch");
 
-    const filtered =
-        customers.filter(customer =>
+    const search = searchInput
+        ? searchInput.value.toLowerCase().trim()
+        : "";
 
-            customer.name
-                .toLowerCase()
-                .includes(search)
+    const filtered = customers.filter(customer => {
+        const name = String(customer.name || "").toLowerCase();
+        const email = String(customer.email || "").toLowerCase();
+        const phone = String(customer.phone || "").toLowerCase();
 
-            ||
-
-            (customer.email || "")
-                .toLowerCase()
-                .includes(search)
-
-            ||
-
-            (customer.phone || "")
-                .toLowerCase()
-                .includes(search)
+        return (
+            name.includes(search) ||
+            email.includes(search) ||
+            phone.includes(search)
         );
+    });
 
     if (!filtered.length) {
-
         container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon">👥</div>
-                <h3>No customers yet</h3>
-                <p>Add your first customer to start building your customer list.</p>
+            <div class="empty-state business-customers-empty">
+                <div class="business-customer-empty-icon">
+                    <i data-lucide="users"></i>
+                </div>
+
+                <h3>${search ? "No matching customers" : "Your customer directory is empty"}</h3>
+
+                <p>
+                    ${
+                        search
+                            ? "Try searching with another name, email, or phone number."
+                            : "Add your first customer to keep important business contacts organised."
+                    }
+                </p>
             </div>
         `;
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
 
         return;
     }
 
-    container.innerHTML =
-        filtered.map(customer => `
+    container.innerHTML = filtered.map(customer => {
+        const name = String(customer.name || "Customer");
 
-        <div class="item-card">
+        const initials = name
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(part => part.charAt(0).toUpperCase())
+            .join("") || "C";
 
-            <h3>
-                ${safe(customer.name)}
-            </h3>
+        const email = customer.email || "";
+        const phone = customer.phone || "";
 
-            <p>
-                📧
-                ${safe(
-                    customer.email ||
-                    "No email"
-                )}
-            </p>
+        return `
+            <article class="item-card business-customer-card">
 
-            <p>
-                📱
-                ${safe(
-                    customer.phone ||
-                    "No phone"
-                )}
-            </p>
+                <div class="business-customer-top">
+                    <div class="business-customer-avatar">
+                        ${safe(initials)}
+                    </div>
 
-            <div class="card-actions">
+                    <span class="business-customer-badge">
+                        <i data-lucide="user-round-check"></i>
+                        Customer
+                    </span>
+                </div>
 
-                <button
-                    type="button"
-                    class="danger-btn"
-                    onclick="deleteCustomer('${customer.id}')"
-                >
-                    Delete
-                </button>
+                <div class="business-customer-information">
+                    <h3>${safe(name)}</h3>
 
-            </div>
+                    <p class="business-customer-label">
+                        Contact information
+                    </p>
 
-        </div>
+                    <div class="business-customer-contact">
+                        <div class="business-customer-contact-row">
+                            <i data-lucide="mail"></i>
+                            <span>${safe(email || "No email provided")}</span>
+                        </div>
 
-    `).join("");
+                        <div class="business-customer-contact-row">
+                            <i data-lucide="phone"></i>
+                            <span>${safe(phone || "No phone provided")}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="business-customer-footer">
+                    <div>
+                        <span>Customer since</span>
+                        <strong>${safe(formatDate(customer.created_at))}</strong>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="danger-btn business-customer-delete"
+                        onclick="deleteCustomer('${customer.id}')"
+                        aria-label="Delete ${safe(name)}"
+                        title="Delete customer"
+                    >
+                        <i data-lucide="trash-2"></i>
+                        Delete
+                    </button>
+                </div>
+
+            </article>
+        `;
+    }).join("");
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
 }
-
 async function deleteCustomer(id) {
 
   const confirmed =
