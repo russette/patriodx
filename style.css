@@ -14787,3 +14787,209 @@ body.dark-mode .activity-item {
         height: 38px;
     }
 }
+/* PATRIODX — AMAZON-INSPIRED INVENTORY CARDS */
+
+#products .business-product-card {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-width: 0;
+    padding: 22px;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: var(--business-surface, #ffffff);
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+#products .business-product-card:hover {
+    transform: translateY(-2px);
+    border-color: #b8c9e2;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+#products .business-product-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+#products .business-product-icon {
+    display: grid;
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    place-items: center;
+    border-radius: 12px;
+    background: #edf4ff;
+    color: #2457a7;
+}
+
+#products .business-product-icon svg {
+    width: 23px;
+    height: 23px;
+}
+
+#products .business-product-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    max-width: 100%;
+    padding: 6px 9px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+#products .business-product-status svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+#products .business-product-status.in-stock {
+    color: #166534;
+    background: #dcfce7;
+}
+
+#products .business-product-status.low-stock {
+    color: #92400e;
+    background: #fef3c7;
+}
+
+#products .business-product-status.out-of-stock {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+#products .business-product-information h3 {
+    margin: 0 0 12px;
+    overflow-wrap: anywhere;
+    font-size: 17px;
+    line-height: 1.45;
+    font-weight: 750;
+}
+
+#products .business-product-label {
+    margin: 0 0 4px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+#products .business-product-price {
+    color: var(--business-accent, #2457a7);
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+#products .business-product-metrics {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+    padding: 15px 0;
+    border-top: 1px solid #e8edf3;
+    border-bottom: 1px solid #e8edf3;
+}
+
+#products .business-product-metric {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+    min-width: 0;
+}
+
+#products .business-product-metric span {
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+#products .business-product-metric strong {
+    overflow-wrap: anywhere;
+    font-size: 15px;
+    font-weight: 750;
+}
+
+#products .business-product-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 9px;
+    margin-top: auto;
+}
+
+#products .business-product-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-width: 0;
+    min-height: 40px;
+    padding: 9px 12px;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+#products .business-product-actions button svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+
+#products .business-product-actions .danger-btn {
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+#products .business-products-empty {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+body.dark-mode #products .business-product-card {
+    border-color: #303b4c;
+    background: var(--business-surface, #182230);
+    box-shadow: none;
+}
+
+body.dark-mode #products .business-product-card:hover {
+    border-color: #526783;
+}
+
+body.dark-mode #products .business-product-icon {
+    color: #b9d4ff;
+    background: #233754;
+}
+
+body.dark-mode #products .business-product-label,
+body.dark-mode #products .business-product-metric span {
+    color: #a7b4c7;
+}
+
+body.dark-mode #products .business-product-metrics {
+    border-color: #303b4c;
+}
+
+@media (max-width: 480px) {
+    #products .business-product-card {
+        padding: 17px;
+        gap: 15px;
+    }
+
+    #products .business-product-status {
+        font-size: 11px;
+    }
+
+    #products .business-product-price {
+        font-size: 23px;
+    }
+
+    #products .business-product-actions button {
+        padding: 9px 8px;
+        font-size: 11px;
+    }
+}
