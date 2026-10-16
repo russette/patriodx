@@ -13734,3 +13734,1056 @@ body.dark-mode .home-feed-post .social-post-author {
 body.dark-mode .home-feed-post .social-post-author:hover {
     color: #93b4ff;
 }
+/* =========================================================
+   PATRIODX — BUSINESS EXPERIENCE REDESIGN
+   Dashboard • Products • Customers • Sales • Invoices • Analytics
+   Safe visual overrides; existing JavaScript and data preserved.
+========================================================= */
+
+:root {
+    --business-accent: #2563eb;
+    --business-accent-dark: #1d4ed8;
+    --business-surface: #ffffff;
+    --business-background: #f8fafc;
+    --business-border: #e2e8f0;
+    --business-text: #0f172a;
+    --business-muted: #64748b;
+    --business-radius: 18px;
+}
+
+/* BUSINESS SECTION SPACING */
+
+#dashboard,
+#analytics,
+#products,
+#customers,
+#sales,
+#invoices {
+    scroll-margin-top: 100px;
+}
+
+#analytics,
+#products,
+#customers,
+#sales,
+#invoices {
+    padding: 32px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+    border: 1px solid var(--business-border);
+    border-radius: 22px;
+    background: var(--business-background);
+}
+
+#analytics .section-heading,
+#products .section-heading,
+#customers .section-heading,
+#sales .section-heading,
+#invoices .section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 26px;
+}
+
+#analytics .section-heading h2,
+#products .section-heading h2,
+#customers .section-heading h2,
+#sales .section-heading h2,
+#invoices .section-heading h2 {
+    margin: 5px 0 10px;
+    color: var(--business-text);
+    font-size: clamp(26px, 3vw, 34px);
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+#analytics .section-heading p:not(.eyebrow),
+#products .section-heading p:not(.eyebrow),
+#customers .section-heading p:not(.eyebrow),
+#sales .section-heading p:not(.eyebrow),
+#invoices .section-heading p:not(.eyebrow) {
+    margin: 0;
+    color: var(--business-muted);
+    line-height: 1.7;
+}
+
+#analytics .eyebrow,
+#products .eyebrow,
+#customers .eyebrow,
+#sales .eyebrow,
+#invoices .eyebrow {
+    color: var(--business-accent);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.7px;
+}
+
+/* SECTION ACTION BUTTONS */
+
+#products .section-heading > button,
+#customers .section-heading > button,
+#sales .section-heading > button,
+#invoices .section-heading > button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-shrink: 0;
+    min-height: 46px;
+    padding: 12px 18px;
+    border: 1px solid var(--business-accent);
+    border-radius: 12px;
+    background: var(--business-accent);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 750;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#products .section-heading > button:hover,
+#customers .section-heading > button:hover,
+#sales .section-heading > button:hover,
+#invoices .section-heading > button:hover {
+    background: var(--business-accent-dark);
+    box-shadow: 0 7px 18px rgba(37, 99, 235, 0.18);
+    transform: translateY(-1px);
+}
+
+/* DASHBOARD HERO */
+
+#dashboard.hero {
+    padding: 34px;
+    margin-top: 24px;
+    margin-bottom: 28px;
+    overflow: hidden;
+    border: 1px solid #dbeafe;
+    border-radius: 24px;
+    background:
+        radial-gradient(
+            circle at 100% 0%,
+            rgba(96, 165, 250, 0.16),
+            transparent 35%
+        ),
+        linear-gradient(135deg, #ffffff, #f1f6ff);
+}
+
+#dashboard.hero h1 {
+    max-width: 760px;
+    margin: 12px 0;
+    color: #0f172a;
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 850;
+    line-height: 1.13;
+    letter-spacing: -1.8px;
+}
+
+#dashboard .hero-text {
+    max-width: 650px;
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+#dashboard .hero-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+#dashboard .hero-buttons button {
+    min-height: 46px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-weight: 750;
+}
+
+/* QUICK ACTIONS */
+
+#dashboard .quick-actions {
+    margin-top: 36px;
+}
+
+#dashboard .quick-actions-heading {
+    margin-bottom: 18px;
+}
+
+#dashboard .quick-actions-heading h2 {
+    color: var(--business-text);
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: -0.7px;
+}
+
+#dashboard .quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+#dashboard .quick-action {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    min-height: 92px;
+    padding: 18px;
+    border: 1px solid var(--business-border);
+    border-radius: 15px;
+    background: #ffffff;
+    color: var(--business-text);
+    text-align: left;
+    cursor: pointer;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+#dashboard .quick-action:hover {
+    border-color: #93c5fd;
+    box-shadow: 0 9px 24px rgba(15, 23, 42, 0.06);
+    transform: translateY(-2px);
+}
+
+#dashboard .quick-action-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    background: #eff6ff;
+    color: var(--business-accent);
+}
+
+#dashboard .quick-action strong,
+#dashboard .quick-action small {
+    display: block;
+}
+
+#dashboard .quick-action strong {
+    font-size: 14px;
+    font-weight: 800;
+}
+
+#dashboard .quick-action small {
+    margin-top: 5px;
+    color: var(--business-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+#dashboard .quick-action-arrow {
+    margin-left: auto;
+    color: var(--business-accent);
+    font-size: 20px;
+}
+
+/* DASHBOARD STATISTICS */
+
+.stats-grid {
+    gap: 16px;
+    margin-top: 22px;
+    margin-bottom: 28px;
+}
+
+.stats-grid .stat-card {
+    position: relative;
+    min-width: 0;
+    padding: 22px;
+    overflow: hidden;
+    border: 1px solid var(--business-border);
+    border-radius: var(--business-radius);
+    background: var(--business-surface);
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.025);
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.stats-grid .stat-card:hover {
+    border-color: #bfdbfe;
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.055);
+    transform: translateY(-2px);
+}
+
+.stats-grid .stat-card p {
+    color: var(--business-muted);
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.stats-grid .stat-card h2 {
+    margin-top: 10px;
+    color: var(--business-text);
+    font-size: clamp(22px, 2vw, 29px);
+    font-weight: 850;
+    letter-spacing: -0.7px;
+}
+
+/* RECENT ACTIVITY */
+
+.recent-activity {
+    margin-top: 24px;
+    padding: 28px;
+    border: 1px solid var(--business-border);
+    border-radius: 20px;
+    background: var(--business-surface);
+}
+
+.recent-activity-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.recent-activity-header h2 {
+    margin: 6px 0 8px;
+    color: var(--business-text);
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: -0.7px;
+}
+
+.recent-activity-header p:not(.eyebrow) {
+    color: var(--business-muted);
+    line-height: 1.6;
+}
+
+.activity-list {
+    display: grid;
+    gap: 0;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 17px 0;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.activity-item:last-child {
+    border-bottom: 0;
+}
+
+.activity-item p {
+    margin: 5px 0;
+    color: var(--business-text);
+    font-size: 14px;
+    font-weight: 650;
+}
+
+.activity-item small {
+    color: var(--business-muted);
+    font-size: 12px;
+}
+
+.activity-item > strong {
+    color: var(--business-text);
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+/* SEARCH AND FILTERS */
+
+#products .search-bar,
+#customers .search-bar,
+#sales .search-bar,
+#invoices .search-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 22px;
+    padding: 12px;
+    border: 1px solid var(--business-border);
+    border-radius: 15px;
+    background: var(--business-surface);
+}
+
+#products .search-bar input,
+#customers .search-bar input,
+#sales .search-bar input,
+#invoices .search-bar input,
+#invoices .search-bar select {
+    min-width: 0;
+    min-height: 42px;
+    padding: 11px 13px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+    color: var(--business-text);
+    font-size: 14px;
+    outline: none;
+}
+
+#products .search-bar input,
+#customers .search-bar input,
+#sales .search-bar input {
+    width: 100%;
+}
+
+#invoices .search-bar input {
+    flex: 1;
+}
+
+#products .search-bar input:focus,
+#customers .search-bar input:focus,
+#sales .search-bar input:focus,
+#invoices .search-bar input:focus,
+#invoices .search-bar select:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.09);
+}
+
+/* PRODUCT AND CUSTOMER CARDS
+   Important: script.js actually renders .item-card.
+   These rules intentionally target the real class. */
+
+#products .items-grid,
+#customers .items-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 16px;
+}
+
+#products .item-card,
+#customers .item-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 22px;
+    border: 1px solid var(--business-border);
+    border-radius: 17px;
+    background: var(--business-surface);
+    box-shadow: 0 3px 14px rgba(15, 23, 42, 0.025);
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+#products .item-card:hover,
+#customers .item-card:hover {
+    border-color: #bfdbfe;
+    box-shadow: 0 12px 25px rgba(15, 23, 42, 0.06);
+    transform: translateY(-3px);
+}
+
+#products .item-card h3,
+#customers .item-card h3 {
+    margin: 0 0 16px;
+    color: var(--business-text);
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+#products .item-card p,
+#customers .item-card p {
+    margin: 0 0 10px;
+    color: var(--business-muted);
+    font-size: 13px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+
+#products .item-card p strong {
+    color: var(--business-text);
+    font-weight: 800;
+}
+
+#products .item-card .card-actions,
+#customers .item-card .card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: auto;
+    padding-top: 18px;
+}
+
+#products .item-card .card-actions button,
+#customers .item-card .card-actions button {
+    min-height: 38px;
+    padding: 9px 13px;
+    border: 1px solid var(--business-border);
+    border-radius: 9px;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+#products .item-card .card-actions button:hover,
+#customers .item-card .card-actions button:hover {
+    border-color: #93c5fd;
+    background: #eff6ff;
+    color: var(--business-accent-dark);
+}
+
+#products .item-card .card-actions button.danger-btn,
+#customers .item-card .card-actions button.danger-btn {
+    border-color: #fecaca;
+    background: #fff7f7;
+    color: #b91c1c;
+}
+
+/* SALES */
+
+#sales .sales-list {
+    display: grid;
+    gap: 12px;
+}
+
+#sales .sale-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid var(--business-border);
+    border-radius: 15px;
+    background: var(--business-surface);
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#sales .sale-card:hover {
+    border-color: #bfdbfe;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.045);
+}
+
+#sales .sale-card h3 {
+    margin: 0 0 8px;
+    color: var(--business-text);
+    font-size: 15px;
+    font-weight: 800;
+}
+
+#sales .sale-card p,
+#sales .sale-card small {
+    color: var(--business-muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+#sales .sale-card > strong {
+    margin-left: auto;
+    color: var(--business-text);
+    font-size: 16px;
+    font-weight: 850;
+    white-space: nowrap;
+}
+
+#sales .sale-card > button {
+    flex-shrink: 0;
+}
+
+/* INVOICES */
+
+#invoices .invoice-list {
+    display: grid;
+    gap: 12px;
+}
+
+#invoices .invoice-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid var(--business-border);
+    border-radius: 15px;
+    background: var(--business-surface);
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#invoices .invoice-card:hover {
+    border-color: #bfdbfe;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.045);
+}
+
+#invoices .invoice-card h3 {
+    margin: 0 0 8px;
+    color: var(--business-text);
+    font-size: 15px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+#invoices .invoice-card p,
+#invoices .invoice-card small {
+    color: var(--business-muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+#invoices .invoice-meta {
+    flex-shrink: 0;
+    text-align: right;
+}
+
+#invoices .invoice-meta strong {
+    color: var(--business-text);
+    font-size: 15px;
+    font-weight: 850;
+}
+
+#invoices .invoice-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+/* ANALYTICS */
+
+#analytics .analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 15px;
+    margin-bottom: 22px;
+}
+
+#analytics .analytics-card {
+    min-width: 0;
+    padding: 22px;
+    border: 1px solid var(--business-border);
+    border-radius: 17px;
+    background: var(--business-surface);
+    box-shadow: 0 3px 14px rgba(15, 23, 42, 0.025);
+    transition:
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+#analytics .analytics-card:hover {
+    border-color: #bfdbfe;
+    transform: translateY(-2px);
+}
+
+#analytics .analytics-card p {
+    margin: 13px 0 9px;
+    color: var(--business-muted);
+    font-size: 12px;
+    font-weight: 650;
+}
+
+#analytics .analytics-card strong {
+    display: block;
+    color: var(--business-text);
+    font-size: clamp(19px, 2vw, 25px);
+    font-weight: 850;
+    overflow-wrap: anywhere;
+}
+
+#analytics .chart-card {
+    min-width: 0;
+    margin-top: 18px;
+    padding: 24px;
+    border: 1px solid var(--business-border);
+    border-radius: 17px;
+    background: var(--business-surface);
+    box-shadow: 0 3px 14px rgba(15, 23, 42, 0.025);
+}
+
+#analytics .chart-card h3 {
+    margin: 0 0 10px;
+    color: var(--business-text);
+    font-size: 17px;
+    font-weight: 800;
+}
+
+#analytics .chart-card > p {
+    color: var(--business-muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+#analytics .analytics-two-column {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 18px;
+}
+
+#analytics .analytics-two-column .chart-card {
+    margin-top: 0;
+}
+
+#analytics .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+#analytics .overview-grid > div {
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid var(--business-border);
+    border-radius: 12px;
+    background: var(--business-background);
+}
+
+#analytics .overview-grid span {
+    display: block;
+    margin-bottom: 9px;
+    color: var(--business-muted);
+    font-size: 12px;
+}
+
+#analytics .overview-grid strong {
+    color: var(--business-text);
+    font-size: 18px;
+    font-weight: 850;
+    overflow-wrap: anywhere;
+}
+
+#analytics .simple-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    min-height: 170px;
+    padding: 20px 8px 0;
+    border-bottom: 1px solid var(--business-border);
+}
+
+#analytics .chart-bar-wrap {
+    display: flex;
+    align-items: flex-end;
+    flex: 1;
+    min-width: 8px;
+    height: 145px;
+}
+
+#analytics .chart-bar {
+    width: 100%;
+    min-height: 8px;
+    border-radius: 7px 7px 2px 2px;
+    background: linear-gradient(180deg, #60a5fa, #2563eb);
+    transition: height 0.25s ease;
+}
+
+#analytics .chart-bar:hover {
+    background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+}
+
+/* EMPTY STATES */
+
+#products .empty-state,
+#customers .empty-state,
+#sales .empty-state,
+#invoices .empty-state,
+#analytics .empty-state,
+#analytics .empty-chart {
+    grid-column: 1 / -1;
+    padding: 34px 22px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 15px;
+    background: var(--business-surface);
+    color: var(--business-muted);
+    text-align: center;
+}
+
+#products .empty-state h3,
+#customers .empty-state h3,
+#sales .empty-state h3,
+#invoices .empty-state h3,
+#analytics .empty-state h3 {
+    margin: 12px 0 7px;
+    color: var(--business-text);
+    font-size: 16px;
+    font-weight: 800;
+}
+
+#products .empty-state p,
+#customers .empty-state p,
+#sales .empty-state p,
+#invoices .empty-state p,
+#analytics .empty-state p {
+    color: var(--business-muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* DARK MODE */
+
+body.dark-mode #dashboard.hero {
+    border-color: #263a59;
+    background:
+        radial-gradient(
+            circle at 100% 0%,
+            rgba(37, 99, 235, 0.16),
+            transparent 35%
+        ),
+        linear-gradient(135deg, #111827, #172033);
+}
+
+body.dark-mode #dashboard.hero h1,
+body.dark-mode #dashboard .quick-actions-heading h2 {
+    color: #f8fafc;
+}
+
+body.dark-mode #dashboard .hero-text {
+    color: #cbd5e1;
+}
+
+body.dark-mode #dashboard .quick-action,
+body.dark-mode #products .item-card,
+body.dark-mode #customers .item-card,
+body.dark-mode #sales .sale-card,
+body.dark-mode #invoices .invoice-card,
+body.dark-mode #analytics .analytics-card,
+body.dark-mode #analytics .chart-card,
+body.dark-mode .recent-activity,
+body.dark-mode .stats-grid .stat-card {
+    border-color: #334155;
+    background: #111827;
+    color: #f8fafc;
+}
+
+body.dark-mode #analytics,
+body.dark-mode #products,
+body.dark-mode #customers,
+body.dark-mode #sales,
+body.dark-mode #invoices {
+    border-color: #334155;
+    background: #0f172a;
+}
+
+body.dark-mode #analytics .section-heading h2,
+body.dark-mode #products .section-heading h2,
+body.dark-mode #customers .section-heading h2,
+body.dark-mode #sales .section-heading h2,
+body.dark-mode #invoices .section-heading h2,
+body.dark-mode #products .item-card h3,
+body.dark-mode #customers .item-card h3,
+body.dark-mode #sales .sale-card h3,
+body.dark-mode #invoices .invoice-card h3,
+body.dark-mode #analytics .analytics-card strong,
+body.dark-mode #analytics .chart-card h3,
+body.dark-mode #analytics .overview-grid strong,
+body.dark-mode .stats-grid .stat-card h2,
+body.dark-mode .activity-item > strong,
+body.dark-mode .activity-item p {
+    color: #f8fafc;
+}
+
+body.dark-mode #analytics .section-heading p:not(.eyebrow),
+body.dark-mode #products .section-heading p:not(.eyebrow),
+body.dark-mode #customers .section-heading p:not(.eyebrow),
+body.dark-mode #sales .section-heading p:not(.eyebrow),
+body.dark-mode #invoices .section-heading p:not(.eyebrow),
+body.dark-mode #products .item-card p,
+body.dark-mode #customers .item-card p,
+body.dark-mode #sales .sale-card p,
+body.dark-mode #sales .sale-card small,
+body.dark-mode #invoices .invoice-card p,
+body.dark-mode #invoices .invoice-card small,
+body.dark-mode #analytics .analytics-card p,
+body.dark-mode .activity-item small {
+    color: #94a3b8;
+}
+
+body.dark-mode #products .search-bar,
+body.dark-mode #customers .search-bar,
+body.dark-mode #sales .search-bar,
+body.dark-mode #invoices .search-bar {
+    border-color: #334155;
+    background: #111827;
+}
+
+body.dark-mode #products .search-bar input,
+body.dark-mode #customers .search-bar input,
+body.dark-mode #sales .search-bar input,
+body.dark-mode #invoices .search-bar input,
+body.dark-mode #invoices .search-bar select,
+body.dark-mode #products .item-card .card-actions button,
+body.dark-mode #customers .item-card .card-actions button {
+    border-color: #475569;
+    background: #1e293b;
+    color: #e2e8f0;
+}
+
+body.dark-mode #analytics .overview-grid > div {
+    border-color: #334155;
+    background: #1e293b;
+}
+
+body.dark-mode #products .empty-state,
+body.dark-mode #customers .empty-state,
+body.dark-mode #sales .empty-state,
+body.dark-mode #invoices .empty-state,
+body.dark-mode #analytics .empty-state,
+body.dark-mode #analytics .empty-chart {
+    border-color: #475569;
+    background: #111827;
+}
+
+body.dark-mode .activity-item {
+    border-bottom-color: #334155;
+}
+
+/* TABLETS */
+
+@media (max-width: 1000px) {
+    #products .items-grid,
+    #customers .items-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #analytics .analytics-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #analytics .overview-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* PHONES */
+
+@media (max-width: 650px) {
+    #dashboard.hero {
+        padding: 24px 18px;
+        border-radius: 18px;
+    }
+
+    #dashboard.hero h1 {
+        font-size: 32px;
+        letter-spacing: -1px;
+    }
+
+    #dashboard .hero-buttons {
+        flex-direction: column;
+    }
+
+    #dashboard .hero-buttons button {
+        width: 100%;
+    }
+
+    #dashboard .quick-actions-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #analytics,
+    #products,
+    #customers,
+    #sales,
+    #invoices {
+        padding: 20px 14px;
+        border-radius: 16px;
+    }
+
+    #analytics .section-heading,
+    #products .section-heading,
+    #customers .section-heading,
+    #sales .section-heading,
+    #invoices .section-heading {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    #products .section-heading > button,
+    #customers .section-heading > button,
+    #sales .section-heading > button,
+    #invoices .section-heading > button {
+        width: 100%;
+    }
+
+    #products .items-grid,
+    #customers .items-grid,
+    #analytics .analytics-grid,
+    #analytics .analytics-two-column {
+        grid-template-columns: 1fr;
+    }
+
+    #sales .sale-card,
+    #invoices .invoice-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    #sales .sale-card > strong {
+        margin-left: 0;
+    }
+
+    #invoices .invoice-meta {
+        width: 100%;
+        text-align: left;
+    }
+
+    #invoices .search-bar {
+        flex-direction: column;
+    }
+
+    #invoices .search-bar input,
+    #invoices .search-bar select {
+        width: 100%;
+    }
+
+    #analytics .overview-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .recent-activity {
+        padding: 20px 16px;
+    }
+
+    .recent-activity-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .activity-item {
+        align-items: flex-start;
+    }
+
+    .activity-item > strong {
+        white-space: normal;
+        text-align: right;
+    }
+}
+
+/* VERY SMALL PHONES */
+
+@media (max-width: 380px) {
+    #products .items-grid,
+    #customers .items-grid,
+    #analytics .analytics-grid,
+    #analytics .overview-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #dashboard .quick-action {
+        padding: 14px;
+    }
+
+    #dashboard .quick-action-icon {
+        flex-basis: 38px;
+        width: 38px;
+        height: 38px;
+    }
+}
