@@ -13476,3 +13476,68 @@ transition: outline-color 0.3s ease;
         overflow-wrap: anywhere;
     }
 }
+/* PATRIODX — HOME FEED PROFILE POLISH */
+
+.home-feed-post .social-post-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 14px;
+}
+
+.home-feed-post .social-post-avatar {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    overflow: hidden;
+    border-radius: 50%;
+    border: 2px solid #e8edff;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.home-feed-post .social-post-avatar:hover {
+    transform: scale(1.05);
+}
+
+.home-feed-post .social-post-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.home-feed-post .social-post-author {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    width: fit-content;
+    max-width: 100%;
+    color: var(--text-color, #172033);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.home-feed-post .social-post-author:hover {
+    color: #356df3;
+}
+
+.home-feed-post .social-post-date {
+    margin-top: 4px;
+    color: var(--text-muted, #788397);
+    font-size: 12px;
+}
+
+body.dark-mode .home-feed-post .social-post-avatar {
+    border-color: #34415e;
+}
+
+body.dark-mode .home-feed-post .social-post-author {
+    color: var(--text-color, #f1f5f9);
+}
+
+body.dark-mode .home-feed-post .social-post-author:hover {
+    color: #93b4ff;
+}
