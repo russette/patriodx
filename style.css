@@ -13374,3 +13374,248 @@ transition: outline-color 0.3s ease;
         padding: 15px;
     }
 }
+/* =========================================================
+   PATRIODX — PROFESSIONAL HOME PAGE ENHANCEMENTS
+   Additive styles; preserves existing functionality.
+========================================================= */
+
+/* Consistent, polished cards */
+.social-post-card,
+.discover-person-card,
+.profile-page-card,
+.public-profile-card {
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 18px;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.045);
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+/* Community post cards */
+.social-post-card {
+    padding: 20px;
+    margin-bottom: 22px;
+    background: var(--card-bg, #ffffff);
+}
+
+.social-post-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    margin-bottom: 16px;
+}
+
+.social-post-avatar {
+    flex: 0 0 46px;
+    width: 46px;
+    height: 46px;
+    overflow: hidden;
+    border-radius: 50%;
+    background: #eaf0ff;
+    color: #2563eb;
+}
+
+.social-post-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.social-post-author-area {
+    flex: 1;
+    min-width: 0;
+}
+
+.social-post-author {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.social-post-date {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--text-muted, #64748b);
+}
+
+.social-post-content {
+    margin: 14px 0;
+    font-size: 15px;
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.social-media-wrapper {
+    margin-top: 14px;
+    overflow: hidden;
+    border-radius: 14px;
+    background: var(--border-color, #f1f5f9);
+}
+
+.social-post-image,
+.social-post-video {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    max-height: 560px;
+    object-fit: contain;
+}
+
+/* Post statistics */
+.social-post-stats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 0;
+    margin-top: 8px;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    font-size: 13px;
+}
+
+.social-like-stat,
+.social-comment-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.social-comment-stat {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.social-like-stat svg,
+.social-comment-stat svg {
+    width: 17px;
+    height: 17px;
+}
+
+/* Clean action buttons */
+.social-post-actions-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 8px;
+    padding-top: 12px;
+}
+
+.social-action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-width: 44px;
+    min-height: 42px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text-color, #475569);
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.social-action-button:hover {
+    background: rgba(37, 99, 235, 0.09);
+    color: #2563eb;
+}
+
+.social-action-button svg {
+    width: 19px;
+    height: 19px;
+}
+
+/* Discover People cards */
+.discover-person-card {
+    padding: 20px;
+}
+
+.discover-person-card:hover {
+    border-color: rgba(37, 99, 235, 0.35);
+    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.08);
+}
+
+/* Clear, professional section headings */
+.discover-people-heading h3 {
+    font-size: 19px;
+    font-weight: 750;
+    letter-spacing: -0.3px;
+}
+
+/* Dark mode */
+body.dark-mode .social-post-card,
+body.dark-mode .discover-person-card,
+body.dark-mode .profile-page-card,
+body.dark-mode .public-profile-card {
+    background: var(--card-bg, #171b26);
+    border-color: var(--border-color, #303747);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.14);
+}
+
+body.dark-mode .social-post-date {
+    color: var(--text-muted, #a1acc0);
+}
+
+body.dark-mode .social-post-stats {
+    border-color: var(--border-color, #303747);
+}
+
+body.dark-mode .social-action-button {
+    color: var(--text-color, #d5dbea);
+}
+
+body.dark-mode .social-action-button:hover {
+    background: rgba(96, 165, 250, 0.13);
+    color: #93c5fd;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .social-post-card {
+        padding: 15px;
+        margin-bottom: 16px;
+        border-radius: 15px;
+    }
+
+    .social-post-header {
+        gap: 10px;
+    }
+
+    .social-post-avatar {
+        flex-basis: 42px;
+        width: 42px;
+        height: 42px;
+    }
+
+    .social-post-content {
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .social-post-actions-bar {
+        gap: 4px;
+    }
+
+    .social-action-button {
+        padding: 8px;
+    }
+
+    .social-post-image,
+    .social-post-video {
+        max-height: 420px;
+    }
+}
