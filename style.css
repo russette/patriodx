@@ -1299,119 +1299,109 @@ button:active {
     min-width: 160px;
 }
 
-
 /* =========================================================
-   QUICK ACTIONS
+   PATRIODX QUICK ACTIONS — BUSINESS DASHBOARD
    ========================================================= */
 
 .quick-actions {
-    margin-top: 55px;
-
+    width: 100%;
+    margin-top: 38px;
     text-align: left;
 }
 
 .quick-actions-heading {
-    margin-bottom: 22px;
+    margin-bottom: 20px;
 }
 
 .quick-actions-heading h2 {
-    margin: 5px 0;
-
-    color: #0f172a;
-
-    font-size: 28px;
+    margin: 5px 0 0;
+    color: var(--text-color, #0f172a);
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    line-height: 1.3;
 }
 
 .quick-actions-grid {
     display: grid;
-
-    grid-template-columns: repeat(2, 1fr);
-
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
 }
 
 .quick-action {
     width: 100%;
-
+    min-width: 0;
+    min-height: 100px;
+    box-sizing: border-box;
     display: flex;
-
     align-items: center;
-
-    gap: 16px;
-
+    gap: 15px;
     padding: 20px;
-
-    background: #ffffff;
-    color: #0f172a;
-
-    border: 1px solid #e2e8f0;
-
-    border-radius: 16px;
-
+    background: var(--card-bg, #ffffff);
+    color: var(--text-color, #0f172a);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 12px;
     text-align: left;
-
     cursor: pointer;
-
+    box-shadow: 0 2px 5px rgba(15, 23, 42, 0.025);
     transition:
         transform 0.2s ease,
         box-shadow 0.2s ease,
-        border-color 0.2s ease;
+        border-color 0.2s ease,
+        background-color 0.2s ease;
 }
 
 .quick-action:hover {
-    transform: translateY(-3px);
-
+    transform: translateY(-2px);
     border-color: #93c5fd;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.07);
+}
 
-    box-shadow:
-        0 12px 30px rgba(15, 23, 42, 0.08);
+.quick-action:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.35);
+    outline-offset: 3px;
 }
 
 .quick-action-icon {
-    width: 48px;
-    height: 48px;
-
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
     display: flex;
-
     align-items: center;
     justify-content: center;
-
-    flex-shrink: 0;
-
     background: #eff6ff;
-
-    border-radius: 12px;
-
-    font-size: 23px;
+    color: #2563eb;
+    border: 1px solid #dbeafe;
+    border-radius: 11px;
+    font-size: 21px;
 }
 
 .quick-action > span:nth-child(2) {
     display: flex;
-
     flex-direction: column;
-
     flex: 1;
-
-    gap: 4px;
+    min-width: 0;
+    gap: 5px;
 }
 
 .quick-action strong {
-    color: #0f172a;
-
-    font-size: 15px;
+    color: var(--text-color, #0f172a);
+    font-size: 14px;
+    font-weight: 750;
+    line-height: 1.4;
 }
 
 .quick-action small {
-    color: #64748b;
-
+    color: var(--muted-text, #64748b);
     font-size: 12px;
+    font-weight: 400;
+    line-height: 1.5;
 }
 
 .quick-action-arrow {
+    flex-shrink: 0;
     color: #94a3b8;
-
-    font-size: 20px;
-
+    font-size: 19px;
     transition:
         transform 0.2s ease,
         color 0.2s ease;
@@ -1419,11 +1409,43 @@ button:active {
 
 .quick-action:hover .quick-action-arrow {
     color: #2563eb;
-
-    transform: translateX(4px);
+    transform: translateX(3px);
 }
 
+/* Dark mode */
+body.dark-mode .quick-action {
+    background: var(--card-bg, #1e293b);
+    border-color: var(--border-color, #334155);
+    box-shadow: none;
+}
 
+body.dark-mode .quick-action:hover {
+    border-color: #60a5fa;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15);
+}
+
+body.dark-mode .quick-action-icon {
+    background: rgba(37, 99, 235, 0.16);
+    color: #93c5fd;
+    border-color: rgba(96, 165, 250, 0.2);
+}
+
+/* Responsive layout */
+@media (max-width: 750px) {
+    .quick-actions {
+        margin-top: 32px;
+    }
+
+    .quick-actions-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .quick-action {
+        min-height: 82px;
+        padding: 16px;
+    }
+}
 /* =========================================================
    RECENT ACTIVITY
    ========================================================= */
