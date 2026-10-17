@@ -2897,13 +2897,26 @@
 
 
 
-<div class="search-bar">
+<div class="search-bar business-inventory-toolbar">
 
     <input
         type="search"
         id="productSearch"
         placeholder="Search products..."
+        aria-label="Search products"
     >
+
+    <select
+        id="productStockFilter"
+        class="business-stock-filter"
+        aria-label="Filter products by stock status"
+        onchange="renderProducts()"
+    >
+        <option value="all">All products</option>
+        <option value="in-stock">In stock</option>
+        <option value="low-stock">Low stock</option>
+        <option value="out-of-stock">Out of stock</option>
+    </select>
 
 </div>
 
