@@ -15209,3 +15209,992 @@ body.dark-mode #customers .business-customer-footer {
         font-size: 11px;
     }
 }
+/* =========================================================
+   PATRIODX — AMAZON-INSPIRED SALES MANAGEMENT
+========================================================= */
+
+#sales .business-sale-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1.8fr) minmax(95px, 0.65fr) minmax(120px, 0.8fr) auto;
+    align-items: center;
+    gap: 22px;
+    min-width: 0;
+    padding: 22px;
+    margin-bottom: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 15px;
+    background: var(--business-surface, #ffffff);
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#sales .business-sale-card:hover {
+    border-color: #b8c9e2;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+}
+
+#sales .business-sale-product {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 0;
+}
+
+#sales .business-sale-product-icon {
+    display: grid;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    place-items: center;
+    border-radius: 12px;
+    background: #edf4ff;
+    color: #2457a7;
+}
+
+#sales .business-sale-product-icon svg {
+    width: 23px;
+    height: 23px;
+}
+
+#sales .business-sale-product-info {
+    min-width: 0;
+}
+
+#sales .business-sale-reference {
+    display: block;
+    margin-bottom: 5px;
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+#sales .business-sale-product-info h3 {
+    margin: 0 0 8px;
+    overflow-wrap: anywhere;
+    font-size: 16px;
+    font-weight: 750;
+    line-height: 1.4;
+}
+
+#sales .business-sale-date {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+#sales .business-sale-date svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+#sales .business-sale-quantity,
+#sales .business-sale-total {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+    min-width: 0;
+}
+
+#sales .business-sale-quantity > span,
+#sales .business-sale-total > span {
+    color: #64748b;
+    font-size: 11px;
+}
+
+#sales .business-sale-quantity strong {
+    font-size: 16px;
+    font-weight: 750;
+}
+
+#sales .business-sale-total strong {
+    color: var(--business-accent, #2457a7);
+    font-size: 20px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+#sales .business-sale-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+#sales .business-sale-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 38px;
+    padding: 9px 11px;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+#sales .business-sale-actions button svg {
+    width: 15px;
+    height: 15px;
+}
+
+#sales .business-sales-empty {
+    width: 100%;
+}
+
+#sales .business-sales-empty-icon {
+    display: grid;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 14px;
+    place-items: center;
+    border-radius: 15px;
+    background: #edf4ff;
+    color: #2457a7;
+}
+
+#sales .business-sales-empty-icon svg {
+    width: 25px;
+    height: 25px;
+}
+
+/* Dark mode */
+
+body.dark-mode #sales .business-sale-card {
+    border-color: #303b4c;
+    background: var(--business-surface, #182230);
+    box-shadow: none;
+}
+
+body.dark-mode #sales .business-sale-card:hover {
+    border-color: #526783;
+}
+
+body.dark-mode #sales .business-sale-product-icon,
+body.dark-mode #sales .business-sales-empty-icon {
+    background: #233754;
+    color: #b9d4ff;
+}
+
+body.dark-mode #sales .business-sale-reference,
+body.dark-mode #sales .business-sale-date,
+body.dark-mode #sales .business-sale-quantity > span,
+body.dark-mode #sales .business-sale-total > span {
+    color: #a7b4c7;
+}
+
+/* Tablet and mobile */
+
+@media (max-width: 900px) {
+    #sales .business-sale-card {
+        grid-template-columns: minmax(0, 1fr) minmax(90px, auto);
+        gap: 18px;
+    }
+
+    #sales .business-sale-product {
+        grid-column: 1 / -1;
+    }
+
+    #sales .business-sale-actions {
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    #sales .business-sale-card {
+        gap: 16px 12px;
+        padding: 16px;
+    }
+
+    #sales .business-sale-product {
+        gap: 11px;
+    }
+
+    #sales .business-sale-product-icon {
+        width: 42px;
+        height: 42px;
+    }
+
+    #sales .business-sale-product-info h3 {
+        font-size: 15px;
+    }
+
+    #sales .business-sale-total strong {
+        font-size: 17px;
+    }
+
+    #sales .business-sale-actions button {
+        padding: 8px;
+        font-size: 11px;
+    }
+}
+/* =========================================================
+   PATRIODX — AMAZON-INSPIRED INVOICE MANAGEMENT
+========================================================= */
+
+#invoices .business-invoice-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 20px;
+    align-items: center;
+    padding: 22px;
+    margin-bottom: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 15px;
+    background: var(--business-surface, #fff);
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#invoices .business-invoice-card:hover {
+    border-color: #b8c9e2;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+}
+
+#invoices .business-invoice-main {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    min-width: 0;
+}
+
+#invoices .business-invoice-icon {
+    display: grid;
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    place-items: center;
+    border-radius: 12px;
+    background: #edf4ff;
+    color: #2457a7;
+}
+
+#invoices .business-invoice-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+#invoices .business-invoice-details {
+    min-width: 0;
+}
+
+#invoices .business-invoice-reference {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 9px;
+}
+
+#invoices .business-invoice-reference span {
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+#invoices .business-invoice-reference strong {
+    overflow-wrap: anywhere;
+    font-size: 13px;
+}
+
+#invoices .business-invoice-details h3 {
+    margin: 0 0 10px;
+    overflow-wrap: anywhere;
+    font-size: 16px;
+    font-weight: 750;
+}
+
+#invoices .business-invoice-product,
+#invoices .business-invoice-due {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px;
+    margin: 7px 0 0;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+#invoices .business-invoice-product svg,
+#invoices .business-invoice-due svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+#invoices .business-invoice-payment {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 9px;
+}
+
+#invoices .business-invoice-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 750;
+}
+
+#invoices .business-invoice-status svg {
+    width: 15px;
+    height: 15px;
+}
+
+#invoices .business-invoice-status.paid {
+    color: #166534;
+    background: #dcfce7;
+}
+
+#invoices .business-invoice-status.unpaid {
+    color: #92400e;
+    background: #fef3c7;
+}
+
+#invoices .business-invoice-status.overdue {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+#invoices .business-invoice-total-label {
+    color: #64748b;
+    font-size: 11px;
+}
+
+#invoices .business-invoice-total {
+    color: var(--business-accent, #2457a7);
+    font-size: 22px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+#invoices .business-invoice-actions {
+    display: flex;
+    flex-wrap: wrap;
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    gap: 9px;
+    padding-top: 16px;
+    border-top: 1px solid #e8edf3;
+}
+
+#invoices .business-invoice-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 39px;
+    padding: 9px 12px;
+    border: 1px solid #dbe3ed;
+    border-radius: 9px;
+    background: transparent;
+    color: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+#invoices .business-invoice-actions button svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+
+#invoices .business-invoice-actions .business-invoice-toggle {
+    border-color: #bfd5f8;
+    background: #edf4ff;
+    color: #2457a7;
+}
+
+#invoices .business-invoice-actions .danger-btn {
+    border-color: #fecaca;
+    color: #b91c1c;
+}
+
+#invoices .business-invoices-empty {
+    width: 100%;
+}
+
+#invoices .business-invoice-empty-icon {
+    display: grid;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 14px;
+    place-items: center;
+    border-radius: 15px;
+    background: #edf4ff;
+    color: #2457a7;
+}
+
+#invoices .business-invoice-empty-icon svg {
+    width: 25px;
+    height: 25px;
+}
+
+/* Dark mode */
+
+body.dark-mode #invoices .business-invoice-card {
+    border-color: #303b4c;
+    background: var(--business-surface, #182230);
+    box-shadow: none;
+}
+
+body.dark-mode #invoices .business-invoice-card:hover {
+    border-color: #526783;
+}
+
+body.dark-mode #invoices .business-invoice-icon,
+body.dark-mode #invoices .business-invoice-empty-icon {
+    background: #233754;
+    color: #b9d4ff;
+}
+
+body.dark-mode #invoices .business-invoice-product,
+body.dark-mode #invoices .business-invoice-due,
+body.dark-mode #invoices .business-invoice-reference span,
+body.dark-mode #invoices .business-invoice-total-label {
+    color: #a7b4c7;
+}
+
+body.dark-mode #invoices .business-invoice-actions {
+    border-color: #303b4c;
+}
+
+body.dark-mode #invoices .business-invoice-actions button {
+    border-color: #475569;
+}
+
+body.dark-mode #invoices .business-invoice-actions .business-invoice-toggle {
+    border-color: #38577e;
+    background: #233754;
+    color: #b9d4ff;
+}
+
+/* Responsive layout */
+
+@media (max-width: 650px) {
+    #invoices .business-invoice-card {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 18px;
+        padding: 17px;
+    }
+
+    #invoices .business-invoice-payment {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px 12px;
+        padding-top: 15px;
+        border-top: 1px solid #e8edf3;
+    }
+
+    #invoices .business-invoice-status {
+        grid-column: 1 / -1;
+        justify-self: start;
+    }
+
+    #invoices .business-invoice-total-label {
+        align-self: center;
+    }
+
+    #invoices .business-invoice-total {
+        justify-self: end;
+        font-size: 20px;
+    }
+
+    #invoices .business-invoice-actions {
+        grid-column: auto;
+        justify-content: flex-start;
+        padding-top: 15px;
+    }
+
+    #invoices .business-invoice-actions button {
+        padding: 9px 10px;
+    }
+}
+    // =====================================================
+    // REVENUE TREND — BUSINESS INTELLIGENCE CHART
+    // =====================================================
+
+    const chart = document.getElementById("revenueChart");
+
+    if (!chart) return;
+
+    if (!sales.length) {
+        chart.innerHTML = `
+            <div class="empty-chart business-chart-empty">
+                <i data-lucide="chart-no-axes-combined"></i>
+                <h4>Your revenue trend will appear here</h4>
+                <p>Record sales to see how your revenue changes over time.</p>
+            </div>
+        `;
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+
+        return;
+    }
+
+    // Sort sales from oldest to newest and display the
+    // ten most recent records.
+    const recent = [...sales]
+        .filter(sale => sale.created_at)
+        .sort((a, b) =>
+            new Date(a.created_at) - new Date(b.created_at)
+        )
+        .slice(-10);
+
+    if (!recent.length) {
+        chart.innerHTML = `
+            <div class="empty-chart">
+                Sales are available, but there are no dates to display.
+            </div>
+        `;
+
+        return;
+    }
+
+    const amounts = recent.map(sale =>
+        Math.max(0, Number(sale.total) || 0)
+    );
+
+    const maxAmount = Math.max(...amounts, 1);
+
+    const chartBars = recent.map((sale, index) => {
+        const amount = amounts[index];
+
+        const height = Math.max(
+            5,
+            (amount / maxAmount) * 100
+        );
+
+        const date = new Date(sale.created_at);
+
+        const dateLabel = Number.isNaN(date.getTime())
+            ? "—"
+            : date.toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric"
+            });
+
+        return `
+            <div class="business-revenue-column">
+
+                <div class="business-revenue-value">
+                    ${money(amount)}
+                </div>
+
+                <div class="business-revenue-bar-area">
+                    <div
+                        class="business-revenue-bar"
+                        style="height: ${height}%"
+                        title="${safe(dateLabel)} · ${money(amount)}"
+                        aria-label="Revenue ${money(amount)} on ${safe(dateLabel)}"
+                    ></div>
+                </div>
+
+                <div class="business-revenue-date">
+                    ${safe(dateLabel)}
+                </div>
+
+            </div>
+        `;
+    }).join("");
+
+    const totalRecentRevenue = amounts.reduce(
+        (sum, amount) => sum + amount,
+        0
+    );
+
+    chart.innerHTML = `
+        <div class="business-revenue-summary">
+            <div>
+                <span>Revenue across displayed sales</span>
+                <strong>${money(totalRecentRevenue)}</strong>
+            </div>
+
+            <div>
+                <span>Sales displayed</span>
+                <strong>${recent.length}</strong>
+            </div>
+        </div>
+
+        <div class="business-revenue-chart">
+            ${chartBars}
+        </div>
+
+        <p class="business-revenue-note">
+            Each bar represents one sale. The chart displays up to
+            ten recent sales in chronological order.
+        </p>
+    `;
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+}
+/* =========================================================
+   PATRIODX — BUSINESS DASHBOARD FINISHING TOUCH
+   Amazon Seller Central-inspired layout
+========================================================= */
+
+/* Business dashboard spacing */
+
+#dashboard {
+    padding-bottom: 32px;
+}
+
+#dashboard .quick-actions {
+    margin-top: 34px;
+}
+
+#dashboard .quick-actions-heading {
+    margin-bottom: 18px;
+}
+
+#dashboard .quick-actions-heading h2 {
+    margin-top: 6px;
+    font-size: clamp(20px, 2.5vw, 26px);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+/* Quick-action cards */
+
+#dashboard .quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+#dashboard .quick-action {
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr) 20px;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    min-height: 92px;
+    padding: 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: var(--business-surface, #ffffff);
+    text-align: left;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+#dashboard .quick-action:hover {
+    transform: translateY(-2px);
+    border-color: #b8c9e2;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+}
+
+#dashboard .quick-action-icon {
+    display: grid;
+    width: 46px;
+    height: 46px;
+    place-items: center;
+    border-radius: 12px;
+    background: #edf4ff;
+    color: #2457a7;
+}
+
+#dashboard .quick-action-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+#dashboard .quick-action > span:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+#dashboard .quick-action strong {
+    font-size: 14px;
+    font-weight: 750;
+    line-height: 1.4;
+}
+
+#dashboard .quick-action small {
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+#dashboard .quick-action-arrow {
+    color: #64748b;
+    font-size: 19px;
+    transition: transform 0.2s ease;
+}
+
+#dashboard .quick-action:hover .quick-action-arrow {
+    transform: translateX(3px);
+}
+
+/* Business metrics */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+    margin-bottom: 30px;
+}
+
+.stats-grid .stat-card {
+    position: relative;
+    min-width: 0;
+    padding: 22px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    border-radius: 15px;
+    background: var(--business-surface, #ffffff);
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.stats-grid .stat-card:hover {
+    transform: translateY(-2px);
+    border-color: #b8c9e2;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+}
+
+.stats-grid .stat-icon {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 20px;
+    place-items: center;
+    border-radius: 12px;
+    background: #edf4ff;
+    color: #2457a7;
+}
+
+.stats-grid .stat-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.stats-grid .stat-card p {
+    margin: 0 0 8px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.stats-grid .stat-card h2 {
+    margin: 0;
+    font-size: clamp(21px, 2vw, 29px);
+    font-weight: 800;
+    letter-spacing: -0.7px;
+    overflow-wrap: anywhere;
+}
+
+/* Recent activity */
+
+.recent-activity {
+    padding: 24px;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: var(--business-surface, #ffffff);
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+}
+
+.recent-activity-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.recent-activity-header h3 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.activity-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 17px 0;
+    border-bottom: 1px solid #e8edf3;
+}
+
+.activity-item:first-child {
+    padding-top: 0;
+}
+
+.activity-item:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.activity-item > div {
+    min-width: 0;
+}
+
+.activity-item strong {
+    overflow-wrap: anywhere;
+}
+
+.activity-item p {
+    margin-top: 5px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Dark mode */
+
+body.dark-mode #dashboard .quick-action,
+body.dark-mode .stats-grid .stat-card,
+body.dark-mode .recent-activity {
+    border-color: #303b4c;
+    background: var(--business-surface, #182230);
+    box-shadow: none;
+}
+
+body.dark-mode #dashboard .quick-action:hover,
+body.dark-mode .stats-grid .stat-card:hover {
+    border-color: #526783;
+}
+
+body.dark-mode #dashboard .quick-action-icon,
+body.dark-mode .stats-grid .stat-icon {
+    background: #233754;
+    color: #b9d4ff;
+}
+
+body.dark-mode #dashboard .quick-action small,
+body.dark-mode .stats-grid .stat-card p,
+body.dark-mode .activity-item p {
+    color: #a7b4c7;
+}
+
+body.dark-mode .activity-item {
+    border-color: #303b4c;
+}
+
+/* Tablet */
+
+@media (max-width: 1000px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+    #dashboard .quick-actions-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #dashboard .quick-action {
+        min-height: 82px;
+        padding: 15px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 11px;
+    }
+
+    .stats-grid .stat-card {
+        padding: 16px;
+    }
+
+    .stats-grid .stat-icon {
+        width: 39px;
+        height: 39px;
+        margin-bottom: 15px;
+    }
+
+    .stats-grid .stat-card h2 {
+        font-size: 21px;
+    }
+
+    .recent-activity {
+        padding: 17px;
+    }
+
+    .activity-item {
+        align-items: flex-start;
+        gap: 12px;
+    }
+}
+/* PATRIODX — INVENTORY FILTER TOOLBAR */
+
+.business-inventory-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin: 20px 0 24px;
+}
+
+.business-inventory-toolbar input {
+    flex: 1;
+    min-width: 0;
+}
+
+.business-stock-filter {
+    min-height: 46px;
+    min-width: 165px;
+    padding: 0 14px;
+    border: 1px solid var(--border-color, #dbe2ea);
+    border-radius: 10px;
+    background: var(--card-bg, #ffffff);
+    color: var(--text-color, #1f2937);
+    font: inherit;
+    cursor: pointer;
+}
+
+.business-stock-filter:focus {
+    outline: 2px solid rgba(37, 99, 235, 0.35);
+    outline-offset: 2px;
+}
+
+body.dark-mode .business-stock-filter {
+    background: #1b2432;
+    color: #f1f5f9;
+    border-color: #374151;
+}
+
+@media (max-width: 600px) {
+    .business-inventory-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .business-inventory-toolbar input,
+    .business-stock-filter {
+        width: 100%;
+        min-width: 0;
+    }
+}
