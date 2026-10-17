@@ -653,6 +653,126 @@ function setupDarkMode() {
     updateThemeUI();
 }
 
+function renderInventorySummary() {
+const totalProducts = products.length;
+
+
+const totalUnits = products.reduce((total, product) => {
+    return total + Math.max(0, Number(product.stock) || 0);
+}, 0);
+
+const lowStock = products.filter(product => {
+    const stock = Math.max(0, Number(product.stock) || 0);
+    return stock > 0 && stock <= 5;
+}).length;
+
+const outOfStock = products.filter(product => {
+    return Math.max(0, Number(product.stock) || 0) === 0;
+}).length;
+
+const values = {
+    inventoryTotalProducts: totalProducts,
+    inventoryTotalUnits: totalUnits,
+    inventoryLowStock: lowStock,
+    inventoryOutOfStock: outOfStock
+};
+
+Object.entries(values).forEach(([id, value]) => {
+    const element = document.getElementById(id);
+
+    if (element) {
+        element.textContent = value.toLocaleString();
+    }
+});
+
+
+}
+
+function setInventorySummaryFilter(filter) {
+const stockFilter = document.getElementById("productStockFilter");
+
+
+if (!stockFilter) return;
+
+stockFilter.value = filter;
+
+const productsSection = document.getElementById("products");
+
+if (productsSection) {
+    productsSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+
+renderProducts();
+
+
+}
+function renderInventoryAlerts() {
+const list = document.getElementById("inventoryAlertList");
+const count = document.getElementById("inventoryAlertCount");
+
+
+if (!list || !count) return;
+
+const alerts = products
+    .map(product => ({
+        ...product,
+        availableStock: Math.max(0, Number(product.stock) || 0)
+    }))
+    .filter(product => product.availableStock <= 5)
+    .sort((a, b) => a.availableStock - b.availableStock);
+
+count.textContent = `${alerts.length} alert${alerts.length === 1 ? "" : "s"}`;
+
+if (alerts.length === 0) {
+    list.innerHTML = `
+        <div class="business-inventory-alert-empty">
+            <i data-lucide="check-circle"></i>
+            <span>Your inventory is looking good. No restocking alerts.</span>
+        </div>
+    `;
+
+    if (typeof lucide !== "undefined") lucide.createIcons();
+    return;
+}
+
+list.innerHTML = alerts.map(product => {
+    const outOfStock = product.availableStock === 0;
+
+    return `
+        <div class="business-inventory-alert-row">
+
+            <div class="business-inventory-alert-symbol ${outOfStock ? "critical" : "warning"}">
+                <i data-lucide="${outOfStock ? "package-x" : "alert-triangle"}"></i>
+            </div>
+
+            <div class="business-inventory-alert-details">
+                <strong>${safe(product.name || "Unnamed product")}</strong>
+                <span>${outOfStock ? "Out of stock — restocking needed" : `${product.availableStock} unit${product.availableStock === 1 ? "" : "s"} remaining`}</span>
+            </div>
+
+            <span class="business-inventory-alert-status ${outOfStock ? "critical" : "warning"}">
+                ${outOfStock ? "Out of stock" : "Low stock"}
+            </span>
+
+            <button
+                type="button"
+                class="business-inventory-alert-action"
+                onclick="setInventorySummaryFilter('${outOfStock ? "out-of-stock" : "low-stock"}')"
+            >
+                View
+                <i data-lucide="arrow-up-right"></i>
+            </button>
+
+        </div>
+    `;
+}).join("");
+
+if (typeof lucide !== "undefined") lucide.createIcons();
+
+}
 
 
 // =========================================================
@@ -662,8 +782,10 @@ function setupDarkMode() {
 function renderProducts() {
     const container = document.getElementById("productsList");
 
-    if (!container) return;
+  if (!container) return;
 
+renderInventorySummary();
+renderInventoryAlerts();
     const searchInput = document.getElementById("productSearch");
     const stockFilter = document.getElementById("productStockFilter");
 
