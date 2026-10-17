@@ -16198,3 +16198,316 @@ body.dark-mode .business-stock-filter {
         min-width: 0;
     }
 }
+/* PATRIODX — INVENTORY SUMMARY */
+
+.business-inventory-summary {
+display: grid;
+grid-template-columns: repeat(4, minmax(0, 1fr));
+gap: 16px;
+margin: 24px 0;
+}
+
+.business-inventory-stat {
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+gap: 9px;
+min-width: 0;
+padding: 22px;
+text-align: left;
+background: var(--card-bg, #ffffff);
+color: var(--text-color, #1f2937);
+border: 1px solid var(--border-color, #e5e7eb);
+border-radius: 15px;
+cursor: pointer;
+transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.business-inventory-stat:hover {
+transform: translateY(-3px);
+box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.business-inventory-stat:focus-visible {
+outline: 2px solid #2563eb;
+outline-offset: 3px;
+}
+
+.business-inventory-stat-icon {
+display: flex;
+align-items: center;
+justify-content: center;
+width: 42px;
+height: 42px;
+border-radius: 12px;
+}
+
+.business-inventory-stat-icon.blue {
+color: #2563eb;
+background: #eff6ff;
+}
+
+.business-inventory-stat-icon.green {
+color: #15803d;
+background: #f0fdf4;
+}
+
+.business-inventory-stat-icon.amber {
+color: #b45309;
+background: #fffbeb;
+}
+
+.business-inventory-stat-icon.red {
+color: #dc2626;
+background: #fef2f2;
+}
+
+.business-inventory-stat-label {
+font-size: 0.88rem;
+font-weight: 600;
+opacity: 0.75;
+}
+
+.business-inventory-stat > strong {
+font-size: clamp(1.6rem, 2.5vw, 2.1rem);
+line-height: 1.15;
+font-weight: 750;
+}
+
+.business-inventory-stat > small {
+font-size: 0.78rem;
+opacity: 0.65;
+}
+
+body.dark-mode .business-inventory-stat {
+background: #172131;
+color: #f1f5f9;
+border-color: #334155;
+}
+
+body.dark-mode .business-inventory-stat-icon.blue {
+background: #1e3a5f;
+}
+
+body.dark-mode .business-inventory-stat-icon.green {
+background: #153b2b;
+}
+
+body.dark-mode .business-inventory-stat-icon.amber {
+background: #49351a;
+}
+
+body.dark-mode .business-inventory-stat-icon.red {
+background: #4a2028;
+}
+
+@media (max-width: 900px) {
+.business-inventory-summary {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+}
+
+@media (max-width: 480px) {
+.business-inventory-summary {
+gap: 10px;
+}
+
+
+.business-inventory-stat {
+    padding: 16px;
+}
+
+
+}
+/* PATRIODX — INVENTORY HEALTH ALERTS */
+
+.business-inventory-alerts {
+margin: 24px 0;
+padding: 24px;
+background: var(--card-bg, #ffffff);
+border: 1px solid var(--border-color, #e5e7eb);
+border-radius: 16px;
+}
+
+.business-inventory-alerts-header {
+display: flex;
+align-items: flex-start;
+justify-content: space-between;
+gap: 16px;
+margin-bottom: 20px;
+}
+
+.business-inventory-eyebrow {
+color: #64748b;
+font-size: 0.7rem;
+font-weight: 750;
+letter-spacing: 0.1em;
+}
+
+.business-inventory-alerts-header h3 {
+margin: 7px 0;
+font-size: 1.2rem;
+}
+
+.business-inventory-alerts-header p {
+margin: 0;
+color: #64748b;
+font-size: 0.88rem;
+}
+
+.business-inventory-alert-count {
+padding: 7px 11px;
+background: #fff7ed;
+color: #c2410c;
+border-radius: 999px;
+font-size: 0.78rem;
+font-weight: 700;
+white-space: nowrap;
+}
+
+.business-inventory-alert-list {
+display: flex;
+flex-direction: column;
+}
+
+.business-inventory-alert-row {
+display: grid;
+grid-template-columns: 42px minmax(0, 1fr) auto auto;
+align-items: center;
+gap: 14px;
+padding: 15px 0;
+border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+.business-inventory-alert-symbol {
+display: flex;
+align-items: center;
+justify-content: center;
+width: 40px;
+height: 40px;
+border-radius: 12px;
+}
+
+.business-inventory-alert-symbol.warning {
+background: #fffbeb;
+color: #b45309;
+}
+
+.business-inventory-alert-symbol.critical {
+background: #fef2f2;
+color: #dc2626;
+}
+
+.business-inventory-alert-details {
+display: flex;
+flex-direction: column;
+gap: 5px;
+min-width: 0;
+}
+
+.business-inventory-alert-details strong {
+overflow-wrap: anywhere;
+font-size: 0.92rem;
+}
+
+.business-inventory-alert-details span {
+color: #64748b;
+font-size: 0.82rem;
+}
+
+.business-inventory-alert-status {
+font-size: 0.78rem;
+font-weight: 700;
+white-space: nowrap;
+}
+
+.business-inventory-alert-status.warning {
+color: #b45309;
+}
+
+.business-inventory-alert-status.critical {
+color: #dc2626;
+}
+
+.business-inventory-alert-action {
+display: inline-flex;
+align-items: center;
+gap: 5px;
+padding: 8px 10px;
+background: transparent;
+color: #2563eb;
+border: 1px solid var(--border-color, #dbe2ea);
+border-radius: 9px;
+font: inherit;
+font-size: 0.8rem;
+font-weight: 650;
+cursor: pointer;
+}
+
+.business-inventory-alert-action:hover {
+background: #eff6ff;
+}
+
+.business-inventory-alert-empty {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 18px 0 4px;
+color: #15803d;
+font-size: 0.9rem;
+}
+
+body.dark-mode .business-inventory-alerts {
+background: #172131;
+border-color: #334155;
+}
+
+body.dark-mode .business-inventory-alerts-header p,
+body.dark-mode .business-inventory-alert-details span {
+color: #94a3b8;
+}
+
+body.dark-mode .business-inventory-alert-row {
+border-color: #334155;
+}
+
+body.dark-mode .business-inventory-alert-count {
+background: #422c1c;
+color: #fdba74;
+}
+
+body.dark-mode .business-inventory-alert-symbol.warning {
+background: #49351a;
+}
+
+body.dark-mode .business-inventory-alert-symbol.critical {
+background: #4a2028;
+}
+
+body.dark-mode .business-inventory-alert-action:hover {
+background: #1e3a5f;
+}
+
+@media (max-width: 650px) {
+.business-inventory-alerts {
+padding: 17px;
+}
+
+
+.business-inventory-alert-row {
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    gap: 10px;
+}
+
+.business-inventory-alert-status {
+    display: none;
+}
+
+.business-inventory-alert-action {
+    grid-column: 2 / 4;
+    justify-self: start;
+}
+
+
+}
+
