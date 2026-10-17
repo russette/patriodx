@@ -16511,3 +16511,294 @@ padding: 17px;
 
 }
 
+/* PATRIODX — PRODUCT PERFORMANCE */
+
+.business-product-performance {
+margin: 26px 0;
+padding: 25px;
+background: var(--card-bg, #ffffff);
+color: var(--text-color, #1f2937);
+border: 1px solid var(--border-color, #e5e7eb);
+border-radius: 17px;
+}
+
+.business-performance-header {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+gap: 16px;
+margin-bottom: 23px;
+}
+
+.business-performance-eyebrow {
+font-size: 0.7rem;
+font-weight: 800;
+letter-spacing: 0.12em;
+color: #2563eb;
+}
+
+.business-performance-header h3 {
+margin: 8px 0;
+font-size: 1.35rem;
+}
+
+.business-performance-header p,
+.business-performance-panel-heading p {
+margin: 0;
+color: #64748b;
+font-size: 0.86rem;
+}
+
+.business-performance-period {
+padding: 8px 12px;
+border: 1px solid var(--border-color, #e5e7eb);
+border-radius: 9px;
+font-size: 0.77rem;
+white-space: nowrap;
+}
+
+.business-performance-summary {
+display: grid;
+grid-template-columns: repeat(4, minmax(0, 1fr));
+gap: 13px;
+margin-bottom: 24px;
+}
+
+.business-performance-summary-card {
+display: flex;
+flex-direction: column;
+gap: 10px;
+min-width: 0;
+padding: 17px;
+background: var(--surface-bg, #f8fafc);
+border: 1px solid var(--border-color, #e5e7eb);
+border-radius: 12px;
+}
+
+.business-performance-summary-card > span {
+color: #64748b;
+font-size: 0.8rem;
+}
+
+.business-performance-summary-card > strong {
+overflow-wrap: anywhere;
+font-size: clamp(1.15rem, 2vw, 1.7rem);
+line-height: 1.2;
+}
+
+.business-performance-panels {
+display: grid;
+grid-template-columns: repeat(2, minmax(0, 1fr));
+gap: 18px;
+}
+
+.business-performance-panel {
+min-width: 0;
+padding: 19px;
+border: 1px solid var(--border-color, #e5e7eb);
+border-radius: 13px;
+}
+
+.business-performance-panel-heading {
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 12px;
+}
+
+.business-performance-panel-icon {
+display: flex;
+align-items: center;
+justify-content: center;
+width: 41px;
+height: 41px;
+flex-shrink: 0;
+color: #2563eb;
+background: #eff6ff;
+border-radius: 11px;
+}
+
+.business-performance-panel-heading h4 {
+margin: 0 0 5px;
+font-size: 0.98rem;
+}
+
+.business-performance-product-row,
+.business-performance-no-sales-row {
+display: flex;
+align-items: center;
+gap: 12px;
+min-width: 0;
+padding: 15px 0;
+border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+.business-performance-rank {
+display: flex;
+align-items: center;
+justify-content: center;
+width: 30px;
+height: 30px;
+flex-shrink: 0;
+background: #eff6ff;
+color: #1d4ed8;
+border-radius: 9px;
+font-weight: 750;
+font-size: 0.85rem;
+}
+
+.business-performance-product-info {
+display: flex;
+flex-direction: column;
+gap: 5px;
+flex: 1;
+min-width: 0;
+}
+
+.business-performance-product-info strong {
+font-size: 0.87rem;
+overflow-wrap: anywhere;
+}
+
+.business-performance-product-info span,
+.business-performance-product-revenue span {
+color: #64748b;
+font-size: 0.77rem;
+}
+
+.business-performance-product-revenue {
+display: flex;
+flex-direction: column;
+align-items: flex-end;
+gap: 5px;
+text-align: right;
+}
+
+.business-performance-product-revenue strong {
+font-size: 0.85rem;
+white-space: nowrap;
+}
+
+.business-performance-no-sales-icon {
+display: flex;
+align-items: center;
+justify-content: center;
+width: 36px;
+height: 36px;
+flex-shrink: 0;
+background: #f1f5f9;
+color: #64748b;
+border-radius: 10px;
+}
+
+.business-performance-no-sales-badge {
+padding: 6px 9px;
+background: #fff7ed;
+color: #c2410c;
+border-radius: 7px;
+font-size: 0.72rem;
+font-weight: 700;
+white-space: nowrap;
+}
+
+.business-performance-empty {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 22px 0;
+color: #64748b;
+font-size: 0.86rem;
+}
+
+.business-performance-empty.success {
+color: #15803d;
+}
+
+.business-performance-more {
+padding-top: 10px;
+margin: 0;
+color: #64748b;
+font-size: 0.8rem;
+}
+
+body.dark-mode .business-product-performance {
+background: #172131;
+color: #f1f5f9;
+border-color: #334155;
+}
+
+body.dark-mode .business-performance-summary-card {
+background: #1b2738;
+border-color: #334155;
+}
+
+body.dark-mode .business-performance-panel {
+border-color: #334155;
+}
+
+body.dark-mode .business-performance-product-row,
+body.dark-mode .business-performance-no-sales-row {
+border-color: #334155;
+}
+
+body.dark-mode .business-performance-panel-icon,
+body.dark-mode .business-performance-rank {
+background: #1e3a5f;
+color: #93c5fd;
+}
+
+body.dark-mode .business-performance-no-sales-icon {
+background: #263448;
+color: #cbd5e1;
+}
+
+body.dark-mode .business-performance-no-sales-badge {
+background: #422c1c;
+color: #fdba74;
+}
+
+@media (max-width: 900px) {
+.business-performance-summary {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.business-performance-panels {
+    grid-template-columns: 1fr;
+}
+
+
+}
+
+@media (max-width: 520px) {
+.business-product-performance {
+padding: 17px;
+}
+
+
+.business-performance-header {
+    flex-direction: column;
+}
+
+.business-performance-summary {
+    gap: 10px;
+}
+
+.business-performance-summary-card {
+    padding: 13px;
+}
+
+.business-performance-panel {
+    padding: 13px;
+}
+
+.business-performance-product-row,
+.business-performance-no-sales-row {
+    gap: 8px;
+}
+
+.business-performance-product-revenue strong {
+    font-size: 0.76rem;
+}
+
+
+}

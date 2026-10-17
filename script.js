@@ -652,6 +652,185 @@ function setupDarkMode() {
 
     updateThemeUI();
 }
+function calculateProductPerformance() {
+const performance = new Map();
+
+
+products.forEach(product => {
+    performance.set(String(product.id), {
+        id: product.id,
+        name: product.name || "Unnamed product",
+        stock: Math.max(0, Number(product.stock) || 0),
+        unitsSold: 0,
+        revenue: 0,
+        saleCount: 0
+    });
+});
+
+sales.forEach(sale => {
+    let item = null;
+
+    if (sale.product_id != null) {
+        item = performance.get(String(sale.product_id)) || null;
+    }
+
+    // Fall back to the recorded product name for older sales
+    // that don't have a matching product_id.
+    if (!item && sale.product_name) {
+        const matchingName = String(sale.product_name)
+            .trim()
+            .toLowerCase();
+
+        item = Array.from(performance.values()).find(product =>
+            String(product.name).trim().toLowerCase() === matchingName
+        ) || null;
+    }
+
+    // Keep sales for deleted products out of current-product
+    // rankings, but include them in overall recorded totals.
+    if (item) {
+        item.unitsSold += Math.max(0, Number(sale.quantity) || 0);
+        item.revenue += Math.max(0, Number(sale.total) || 0);
+        item.saleCount += 1;
+    }
+});
+
+return Array.from(performance.values());
+
+
+}
+
+function renderProductPerformance() {
+const section = document.getElementById("businessProductPerformance");
+
+if (!section) return;
+
+const bestSellersContainer =
+    document.getElementById("performanceBestSellers");
+
+const noSalesContainer =
+    document.getElementById("performanceNoSales");
+
+const productPerformance = calculateProductPerformance();
+
+const totalUnits = sales.reduce((sum, sale) => {
+    return sum + Math.max(0, Number(sale.quantity) || 0);
+}, 0);
+
+const totalRevenue = sales.reduce((sum, sale) => {
+    return sum + Math.max(0, Number(sale.total) || 0);
+}, 0);
+
+const productsSold = productPerformance.filter(product =>
+    product.unitsSold > 0
+).length;
+
+const productsWithoutSales = productPerformance.filter(product =>
+    product.unitsSold === 0
+);
+
+const summary = {
+    performanceTotalUnits: totalUnits,
+    performanceTotalRevenue: money(totalRevenue),
+    performanceProductsSold: productsSold,
+    performanceProductsWithoutSales: productsWithoutSales.length
+};
+
+Object.entries(summary).forEach(([id, value]) => {
+    const element = document.getElementById(id);
+
+    if (element) {
+        element.textContent =
+            typeof value === "number"
+                ? value.toLocaleString()
+                : value;
+    }
+});
+
+const rankedProducts = productPerformance
+    .filter(product => product.unitsSold > 0)
+    .sort((a, b) =>
+        b.unitsSold - a.unitsSold ||
+        b.revenue - a.revenue
+    )
+    .slice(0, 5);
+
+if (bestSellersContainer) {
+    if (!rankedProducts.length) {
+        bestSellersContainer.innerHTML = `
+            <div class="business-performance-empty">
+                <i data-lucide="chart-no-axes-column"></i>
+                <span>No product sales have been recorded yet.</span>
+            </div>
+        `;
+    } else {
+        bestSellersContainer.innerHTML = rankedProducts.map(
+            (product, index) => `
+                <div class="business-performance-product-row">
+                    <span class="business-performance-rank">
+                        ${index + 1}
+                    </span>
+
+                    <div class="business-performance-product-info">
+                        <strong>${safe(product.name)}</strong>
+                        <span>${product.unitsSold.toLocaleString()} units sold</span>
+                    </div>
+
+                    <div class="business-performance-product-revenue">
+                        <strong>${money(product.revenue)}</strong>
+                        <span>Revenue</span>
+                    </div>
+                </div>
+            `
+        ).join("");
+    }
+}
+
+if (noSalesContainer) {
+    if (!productsWithoutSales.length) {
+        noSalesContainer.innerHTML = `
+            <div class="business-performance-empty success">
+                <i data-lucide="circle-check"></i>
+                <span>Every current product has at least one recorded sale.</span>
+            </div>
+        `;
+    } else {
+        noSalesContainer.innerHTML = productsWithoutSales
+            .slice(0, 5)
+            .map(product => `
+                <div class="business-performance-no-sales-row">
+                    <div class="business-performance-no-sales-icon">
+                        <i data-lucide="package"></i>
+                    </div>
+
+                    <div class="business-performance-product-info">
+                        <strong>${safe(product.name)}</strong>
+                        <span>${product.stock.toLocaleString()} units currently in stock</span>
+                    </div>
+
+                    <span class="business-performance-no-sales-badge">
+                        No sales
+                    </span>
+                </div>
+            `).join("");
+
+        if (productsWithoutSales.length > 5) {
+            noSalesContainer.insertAdjacentHTML(
+                "beforeend",
+                `<p class="business-performance-more">
+                    And ${(productsWithoutSales.length - 5).toLocaleString()} more products
+                </p>`
+            );
+        }
+    }
+}
+
+if (typeof lucide !== "undefined") {
+    lucide.createIcons();
+}
+
+
+}
 
 function renderInventorySummary() {
 const totalProducts = products.length;
@@ -781,11 +960,11 @@ if (typeof lucide !== "undefined") lucide.createIcons();
 
 function renderProducts() {
     const container = document.getElementById("productsList");
-
-  if (!container) return;
+if (!container) return;
 
 renderInventorySummary();
 renderInventoryAlerts();
+renderProductPerformance();
     const searchInput = document.getElementById("productSearch");
     const stockFilter = document.getElementById("productStockFilter");
 
