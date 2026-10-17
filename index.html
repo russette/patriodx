@@ -2895,6 +2895,47 @@
 
 </div>
 
+<div class="business-inventory-summary">
+
+
+<button type="button" class="business-inventory-stat" onclick="setInventorySummaryFilter('all')">
+    <span class="business-inventory-stat-icon blue">
+        <i data-lucide="package"></i>
+    </span>
+    <span class="business-inventory-stat-label">Total Products</span>
+    <strong id="inventoryTotalProducts">0</strong>
+    <small>Different products</small>
+</button>
+
+<button type="button" class="business-inventory-stat" onclick="setInventorySummaryFilter('all')">
+    <span class="business-inventory-stat-icon green">
+        <i data-lucide="boxes"></i>
+    </span>
+    <span class="business-inventory-stat-label">Units in Stock</span>
+    <strong id="inventoryTotalUnits">0</strong>
+    <small>Total available quantity</small>
+</button>
+
+<button type="button" class="business-inventory-stat" onclick="setInventorySummaryFilter('low-stock')">
+    <span class="business-inventory-stat-icon amber">
+        <i data-lucide="alert-triangle"></i>
+    </span>
+    <span class="business-inventory-stat-label">Low Stock</span>
+    <strong id="inventoryLowStock">0</strong>
+    <small>Products with 1–5 units</small>
+</button>
+
+<button type="button" class="business-inventory-stat" onclick="setInventorySummaryFilter('out-of-stock')">
+    <span class="business-inventory-stat-icon red">
+        <i data-lucide="package-x"></i>
+    </span>
+    <span class="business-inventory-stat-label">Out of Stock</span>
+    <strong id="inventoryOutOfStock">0</strong>
+    <small>Products with zero units</small>
+</button>
+
+
+</div>
 
 
 <div class="search-bar business-inventory-toolbar">
