@@ -665,31 +665,57 @@ function renderProducts() {
     if (!container) return;
 
     const searchInput = document.getElementById("productSearch");
+    const stockFilter = document.getElementById("productStockFilter");
 
     const search = searchInput
         ? searchInput.value.toLowerCase().trim()
         : "";
 
-    const filtered = products.filter(product =>
-        String(product.name || "")
-            .toLowerCase()
-            .includes(search)
-    );
+    const selectedStatus = stockFilter
+        ? stockFilter.value
+        : "all";
+
+    const filtered = products.filter(product => {
+        const name = String(product.name || "").toLowerCase();
+        const stock = Math.max(0, Number(product.stock) || 0);
+
+        const matchesSearch = name.includes(search);
+
+        let status = "in-stock";
+
+        if (stock === 0) {
+            status = "out-of-stock";
+        } else if (stock <= 5) {
+            status = "low-stock";
+        }
+
+        const matchesStatus =
+            selectedStatus === "all" ||
+            selectedStatus === status;
+
+        return matchesSearch && matchesStatus;
+    });
 
     if (!filtered.length) {
+        const hasProducts = products.length > 0;
+
         container.innerHTML = `
             <div class="empty-state business-products-empty">
                 <div class="empty-icon">
                     <i data-lucide="package"></i>
                 </div>
-                <h3>${search ? "No matching products" : "Your inventory is empty"}</h3>
-                <p>
-                    ${
-                        search
-                            ? "Try another product name."
-                            : "Add your first product to start managing your inventory."
-                    }
-                </p>
+
+                <h3>${
+                    hasProducts
+                        ? "No matching products"
+                        : "Your inventory is empty"
+                }</h3>
+
+                <p>${
+                    hasProducts
+                        ? "Try another search or choose a different stock filter."
+                        : "Add your first product to start managing your inventory."
+                }</p>
             </div>
         `;
 
@@ -735,7 +761,11 @@ function renderProducts() {
 
                 <div class="business-product-information">
                     <h3>${safe(product.name)}</h3>
-                    <p class="business-product-label">Selling price</p>
+
+                    <p class="business-product-label">
+                        Selling price
+                    </p>
+
                     <div class="business-product-price">
                         ${money(price)}
                     </div>
@@ -1530,87 +1560,116 @@ if (quantity > product.stock) {
 
 
 // =========================================================
-// SALES DISPLAY
+// SALES DISPLAY — PATRIODX ORDER MANAGEMENT
 // =========================================================
 
 function renderSales() {
-
-    const container =
-        document.getElementById(
-            "salesList"
-        );
+    const container = document.getElementById("salesList");
 
     if (!container) return;
 
-    const search =
-        document.getElementById(
-            "salesSearch"
-        )?.value
-            .toLowerCase()
-            .trim() || "";
+    const searchInput = document.getElementById("salesSearch");
+    const search = searchInput
+        ? searchInput.value.toLowerCase().trim()
+        : "";
 
-    const filtered =
-        sales.filter(sale =>
+    const filtered = sales.filter(sale => {
+        const productName = String(sale.product_name || "").toLowerCase();
+        const quantity = String(sale.quantity ?? "");
+        const date = formatDate(sale.created_at).toLowerCase();
+        const total = money(sale.total).toLowerCase();
 
-            (sale.product_name || "")
-                .toLowerCase()
-                .includes(search)
+        return (
+            productName.includes(search) ||
+            quantity.includes(search) ||
+            date.includes(search) ||
+            total.includes(search)
         );
+    });
 
     if (!filtered.length) {
-
         container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon"><i data-lucide="receipt"></i></div>
-                <h3>No sales yet</h3>
-                <p>Your recorded sales will appear here.</p>
+            <div class="empty-state business-sales-empty">
+                <div class="business-sales-empty-icon">
+                    <i data-lucide="shopping-bag"></i>
+                </div>
+
+                <h3>${search ? "No matching sales" : "No sales recorded yet"}</h3>
+
+                <p>
+                    ${
+                        search
+                            ? "Try searching by product, quantity, date, or total."
+                            : "Your completed sales will appear here when you record your first transaction."
+                    }
+                </p>
             </div>
         `;
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
 
         return;
     }
 
-    container.innerHTML =
-        filtered.map(sale => `
+    container.innerHTML = filtered.map(sale => {
+        const productName = String(sale.product_name || "Product");
+        const quantity = Math.max(0, Number(sale.quantity) || 0);
+        const total = Math.max(0, Number(sale.total) || 0);
 
-        <div class="sale-card">
+        return `
+            <article class="sale-card business-sale-card">
 
-            <div>
+                <div class="business-sale-product">
+                    <div class="business-sale-product-icon">
+                        <i data-lucide="package-check"></i>
+                    </div>
 
-                <h3>
-                    ${safe(
-                        sale.product_name
-                    )}
-                </h3>
+                    <div class="business-sale-product-info">
+                        <span class="business-sale-reference">
+                            SALES RECORD
+                        </span>
 
-                <p>
-                    Quantity:
-                    ${sale.quantity}
-                </p>
+                        <h3>${safe(productName)}</h3>
 
-                <small>
-                    ${formatDate(
-                        sale.created_at
-                    )}
-                </small>
+                        <div class="business-sale-date">
+                            <i data-lucide="calendar-days"></i>
+                            <span>${safe(formatDate(sale.created_at))}</span>
+                        </div>
+                    </div>
+                </div>
 
-            </div>
+                <div class="business-sale-quantity">
+                    <span>Quantity sold</span>
+                    <strong>${quantity.toLocaleString()}</strong>
+                </div>
 
-            <strong>
-                ${money(sale.total)}
-            </strong>
+                <div class="business-sale-total">
+                    <span>Sale total</span>
+                    <strong>${money(total)}</strong>
+                </div>
 
-            <button
-                type="button"
-                class="danger-btn"
-                onclick="deleteSale('${sale.id}')"
-            >
-                Delete
-            </button>
+                <div class="business-sale-actions">
+                    <button
+                        type="button"
+                        class="danger-btn"
+                        onclick="deleteSale('${sale.id}')"
+                        aria-label="Delete sale for ${safe(productName)}"
+                        title="Delete sale"
+                    >
+                        <i data-lucide="trash-2"></i>
+                        Delete
+                    </button>
+                </div>
 
-        </div>
+            </article>
+        `;
+    }).join("");
 
-    `).join("");
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
 }
 
 async function deleteSale(id) {
@@ -2013,157 +2072,222 @@ async function saveInvoice(event) {
 
 
 // =========================================================
-// INVOICE DISPLAY
+// PATRIODX — INVOICE MANAGEMENT DISPLAY
 // =========================================================
 
 function renderInvoices() {
-
-    const container =
-        document.getElementById(
-            "invoicesList"
-        );
+    const container = document.getElementById("invoicesList");
 
     if (!container) return;
 
-    const search =
-        document.getElementById(
-            "invoiceSearch"
-        )?.value
-            .toLowerCase()
-            .trim() || "";
+    const searchInput = document.getElementById("invoiceSearch");
+    const statusFilter = document.getElementById("invoiceStatusFilter");
 
-    const status =
-        document.getElementById(
-            "invoiceStatusFilter"
-        )?.value || "all";
+    const search = searchInput
+        ? searchInput.value.toLowerCase().trim()
+        : "";
 
-    const filtered =
-        invoices.filter(invoice => {
+    const status = statusFilter
+        ? statusFilter.value
+        : "all";
 
-            const matchesSearch =
+    const filtered = invoices.filter(invoice => {
+        const invoiceNumber = String(
+            invoice.invoice_number || ""
+        ).toLowerCase();
 
-                (invoice.invoice_number || "")
-                    .toLowerCase()
-                    .includes(search)
+        const customerName = String(
+            invoice.customer_name || ""
+        ).toLowerCase();
 
-                ||
+        const productName = String(
+            invoice.product_name || ""
+        ).toLowerCase();
 
-                (invoice.customer_name || "")
-                    .toLowerCase()
-                    .includes(search)
+        const dueDate = formatDate(invoice.due_date).toLowerCase();
 
-                ||
+        const matchesSearch = [
+            invoiceNumber,
+            customerName,
+            productName,
+            dueDate
+        ].some(value => value.includes(search));
 
-                (invoice.product_name || "")
-                    .toLowerCase()
-                    .includes(search);
+        const matchesStatus =
+            status === "all" || invoice.status === status;
 
-            const matchesStatus =
-                status === "all" ||
-                invoice.status === status;
-
-            return (
-                matchesSearch &&
-                matchesStatus
-            );
-        });
+        return matchesSearch && matchesStatus;
+    });
 
     if (!filtered.length) {
+        const hasInvoices = invoices.length > 0;
 
         container.innerHTML = `
-            <div class="empty-state">
-               <div class="empty-icon"><i data-lucide="receipt"></i></div>
-                <h3>No invoices yet</h3>
-                <p>Create your first invoice for a customer.</p>
+            <div class="empty-state business-invoices-empty">
+                <div class="business-invoice-empty-icon">
+                    <i data-lucide="receipt"></i>
+                </div>
+
+                <h3>${
+                    hasInvoices
+                        ? "No matching invoices"
+                        : "No invoices created yet"
+                }</h3>
+
+                <p>${
+                    hasInvoices
+                        ? "Try changing your search or payment-status filter."
+                        : "Create an invoice to start tracking customer payments."
+                }</p>
             </div>
         `;
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
 
         return;
     }
 
-    container.innerHTML =
-        filtered.map(invoice => `
+    container.innerHTML = filtered.map(invoice => {
+        const isPaid = invoice.status === "paid";
 
-        <div class="invoice-card">
+        const dueDate = invoice.due_date
+            ? new Date(invoice.due_date)
+            : null;
 
-            <div>
+        const validDueDate = dueDate &&
+            !Number.isNaN(dueDate.getTime());
 
-                <h3>
-                    ${safe(
-                        invoice.invoice_number
-                    )}
-                </h3>
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-                <p>
-                    Customer:
-                    ${safe(
-                        invoice.customer_name
-                    )}
-                </p>
+        const overdue =
+            !isPaid &&
+            validDueDate &&
+            dueDate < today;
 
-                <p>
-                    Product:
-                    ${safe(
-                        invoice.product_name
-                    )}
-                </p>
+        const statusLabel = isPaid
+            ? "Paid"
+            : overdue
+                ? "Overdue"
+                : "Unpaid";
 
-                <p>
-                    Due:
-                    ${formatDate(
-                        invoice.due_date
-                    )}
-                </p>
+        const statusClass = isPaid
+            ? "paid"
+            : overdue
+                ? "overdue"
+                : "unpaid";
 
-                <strong>
-                    ${money(invoice.total)}
-                </strong>
+        const statusIcon = isPaid
+            ? "circle-check"
+            : overdue
+                ? "alert-circle"
+                : "clock-3";
 
-            </div>
+        const invoiceNumber = safe(
+            invoice.invoice_number || "Invoice"
+        );
 
-            <div>
+        const customerName = safe(
+            invoice.customer_name || "Customer"
+        );
 
-                <span>
-                    ${
-                       invoice.status === "paid"
-    ? '<i data-lucide="circle-check"></i> Paid'
-    : '<i data-lucide="clock-3"></i> Unpaid'
-                    }
-                </span>
+        const productName = safe(
+            invoice.product_name || "Product"
+        );
 
-                <br><br>
+        return `
+            <article class="invoice-card business-invoice-card">
 
-                <button
-                    type="button"
-                    onclick="toggleInvoiceStatus('${invoice.id}')"
-                >
-                    Mark ${
-                        invoice.status === "paid"
-                            ? "Unpaid"
-                            : "Paid"
-                    }
-                </button>
+                <div class="business-invoice-main">
 
-                <button
-                    type="button"
-                    onclick="viewInvoice('${invoice.id}')"
-                >
-                    View
-                </button>
+                    <div class="business-invoice-icon">
+                        <i data-lucide="receipt-text"></i>
+                    </div>
 
-                <button
-                    type="button"
-                    class="danger-btn"
-                    onclick="deleteInvoice('${invoice.id}')"
-                >
-                    Delete
-                </button>
+                    <div class="business-invoice-details">
 
-            </div>
+                        <div class="business-invoice-reference">
+                            <span>INVOICE</span>
+                            <strong>${invoiceNumber}</strong>
+                        </div>
 
-        </div>
+                        <h3>${customerName}</h3>
 
-    `).join("");
+                        <p class="business-invoice-product">
+                            <i data-lucide="package"></i>
+                            ${productName}
+                            <span>·</span>
+                            Qty: ${Math.max(
+                                0,
+                                Number(invoice.quantity) || 0
+                            ).toLocaleString()}
+                        </p>
+
+                        <p class="business-invoice-due">
+                            <i data-lucide="calendar-days"></i>
+                            Due: ${safe(formatDate(invoice.due_date))}
+                        </p>
+
+                    </div>
+                </div>
+
+                <div class="business-invoice-payment">
+
+                    <span class="business-invoice-status ${statusClass}">
+                        <i data-lucide="${statusIcon}"></i>
+                        ${statusLabel}
+                    </span>
+
+                    <span class="business-invoice-total-label">
+                        Invoice total
+                    </span>
+
+                    <strong class="business-invoice-total">
+                        ${money(invoice.total)}
+                    </strong>
+
+                </div>
+
+                <div class="business-invoice-actions">
+
+                    <button
+                        type="button"
+                        class="business-invoice-view"
+                        onclick="viewInvoice('${invoice.id}')"
+                    >
+                        <i data-lucide="eye"></i>
+                        View
+                    </button>
+
+                    <button
+                        type="button"
+                        class="business-invoice-toggle"
+                        onclick="toggleInvoiceStatus('${invoice.id}')"
+                    >
+                        <i data-lucide="${isPaid ? "rotate-ccw" : "check"}"></i>
+                        Mark ${isPaid ? "Unpaid" : "Paid"}
+                    </button>
+
+                    <button
+                        type="button"
+                        class="danger-btn business-invoice-delete"
+                        onclick="deleteInvoice('${invoice.id}')"
+                    >
+                        <i data-lucide="trash-2"></i>
+                        Delete
+                    </button>
+
+                </div>
+
+            </article>
+        `;
+    }).join("");
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
 }
 
 async function toggleInvoiceStatus(id) {
@@ -2677,86 +2801,128 @@ function renderAnalytics() {
     }
 
 
-    // SIMPLE REVENUE TREND
+      // =====================================================
+    // REVENUE TREND — BUSINESS INTELLIGENCE CHART
+    // =====================================================
 
-    const chart =
-        document.getElementById(
-            "revenueChart"
-        );
+    const chart = document.getElementById("revenueChart");
 
     if (!chart) return;
 
     if (!sales.length) {
+        chart.innerHTML = `
+            <div class="empty-chart business-chart-empty">
+                <i data-lucide="chart-no-axes-combined"></i>
+                <h4>Your revenue trend will appear here</h4>
+                <p>Record sales to see how your revenue changes over time.</p>
+            </div>
+        `;
 
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+
+        return;
+    }
+
+    // Sort sales from oldest to newest and display the
+    // ten most recent records.
+    const recent = [...sales]
+        .filter(sale => sale.created_at)
+        .sort((a, b) =>
+            new Date(a.created_at) - new Date(b.created_at)
+        )
+        .slice(-10);
+
+    if (!recent.length) {
         chart.innerHTML = `
             <div class="empty-chart">
-                Make your first sale to see your revenue trend.
+                Sales are available, but there are no dates to display.
             </div>
         `;
 
         return;
     }
 
-    const recent =
-        [...sales]
-            .reverse()
-            .slice(-10);
+    const amounts = recent.map(sale =>
+        Math.max(0, Number(sale.total) || 0)
+    );
 
-    const max =
-        Math.max(
-            ...recent.map(
-                s =>
-                    Number(
-                        s.total || 0
-                    )
-            ),
-            1
+    const maxAmount = Math.max(...amounts, 1);
+
+    const chartBars = recent.map((sale, index) => {
+        const amount = amounts[index];
+
+        const height = Math.max(
+            5,
+            (amount / maxAmount) * 100
         );
 
+        const date = new Date(sale.created_at);
+
+        const dateLabel = Number.isNaN(date.getTime())
+            ? "—"
+            : date.toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric"
+            });
+
+        return `
+            <div class="business-revenue-column">
+
+                <div class="business-revenue-value">
+                    ${money(amount)}
+                </div>
+
+                <div class="business-revenue-bar-area">
+                    <div
+                        class="business-revenue-bar"
+                        style="height: ${height}%"
+                        title="${safe(dateLabel)} · ${money(amount)}"
+                        aria-label="Revenue ${money(amount)} on ${safe(dateLabel)}"
+                    ></div>
+                </div>
+
+                <div class="business-revenue-date">
+                    ${safe(dateLabel)}
+                </div>
+
+            </div>
+        `;
+    }).join("");
+
+    const totalRecentRevenue = amounts.reduce(
+        (sum, amount) => sum + amount,
+        0
+    );
+
     chart.innerHTML = `
+        <div class="business-revenue-summary">
+            <div>
+                <span>Revenue across displayed sales</span>
+                <strong>${money(totalRecentRevenue)}</strong>
+            </div>
 
-        <div class="simple-chart">
-
-            ${
-                recent
-                    .map(sale => {
-
-                        const height =
-                            Math.max(
-                                8,
-                                (
-                                    Number(
-                                        sale.total ||
-                                        0
-                                    ) /
-                                    max
-                                ) *
-                                100
-                            );
-
-                        return `
-                            <div class="chart-bar-wrap">
-
-                                <div
-                                    class="chart-bar"
-                                    style="height:${height}%"
-                                    title="${money(
-                                        sale.total
-                                    )}"
-                                ></div>
-
-                            </div>
-                        `;
-
-                    })
-                    .join("")
-            }
-
+            <div>
+                <span>Sales displayed</span>
+                <strong>${recent.length}</strong>
+            </div>
         </div>
+
+        <div class="business-revenue-chart">
+            ${chartBars}
+        </div>
+
+        <p class="business-revenue-note">
+            Each bar represents one sale. The chart displays up to
+            ten recent sales in chronological order.
+        </p>
     `;
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
 }
-
-
 // =========================================================
 // RECENT ACTIVITY
 // =========================================================
