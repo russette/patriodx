@@ -1807,15 +1807,24 @@ if (quantity > product.stock) {
     } =
         await supabaseClient
             .from("sales")
-            .insert({
+                       .insert({
                 business_id:
                     currentBusiness.id,
+
                 product_id:
                     product.id,
+
                 product_name:
                     product.name,
+
                 quantity,
-                total
+
+                total,
+
+                unit_cost:
+                    product.cost_price == null
+                        ? null
+                        : Number(product.cost_price)
             })
             .select()
             .single();
