@@ -3268,105 +3268,99 @@ if (typeof lucide !== "undefined") {
     lucide.createIcons();
 }
 }
-// =========================================================
-// RECENT ACTIVITY
-// =========================================================
+// =====================================================
+// RECENT ACTIVITY — BUSINESS DASHBOARD
+// =====================================================
 
 function renderRecentActivity() {
-
-    const container =
-        document.getElementById(
-            "recentActivity"
-        );
+    const container = document.getElementById("recentActivity");
 
     if (!container) return;
 
-    if (
-        !sales.length &&
-        !invoices.length
-    ) {
+    const activity = [
+        ...sales.map(sale => ({
+            type: "Sale",
+            icon: "shopping-cart",
+            title: sale.product_name || "Product sale",
+            amount: Number(sale.total) || 0,
+            date: sale.created_at
+        })),
 
+        ...invoices.map(invoice => ({
+            type: "Invoice",
+            icon: "receipt",
+            title: invoice.invoice_number || "Invoice",
+            amount: Number(invoice.total) || 0,
+            date: invoice.created_at
+        }))
+    ]
+        .filter(item =>
+            item.date && !Number.isNaN(new Date(item.date).getTime())
+        )
+        .sort((a, b) =>
+            new Date(b.date) - new Date(a.date)
+        )
+        .slice(0, 8);
+
+    if (!activity.length) {
         container.innerHTML = `
             <div class="empty-state">
-               <div class="empty-icon"><i data-lucide="chart-column"></i></div>
+                <div class="empty-icon">
+                    <i data-lucide="activity"></i>
+                </div>
+
                 <h3>No recent activity</h3>
-                <p>Your latest business activity will appear here.</p>
+
+                <p>
+                    Your latest sales and invoices will appear here.
+                </p>
             </div>
         `;
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
 
         return;
     }
 
-    const activity = [
+    container.innerHTML = activity.map(item => {
+        const dateLabel = formatDate(item.date);
 
-        ...sales.map(sale => ({
+        return `
+            <div class="activity-item business-activity-item">
 
-            type: "Sale",
+                <div class="business-activity-icon ${item.type.toLowerCase()}">
+                    <i data-lucide="${item.icon}"></i>
+                </div>
 
-            text:
-                `${sale.product_name} sale`,
+                <div class="business-activity-details">
+                    <span class="business-activity-type">
+                        ${safe(item.type)}
+                    </span>
 
-            amount:
-                sale.total,
+                    <strong>
+                        ${safe(item.title)}
+                    </strong>
 
-            date:
-                sale.created_at
-        })),
+                    <small>
+                        ${safe(String(dateLabel))}
+                    </small>
+                </div>
 
-        ...invoices.map(invoice => ({
-
-            type: "Invoice",
-
-            text:
-                `${invoice.invoice_number} created`,
-
-            amount:
-                invoice.total,
-
-            date:
-                invoice.created_at
-        }))
-
-    ]
-        .sort(
-            (a, b) =>
-                new Date(b.date) -
-                new Date(a.date)
-        )
-        .slice(0, 8);
-
-    container.innerHTML =
-        activity
-            .map(item => `
-
-                <div class="activity-item">
-
-                    <div>
-
-                        <strong>
-                            ${safe(item.type)}
-                        </strong>
-
-                        <p>
-                            ${safe(item.text)}
-                        </p>
-
-                        <small>
-                            ${formatDate(
-                                item.date
-                            )}
-                        </small>
-
-                    </div>
-
+                <div class="business-activity-amount">
                     <strong>
                         ${money(item.amount)}
                     </strong>
-
                 </div>
 
-            `)
-            .join("");
+            </div>
+        `;
+    }).join("");
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
 }
 // =========================================================
 // GO LIVE
