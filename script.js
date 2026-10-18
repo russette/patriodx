@@ -5769,7 +5769,13 @@ function openProductModal(productIdToEdit = null) {
 
     modal.style.display = "flex";
 }
+function closeProductModal() {
+    const modal = document.getElementById("productModal");
 
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
 // =========================================================
 // MAKE HTML ONCLICK FUNCTIONS GLOBAL
 // =========================================================
