@@ -5698,12 +5698,11 @@ async function logoutUser() {
 // =========================================================
 // PRODUCT MODAL — RESTORE MISSING FUNCTIONS
 // =========================================================
-
-function openProductModal() {
+function openProductModal(productIdToEdit = null) {
     const modal = document.getElementById("productModal");
     const form = document.getElementById("productForm");
     const title = document.getElementById("productModalTitle");
-    const productId = document.getElementById("productId");
+    const productIdField = document.getElementById("productId");
 
     if (!modal) {
         console.error("PATRIODX: Product modal was not found.");
@@ -5714,23 +5713,61 @@ function openProductModal() {
         form.reset();
     }
 
-    if (productId) {
-        productId.value = "";
+    if (productIdField) {
+        productIdField.value = "";
+    }
+
+    const costPriceField =
+        document.getElementById("productCostPrice");
+
+    if (!productIdToEdit) {
+        if (title) {
+            title.textContent = "Add Product";
+        }
+
+        if (costPriceField) {
+            costPriceField.value = "";
+        }
+
+        modal.style.display = "flex";
+        return;
+    }
+
+    const product = products.find(
+        item => String(item.id) === String(productIdToEdit)
+    );
+
+    if (!product) {
+        showPATRIODXToast(
+            "Could not find this product. Please refresh and try again.",
+            "error"
+        );
+        return;
+    }
+
+    if (productIdField) {
+        productIdField.value = product.id;
+    }
+
+    document.getElementById("productName").value =
+        product.name || "";
+
+    document.getElementById("productPrice").value =
+        product.price ?? "";
+
+    document.getElementById("productStock").value =
+        product.stock ?? "";
+
+    if (costPriceField) {
+        costPriceField.value =
+            product.cost_price ?? "";
     }
 
     if (title) {
-        title.textContent = "Add Product";
+        title.textContent = "Edit Product";
     }
 
     modal.style.display = "flex";
-}
-
-function closeProductModal() {
-    const modal = document.getElementById("productModal");
-
-    if (modal) {
-        modal.style.display = "none";
-    }
 }
 
 // =========================================================
