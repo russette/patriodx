@@ -3102,127 +3102,171 @@ function renderAnalytics() {
     }
 
 
-      // =====================================================
-    // REVENUE TREND — BUSINESS INTELLIGENCE CHART
-    // =====================================================
+   // =====================================================
+// REVENUE TREND — DAILY SALES ANALYTICS
+// =====================================================
 
-    const chart = document.getElementById("revenueChart");
+const chart = document.getElementById("revenueChart");
 
-    if (!chart) return;
+if (!chart) return;
 
-    if (!sales.length) {
-        chart.innerHTML = `
-            <div class="empty-chart business-chart-empty">
-                <i data-lucide="chart-no-axes-combined"></i>
-                <h4>Your revenue trend will appear here</h4>
-                <p>Record sales to see how your revenue changes over time.</p>
-            </div>
-        `;
+const periodFilter = document.getElementById("revenuePeriodFilter");
+const selectedPeriod = periodFilter ? periodFilter.value : "30";
 
-        if (typeof lucide !== "undefined") {
-            lucide.createIcons();
-        }
+const validSales = sales.filter(sale => {
+    if (!sale.created_at) return false;
 
-        return;
-    }
+    const amount = Number(sale.total);
 
-    // Sort sales from oldest to newest and display the
-    // ten most recent records.
-    const recent = [...sales]
-        .filter(sale => sale.created_at)
-        .sort((a, b) =>
-            new Date(a.created_at) - new Date(b.created_at)
-        )
-        .slice(-10);
+    return Number.isFinite(amount) && amount >= 0;
+});
 
-    if (!recent.length) {
-        chart.innerHTML = `
-            <div class="empty-chart">
-                Sales are available, but there are no dates to display.
-            </div>
-        `;
-
-        return;
-    }
-
-    const amounts = recent.map(sale =>
-        Math.max(0, Number(sale.total) || 0)
-    );
-
-    const maxAmount = Math.max(...amounts, 1);
-
-    const chartBars = recent.map((sale, index) => {
-        const amount = amounts[index];
-
-        const height = Math.max(
-            5,
-            (amount / maxAmount) * 100
-        );
-
-        const date = new Date(sale.created_at);
-
-        const dateLabel = Number.isNaN(date.getTime())
-            ? "—"
-            : date.toLocaleDateString(undefined, {
-                month: "short",
-                day: "numeric"
-            });
-
-        return `
-            <div class="business-revenue-column">
-
-                <div class="business-revenue-value">
-                    ${money(amount)}
-                </div>
-
-                <div class="business-revenue-bar-area">
-                    <div
-                        class="business-revenue-bar"
-                        style="height: ${height}%"
-                        title="${safe(dateLabel)} · ${money(amount)}"
-                        aria-label="Revenue ${money(amount)} on ${safe(dateLabel)}"
-                    ></div>
-                </div>
-
-                <div class="business-revenue-date">
-                    ${safe(dateLabel)}
-                </div>
-
-            </div>
-        `;
-    }).join("");
-
-    const totalRecentRevenue = amounts.reduce(
-        (sum, amount) => sum + amount,
-        0
-    );
-
+if (!validSales.length) {
     chart.innerHTML = `
-        <div class="business-revenue-summary">
-            <div>
-                <span>Revenue across displayed sales</span>
-                <strong>${money(totalRecentRevenue)}</strong>
-            </div>
-
-            <div>
-                <span>Sales displayed</span>
-                <strong>${recent.length}</strong>
-            </div>
+        <div class="empty-chart business-chart-empty">
+            <i data-lucide="chart-no-axes-combined"></i>
+            <h4>Your revenue trend will appear here</h4>
+            <p>Record sales to see how your revenue changes over time.</p>
         </div>
-
-        <div class="business-revenue-chart">
-            ${chartBars}
-        </div>
-
-        <p class="business-revenue-note">
-            Each bar represents one sale. The chart displays up to
-            ten recent sales in chronological order.
-        </p>
     `;
 
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
+    if (typeof lucide !== "undefined") lucide.createIcons();
+    return;
+}
+
+const dailyRevenue = new Map();
+
+validSales.forEach(sale => {
+    const dateKey = String(sale.created_at).slice(0, 10);
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return;
+
+    dailyRevenue.set(
+        dateKey,
+        (dailyRevenue.get(dateKey) || 0) + Number(sale.total)
+    );
+});
+
+const today = todayString();
+
+let startDate = null;
+
+if (selectedPeriod !== "all") {
+    const days = Number(selectedPeriod);
+    const start = new Date(`${today}T12:00:00`);
+
+    start.setDate(start.getDate() - days + 1);
+
+    startDate = [
+        start.getFullYear(),
+        String(start.getMonth() + 1).padStart(2, "0"),
+        String(start.getDate()).padStart(2, "0")
+    ].join("-");
+}
+
+let dates = Array.from(dailyRevenue.keys())
+    .filter(date => date <= today)
+    .filter(date => !startDate || date >= startDate)
+    .sort();
+
+if (selectedPeriod !== "all") {
+    const days = Number(selectedPeriod);
+    const start = new Date(`${today}T12:00:00`);
+
+    start.setDate(start.getDate() - days + 1);
+
+    const cursor = new Date(start);
+    dates = [];
+
+    for (let i = 0; i < days; i++) {
+        const key = [
+            cursor.getFullYear(),
+            String(cursor.getMonth() + 1).padStart(2, "0"),
+            String(cursor.getDate()).padStart(2, "0")
+        ].join("-");
+
+        dates.push(key);
+        cursor.setDate(cursor.getDate() + 1);
     }
+}
+
+const chartValues = dates.map(date => ({
+    date,
+    revenue: dailyRevenue.get(date) || 0
+}));
+
+const totalPeriodRevenue = chartValues.reduce(
+    (sum, item) => sum + item.revenue,
+    0
+);
+
+const maxRevenue = Math.max(
+    ...chartValues.map(item => item.revenue),
+    1
+);
+
+const chartBars = chartValues.map(item => {
+    const height = item.revenue > 0
+        ? Math.max(4, (item.revenue / maxRevenue) * 100)
+        : 0;
+
+    const date = new Date(`${item.date}T12:00:00`);
+
+    const label = date.toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric"
+    });
+
+    return `
+        <div class="business-revenue-column">
+
+            <div class="business-revenue-value">
+                ${money(item.revenue)}
+            </div>
+
+            <div class="business-revenue-bar-area">
+                <div
+                    class="business-revenue-bar"
+                    style="height: ${height}%"
+                    title="${safe(label)} · ${money(item.revenue)}"
+                    aria-label="${safe(label)} revenue: ${money(item.revenue)}"
+                ></div>
+            </div>
+
+            <div class="business-revenue-date">
+                ${safe(label)}
+            </div>
+
+        </div>
+    `;
+}).join("");
+
+chart.innerHTML = `
+    <div class="business-revenue-summary">
+        <div>
+            <span>Revenue in selected period</span>
+            <strong>${money(totalPeriodRevenue)}</strong>
+        </div>
+
+        <div>
+            <span>Days displayed</span>
+            <strong>${chartValues.length}</strong>
+        </div>
+    </div>
+
+    <div class="business-revenue-chart">
+        ${chartBars}
+    </div>
+
+    <p class="business-revenue-note">
+        Revenue is grouped by calendar day. Days without recorded sales
+        appear as zero. The chart uses your existing sales records.
+    </p>
+`;
+
+if (typeof lucide !== "undefined") {
+    lucide.createIcons();
+}
 }
 // =========================================================
 // RECENT ACTIVITY

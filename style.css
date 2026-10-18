@@ -16804,3 +16804,61 @@ padding: 17px;
 
 
 }
+/* PATRIODX — ANALYTICS PERIOD FILTER */
+
+.business-analytics-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 18px 0;
+}
+
+.business-analytics-toolbar label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-color, #475569);
+}
+
+.business-analytics-toolbar select {
+    min-height: 42px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color, #dbe2ea);
+    border-radius: 9px;
+    background: var(--card-bg, #ffffff);
+    color: var(--text-color, #1f2937);
+    font: inherit;
+    cursor: pointer;
+}
+
+.business-revenue-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    min-height: 220px;
+    padding: 20px 8px 10px;
+    overflow-x: auto;
+}
+
+.business-revenue-column {
+    flex: 1 0 64px;
+    min-width: 64px;
+}
+
+body.dark-mode .business-analytics-toolbar select {
+    background: #172131;
+    color: #f1f5f9;
+    border-color: #334155;
+}
+
+@media (max-width: 600px) {
+    .business-analytics-toolbar {
+        justify-content: flex-start;
+    }
+
+    .business-analytics-toolbar select {
+        flex: 1;
+        min-width: 0;
+    }
+}

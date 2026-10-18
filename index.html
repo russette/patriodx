@@ -2715,7 +2715,18 @@
 
 </div>
 
+<div class="business-analytics-toolbar">
+    <label for="revenuePeriodFilter">Revenue period</label>
 
+    <select
+        id="revenuePeriodFilter"
+        onchange="renderAnalytics()"
+    >
+        <option value="7">Last 7 days</option>
+        <option value="30" selected>Last 30 days</option>
+        <option value="all">All recorded sales</option>
+    </select>
+</div>
 
 <div class="chart-card">
 
