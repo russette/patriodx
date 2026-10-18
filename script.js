@@ -1301,11 +1301,20 @@ async function saveProduct(event) {
     const name =
         document.getElementById("productName").value.trim();
 
-    const price =
-        Number(document.getElementById("productPrice").value);
+   const price =
+    Number(document.getElementById("productPrice").value);
 
-    const stock =
-        Number(document.getElementById("productStock").value);
+const costPriceInput =
+    document.getElementById("productCostPrice");
+
+const costPriceValue =
+    costPriceInput ? costPriceInput.value.trim() : "";
+
+const costPrice =
+    costPriceValue === "" ? null : Number(costPriceValue);
+
+const stock =
+    Number(document.getElementById("productStock").value);
 
     if (!name) {
         showPATRIODXToast(
@@ -1326,7 +1335,16 @@ async function saveProduct(event) {
         );
         return;
     }
-
+    if (
+        costPriceValue !== "" &&
+        (!Number.isFinite(costPrice) || costPrice < 0)
+    ) {
+        showPATRIODXToast(
+            "Enter a valid cost price, or leave it blank if unknown.",
+            "warning"
+        );
+        return;
+    }
     if (
         document.getElementById("productStock").value === "" ||
         !Number.isInteger(stock) ||
@@ -1339,13 +1357,13 @@ async function saveProduct(event) {
         return;
     }
 
-    const productData = {
+       const productData = {
         business_id: currentBusiness.id,
         name,
         price,
+        cost_price: costPrice,
         stock
     };
-
     let query;
 
     if (productId) {

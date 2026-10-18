@@ -4511,18 +4511,34 @@
             >
 
 
-            <label>
-                Stock
-            </label>
+          <label for="productCostPrice">
+    Cost Price (USD)
+</label>
 
+<input
+    type="number"
+    id="productCostPrice"
+    placeholder="e.g. 1200"
+    min="0"
+    step="0.01"
+>
 
-            <input
-                type="number"
-                id="productStock"
-                placeholder="10"
-                min="0"
-                required
-            >
+<small class="product-cost-help">
+    What your business pays for one unit. Leave blank if unknown.
+</small>
+
+<label for="productStock">
+    Stock
+</label>
+
+<input
+    type="number"
+    id="productStock"
+    placeholder="10"
+    min="0"
+    step="1"
+    required
+>
 
 
             <button type="submit">
