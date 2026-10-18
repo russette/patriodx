@@ -2371,7 +2371,83 @@ async function saveInvoice(event) {
     renderAll();
 }
 
+// =========================================================
+// PATRIODX — INVOICE FINANCIAL OVERVIEW
+// =========================================================
 
+function renderInvoiceSummary() {
+    const summaryElements = {
+        total: document.getElementById("invoiceSummaryTotal"),
+        paid: document.getElementById("invoiceSummaryPaid"),
+        outstanding: document.getElementById("invoiceSummaryOutstanding"),
+        overdue: document.getElementById("invoiceSummaryOverdue"),
+        paidCount: document.getElementById("invoiceSummaryPaidCount"),
+        outstandingCount: document.getElementById("invoiceSummaryOutstandingCount"),
+        overdueCount: document.getElementById("invoiceSummaryOverdueCount")
+    };
+
+    // Do nothing if the summary HTML is not on this page.
+    if (!summaryElements.total) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const totals = {
+        total: 0,
+        paid: 0,
+        outstanding: 0,
+        overdue: 0,
+        paidCount: 0,
+        outstandingCount: 0,
+        overdueCount: 0
+    };
+
+    invoices.forEach(invoice => {
+        const amount = Math.max(0, Number(invoice.total) || 0);
+        const isPaid = invoice.status === "paid";
+
+        const dueDate = invoice.due_date
+            ? new Date(`${String(invoice.due_date).slice(0, 10)}T00:00:00`)
+            : null;
+
+        const validDueDate =
+            dueDate && !Number.isNaN(dueDate.getTime());
+
+        const isOverdue =
+            !isPaid &&
+            validDueDate &&
+            dueDate < today;
+
+        totals.total += amount;
+
+        if (isPaid) {
+            totals.paid += amount;
+            totals.paidCount++;
+        } else {
+            totals.outstanding += amount;
+            totals.outstandingCount++;
+
+            if (isOverdue) {
+                totals.overdue += amount;
+                totals.overdueCount++;
+            }
+        }
+    });
+
+    summaryElements.total.textContent = money(totals.total);
+    summaryElements.paid.textContent = money(totals.paid);
+    summaryElements.outstanding.textContent = money(totals.outstanding);
+    summaryElements.overdue.textContent = money(totals.overdue);
+
+    summaryElements.paidCount.textContent =
+        `${totals.paidCount} paid invoice${totals.paidCount === 1 ? "" : "s"}`;
+
+    summaryElements.outstandingCount.textContent =
+        `${totals.outstandingCount} unpaid invoice${totals.outstandingCount === 1 ? "" : "s"}`;
+
+    summaryElements.overdueCount.textContent =
+        `${totals.overdueCount} overdue invoice${totals.overdueCount === 1 ? "" : "s"}`;
+}
 // =========================================================
 // PATRIODX — INVOICE MANAGEMENT DISPLAY
 // =========================================================
@@ -2380,7 +2456,7 @@ function renderInvoices() {
     const container = document.getElementById("invoicesList");
 
     if (!container) return;
-
+renderInvoiceSummary();
     const searchInput = document.getElementById("invoiceSearch");
     const statusFilter = document.getElementById("invoiceStatusFilter");
 

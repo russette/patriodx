@@ -16961,3 +16961,137 @@ body.dark-mode .business-activity-icon.invoice {
         font-size: 0.85rem;
     }
 }
+/* =========================================================
+   PATRIODX — INVOICE FINANCIAL OVERVIEW
+========================================================= */
+
+.business-invoice-overview {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+}
+
+.business-invoice-metric {
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 16px;
+    background: var(--card-bg, #ffffff);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.035);
+}
+
+.business-invoice-metric-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.business-invoice-metric-top > span:first-child {
+    color: var(--text-muted, #64748b);
+    font-size: 0.86rem;
+    font-weight: 600;
+}
+
+.business-invoice-metric-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.business-invoice-metric.paid .business-invoice-metric-icon {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.business-invoice-metric.outstanding .business-invoice-metric-icon {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.business-invoice-metric.overdue .business-invoice-metric-icon {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.business-invoice-metric > strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: clamp(1.25rem, 2vw, 1.8rem);
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+
+.business-invoice-metric > small {
+    display: block;
+    color: var(--text-muted, #64748b);
+    font-size: 0.78rem;
+}
+
+body.dark-mode .business-invoice-metric {
+    background: #111827;
+    border-color: #334155;
+    box-shadow: none;
+}
+
+body.dark-mode .business-invoice-metric-icon {
+    background: #1e3a5f;
+    color: #93c5fd;
+}
+
+body.dark-mode .business-invoice-metric.paid .business-invoice-metric-icon {
+    background: #143c2a;
+    color: #86efac;
+}
+
+body.dark-mode .business-invoice-metric.outstanding .business-invoice-metric-icon {
+    background: #422d12;
+    color: #fcd34d;
+}
+
+body.dark-mode .business-invoice-metric.overdue .business-invoice-metric-icon {
+    background: #451a1a;
+    color: #fca5a5;
+}
+
+@media (max-width: 900px) {
+    .business-invoice-overview {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .business-invoice-overview {
+        gap: 10px;
+        margin: 18px 0;
+    }
+
+    .business-invoice-metric {
+        padding: 14px;
+        border-radius: 12px;
+    }
+
+    .business-invoice-metric-top {
+        align-items: flex-start;
+        flex-direction: column-reverse;
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+
+    .business-invoice-metric-icon {
+        width: 34px;
+        height: 34px;
+    }
+
+    .business-invoice-metric > strong {
+        font-size: 1.2rem;
+    }
+}

@@ -3314,7 +3314,58 @@
 </div>
 
 
+<!-- PATRIODX — INVOICE FINANCIAL OVERVIEW -->
+<div class="business-invoice-overview">
 
+    <article class="business-invoice-metric total">
+        <div class="business-invoice-metric-top">
+            <span>Total invoiced</span>
+            <span class="business-invoice-metric-icon">
+                <i data-lucide="file-text"></i>
+            </span>
+        </div>
+
+        <strong id="invoiceSummaryTotal">$0.00</strong>
+        <small>All recorded invoices</small>
+    </article>
+
+    <article class="business-invoice-metric paid">
+        <div class="business-invoice-metric-top">
+            <span>Paid</span>
+            <span class="business-invoice-metric-icon">
+                <i data-lucide="circle-check"></i>
+            </span>
+        </div>
+
+        <strong id="invoiceSummaryPaid">$0.00</strong>
+        <small id="invoiceSummaryPaidCount">0 paid invoices</small>
+    </article>
+
+    <article class="business-invoice-metric outstanding">
+        <div class="business-invoice-metric-top">
+            <span>Outstanding</span>
+            <span class="business-invoice-metric-icon">
+                <i data-lucide="clock-3"></i>
+            </span>
+        </div>
+
+        <strong id="invoiceSummaryOutstanding">$0.00</strong>
+        <small id="invoiceSummaryOutstandingCount">0 unpaid invoices</small>
+    </article>
+
+    <article class="business-invoice-metric overdue">
+        <div class="business-invoice-metric-top">
+            <span>Overdue</span>
+            <span class="business-invoice-metric-icon">
+                <i data-lucide="alert-circle"></i>
+            </span>
+        </div>
+
+        <strong id="invoiceSummaryOverdue">$0.00</strong>
+        <small id="invoiceSummaryOverdueCount">0 overdue invoices</small>
+    </article>
+
+</div>
 <div class="search-bar">
 
     <input
