@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PATRIODX Marketplace | Shop Products</title>
+
+    <meta
+        name="description"
+        content="Discover products from businesses on the PATRIODX Marketplace."
+    >
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #087f5b;
+            --primary-dark: #066649;
+            --background: #f5f7fa;
+            --surface: #ffffff;
+            --text: #17212f;
+            --muted: #667085;
+            --border: #e4e7ec;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--background);
+            color: var(--text);
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .topbar {
+            background: #101828;
+            color: white;
+            padding: 17px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .brand span {
+            color: #6ee7b7;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .cart-button {
+            border: 0;
+            border-radius: 9px;
+            padding: 11px 16px;
+            background: #087f5b;
+            color: white;
+            font-weight: bold;
+        }
+
+        .page {
+            max-width: 1250px;
+            margin: auto;
+            padding: 28px 20px 60px;
+        }
+
+        .hero {
+            padding: 42px 30px;
+            border-radius: 18px;
+            color: white;
+            background: linear-gradient(120deg, #102a43, #087f5b);
+        }
+
+        .hero h1 {
+            font-size: clamp(28px, 4vw, 44px);
+            margin: 0 0 12px;
+        }
+
+        .hero p {
+            color: #e0f2ec;
+            line-height: 1.7;
+            max-width: 650px;
+            margin: 0;
+        }
+
+        .search-area {
+            display: grid;
+            grid-template-columns: minmax(180px, 1fr) 220px 190px;
+            gap: 12px;
+            margin: 25px 0;
+        }
+
+        .search-area input,
+        .search-area select {
+            width: 100%;
+            min-height: 46px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            outline-color: var(--primary);
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 24px 0 16px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+        }
+
+        .status {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .product-card {
+            min-width: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform .18s, box-shadow .18s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px #10182812;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 205px;
+            object-fit: cover;
+            background: #edf2f7;
+        }
+
+        .image-placeholder {
+            height: 205px;
+            display: grid;
+            place-items: center;
+            background: #edf7f2;
+            color: var(--primary);
+            font-size: 48px;
+        }
+
+        .product-details {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 10px;
+            padding: 15px;
+        }
+
+        .category {
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .product-name {
+            font-size: 17px;
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .product-description {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 0;
+            flex: 1;
+            overflow-wrap: anywhere;
+        }
+
+        .product-price {
+            font-size: 21px;
+            font-weight: 800;
+        }
+
+        .stock-label {
+            color: var(--primary);
+            font-size: 12px;
+        }
+
+        .stock-label.out {
+            color: #b42318;
+        }
+
+        .add-button {
+            width: 100%;
+            border: 0;
+            border-radius: 9px;
+            padding: 12px;
+            color: white;
+            background: var(--primary);
+            font-weight: bold;
+        }
+
+        .add-button:hover {
+            background: var(--primary-dark);
+        }
+
+        .add-button:disabled {
+            background: #d0d5dd;
+            cursor: not-allowed;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 45px 20px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            color: var(--muted);
+        }
+
+        .empty-state h3 {
+            color: var(--text);
+        }
+
+        .notice {
+            padding: 13px 15px;
+            border-radius: 10px;
+            margin: 18px 0;
+            background: #ecfdf3;
+            color: #067647;
+            line-height: 1.5;
+        }
+
+        .notice.error {
+            background: #fef3f2;
+            color: #b42318;
+        }
+
+        .cart-panel {
+            display: none;
+            margin: 22px 0;
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: white;
+        }
+
+        .cart-panel.open {
+            display: block;
+        }
+
+        .cart-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cart-row button {
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            background: white;
+            padding: 6px 10px;
+        }
+
+        .cart-total {
+            font-size: 19px;
+            font-weight: 800;
+            margin-top: 16px;
+        }
+
+        footer {
+            padding: 28px 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        @media (max-width: 1000px) {
+            .products-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 700px) {
+            .products-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
+            }
+
+            .search-area {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                padding: 30px 22px;
+            }
+
+            .product-image,
+            .image-placeholder {
+                height: 155px;
+            }
+
+            .product-details {
+                padding: 12px;
+            }
+
+            .product-name {
+                font-size: 15px;
+            }
+
+            .product-price {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="topbar">
+    <a class="brand" href="marketplace.html">
+        PATRIODX <span>MARKETPLACE</span>
+    </a>
+
+    <div class="topbar-actions">
+        <a href="auth.html">Seller / Account</a>
+
+        <button
+            type="button"
+            class="cart-button"
+            id="cartToggle"
+        >
+            Cart (<span id="cartCount">0</span>)
+        </button>
+    </div>
+</header>
+
+<main class="page">
+
+    <section class="hero">
+        <h1>Discover your next favourite.</h1>
+
+        <p>
+            Explore products from businesses on PATRIODX.
+            Search products, browse categories, and build your shopping cart.
+        </p>
+    </section>
+
+    <div id="notice" class="notice" hidden></div>
+
+    <section class="search-area">
+        <input
+            id="productSearch"
+            type="search"
+            placeholder="Search products..."
+            aria-label="Search products"
+        >
+
+        <select id="categoryFilter" aria-label="Filter by category">
+            <option value="">All categories</option>
+        </select>
+
+        <select id="sortProducts" aria-label="Sort products">
+            <option value="newest">Newest first</option>
+            <option value="low">Price: low to high</option>
+            <option value="high">Price: high to low</option>
+        </select>
+    </section>
+
+    <section id="cartPanel" class="cart-panel">
+        <h2>Your shopping cart</h2>
+
+        <div id="cartItems"></div>
+
+        <div class="cart-total">
+            Total: <span id="cartTotal">$0.00</span>
+        </div>
+
+        <p class="status">
+            Checkout will be connected after we implement secure orders
+            and payment verification.
+        </p>
+    </section>
+
+    <section>
+        <div class="section-heading">
+            <h2>Explore products</h2>
+            <span id="productCount" class="status">Loading products...</span>
+        </div>
+
+        <div id="productsGrid" class="products-grid">
+            <div class="empty-state">
+                Loading the marketplace...
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    PATRIODX Marketplace · Discover products from independent businesses.
+</footer>
+
+<script>
+    /*
+      Use the existing PATRIODX public Supabase credentials.
+      Never put a Supabase service-role key in browser code.
+    */
+
+    const SUPABASE_URL =
+        "https://saerujjsfzyxkyacbvgr.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+        "sb_publishable_l50YIYtYLXkjWE1iQSTyoA_GkrIKWn7";
+
+    const marketplaceDB = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
+
+    const productsGrid = document.getElementById("productsGrid");
+    const productSearch = document.getElementById("productSearch");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const sortProducts = document.getElementById("sortProducts");
+    const productCount = document.getElementById("productCount");
+    const notice = document.getElementById("notice");
+
+    let marketplaceProducts = [];
+
+    let cart = [];
+
+    try {
+        const storedCart = JSON.parse(
+            localStorage.getItem("patriodxMarketplaceCart") || "[]"
+        );
+
+        if (Array.isArray(storedCart)) {
+            cart = storedCart;
+        }
+    } catch (error) {
+        cart = [];
+    }
+
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, character => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[character]);
+    }
+
+    function showNotice(message, isError = false) {
+        notice.textContent = message;
+        notice.classList.toggle("error", isError);
+        notice.hidden = false;
+    }
+
+    function formatPrice(price) {
+        const value = Number(price);
+
+        if (!Number.isFinite(value)) {
+            return "Price unavailable";
+        }
+
+        return new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD"
+        }).format(value);
+    }
+
+    function saveCart() {
+        localStorage.setItem(
+            "patriodxMarketplaceCart",
+            JSON.stringify(cart)
+        );
+
+        renderCart();
+    }
+
+    function renderCart() {
+        const cartCount = document.getElementById("cartCount");
+        const cartItems = document.getElementById("cartItems");
+        const cartTotal = document.getElementById("cartTotal");
+
+        const count = cart.reduce(
+            (total, item) => total + item.quantity,
+            0
+        );
+
+        cartCount.textContent = count;
+
+        if (!cart.length) {
+            cartItems.innerHTML =
+                '<p class="status">Your cart is empty.</p>';
+
+            cartTotal.textContent = formatPrice(0);
+            return;
+        }
+
+        cartItems.innerHTML = cart.map(item => `
+            <div class="cart-row">
+                <div>
+                    <strong>${escapeHTML(item.name)}</strong>
+                    <div class="status">
+                        ${formatPrice(item.price)} × ${item.quantity}
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    data-remove-cart="${escapeHTML(item.id)}"
+                >
+                    Remove
+                </button>
+            </div>
+        `).join("");
+
+        const total = cart.reduce(
+            (sum, item) =>
+                sum + Number(item.price) * item.quantity,
+            0
+        );
+
+        cartTotal.textContent = formatPrice(total);
+    }
+
+    function renderCategories() {
+        const categories = [
+            ...new Set(
+                marketplaceProducts
+                    .map(product => product.category)
+                    .filter(Boolean)
+            )
+        ].sort();
+
+        categoryFilter.innerHTML =
+            '<option value="">All categories</option>' +
+            categories.map(category => `
+                <option value="${escapeHTML(category)}">
+                    ${escapeHTML(category)}
+                </option>
+            `).join("");
+    }
+
+    function renderProducts() {
+        const searchTerm =
+            productSearch.value.trim().toLowerCase();
+
+        const selectedCategory = categoryFilter.value;
+
+        let filteredProducts = marketplaceProducts.filter(product => {
+            const searchableText = [
+                product.name,
+                product.description,
+                product.category
+            ].join(" ").toLowerCase();
+
+            return searchableText.includes(searchTerm) &&
+                (
+                    !selectedCategory ||
+                    product.category === selectedCategory
+                );
+        });
+
+        if (sortProducts.value === "low") {
+            filteredProducts.sort(
+                (a, b) => Number(a.price) - Number(b.price)
+            );
+        }
+
+        if (sortProducts.value === "high") {
+            filteredProducts.sort(
+                (a, b) => Number(b.price) - Number(a.price)
+            );
+        }
+
+        if (sortProducts.value === "newest") {
+            filteredProducts.sort(
+                (a, b) =>
+                    new Date(b.created_at || 0) -
+                    new Date(a.created_at || 0)
+            );
+        }
+
+        productCount.textContent =
+            `${filteredProducts.length} product(s)`;
+
+        if (!filteredProducts.length) {
+            productsGrid.innerHTML = `
+                <div class="empty-state">
+                    <h3>No products found</h3>
+                    <p>
+                        Try another search or check back when
+                        sellers publish products.
+                    </p>
+                </div>
+            `;
+
+            return;
+        }
+
+        productsGrid.innerHTML = filteredProducts.map(product => {
+            const imageHTML = product.image_url
+                ? `
+                    <img
+                        class="product-image"
+                        src="${escapeHTML(product.image_url)}"
+                        alt="${escapeHTML(product.name)}"
+                        loading="lazy"
+                    >
+                `
+                : '<div class="image-placeholder">🛍️</div>';
+
+            const outOfStock = product.in_stock === false;
+
+            return `
+                <article class="product-card">
+                    ${imageHTML}
+
+                    <div class="product-details">
+                        ${
+                            product.category
+                                ? `<div class="category">
+                                    ${escapeHTML(product.category)}
+                                   </div>`
+                                : ""
+                        }
+
+                        <h3 class="product-name">
+                            ${escapeHTML(product.name || "Unnamed product")}
+                        </h3>
+
+                        <p class="product-description">
+                            ${escapeHTML(
+                                product.description ||
+                                "Contact the seller for more information."
+                            )}
+                        </p>
+
+                        <div class="product-price">
+                            ${formatPrice(product.price)}
+                        </div>
+
+                        <div class="stock-label ${outOfStock ? "out" : ""}">
+                            ${outOfStock ? "Out of stock" : "Available"}
+                        </div>
+
+                        <button
+                            type="button"
+                            class="add-button"
+                            data-add-product="${escapeHTML(product.id)}"
+                            ${outOfStock ? "disabled" : ""}
+                        >
+                            ${outOfStock ? "Unavailable" : "Add to cart"}
+                        </button>
+                    </div>
+                </article>
+            `;
+        }).join("");
+
+        /*
+          If an image fails, replace it with a simple placeholder.
+        */
+        productsGrid.querySelectorAll(".product-image").forEach(image => {
+            image.addEventListener("error", () => {
+                const placeholder = document.createElement("div");
+
+                placeholder.className = "image-placeholder";
+                placeholder.textContent = "🛍️";
+
+                image.replaceWith(placeholder);
+            }, { once: true });
+        });
+    }
+
+    function addToCart(productId) {
+        const product = marketplaceProducts.find(
+            item => String(item.id) === String(productId)
+        );
+
+        if (!product || product.in_stock === false) {
+            return;
+        }
+
+        const existingItem = cart.find(
+            item => String(item.id) === String(productId)
+        );
+
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({
+                id: product.id,
+                name: product.name,
+                price: Number(product.price),
+                quantity: 1
+            });
+        }
+
+        saveCart();
+
+        showNotice(`${product.name} added to your cart.`);
+    }
+
+    productsGrid.addEventListener("click", event => {
+        const button = event.target.closest("[data-add-product]");
+
+        if (button) {
+            addToCart(button.dataset.addProduct);
+        }
+    });
+
+    document.getElementById("cartItems").addEventListener(
+        "click",
+        event => {
+            const button = event.target.closest("[data-remove-cart]");
+
+            if (!button) {
+                return;
+            }
+
+            cart = cart.filter(
+                item => String(item.id) !==
+                    String(button.dataset.removeCart)
+            );
+
+            saveCart();
+        }
+    );
+
+    document.getElementById("cartToggle").addEventListener(
+        "click",
+        () => {
+            document.getElementById("cartPanel")
+                .classList.toggle("open");
+        }
+    );
+
+    productSearch.addEventListener("input", renderProducts);
+    categoryFilter.addEventListener("change", renderProducts);
+    sortProducts.addEventListener("change", renderProducts);
+
+    async function loadMarketplaceProducts() {
+        productsGrid.innerHTML = `
+            <div class="empty-state">
+                Loading marketplace products...
+            </div>
+        `;
+
+        /*
+          Read only products exposed by the marketplace view.
+          The underlying database permissions still need to be
+          configured correctly in Supabase.
+        */
+        const { data, error } = await marketplaceDB
+            .from("marketplace_products")
+            .select(
+                "id,business_id,name,description,category,price,image_url,in_stock,created_at"
+            )
+            .order("created_at", { ascending: false });
+
+        if (error) {
+            console.error(
+                "PATRIODX marketplace loading error:",
+                error
+            );
+
+            productCount.textContent = "Products unavailable";
+
+            productsGrid.innerHTML = `
+                <div class="empty-state">
+                    <h3>We couldn't load products.</h3>
+                    <p>
+                        The storefront is ready, but we need to check
+                        the Supabase view and its access permissions.
+                    </p>
+                </div>
+            `;
+
+            showNotice(
+                "Marketplace data could not be loaded. Check the browser console and Supabase permissions.",
+                true
+            );
+
+            return;
+        }
+
+        marketplaceProducts = data || [];
+
+        renderCategories();
+        renderProducts();
+    }
+
+    renderCart();
+    loadMarketplaceProducts();
+</script>
+
+</body>
+</html>
