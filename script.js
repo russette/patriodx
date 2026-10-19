@@ -1357,13 +1357,17 @@ const stock =
         return;
     }
 
-       const productData = {
-        business_id: currentBusiness.id,
-        name,
-        price,
-        cost_price: costPrice,
-        stock
-    };
+      const productData = {
+    business_id: currentBusiness.id,
+    name,
+    price,
+    cost_price: costPrice,
+    stock,
+    description: document.getElementById("productDescription").value.trim(),
+    category: document.getElementById("productCategory").value.trim(),
+    image_url: document.getElementById("productImageUrl").value.trim() || null,
+    is_published: document.getElementById("productPublish").checked
+};
     let query;
 
     if (productId) {
@@ -5766,7 +5770,17 @@ function openProductModal(productIdToEdit = null) {
 
     document.getElementById("productStock").value =
         product.stock ?? "";
+document.getElementById("productDescription").value =
+    product.description || "";
 
+document.getElementById("productCategory").value =
+    product.category || "";
+
+document.getElementById("productImageUrl").value =
+    product.image_url || "";
+
+document.getElementById("productPublish").checked =
+    product.is_published === true;
     if (costPriceField) {
         costPriceField.value =
             product.cost_price ?? "";
