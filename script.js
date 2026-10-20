@@ -5733,18 +5733,26 @@ function openProductModal(productIdToEdit = null) {
     const costPriceField =
         document.getElementById("productCostPrice");
 
-    if (!productIdToEdit) {
-        if (title) {
-            title.textContent = "Add Product";
-        }
-
-        if (costPriceField) {
-            costPriceField.value = "";
-        }
-
-        modal.style.display = "flex";
-        return;
+   if (!productIdToEdit) {
+    if (title) {
+        title.textContent = "Add Product";
     }
+
+    if (costPriceField) {
+        costPriceField.value = "";
+    }
+
+    // Publish new products to the Marketplace by default.
+    const publishCheckbox =
+        document.getElementById("productPublish");
+
+    if (publishCheckbox) {
+        publishCheckbox.checked = true;
+    }
+
+    modal.style.display = "flex";
+    return;
+}
 
     const product = products.find(
         item => String(item.id) === String(productIdToEdit)
