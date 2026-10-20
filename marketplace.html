@@ -729,37 +729,7 @@ function notifyMarketplaceHeight() {
                 </option>
             `).join("");
     }
-async function loadProducts() {
-    el.count.textContent = "Loading products…";
 
-    const { data, error } = await supabaseClient
-        .from("marketplace_products")
-        .select(
-            "id,business_id,name,description,category,price,image_url,in_stock,created_at"
-        )
-        .order("created_at", { ascending: false });
-
-    if (error) {
-        console.error("Marketplace query failed:", error);
-
-        state(
-            "!",
-            "Marketplace isn't connected yet",
-            "We couldn't load published products. Check the Supabase view permissions and try again."
-        );
-
-        return;
-    }
-
-    allProducts = (data || []).map(product => ({
-        ...product,
-        price: Number(product.price) || 0,
-        in_stock: Number(product.in_stock) || 0
-    }));
-
-    populateCategories();
-    renderProducts();
-}
     function renderProducts() {
         const searchTerm =
             productSearch.value.trim().toLowerCase();
@@ -1126,7 +1096,7 @@ if (checkoutForm && checkoutMessage) {
         }
     });
 }
-    loadProducts().finally(notifyMarketplaceHeight);
+   loadMarketplaceProducts().finally(notifyMarketplaceHeight);
 
 renderCart();
 
