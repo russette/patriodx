@@ -17102,3 +17102,38 @@ body.dark-mode .business-invoice-metric.overdue .business-invoice-metric-icon {
     font-size: 0.8rem;
     line-height: 1.5;
 }
+/* =========================================================
+   PATRIODX — INTEGRATED MARKETPLACE
+========================================================= */
+
+.patriodx-marketplace-page {
+    width: 100%;
+    min-width: 0;
+}
+
+.patriodx-marketplace-frame {
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 18px;
+    background: var(--card-bg, #ffffff);
+}
+
+#patriodxMarketplaceFrame {
+    display: block;
+    width: 100%;
+    height: 1400px;
+    border: 0;
+    background: #f5f7fa;
+}
+
+@media (max-width: 768px) {
+    .patriodx-marketplace-frame {
+        border-radius: 12px;
+    }
+
+    #patriodxMarketplaceFrame {
+        height: 1700px;
+    }
+}

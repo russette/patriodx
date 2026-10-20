@@ -15409,6 +15409,7 @@ const PATRIODX_PAGES = [
     "customers",
     "sales",
     "invoices",
+    "marketplace",
     "patriodxAI",
     "contact",
     "account"
@@ -18328,4 +18329,36 @@ document.addEventListener("submit", async function (event) {
         button.disabled = false;
         button.textContent = originalText;
     }
+});
+// =========================================================
+// PATRIODX — MARKETPLACE FRAME INTEGRATION
+// =========================================================
+
+window.addEventListener("message", function (event) {
+    if (event.origin !== window.location.origin) {
+        return;
+    }
+
+    if (
+        !event.data ||
+        event.data.type !== "patriodx-marketplace-height"
+    ) {
+        return;
+    }
+
+    const marketplaceFrame = document.getElementById(
+        "patriodxMarketplaceFrame"
+    );
+
+    if (!marketplaceFrame || event.source !== marketplaceFrame.contentWindow) {
+        return;
+    }
+
+    const height = Number(event.data.height);
+
+    if (!Number.isFinite(height) || height < 200 || height > 50000) {
+        return;
+    }
+
+    marketplaceFrame.style.height = `${Math.ceil(height)}px`;
 });

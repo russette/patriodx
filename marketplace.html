@@ -398,6 +398,38 @@
                 grid-template-columns: 1fr;
             }
         }
+        /* =========================================================
+   PATRIODX — EMBEDDED MARKETPLACE MODE
+========================================================= */
+
+body.embedded .topbar,
+body.embedded .footer {
+    display: none;
+}
+
+body.embedded {
+    background: var(--paper);
+}
+
+body.embedded .hero-inner {
+    padding-top: 42px;
+    padding-bottom: 44px;
+}
+
+body.embedded .page {
+    padding-top: 28px;
+    padding-bottom: 40px;
+}
+
+@media (max-width: 720px) {
+    body.embedded .hero-inner {
+        padding: 30px 16px;
+    }
+
+    body.embedded .page {
+        padding: 22px 12px 32px;
+    }
+}
     </style>
 </head>
 
@@ -534,7 +566,33 @@
       Use the existing PATRIODX public Supabase credentials.
       Never put a Supabase service-role key in browser code.
     */
+const embeddedMode =
+    new URLSearchParams(window.location.search).get("embedded") === "1";
 
+if (embeddedMode) {
+    document.body.classList.add("embedded");
+}
+
+function notifyMarketplaceHeight() {
+    if (!embeddedMode || window.parent === window) {
+        return;
+    }
+
+    const height = Math.ceil(
+        Math.max(
+            document.body.scrollHeight,
+            document.documentElement.scrollHeight
+        )
+    );
+
+    window.parent.postMessage(
+        {
+            type: "patriodx-marketplace-height",
+            height
+        },
+        window.location.origin
+    );
+}
     const SUPABASE_URL =
         "https://saerujjsfzyxkyacbvgr.supabase.co";
 
@@ -1038,8 +1096,20 @@ if (checkoutForm && checkoutMessage) {
         }
     });
 }
-    renderCart();
-    loadMarketplaceProducts();
+    loadProducts().finally(notifyMarketplaceHeight);
+
+renderCart();
+
+window.addEventListener("load", notifyMarketplaceHeight);
+window.addEventListener("resize", notifyMarketplaceHeight);
+
+if ("ResizeObserver" in window) {
+    const marketplaceResizeObserver = new ResizeObserver(() => {
+        requestAnimationFrame(notifyMarketplaceHeight);
+    });
+
+    marketplaceResizeObserver.observe(document.body);
+}
 </script>
 
 </body>
