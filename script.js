@@ -1274,7 +1274,63 @@ function closeCustomerModal() {
         );
     }
 }
+// =========================================================
+// PATRIODX PRODUCT IMAGE PREVIEW
+// =========================================================
 
+function previewProductImage(input) {
+    const file = input.files && input.files[0];
+
+    const container = document.getElementById(
+        "productImagePreviewContainer"
+    );
+
+    const preview = document.getElementById(
+        "productImagePreview"
+    );
+
+    if (!container || !preview) return;
+
+    if (!file) {
+        container.style.display = "none";
+        preview.removeAttribute("src");
+        return;
+    }
+
+    const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif"
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+        showPATRIODXToast(
+            "Please choose a JPG, PNG, WEBP, or GIF image.",
+            "warning"
+        );
+
+        input.value = "";
+        container.style.display = "none";
+        preview.removeAttribute("src");
+        return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+        showPATRIODXToast(
+            "Your picture must be 5 MB or smaller.",
+            "warning"
+        );
+
+        input.value = "";
+        container.style.display = "none";
+        preview.removeAttribute("src");
+        return;
+    }
+
+    preview.src = URL.createObjectURL(file);
+    container.style.display = "block";
+}
 // =========================================================
 // SAVE PRODUCT — ADD AND EDIT
 // =========================================================
@@ -1357,7 +1413,102 @@ const stock =
         return;
     }
 
-      const productData = {
+     // =========================================================
+// UPLOAD PRODUCT IMAGE TO SUPABASE STORAGE
+// =========================================================
+
+const imageFileInput = document.getElementById(
+    "productImageFile"
+);
+
+const imageFile = imageFileInput?.files?.[0];
+
+let productImageUrl = document.getElementById(
+    "productImageUrl"
+).value.trim() || null;
+
+if (imageFile) {
+    const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif"
+    ];
+
+    if (!allowedTypes.includes(imageFile.type)) {
+        showPATRIODXToast(
+            "Please select a valid image file.",
+            "warning"
+        );
+        return;
+    }
+
+    if (imageFile.size > 5 * 1024 * 1024) {
+        showPATRIODXToast(
+            "Your picture must be 5 MB or smaller.",
+            "warning"
+        );
+        return;
+    }
+
+    const extension = imageFile.name
+        .split(".")
+        .pop()
+        .toLowerCase();
+
+    const safeExtension = [
+        "jpg",
+        "jpeg",
+        "png",
+        "webp",
+        "gif"
+    ].includes(extension)
+        ? extension
+        : "jpg";
+
+    const imagePath =
+        `${currentBusiness.id}/${Date.now()}-${crypto.randomUUID()}.${safeExtension}`;
+
+    showPATRIODXToast(
+        "Uploading product picture...",
+        "info"
+    );
+
+    const { error: uploadError } = await supabaseClient
+        .storage
+        .from("product-images")
+        .upload(imagePath, imageFile, {
+            contentType: imageFile.type,
+            upsert: false
+        });
+
+    if (uploadError) {
+        console.error(
+            "PATRIODX product image upload error:",
+            uploadError
+        );
+
+        showPATRIODXToast(
+            "Picture upload failed. Please try again.",
+            "error"
+        );
+
+        return;
+    }
+
+    const { data: imageData } = supabaseClient
+        .storage
+        .from("product-images")
+        .getPublicUrl(imagePath);
+
+    productImageUrl = imageData.publicUrl;
+}
+
+// =========================================================
+// SAVE PRODUCT — EXISTING DATABASE STRUCTURE
+// =========================================================
+
+const productData = {
     business_id: currentBusiness.id,
     name,
     price,
@@ -1365,7 +1516,7 @@ const stock =
     stock,
     description: document.getElementById("productDescription").value.trim(),
     category: document.getElementById("productCategory").value.trim(),
-    image_url: document.getElementById("productImageUrl").value.trim() || null,
+    image_url: productImageUrl,
     is_published: document.getElementById("productPublish").checked
 };
     let query;

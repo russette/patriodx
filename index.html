@@ -4548,7 +4548,35 @@
 
 <label for="productCategory">Category</label> <input type="text" id="productCategory" placeholder="e.g. Electronics">
 
-<label for="productImageUrl">Product Image URL</label> <input type="url" id="productImageUrl" placeholder="https://example.com/product.jpg">
+<label for="productImageFile">Upload Product Picture</label>
+
+<input
+    type="file"
+    id="productImageFile"
+    accept="image/jpeg,image/png,image/webp,image/gif"
+    onchange="previewProductImage(this)"
+>
+
+<div id="productImagePreviewContainer" style="display:none; margin:12px 0;">
+    <img
+        id="productImagePreview"
+        src=""
+        alt="Product image preview"
+        style="width:100%; max-width:220px; max-height:220px; object-fit:contain; border-radius:12px;"
+    >
+</div>
+
+<small style="display:block; margin-bottom:12px;">
+    Choose a picture from your device. Maximum size: 5 MB.
+</small>
+
+<label for="productImageUrl">Or enter an Image URL</label>
+
+<input
+    type="url"
+    id="productImageUrl"
+    placeholder="https://example.com/product.jpg"
+>
 
 <label class="marketplace-publish-option">
     <input type="checkbox" id="productPublish">
