@@ -13518,6 +13518,7 @@ transition: outline-color 0.3s ease;
     line-height: 1.5;
     opacity: 0.8;
     -webkit-box-orient: vertical;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
 }
 
