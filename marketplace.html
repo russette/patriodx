@@ -426,10 +426,52 @@
             Total: <span id="cartTotal">$0.00</span>
         </div>
 
-        <p class="status">
-            Checkout will be connected after we implement secure orders
-            and payment verification.
-        </p>
+        <form id="marketplaceCheckoutForm">
+    <h3>Checkout details</h3>
+
+    <label for="checkoutName">Full name</label>
+    <input
+        type="text"
+        id="checkoutName"
+        autocomplete="name"
+        required
+    >
+
+    <label for="checkoutAddress">Shipping address</label>
+    <input
+        type="text"
+        id="checkoutAddress"
+        autocomplete="street-address"
+        required
+    >
+
+    <label for="checkoutCity">City</label>
+    <input
+        type="text"
+        id="checkoutCity"
+        autocomplete="address-level2"
+        required
+    >
+
+    <label for="checkoutCountry">Country</label>
+    <input
+        type="text"
+        id="checkoutCountry"
+        autocomplete="country-name"
+        required
+    >
+
+    <button type="submit" class="cart-button">
+        Continue to checkout — USD
+    </button>
+
+    <p class="status">
+        Orders are recorded in USD. Payment will be completed
+        through the secure payment provider once connected.
+    </p>
+</form>
+
+<div id="checkoutMessage" class="notice" hidden></div>
     </section>
 
     <section>
@@ -842,7 +884,124 @@
         renderCategories();
         renderProducts();
     }
+const checkoutForm = document.getElementById(
+    "marketplaceCheckoutForm"
+);
 
+const checkoutMessage = document.getElementById(
+    "checkoutMessage"
+);
+
+if (checkoutForm && checkoutMessage) {
+    checkoutForm.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        if (!cart.length) {
+            checkoutMessage.textContent =
+                "Your shopping cart is empty.";
+
+            checkoutMessage.classList.add("error");
+            checkoutMessage.hidden = false;
+            return;
+        }
+
+        const submitButton = checkoutForm.querySelector(
+            'button[type="submit"]'
+        );
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Creating your order...";
+
+        checkoutMessage.hidden = true;
+
+        try {
+            // Require a valid signed-in Supabase session.
+            const {
+                data: { session },
+                error: sessionError
+            } = await marketplaceDB.auth.getSession();
+
+            if (sessionError || !session) {
+                checkoutMessage.textContent =
+                    "Please sign in to your PATRIODX account before checkout.";
+
+                checkoutMessage.classList.add("error");
+                checkoutMessage.hidden = false;
+                return;
+            }
+
+            // Send product IDs and quantities only.
+            // The server retrieves the real prices from Supabase.
+            const response = await fetch(
+                "https://businessos-wine-eight.vercel.app/api/marketplace-checkout",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${session.access_token}`
+                    },
+                    body: JSON.stringify({
+                        items: cart.map(item => ({
+                            id: item.id,
+                            quantity: item.quantity
+                        })),
+                        customer_name:
+                            document.getElementById(
+                                "checkoutName"
+                            ).value.trim(),
+                        shipping_address:
+                            document.getElementById(
+                                "checkoutAddress"
+                            ).value.trim(),
+                        shipping_city:
+                            document.getElementById(
+                                "checkoutCity"
+                            ).value.trim(),
+                        shipping_country:
+                            document.getElementById(
+                                "checkoutCountry"
+                            ).value.trim()
+                    })
+                }
+            );
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(
+                    result.error || "Unable to create your order."
+                );
+            }
+
+            checkoutMessage.classList.remove("error");
+
+            checkoutMessage.textContent =
+                `Order created successfully! Order ID: ${result.order.id}. ` +
+                `Total: ${formatPrice(result.order.total)}. ` +
+                "Your order is awaiting payment.";
+
+            checkoutMessage.hidden = false;
+
+            // Keep the cart intact until payment is implemented.
+        } catch (error) {
+            console.error(
+                "PATRIODX checkout error:",
+                error
+            );
+
+            checkoutMessage.textContent =
+                error.message ||
+                "Checkout failed. Please try again.";
+
+            checkoutMessage.classList.add("error");
+            checkoutMessage.hidden = false;
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent =
+                "Continue to checkout — USD";
+        }
+    });
+}chah
     renderCart();
     loadMarketplaceProducts();
 </script>
