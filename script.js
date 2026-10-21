@@ -17553,7 +17553,15 @@ sidebar.querySelectorAll(".sidebar-link").forEach(link => {
 * Initialize after the complete document has been parsed.
   */
   function setupPATRIODXMobileActions() {
-  setupMobileCreateSheet();
+ if (document.readyState === "loading") {
+    document.addEventListener(
+        "DOMContentLoaded",
+        setupMobileCreateSheet,
+        { once: true }
+    );
+} else {
+    setupMobileCreateSheet();
+}
   setupMobileMoreButton();
   }
 
