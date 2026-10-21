@@ -17138,3 +17138,256 @@ body.dark-mode .business-invoice-metric.overdue .business-invoice-metric-icon {
         height: 1700px;
     }
 }
+/* =========================================================
+PATRIODX MOBILE REFRESH — HEADER & BOTTOM NAVIGATION
+Safe overrides: preserves existing HTML and JavaScript
+========================================================= */
+
+.patriodx-header.patriodx-clean-header {
+box-sizing: border-box;
+width: 100%;
+max-width: 100%;
+}
+
+.patriodx-centered-logo {
+min-width: 0;
+white-space: nowrap;
+}
+
+.patriodx-header-left,
+.patriodx-header-right {
+min-width: 0;
+}
+
+.mobile-menu-button,
+.header-search-button {
+-webkit-tap-highlight-color: transparent;
+touch-action: manipulation;
+}
+
+.mobile-menu-button:focus-visible,
+.header-search-button:focus-visible,
+.mobile-nav-link:focus-visible {
+outline: 2px solid #2563eb;
+outline-offset: 3px;
+}
+
+@media (max-width: 768px) {
+/* Compact, centered app header */
+.patriodx-header.patriodx-clean-header {
+position: sticky !important;
+top: 0;
+z-index: 1200;
+display: grid !important;
+grid-template-columns: 44px minmax(0, 1fr) 44px !important;
+grid-template-areas: "left logo right" !important;
+align-items: center !important;
+gap: 4px !important;
+min-height: 58px !important;
+height: auto !important;
+padding: 6px 10px !important;
+}
+
+.patriodx-header-left {
+    grid-area: left !important;
+    justify-self: start !important;
+}
+
+.patriodx-centered-logo {
+    grid-area: logo !important;
+    justify-self: center !important;
+    gap: 6px !important;
+    max-width: 100%;
+    font-size: clamp(15px, 4.4vw, 20px) !important;
+    letter-spacing: 0.7px !important;
+}
+
+.patriodx-centered-logo img {
+    width: 29px !important;
+    height: 29px !important;
+    flex-shrink: 0;
+}
+
+.patriodx-header-right {
+    grid-area: right !important;
+    justify-self: end !important;
+}
+
+.mobile-menu-button,
+.header-search-button {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+}
+
+.mobile-menu-button svg,
+.header-search-button svg {
+    width: 21px !important;
+    height: 21px !important;
+}
+
+/* Keep the existing search panel inside the screen */
+#globalSearchPanel {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+}
+
+.global-search-panel-inner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+#globalSearchInput {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* Existing five-item navigation */
+#mobileBottomNav {
+    box-sizing: border-box;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    align-items: stretch;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    height: auto !important;
+    min-height: 64px !important;
+    padding: 5px 5px calc(5px + env(safe-area-inset-bottom)) !important;
+    background: var(--card-bg, #fff);
+    border-top: 1px solid var(--border-color, #e5e7eb);
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, 0.07);
+}
+
+#mobileBottomNav .mobile-nav-link {
+    box-sizing: border-box;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px;
+    width: 100%;
+    min-width: 0;
+    min-height: 48px !important;
+    height: auto !important;
+    padding: 4px 1px !important;
+    border-radius: 10px;
+    color: var(--muted-text, #64748b);
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+#mobileBottomNav .mobile-nav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex: 0 0 auto;
+}
+
+#mobileBottomNav .mobile-nav-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+#mobileBottomNav .mobile-nav-link small {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 10px;
+    line-height: 1.2;
+    font-weight: 650;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#mobileBottomNav .mobile-nav-link.active {
+    color: #2563eb;
+    background: rgba(37, 99, 235, 0.07);
+}
+
+/* Ensure page content can scroll above the fixed navigation */
+body {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+}
+
+/* Prevent common flex/grid children from forcing horizontal overflow */
+main,
+section,
+.container,
+.section,
+.dashboard-grid,
+.stats-grid,
+.analytics-grid {
+    min-width: 0;
+    max-width: 100%;
+}
+
+img,
+video,
+iframe {
+    max-width: 100%;
+}
+
+
+}
+
+/* Extra-small phones */
+@media (max-width: 360px) {
+.patriodx-header.patriodx-clean-header {
+grid-template-columns: 38px minmax(0, 1fr) 38px !important;
+padding-right: 6px !important;
+padding-left: 6px !important;
+}
+
+
+.patriodx-centered-logo {
+    gap: 4px !important;
+    font-size: 14px !important;
+    letter-spacing: 0.2px !important;
+}
+
+.patriodx-centered-logo img {
+    width: 25px !important;
+    height: 25px !important;
+}
+
+.mobile-menu-button,
+.header-search-button {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+}
+
+#mobileBottomNav .mobile-nav-link small {
+    font-size: 9px;
+}
+
+
+}
+
+/* Dark mode */
+body.dark-mode #mobileBottomNav {
+background: #111827;
+border-top-color: #374151;
+}
+
+body.dark-mode #mobileBottomNav .mobile-nav-link.active {
+color: #60a5fa;
+background: rgba(96, 165, 250, 0.12);
+}

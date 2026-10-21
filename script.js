@@ -4374,218 +4374,98 @@ if (typeof loadBusiness === "function") {
 }
 
 
-function startProPlan() {
-if (!currentUser) {
-
-    showPATRIODXToast(
-        "Please log in before upgrading your plan.",
-        "warning"
-    );
-
-    return;
-}
-
-
-// Continue directly to Paystack.
-// The browser confirm popup has been removed.
-
-
-if (typeof PaystackPop === "undefined") {
-
-    showPATRIODXToast(
-        "Payment system could not load. Please refresh the page and try again.",
-        "error"
-    );
-
-    return;
-}
-
-
-    try {
-
-        const paystack = new PaystackPop();
-
-
-        paystack.newTransaction({
-
-            key: PAYSTACK_PUBLIC_KEY,
-
-            email: currentUser.email,
-
-            // GHS 900
-            // Paystack uses pesewas.
-
-            amount: 90000,
-
-            currency: "GHS",
-
-            metadata: {
-                plan: "Pro"
-            },
-
-
-            onSuccess: async function(transaction) {
-
-                console.log(
-                    "Paystack transaction:",
-                    transaction
-                );
-
-
-              showPATRIODXToast(
-    "Payment received. Verifying your payment...",
-    "info"
-);
-
-                await verifyPatriodxPayment(
-                    transaction.reference,
-                    "Pro"
-                );
-
-            },
-
-
-            onCancel: function() {
-
-                console.log(
-                    "Paystack checkout cancelled."
-                );
-
-            },
-
-
-            onError: function(error) {
-
-                console.error(
-                    "Paystack error:",
-                    error
-                );
-
-showPATRIODXToast(
-    "Payment could not be completed. Please try again.",
-    "error"
-);
-            }
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Paystack error:",
-            error
-        );
-
-
-    showPATRIODXToast(
-    "Unable to start payment. Please try again.",
-    "error"
-);
-
-    }
-}
-
-
-function startBusinessPlan() {
-
+async function startPlanCheckout(plan) {
     if (!currentUser) {
-
         showPATRIODXToast(
             "Please log in before upgrading your plan.",
             "warning"
         );
-
         return;
     }
 
-    if (typeof PaystackPop === "undefined") {
-
+    if (!["Pro", "Business"].includes(plan)) {
         showPATRIODXToast(
-            "Payment system could not load. Please refresh the page and try again.",
+            "Invalid subscription plan.",
             "error"
         );
-
         return;
     }
 
     try {
+        showPATRIODXToast(
+            "Preparing your secure checkout...",
+            "info"
+        );
 
-        const paystack = new PaystackPop();
+        const {
+            data: sessionData,
+            error: sessionError
+        } = await supabaseClient.auth.getSession();
 
-        paystack.newTransaction({
+        const session = sessionData?.session;
 
-            key: PAYSTACK_PUBLIC_KEY,
+        if (sessionError || !session?.access_token) {
+            showPATRIODXToast(
+                "Your session has expired. Please log in again.",
+                "warning"
+            );
+            return;
+        }
 
-            email: currentUser.email,
-
-            // GHS 1,900
-            // Paystack uses pesewas.
-
-            amount: 190000,
-
-            currency: "GHS",
-
-            metadata: {
-                plan: "Business"
-            },
-
-            onSuccess: async function(transaction) {
-
-                console.log(
-                    "Paystack transaction:",
-                    transaction
-                );
-
-                showPATRIODXToast(
-                    "Payment received. Verifying your payment...",
-                    "info"
-                );
-
-                await verifyPatriodxPayment(
-                    transaction.reference,
-                    "Business"
-                );
-
-            },
-
-            onCancel: function() {
-
-                console.log(
-                    "Paystack checkout cancelled."
-                );
-
-            },
-
-            onError: function(error) {
-
-                console.error(
-                    "Paystack error:",
-                    error
-                );
-
-                showPATRIODXToast(
-                    "Payment could not be completed. Please try again.",
-                    "error"
-                );
-
+        const response = await fetch(
+            "https://businessos-wine-eight.vercel.app/api/initialize-payment",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${session.access_token}`
+                },
+                body: JSON.stringify({ plan })
             }
+        );
 
-        });
+        const result = await response.json();
+
+        if (
+            !response.ok ||
+            !result.status ||
+            !result.data?.authorization_url
+        ) {
+            console.error(
+                "Payment initialization failed:",
+                result
+            );
+
+            showPATRIODXToast(
+                result.error ||
+                "Unable to start checkout. Please try again.",
+                "error"
+            );
+            return;
+        }
+
+        window.location.href =
+            result.data.authorization_url;
 
     } catch (error) {
-
         console.error(
-            "Paystack error:",
+            "PATRIODX checkout error:",
             error
         );
 
         showPATRIODXToast(
-            "Unable to start payment. Please try again.",
+            "Unable to connect to the payment service. Please try again.",
             "error"
         );
-
     }
+}
+
+function startProPlan() {
+    return startPlanCheckout("Pro");
+}
+
+function startBusinessPlan() {
+    return startPlanCheckout("Business");
 }
 // =========================================================
 // RENDER EVERYTHING
