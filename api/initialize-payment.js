@@ -1,22 +1,23 @@
+
+import { createClient } from "@supabase/supabase-js";
+
+const ALLOWED_PLANS = {
+    Pro: {
+        amount: 90000,
+        product: "PATRIODX Pro"
+    },
+    Business: {
+        amount: 190000,
+        product: "PATRIODX Business"
+    }
+};
+
 export default async function handler(req, res) {
-
-    // ---------------------------------------------------------
-    // CORS
-    // ---------------------------------------------------------
-
-    res.setHeader(
-        "Access-Control-Allow-Origin",
-        "*"
-    );
-
-    res.setHeader(
-        "Access-Control-Allow-Methods",
-        "POST, OPTIONS"
-    );
-
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.setHeader(
         "Access-Control-Allow-Headers",
-        "Content-Type"
+        "Content-Type, Authorization"
     );
 
     if (req.method === "OPTIONS") {
@@ -31,199 +32,153 @@ export default async function handler(req, res) {
     }
 
     try {
+        const authorization = req.headers.authorization || "";
 
-        const {
-            email,
-            reference,
-            product,
-            plan,
-            callback_url
-        } = req.body || {};
-
-        // -----------------------------------------------------
-        // EMAIL
-        // -----------------------------------------------------
-
-        if (!email) {
-            return res.status(400).json({
+        if (!authorization.startsWith("Bearer ")) {
+            return res.status(401).json({
                 status: false,
-                error: "Email is required"
+                error: "Authentication required"
             });
         }
 
-        // -----------------------------------------------------
-        // SECRET KEY
-        // -----------------------------------------------------
+        const accessToken = authorization.slice(7);
 
-        const secretKey =
+        const {
+            plan
+        } = req.body || {};
+
+        if (!Object.prototype.hasOwnProperty.call(ALLOWED_PLANS, plan)) {
+            return res.status(400).json({
+                status: false,
+                error: "Invalid subscription plan"
+            });
+        }
+
+        const supabaseUrl = process.env.SUPABASE_URL;
+        const serviceRoleKey =
+            process.env.SUPABASE_SERVICE_ROLE_KEY;
+        const paystackSecretKey =
             process.env.PAYSTACK_SECRET_KEY;
 
-        if (!secretKey) {
-            console.error(
-                "PAYSTACK_SECRET_KEY is missing"
-            );
+        if (!supabaseUrl || !serviceRoleKey || !paystackSecretKey) {
+            console.error("Payment initialization environment is incomplete.");
 
             return res.status(500).json({
                 status: false,
-                error:
-                    "PAYSTACK_SECRET_KEY is not configured"
+                error: "Payment service is not fully configured."
             });
         }
 
-        // -----------------------------------------------------
-        // SERVER-SIDE PRODUCT PRICING
-        // -----------------------------------------------------
-
-        let amountGHS;
-
-        if (
-            product === "BusinessOS Pro" &&
-            plan === "Pro"
-        ) {
-
-            amountGHS = 900;
-
-        } else {
-
-            return res.status(400).json({
-                status: false,
-                error: "Invalid BusinessOS product or plan"
-            });
-
-        }
-
-        // -----------------------------------------------------
-        // CONVERT GHS → PESEWAS
-        // -----------------------------------------------------
-
-        const amountInPesewas =
-            Math.round(amountGHS * 100);
-
-        // -----------------------------------------------------
-        // CALLBACK
-        // -----------------------------------------------------
-
-        const finalCallbackUrl =
-            callback_url ||
-            "https://russette.github.io/business-os/";
-
-        // -----------------------------------------------------
-        // PAYSTACK INITIALIZATION
-        // -----------------------------------------------------
-
-        const paystackResponse =
-            await fetch(
-                "https://api.paystack.co/transaction/initialize",
-                {
-                    method: "POST",
-
-                    headers: {
-                        Authorization:
-                            `Bearer ${secretKey}`,
-
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        email:
-                            String(email).trim(),
-
-                        amount:
-                            amountInPesewas,
-
-                        currency:
-                            "GHS",
-
-                        callback_url:
-                            finalCallbackUrl,
-
-                        ...(reference
-                            ? {
-                                reference:
-                                    String(reference)
-                            }
-                            : {})
-                    })
-                }
-            );
-
-        const data =
-            await paystackResponse.json();
-
-        console.log(
-            "Paystack initialization:",
+        const supabase = createClient(
+            supabaseUrl,
+            serviceRoleKey,
             {
-                status: data.status,
-                message: data.message,
-                reference:
-                    data?.data?.reference
+                auth: {
+                    persistSession: false,
+                    autoRefreshToken: false
+                }
             }
         );
 
-        // -----------------------------------------------------
-        // PAYSTACK ERROR
-        // -----------------------------------------------------
+        const {
+            data: userData,
+            error: userError
+        } = await supabase.auth.getUser(accessToken);
 
-        if (
-            !paystackResponse.ok ||
-            !data.status
-        ) {
+        const user = userData?.user;
 
-            return res.status(
-                paystackResponse.status || 400
-            ).json({
+        if (userError || !user || !user.email) {
+            return res.status(401).json({
                 status: false,
-                error:
-                    data.message ||
-                    "Paystack payment initialization failed"
+                error: "Your login session is invalid or expired."
             });
-
         }
 
-        // -----------------------------------------------------
-        // SUCCESS
-        // -----------------------------------------------------
+        const {
+            data: business,
+            error: businessError
+        } = await supabase
+            .from("businesses")
+            .select("id, owner_id, plan")
+            .eq("owner_id", user.id)
+            .maybeSingle();
+
+        if (businessError || !business) {
+            console.error(
+                "Payment business lookup failed:",
+                businessError
+            );
+
+            return res.status(404).json({
+                status: false,
+                error: "Your PATRIODX business account could not be found."
+            });
+        }
+
+        const selectedPlan = ALLOWED_PLANS[plan];
+
+        const paystackResponse = await fetch(
+            "https://api.paystack.co/transaction/initialize",
+            {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${paystackSecretKey}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email: user.email,
+                    amount: selectedPlan.amount,
+                    currency: "GHS",
+                    callback_url:
+                        "https://russette.github.io/patriodx/",
+                    metadata: {
+                        app: "PATRIODX",
+                        user_id: user.id,
+                        business_id: business.id,
+                        plan,
+                        product: selectedPlan.product
+                    }
+                })
+            }
+        );
+
+        const paystackResult = await paystackResponse.json();
+
+        if (!paystackResponse.ok || !paystackResult.status) {
+            console.error(
+                "Paystack initialization failed:",
+                paystackResult.message
+            );
+
+            return res.status(502).json({
+                status: false,
+                error: "Paystack could not initialize the payment."
+            });
+        }
 
         return res.status(200).json({
-
             status: true,
-
-            message:
-                "BusinessOS Pro payment initialized",
-
+            message: "Payment initialized successfully.",
             data: {
-
                 authorization_url:
-                    data.data.authorization_url,
-
+                    paystackResult.data.authorization_url,
                 access_code:
-                    data.data.access_code,
-
+                    paystackResult.data.access_code,
                 reference:
-                    data.data.reference,
-
-                amount:
-                    amountGHS,
-
-                currency:
-                    "GHS"
+                    paystackResult.data.reference,
+                amount: selectedPlan.amount,
+                currency: "GHS",
+                plan
             }
         });
 
     } catch (error) {
-
-        console.error(
-            "Payment initialization error:",
-            error
-        );
+        console.error("Payment initialization error:", error);
 
         return res.status(500).json({
             status: false,
-            error:
-                error.message ||
-                "Server error while initializing payment"
+            error: "Unable to initialize payment. Please try again."
         });
     }
 }
+
