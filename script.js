@@ -17419,100 +17419,153 @@ if (file.size > 50 * 1024 * 1024) {
     }
 }
 /* =========================================================
-   MOBILE CREATE SHEET
+MOBILE CREATE SHEET — RELIABLE INITIALIZATION
 ========================================================= */
 
 function openMobileCreateSheet() {
-
-    const sheet =
-        document.getElementById(
-            "mobileCreateSheet"
-        );
-
-    if (!sheet) {
-        return;
-    }
-
-    sheet.style.display = "flex";
-
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
-    }
+const sheet = document.getElementById("mobileCreateSheet");
+if (!sheet) {
+console.error("PATRIODX: Create sheet not found.");
+return;
 }
 
+
+sheet.style.display = "flex";
+document.body.classList.add("mobile-create-open");
+
+if (typeof lucide !== "undefined") {
+    lucide.createIcons();
+}
+
+
+}
 
 function closeMobileCreateSheet() {
-
-    const sheet =
-        document.getElementById(
-            "mobileCreateSheet"
-        );
-
-    if (!sheet) {
-        return;
-    }
-
-    sheet.style.display = "none";
+const sheet = document.getElementById("mobileCreateSheet");
+if (sheet) {
+sheet.style.display = "none";
 }
 
+
+document.body.classList.remove("mobile-create-open");
+
+
+}
 
 function setupMobileCreateSheet() {
+const createButton = document.getElementById("mobileCreateButton");
+const closeButton = document.getElementById("mobileCreateClose");
+const sheet = document.getElementById("mobileCreateSheet");
 
-    const createButton =
-        document.getElementById(
-            "mobileCreateButton"
-        );
 
-    const closeButton =
-        document.getElementById(
-            "mobileCreateClose"
-        );
-
-    const sheet =
-        document.getElementById(
-            "mobileCreateSheet"
-        );
-
-    if (!createButton || !closeButton || !sheet) {
-        return;
-    }
-
-    if (
-        createButton.dataset.createReady ===
-        "true"
-    ) {
-        return;
-    }
-
-    createButton.dataset.createReady =
-        "true";
-
-    createButton.addEventListener(
-        "click",
-        openMobileCreateSheet
-    );
-
-    closeButton.addEventListener(
-        "click",
-        closeMobileCreateSheet
-    );
-
-    sheet.addEventListener(
-        "click",
-        function (event) {
-
-            if (
-                event.target === sheet
-            ) {
-                closeMobileCreateSheet();
-            }
-
-        }
-    );
+if (!createButton || !closeButton || !sheet) {
+    console.error("PATRIODX: Create controls are missing.", {
+        createButton: !!createButton,
+        closeButton: !!closeButton,
+        sheet: !!sheet
+    });
+    return;
 }
 
+if (createButton.dataset.createReady === "true") return;
 
-setupMobileCreateSheet();
+createButton.dataset.createReady = "true";
+createButton.addEventListener("click", openMobileCreateSheet);
+closeButton.addEventListener("click", closeMobileCreateSheet);
+
+sheet.addEventListener("click", event => {
+    if (event.target === sheet) {
+        closeMobileCreateSheet();
+    }
+});
+
+document.getElementById("mobileCreatePost")?.addEventListener("click", () => {
+    closeMobileCreateSheet();
+    if (typeof navigatePATRIODX === "function") {
+        navigatePATRIODX("social");
+    }
+    document.getElementById("homePostContent")?.focus();
+});
+
+document.getElementById("mobileCreateStory")?.addEventListener("click", () => {
+    closeMobileCreateSheet();
+    if (typeof openAddStoryModal === "function") {
+        openAddStoryModal();
+    } else {
+        document.getElementById("addStoryModal")?.style.setProperty("display", "flex");
+    }
+});
+
+document.getElementById("mobileCreateLive")?.addEventListener("click", () => {
+    closeMobileCreateSheet();
+    if (typeof openGoLiveModal === "function") {
+        openGoLiveModal();
+    } else {
+        document.getElementById("goLiveModal")?.style.setProperty("display", "flex");
+    }
+});
+
+
+}
+
+/* =========================================================
+MOBILE MORE BUTTON — OPEN EXISTING SIDEBAR
+========================================================= */
+
+function setupMobileMoreButton() {
+const moreButton = document.getElementById("mobileMoreButton");
+const sidebar = document.getElementById("patriodxSidebar");
+
+
+if (!moreButton || !sidebar || moreButton.dataset.moreReady === "true") {
+    return;
+}
+
+moreButton.dataset.moreReady = "true";
+
+moreButton.addEventListener("click", event => {
+    event.preventDefault();
+
+    const isOpen = sidebar.classList.contains("mobile-open");
+
+    sidebar.classList.toggle("mobile-open", !isOpen);
+    moreButton.setAttribute("aria-expanded", String(!isOpen));
+
+    if (!isOpen && typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+});
+
+sidebar.querySelectorAll(".sidebar-link").forEach(link => {
+    link.addEventListener("click", () => {
+        sidebar.classList.remove("mobile-open");
+        moreButton.setAttribute("aria-expanded", "false");
+    });
+});
+
+
+}
+
+/*
+
+* The HTML for the Create sheet appears after script.js.
+* Initialize after the complete document has been parsed.
+  */
+  function setupPATRIODXMobileActions() {
+  setupMobileCreateSheet();
+  setupMobileMoreButton();
+  }
+
+if (document.readyState === "loading") {
+document.addEventListener(
+"DOMContentLoaded",
+setupPATRIODXMobileActions,
+{ once: true }
+);
+} else {
+setupPATRIODXMobileActions();
+}
+
 /* =========================================================
    PATRIODX IN-SITE TOAST NOTIFICATIONS
 ========================================================= */
