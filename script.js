@@ -17529,8 +17529,8 @@ moreButton.addEventListener("click", event => {
     const isOpen = sidebar.classList.contains("mobile-open");
 
     sidebar.classList.toggle("mobile-open", !isOpen);
-    moreButton.setAttribute("aria-expanded", String(!isOpen));
-
+document.body.classList.toggle("mobile-sidebar-open", !isOpen);
+moreButton.setAttribute("aria-expanded", String(!isOpen));
     if (!isOpen && typeof lucide !== "undefined") {
         lucide.createIcons();
     }
@@ -17539,6 +17539,7 @@ moreButton.addEventListener("click", event => {
 sidebar.querySelectorAll(".sidebar-link").forEach(link => {
     link.addEventListener("click", () => {
         sidebar.classList.remove("mobile-open");
+        document.body.classList.remove("mobile-sidebar-open");
         moreButton.setAttribute("aria-expanded", "false");
     });
 });

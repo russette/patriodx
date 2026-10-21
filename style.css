@@ -17391,3 +17391,83 @@ body.dark-mode #mobileBottomNav .mobile-nav-link.active {
 color: #60a5fa;
 background: rgba(96, 165, 250, 0.12);
 }
+/* =========================================================
+PATRIODX MOBILE SIDEBAR — SOLID DRAWER & BACKDROP
+========================================================= */
+
+@media (max-width: 768px) {
+#patriodxSidebar {
+position: fixed !important;
+top: 0 !important;
+bottom: 0 !important;
+left: 0 !important;
+
+
+    width: min(290px, 85vw) !important;
+    max-width: 85vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+
+    background: #ffffff !important;
+    color: #111827 !important;
+    opacity: 1 !important;
+
+    z-index: 10002 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+
+    box-shadow: 12px 0 35px rgba(0, 0, 0, 0.22) !important;
+    border-right: 1px solid #e5e7eb !important;
+
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(-105%);
+    transition:
+        transform 0.25s ease,
+        visibility 0.25s ease;
+}
+
+#patriodxSidebar.mobile-open {
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: translateX(0) !important;
+}
+
+#patriodxSidebar .sidebar-link {
+    color: #374151 !important;
+    background: transparent;
+}
+
+#patriodxSidebar .sidebar-link:hover,
+#patriodxSidebar .sidebar-link.active {
+    background: #eff6ff !important;
+    color: #1d4ed8 !important;
+}
+
+/* Backdrop covers the page but stays below the sidebar */
+#patriodxSidebar.mobile-open::before {
+    content: none !important;
+}
+
+body.mobile-sidebar-open::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.58);
+    z-index: 10001;
+    pointer-events: auto;
+}
+
+#patriodxSidebar.mobile-open {
+    z-index: 10002 !important;
+}
+
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+#patriodxSidebar {
+transition: none !important;
+}
+}
