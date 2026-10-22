@@ -18481,32 +18481,3 @@ window.addEventListener("message", function (event) {
 
     marketplaceFrame.style.height = `${Math.ceil(height)}px`;
 });
-/* PATRIODX: Direct mobile Create button fix */
-document.addEventListener("click", function (event) {
-    const button = event.target.closest("#mobileCreateButton");
-
-    if (!button) return;
-
-    event.preventDefault();
-
-    const sheet = document.getElementById("mobileCreateSheet");
-
-    if (!sheet) {
-        console.error("PATRIODX: mobileCreateSheet is missing.");
-        alert("Create menu could not load. Please refresh PATRIODX.");
-        return;
-    }
-
-    sheet.style.setProperty("display", "flex", "important");
-    sheet.style.setProperty("position", "fixed", "important");
-    sheet.style.setProperty("inset", "0", "important");
-    sheet.style.setProperty("z-index", "1000001", "important");
-
-    document.body.classList.add("mobile-create-open");
-
-    console.log("PATRIODX: Create menu opened.");
-
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
-    }
-});
