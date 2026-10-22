@@ -1,0 +1,5889 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+   <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+
+   <title>PATRIODX | Business Management Dashboard</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="PATRIODX">
+<script src="https://unpkg.com/lucide@latest"></script>  
+    <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&display=swap"
+    rel="stylesheet"
+>
+</head>
+
+
+<body>
+
+<!-- =========================================================
+     PATRIODX PLATFORM HEADER
+========================================================= -->
+<header class="patriodx-header patriodx-clean-header">
+
+    <div class="patriodx-header-left">
+
+        <button
+            type="button"
+            id="mobileMenuButton"
+            class="mobile-menu-button"
+            aria-label="Open menu"
+            title="Open menu"
+        >
+            <i data-lucide="menu"></i>
+        </button>
+
+    </div>
+
+
+    <a
+        href="#home"
+        class="patriodx-centered-logo"
+        aria-label="PATRIODX Home"
+    >
+
+  <img
+    src="assets/patriodx-icon-512.png"
+    alt=""
+>
+        <span>PATRIODX</span>
+
+    </a>
+
+
+    <div class="patriodx-header-right">
+
+        <button
+            type="button"
+            id="headerSearchButton"
+            class="header-search-button"
+            aria-label="Search PATRIODX"
+            title="Search PATRIODX"
+        >
+            <i data-lucide="search"></i>
+        </button>
+
+    </div>
+
+
+    <div
+        id="globalSearchPanel"
+        class="global-search-panel"
+        style="display:none;"
+    >
+
+        <div class="global-search-panel-inner">
+
+            <i
+                data-lucide="search"
+                class="global-search-panel-icon"
+            ></i>
+
+            <input
+                type="search"
+                id="globalSearchInput"
+                placeholder="Search PATRIODX..."
+                autocomplete="off"
+            >
+
+            <button
+                type="button"
+                id="closeGlobalSearch"
+                class="global-search-close"
+                aria-label="Close search"
+                title="Close search"
+            >
+                <i data-lucide="x"></i>
+            </button>
+
+        </div>
+
+        <div
+            id="globalSearchResults"
+            class="global-search-results"
+            style="display:none;"
+        ></div>
+
+    </div>
+<!-- =========================================================
+     PATRIODX ACCOUNT CENTER
+========================================================= -->
+
+<div
+    id="accountCenter"
+    class="account-center"
+    style="display: none;"
+>
+
+    <div class="account-center-header">
+        <strong>Account Center</strong>
+
+        <button
+            type="button"
+            id="closeAccountCenter"
+            aria-label="Close Account Center"
+        >
+            <i data-lucide="x"></i>
+        </button>
+    </div>
+
+    <div class="account-center-profile">
+        <div class="account-avatar">
+            <i data-lucide="user"></i>
+        </div>
+
+        <div>
+            <strong id="accountCenterName">PATRIODX Account</strong>
+            <span id="accountCenterEmail">Account settings</span>
+        </div>
+    </div>
+
+    <div class="account-center-menu">
+
+    <button type="button" id="accountButton">
+        <i data-lucide="user"></i>
+        <span>Account</span>
+    </button>
+
+   <button type="button" id="accountCenterAddAccountButton">
+        <i data-lucide="user-plus"></i>
+        <span>Add Account</span>
+    </button>
+
+    <button type="button" id="settingsActivityButton">
+        <i data-lucide="settings"></i>
+        <span>Settings &amp; Activity</span>
+    </button>
+
+</div>
+
+    <div class="account-center-footer">
+
+        <button
+            type="button"
+            id="accountLogoutButton"
+            class="account-logout-button"
+        >
+            <i data-lucide="log-out"></i>
+            <span>Log Out</span>
+        </button>
+
+    </div>
+
+</div>
+</header>
+<!-- =========================================================
+     PATRIODX DESKTOP SIDEBAR
+========================================================= -->
+<aside
+    id="patriodxSidebar"
+    class="patriodx-sidebar"
+>
+
+<div class="sidebar-section">
+
+    <p class="sidebar-label" data-i18n="main">
+        MAIN
+    </p>
+
+    <a href="#home" class="sidebar-link active" data-page="home">
+       <span><i data-lucide="house"></i></span>
+        <span data-i18n="home">Home</span>
+    </a>
+
+    <a href="#profile" class="sidebar-link" data-page="profile">
+        <span><i data-lucide="user"></i></span>
+        <span data-i18n="profile">Profile</span>
+    </a>
+
+    <a href="#social" class="sidebar-link" data-page="social">
+        <span><i data-lucide="newspaper"></i></span>
+        <span data-i18n="social">Social</span>
+    </a>
+
+    <a href="#messaging" class="sidebar-link" data-page="messaging">
+        <span><i data-lucide="message-circle"></i></span>
+        <span data-i18n="messages">Messages</span>
+    </a>
+
+   <a href="#notifications" class="sidebar-link" data-page="notifications">
+    <span class="sidebar-notification-icon">
+        <i data-lucide="bell"></i>
+    </span>
+
+    <span data-i18n="notifications">
+        Notifications
+    </span>
+
+    <span
+        id="notificationUnreadBadge"
+        class="notification-unread-badge"
+        style="display: none;"
+    >
+        0
+    </span>
+</a>
+
+</div>
+
+
+<div class="sidebar-section">
+
+    <p class="sidebar-label" data-i18n="business">
+        BUSINESS
+    </p>
+
+    <a href="#dashboard" class="sidebar-link" data-page="dashboard">
+        <span><i data-lucide="layout-dashboard"></i></span>
+        <span data-i18n="dashboard">Dashboard</span>
+    </a>
+
+    <a href="#analytics" class="sidebar-link" data-page="analytics">
+        <span><i data-lucide="chart-no-axes-combined"></i></span>
+        <span data-i18n="analytics">Analytics</span>
+    </a>
+
+    <a href="#products" class="sidebar-link" data-page="products">
+        <span><i data-lucide="package"></i></span>
+        <span data-i18n="products">Products</span>
+    </a>
+
+    <a href="#customers" class="sidebar-link" data-page="customers">
+        <span><i data-lucide="users"></i></span>
+        <span data-i18n="customers">Customers</span>
+    </a>
+
+    <a href="#sales" class="sidebar-link" data-page="sales">
+        <span><i data-lucide="shopping-cart"></i></span>
+        <span data-i18n="sales">Sales</span>
+    </a>
+
+    <a href="#invoices" class="sidebar-link" data-page="invoices">
+        <span><i data-lucide="file-text"></i></span>
+        <span data-i18n="invoices">Invoices</span>
+    </a>
+<a href="#marketplace" class="sidebar-link" data-page="marketplace">
+    <span><i data-lucide="store"></i></span>
+    <span>Marketplace</span>
+</a>
+</div>
+
+
+<div class="sidebar-section">
+
+    <p class="sidebar-label" data-i18n="grow">
+        GROW
+    </p>
+
+    <a href="#patriodxAI" class="sidebar-link" data-page="patriodxAI">
+        <span><i data-lucide="sparkles"></i></span>
+        <span data-i18n="ai">PATRIODX AI</span>
+    </a>
+
+    <a href="#contact" class="sidebar-link" data-page="contact">
+        <span><i data-lucide="life-buoy"></i></span>
+        <span data-i18n="contact">Support</span>
+    </a>
+
+    <a href="#account" class="sidebar-link" data-page="account">
+        <span><i data-lucide="settings"></i></span>
+        <span data-i18n="account">Settings</span>
+    </a>
+
+</div>
+
+
+<div class="sidebar-footer">
+
+    <div class="sidebar-upgrade-card">
+
+       <span><i data-lucide="rocket"></i></span>
+        <strong data-i18n="growWithPatriodx">
+            Grow with PATRIODX
+        </strong>
+
+        <small data-i18n="unlockTools">
+            Unlock more business tools.
+        </small>
+
+        <button
+            type="button"
+            onclick="scrollToSection('account')"
+            data-i18n="viewPlans"
+        >
+            View Plans
+        </button>
+
+    </div>
+
+</div>
+
+</aside>
+
+<!-- =========================================================
+     MOBILE BOTTOM NAVIGATION
+========================================================= -->
+<nav
+    id="mobileBottomNav"
+    class="mobile-bottom-nav"
+    aria-label="Mobile navigation"
+>
+
+    <!-- HOME -->
+    <a
+        href="#home"
+        class="mobile-nav-link active"
+        data-page="home"
+        aria-label="Home"
+    >
+        <span class="mobile-nav-icon">
+            <i data-lucide="house"></i>
+        </span>
+
+        <small>Home</small>
+    </a>
+
+
+    <!-- SOCIAL -->
+    <a
+        href="#social"
+        class="mobile-nav-link"
+        data-page="social"
+        aria-label="Social"
+    >
+        <span class="mobile-nav-icon">
+            <i data-lucide="newspaper"></i>
+        </span>
+
+        <small>Social</small>
+    </a>
+
+
+    <!-- CREATE -->
+    <button
+        type="button"
+        class="mobile-nav-link mobile-create-nav"
+        id="mobileCreateButton"
+        aria-label="Create"
+    >
+        <span class="mobile-nav-create-icon">
+            <i data-lucide="plus"></i>
+        </span>
+
+        <small>Create</small>
+    </button>
+
+
+    <!-- MESSAGES -->
+    <a
+        href="#messaging"
+        class="mobile-nav-link"
+        data-page="messaging"
+        aria-label="Messages"
+    >
+        <span class="mobile-nav-icon mobile-nav-icon-with-badge">
+            <i data-lucide="message-circle"></i>
+
+            <span
+                id="mobileMessageBadge"
+                class="mobile-nav-badge"
+                style="display:none;"
+            >
+                0
+            </span>
+        </span>
+
+        <small>Messages</small>
+    </a>
+
+
+    <!-- MORE -->
+    <button
+        type="button"
+        class="mobile-nav-link mobile-more-nav"
+        id="mobileMoreButton"
+        aria-label="More"
+    >
+        <span class="mobile-nav-icon">
+            <i data-lucide="menu"></i>
+        </span>
+
+        <small>More</small>
+    </button>
+
+</nav>
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<main class="container">
+
+
+<!-- =========================================================
+     LANDING
+========================================================= -->
+
+<section
+    id="home"
+    class="section patriodx-home"
+>
+
+    <!-- HOME HEADER -->
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">
+                <i data-lucide="globe"></i> PATRIODX
+            </p>
+
+            <h2>Home</h2>
+
+            <p>
+                See what's happening across the PATRIODX community.
+            </p>
+        </div>
+    </div>
+
+
+    <!-- CREATE POST -->
+    <div class="chart-card home-create-card">
+
+        <h3>Create a Post</h3>
+
+        <form id="homePostForm">
+
+            <textarea
+                id="homePostContent"
+                placeholder="What's happening?"
+                rows="3"
+                maxlength="2000"
+            ></textarea>
+
+
+            <div
+                id="homeMediaPreview"
+                class="social-media-preview"
+                style="display:none;"
+            ></div>
+
+
+            <div class="social-upload-area">
+
+                <label
+                    for="homeImageInput"
+                    class="social-upload-button"
+                >
+                    <i data-lucide="image"></i> Photo
+                </label>
+
+                <input
+                    type="file"
+                    id="homeImageInput"
+                    accept="image/*"
+                    hidden
+                >
+
+
+                <label
+                    for="homeVideoInput"
+                    class="social-upload-button"
+                >
+                    <i data-lucide="video"></i> Video
+                </label>
+
+                <input
+                    type="file"
+                    id="homeVideoInput"
+                    accept="video/*"
+                    hidden
+                >
+
+            </div>
+
+
+            <div class="social-post-actions">
+
+                <button
+                    type="submit"
+                    id="homePostButton"
+                >
+                    <i data-lucide="megaphone"></i> Post
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- HOME FEED -->
+    <div class="social-feed-container">
+
+        <div class="section-heading">
+
+            <div>
+
+                <h3>Latest Posts</h3>
+
+                <p>
+                    Posts from the PATRIODX community.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="homeFeed"
+            class="social-feed"
+        >
+
+            <div class="social-empty-state">
+
+               <div>
+    <i data-lucide="globe"></i>
+</div>
+
+                <h3>No posts yet</h3>
+
+                <p>
+                    Be the first to share something
+                    with the PATRIODX community.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     FEATURES
+========================================================= -->
+
+<section class="features-section">
+
+    <div class="section-heading">
+
+        <div>
+
+            <p class="eyebrow">
+                EVERYTHING IN ONE PLACE
+            </p>
+
+
+            <h2>
+                Built for people building businesses.
+            </h2>
+
+
+            <p>
+                Stop juggling spreadsheets and different apps.
+                Manage your business from one place.
+            </p>
+
+        </div>
+
+    </div>
+
+
+<div class="features-grid">
+
+    <div class="feature-card">
+
+        <span>
+            <i data-lucide="package"></i>
+        </span>
+
+        <h3>
+            Inventory
+        </h3>
+
+        <p>
+            Track your products, prices and stock
+            without complicated spreadsheets.
+        </p>
+
+    </div>
+
+
+
+    <div class="feature-card">
+
+        <span>
+            <i data-lucide="users"></i>
+        </span>
+
+        <h3>
+            Customers
+        </h3>
+
+        <p>
+                Keep your customer information organized
+                and easy to access.
+            </p>
+
+        </div>
+
+
+
+        <div class="feature-card">
+<span>
+    <i data-lucide="receipt"></i>
+</span>
+
+            <h3>
+                Invoices
+            </h3>
+
+            <p>
+                Create professional invoices for your
+                customers in seconds.
+            </p>
+
+        </div>
+
+
+
+        <div class="feature-card">
+
+           <span>
+    <i data-lucide="chart-column"></i>
+</span>
+
+            <h3>
+                Analytics
+            </h3>
+
+            <p>
+                Understand your sales and see how
+                your business is performing.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     PRICING
+========================================================= -->
+
+<section
+    id="pricing"
+    class="pricing-section"
+>
+
+    <div class="section-heading">
+
+        <div>
+
+            <p class="eyebrow">
+                SIMPLE PRICING
+            </p>
+
+
+            <h2>
+                Start free. Upgrade when you grow.
+            </h2>
+
+
+            <p>
+                No complicated pricing. Choose what works
+                for your business.
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="pricing-grid">
+
+
+        <!-- FREE -->
+
+        <div class="pricing-card">
+
+            <p class="pricing-label">
+                FREE
+            </p>
+
+
+            <h3>
+                $0
+                <span>
+                    /month
+                </span>
+            </h3>
+
+
+            <p>
+                Perfect for testing PATRIODX.
+            </p>
+
+
+            <ul>
+
+                <li>
+                    ✓ Products
+                </li>
+
+                <li>
+                    ✓ Customers
+                </li>
+
+                <li>
+                    ✓ Basic sales tracking
+                </li>
+
+                <li>
+                    ✓ Basic invoices
+                </li>
+
+            </ul>
+
+
+            <button
+                type="button"
+                onclick="scrollToSection('dashboard')"
+            >
+                Get Started
+            </button>
+
+        </div>
+
+
+
+        <!-- PRO -->
+
+        <div class="pricing-card featured">
+
+            <div class="popular">
+                MOST POPULAR
+            </div>
+
+
+            <p class="pricing-label">
+                PRO
+            </p>
+
+
+            <h3>
+                $9
+                <span>
+                    /month
+                </span>
+            </h3>
+
+
+            <p>
+                For growing businesses.
+            </p>
+
+
+            <ul>
+
+                <li>
+                    ✓ Everything in Free
+                </li>
+
+                <li>
+                    ✓ Professional invoices
+                </li>
+
+                <li>
+                    ✓ PDF invoices
+                </li>
+
+                <li>
+                    ✓ Advanced analytics
+                </li>
+
+                <li>
+                    ✓ Inventory alerts
+                </li>
+
+            </ul>
+
+
+           <button onclick="startProPlan()">
+    Start Pro — $9/month
+</button>
+
+        </div>
+
+
+
+        <!-- BUSINESS -->
+
+        <div class="pricing-card">
+
+            <p class="pricing-label">
+                BUSINESS
+            </p>
+
+
+            <h3>
+                $19
+                <span>
+                    /month
+                </span>
+            </h3>
+
+
+            <p>
+                For businesses ready to scale.
+            </p>
+
+
+            <ul>
+
+                <li>
+                    ✓ Everything in Pro
+                </li>
+
+                <li>
+                    ✓ Multiple users
+                </li>
+
+                <li>
+                    ✓ Advanced reports
+                </li>
+
+                <li>
+                    ✓ Priority support
+                </li>
+
+            </ul>
+
+
+            <button
+                type="button"
+                onclick="startBusinessPlan()"
+            >
+                Choose Business
+            </button>
+
+        </div>
+
+    </div>
+<!-- VERIFIED -->
+
+<div class="pricing-card verified-card">
+
+<div class="popular">
+    TRUSTED PROFILE
+</div>
+
+<p class="pricing-label">
+    <i data-lucide="badge-check"></i> VERIFIED
+</p>
+<h3>
+    Blue Check
+</h3>
+
+<p>
+    Build trust with a verified PATRIODX identity.
+</p>
+
+<div style="
+    margin: 24px 0;
+    padding: 18px;
+    border: 1px solid rgba(0, 123, 255, 0.25);
+    border-radius: 14px;
+    text-align: center;
+">
+
+    <div style="
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    margin-bottom: 8px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: white;
+    font-size: 32px;
+    font-weight: 900;
+    line-height: 1;
+">
+    <i data-lucide="badge-check"></i>
+</div>
+
+    <strong style="font-size: 1.15rem;">
+        Verified Profile
+    </strong>
+
+    <p style="
+        margin: 6px 0 0;
+        font-size: 0.9rem;
+        opacity: 0.7;
+    ">
+        Show people that your profile is verified.
+    </p>
+
+</div>
+
+<div style="
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+">
+
+    <div style="
+        flex: 1;
+        padding: 14px;
+        border-radius: 12px;
+        background: rgba(0, 123, 255, 0.06);
+        text-align: center;
+    ">
+        <strong>$5</strong>
+        <small style="display:block; opacity:0.7;">
+            Monthly
+        </small>
+    </div>
+
+    <div style="
+        flex: 1;
+        padding: 14px;
+        border-radius: 12px;
+        background: rgba(0, 123, 255, 0.06);
+        text-align: center;
+    ">
+        <strong>$50</strong>
+        <small style="display:block; opacity:0.7;">
+            Yearly
+        </small>
+    </div>
+
+</div>
+<button
+    type="button"
+    onclick="startVerificationPlan()"
+>
+    <i data-lucide="badge-check"></i>
+    Get Verified
+</button>
+
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     FINAL CTA
+========================================================= -->
+
+<section class="final-cta">
+
+    <p class="eyebrow">
+        READY TO BUILD?
+    </p>
+
+
+    <h2>
+        Your business deserves better tools.
+    </h2>
+
+
+    <p>
+        Start managing your business with PATRIODX today.
+    </p>
+
+
+  <button
+    type="button"
+    onclick="scrollToSection('dashboard')"
+>
+    <i data-lucide="rocket"></i>
+    Start Using PATRIODX
+</button>
+</section>
+
+
+
+<!-- =========================================================
+     DASHBOARD
+========================================================= -->
+<section
+    id="dashboard"
+    class="hero"
+>
+
+    <p class="eyebrow" data-i18n="controlCenter">
+        PATRIODX • CONTROL CENTER
+    </p>
+
+    <h1 data-i18n="runBusinessSmarter">
+        Run your business smarter.
+    </h1>
+
+    <p class="hero-text" data-i18n="dashboardDescription">
+        Manage your products, customers, sales and invoices
+        from one powerful business dashboard.
+    </p>
+
+    <div class="hero-buttons">
+
+        <button
+            type="button"
+            onclick="scrollToSection('products')"
+            data-i18n="manageProducts"
+        >
+            <i data-lucide="package"></i>
+            Manage Products
+        </button>
+
+        <button
+            type="button"
+            class="secondary-btn"
+            onclick="scrollToSection('analytics')"
+            data-i18n="viewAnalytics"
+        >
+            <i data-lucide="chart-column"></i>
+            View Analytics
+        </button>
+
+    </div>
+
+
+    <!-- QUICK ACTIONS -->
+
+    <div class="quick-actions">
+
+        <div class="quick-actions-heading">
+
+            <div>
+
+                <p class="eyebrow" data-i18n="quickActions">
+                    QUICK ACTIONS
+                </p>
+
+                <h2 data-i18n="getThingsDoneFaster">
+                    Get things done faster.
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="quick-actions-grid">
+
+
+            <button
+                type="button"
+                class="quick-action"
+                onclick="openProductModal()"
+            >
+
+                <span class="quick-action-icon">
+                    <i data-lucide="package"></i>
+                </span>
+
+                <span>
+
+                    <strong data-i18n="addProduct">
+                        Add Product
+                    </strong>
+
+                    <small data-i18n="addInventoryItem">
+                        Add something to your inventory
+                    </small>
+
+                </span>
+
+                <span class="quick-action-arrow">
+                    →
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="quick-action"
+                onclick="openCustomerModal()"
+            >
+
+                <span class="quick-action-icon">
+                    <i data-lucide="user"></i>
+                </span>
+
+                <span>
+
+                    <strong data-i18n="addCustomer">
+                        Add Customer
+                    </strong>
+
+                    <small data-i18n="addNewCustomer">
+                        Add a new customer
+                    </small>
+
+                </span>
+
+                <span class="quick-action-arrow">
+                    →
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="quick-action"
+                onclick="openSaleModal()"
+            >
+
+                <span class="quick-action-icon">
+                    <i data-lucide="shopping-cart"></i>
+                </span>
+
+                <span>
+
+                    <strong data-i18n="recordSale">
+                        Record Sale
+                    </strong>
+
+                    <small data-i18n="recordTransaction">
+                        Record a new transaction
+                    </small>
+
+                </span>
+
+                <span class="quick-action-arrow">
+                    →
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="quick-action"
+                onclick="openInvoiceModal()"
+            >
+
+                <span class="quick-action-icon">
+                    <i data-lucide="receipt"></i>
+                </span>
+
+                <span>
+
+                    <strong data-i18n="createInvoice">
+                        Create Invoice
+                    </strong>
+
+                    <small data-i18n="sendInvoice">
+                        Send a professional invoice
+                    </small>
+
+                </span>
+
+                <span class="quick-action-arrow">
+                    →
+                </span>
+
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- =========================================================
+     PATRIODX AI
+========================================================= -->
+
+<section
+    id="patriodxAI"
+    class="section"
+>
+
+    <div class="section-heading">
+
+        <div>
+
+            <p class="eyebrow">
+                <i data-lucide="sparkles"></i> PATRIODX AI
+            </p>
+
+            <h2>
+                Your Business Assistant
+            </h2>
+
+            <p>
+                Ask questions about your products, customers,
+                sales and invoices.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="chart-card patriodx-ai-card">
+
+        <div
+            id="aiMessages"
+            class="ai-messages"
+        >
+
+            <div class="ai-message ai-message-bot">
+
+                <strong>
+                    <i data-lucide="sparkles"></i> PATRIODX AI
+                </strong>
+
+                <p>
+                    Hey! I'm your PATRIODX business assistant.
+                    Ask me about your sales, products, customers
+                    or invoices.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form
+            id="aiForm"
+            class="ai-form"
+        >
+
+            <input
+                type="text"
+                id="aiInput"
+                placeholder="Ask PATRIODX AI something..."
+                autocomplete="off"
+                required
+            >
+
+            <button
+                type="submit"
+                id="aiSendButton"
+            >
+                Ask AI
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+<!-- =========================================================
+     STATS
+========================================================= -->
+
+<section class="stats-grid">
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon">
+            <i data-lucide="banknote"></i>
+        </div>
+
+        <p>
+            Total Revenue
+        </p>
+
+        <h2 id="totalRevenue">
+            $0.00
+        </h2>
+
+    </div>
+
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon">
+            <i data-lucide="calendar-days"></i>
+        </div>
+
+        <p>
+            Today's Revenue
+        </p>
+
+        <h2 id="todayRevenue">
+            $0.00
+        </h2>
+
+    </div>
+
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon">
+            <i data-lucide="package"></i>
+        </div>
+
+        <p>
+            Products
+        </p>
+
+        <h2 id="totalProducts">
+            0
+        </h2>
+
+    </div>
+
+   <div class="stat-card">
+
+    <div class="stat-icon">
+        <i data-lucide="users"></i>
+    </div>
+        <p>
+            Customers
+        </p>
+
+        <h2 id="totalCustomers">
+            0
+        </h2>
+
+    </div>
+
+
+
+    <div class="stat-card">
+
+    <div class="stat-icon">
+        <i data-lucide="shopping-cart"></i>
+    </div>
+
+        <p>
+            Total Sales
+        </p>
+
+        <h2 id="totalSales">
+            0
+        </h2>
+
+    </div>
+
+
+
+  <div class="stat-card">
+
+    <div class="stat-icon">
+        <i data-lucide="circle-check"></i>
+    </div>
+        <p>
+            Paid Invoices
+        </p>
+
+        <h2 id="paidInvoices">
+            0
+        </h2>
+
+    </div>
+
+
+
+    <div class="stat-card">
+
+        <div class="stat-icon">
+            ⏳
+        </div>
+
+        <p>
+            Unpaid Invoices
+        </p>
+
+        <h2 id="unpaidInvoices">
+            0
+        </h2>
+
+    </div>
+
+
+<div class="stat-card">
+
+    <div class="stat-icon">
+        <i data-lucide="triangle-alert"></i>
+    </div>
+
+        <p>
+            Low Stock
+        </p>
+
+        <h2 id="lowStockProducts">
+            0
+        </h2>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     RECENT ACTIVITY
+========================================================= -->
+
+<div class="recent-activity">
+
+    <div class="recent-activity-header">
+
+        <div>
+
+            <p class="eyebrow">
+                ACTIVITY
+            </p>
+
+
+            <h2>
+                Recent Activity
+            </h2>
+
+
+            <p>
+                Keep track of what's happening in your business.
+            </p>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="secondary-btn"
+            onclick="scrollToSection('sales')"
+        >
+            View All Sales →
+        </button>
+
+    </div>
+
+
+    <div
+        id="recentActivity"
+        class="activity-list"
+    >
+
+        <div class="empty-state">
+
+    <div class="empty-icon">
+        <i data-lucide="chart-column"></i>
+    </div>
+
+            <h3>
+                No recent activity
+            </h3>
+
+
+            <p>
+                Your latest business activity will appear here.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+    <!-- =========================================================
+     PATRIODX PROFILE
+========================================================= -->
+
+<section id="profile" class="section">
+
+    <div class="profile-search-card chart-card">
+
+        <div class="profile-search-heading">
+    <div>
+    <h3 data-i18n="findPeople">
+        <i data-lucide="search"></i> Find People
+    </h3>
+</div>
+</div>
+        <form id="profileSearchForm" class="profile-search-form">
+
+            <input
+                type="text"
+                id="profileSearchInput"
+                placeholder="Search username..."
+                data-i18n-placeholder="searchUsername"
+                autocomplete="off"
+                maxlength="30"
+            >
+
+            <button type="submit" data-i18n="search">
+                Search
+            </button>
+
+        </form>
+
+        <div id="profileSearchResults" class="profile-search-results"></div>
+<!-- PATRIODX DISCOVER PEOPLE -->
+<div class="discover-people-section">
+
+    <div class="discover-people-heading">
+        <div>
+            <h3>
+                <i data-lucide="users"></i>
+                Discover People
+            </h3>
+
+            <p>Find people to connect with on PATRIODX.</p>
+        </div>
+
+        <button
+            type="button"
+            id="refreshDiscoverPeople"
+            class="secondary-btn"
+        >
+            <i data-lucide="refresh-cw"></i>
+            Refresh
+        </button>
+    </div>
+
+    <div
+        id="discoverPeopleList"
+        class="discover-people-list"
+    >
+        <div class="social-empty-state">
+            <p>Discovering people...</p>
+        </div>
+    </div>
+
+</div>
+    </div>
+
+
+    <div class="section-heading">
+
+        <div>
+
+          <p class="eyebrow" data-i18n="patriodxProfile">
+    <i data-lucide="user"></i> PATRIODX PROFILE
+</p>
+            <h2 data-i18n="yourProfile">
+                Your Profile
+            </h2>
+
+            <p data-i18n="buildYourIdentity">
+                Build your identity on PATRIODX.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="profile-page-card">
+
+        <div
+            id="publicProfileCard"
+            class="profile-page-card public-profile-card"
+            style="display:none;"
+        >
+
+            <div id="publicProfileCover" class="profile-cover"></div>
+
+            <div class="profile-header">
+
+              <div id="publicProfileAvatar" class="profile-avatar">
+    <i data-lucide="user"></i>
+</div>
+                <div class="profile-main-info">
+
+                   <h2>
+    <span id="publicProfileDisplayName">User</span>
+    <span id="publicProfileBadge"></span>
+</h2>
+
+                    <p
+                        id="publicProfileUsername"
+                        class="profile-username"
+                    >
+                        @username
+                    </p>
+
+                    <p
+                        id="publicProfileBio"
+                        class="profile-bio"
+                    >
+                        Bio
+                    </p>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="publicProfileFollowButton"
+                    class="profile-edit-button"
+                    data-i18n="follow"
+                >
+                    Follow
+                </button>
+
+            </div>
+
+
+          <div class="profile-stats">
+
+    <div>
+        <strong id="publicProfilePostCount">0</strong>
+        <span data-i18n="posts">Posts</span>
+    </div>
+
+    <button
+        type="button"
+        class="profile-stat-button"
+        id="publicProfileFollowersButton"
+    >
+        <strong id="publicProfileFollowerCount">0</strong>
+        <span data-i18n="followers">Followers</span>
+    </button>
+
+    <button
+        type="button"
+        class="profile-stat-button"
+        id="publicProfileFollowingButton"
+    >
+        <strong id="publicProfileFollowingCount">0</strong>
+        <span data-i18n="following">Following</span>
+    </button>
+
+</div>
+
+<div
+    id="publicProfileFollowList"
+    class="profile-follow-list"
+    style="display:none;"
+></div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="publicProfilePostsContainer"
+            class="profile-posts"
+            style="display:none;"
+        >
+
+            <div class="section-heading">
+
+                <div>
+                    <h3 data-i18n="posts">Posts</h3>
+                </div>
+
+            </div>
+
+            <div
+                id="publicProfilePosts"
+                class="social-feed"
+            ></div>
+
+        </div>
+
+
+        <!-- COVER -->
+
+        <div
+            id="profileCover"
+            class="profile-cover"
+        ></div>
+
+
+        <!-- PROFILE HEADER -->
+
+        <div class="profile-header">
+
+          <div
+    id="profileAvatar"
+    class="profile-avatar"
+>
+    <i data-lucide="user"></i>
+</div>
+
+            <div class="profile-main-info">
+
+    <h2>
+        <span id="profileDisplayName">Your Name</span>
+        <span id="profileBadge"></span>
+    </h2>
+
+    <p
+        id="profileUsername"
+        class="profile-username"
+    >
+                    @username
+                </p>
+
+                <p
+                    id="profileBio"
+                    class="profile-bio"
+                    data-i18n="tellPeopleAboutYourself"
+                >
+                    Tell people about yourself.
+                </p>
+
+            </div>
+
+<button
+    type="button"
+    id="editProfileButton"
+    onclick="openProfileEditor()"
+>
+    <i data-lucide="pencil"></i>
+    Edit Profile
+</button>
+        </div>
+
+
+        <!-- PROFILE STATS -->
+
+        <div class="profile-stats">
+    <div>
+        <strong id="profilePostCount">0</strong>
+        <span data-i18n="posts">Posts</span>
+    </div>
+
+    <div>
+        <strong id="profileFollowerCount">0</strong>
+        <span data-i18n="followers">Followers</span>
+    </div>
+
+    <div>
+        <strong id="profileFollowingCount">0</strong>
+        <span data-i18n="following">Following</span>
+    </div>
+</div>
+    </div>
+
+
+    <!-- EDIT PROFILE -->
+
+    <div
+        id="profileEditor"
+        class="chart-card profile-editor"
+        style="display:none;"
+    >
+
+        <div class="section-heading">
+
+            <div>
+
+                <h3 data-i18n="editYourProfile">
+                    Edit Your Profile
+                </h3>
+
+                <p data-i18n="customizeProfile">
+                    Customize how people see you on PATRIODX.
+                </p>
+
+            </div>
+
+        </div>
+
+
+     <form id="profileForm">
+            <label data-i18n="username">
+                Username
+            </label>
+
+            <input
+                type="text"
+                id="profileUsernameInput"
+                placeholder="username"
+                data-i18n-placeholder="usernamePlaceholder"
+                maxlength="30"
+                autocomplete="off"
+                required
+            >
+
+            <small data-i18n="uniqueUsername">
+                Your unique PATRIODX username.
+            </small>
+
+
+            <label data-i18n="displayName">
+                Display Name
+            </label>
+
+            <input
+                type="text"
+                id="profileDisplayNameInput"
+                placeholder="Your name"
+                data-i18n-placeholder="yourName"
+                maxlength="80"
+                required
+            >
+
+
+            <label data-i18n="bio">
+                Bio
+            </label>
+
+            <textarea
+                id="profileBioInput"
+                placeholder="Tell people about yourself..."
+                data-i18n-placeholder="bioPlaceholder"
+                maxlength="300"
+                rows="4"
+            ></textarea>
+
+
+            <label data-i18n="profilePicture">
+                Profile Picture
+            </label>
+
+            <input
+                type="file"
+                id="profileAvatarInput"
+                accept="image/*"
+            >
+
+
+            <div class="profile-editor-actions">
+
+                <button
+                    type="submit"
+                    id="saveProfileButton"
+                    data-i18n="saveProfile"
+                >
+                    Save Profile
+                </button>
+
+              <button
+    type="button"
+    id="cancelProfileButton"
+    onclick="closeProfileEditor()"
+>
+    Cancel
+</button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- USER POSTS -->
+
+    <div class="profile-posts">
+
+        <div class="section-heading">
+
+            <div>
+                <h3 data-i18n="yourPosts">
+                    Your Posts
+                </h3>
+            </div>
+
+        </div>
+
+        <div
+            id="profilePosts"
+            class="social-feed"
+        ></div>
+
+    </div>
+
+</section>
+<!-- =========================================================
+     PATRIODX SOCIAL
+========================================================= -->
+
+<section id="social" class="section">
+
+    <!-- =====================================================
+         SOCIAL HEADER
+    ====================================================== -->
+
+    <div class="section-heading social-page-heading">
+        <div>
+            <p class="eyebrow">
+                <i data-lucide="newspaper"></i>
+                PATRIODX SOCIAL
+            </p>
+
+            <h2 data-i18n="connect">
+                Connect. Share. Grow.
+            </h2>
+
+            <p data-i18n="socialDescription">
+                Connect with people, share updates and grow your presence.
+            </p>
+        </div>
+    </div>
+
+
+    <!-- =====================================================
+         STORIES
+    ====================================================== -->
+<div class="social-live-entry">
+
+    <button
+        type="button"
+        class="social-live-button"
+        onclick="openGoLiveModal()"
+    >
+        <span class="social-live-dot"></span>
+
+        <span class="social-live-content">
+            <strong>Go Live</strong>
+            <small>Start a live broadcast on PATRIODX</small>
+        </span>
+
+        <i data-lucide="radio"></i>
+    </button>
+
+</div>
+    <div class="chart-card social-stories-card">
+
+        <div class="social-section-title">
+            <div>
+                <h3>
+                    <i data-lucide="circle-play"></i>
+                    Stories
+                </h3>
+
+                <p>
+                    Share something that disappears after 24 hours.
+                </p>
+            </div>
+
+           <button
+    type="button"
+    class="secondary-btn social-story-create-button"
+    id="createStoryButton"
+    onclick="openAddStoryModal()"
+>
+    <i data-lucide="plus"></i>
+    Add Story
+</button>
+        </div>
+
+
+        <div
+            id="socialStories"
+            class="social-stories"
+        >
+
+            <!-- Your story -->
+
+           <button
+    type="button"
+    class="social-story-item social-your-story"
+    id="yourStoryButton"
+    onclick="openAddStoryModal()"
+>
+                <span class="social-story-avatar">
+                    <span id="socialStoryAvatar">
+                        <i data-lucide="user"></i>
+                    </span>
+
+                    <span class="social-story-add">
+                        <i data-lucide="plus"></i>
+                    </span>
+                </span>
+
+                <strong>Your Story</strong>
+            </button>
+
+
+            <!-- Other stories will be inserted here -->
+
+            <div
+                id="socialOtherStories"
+                class="social-other-stories"
+            ></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CREATE POST
+    ====================================================== -->
+
+    <div class="chart-card social-create-card">
+
+        <div class="social-create-heading">
+
+            <div class="social-create-avatar">
+                <span id="socialCreateAvatar">
+                    <i data-lucide="user"></i>
+                </span>
+            </div>
+
+            <div>
+                <strong id="socialCreateName">
+                    PATRIODX
+                </strong>
+
+                <small>
+                    Create a post
+                </small>
+            </div>
+
+        </div>
+
+
+        <form id="socialPostForm">
+
+            <textarea
+                id="socialPostContent"
+                placeholder="What's happening with you?"
+                rows="4"
+                maxlength="2000"
+            ></textarea>
+
+
+            <!-- MEDIA PREVIEW -->
+
+            <div
+                id="socialMediaPreview"
+                class="social-media-preview"
+                style="display: none;"
+            ></div>
+
+
+            <!-- UPLOAD OPTIONS -->
+
+            <div class="social-create-toolbar">
+
+                <div class="social-upload-options">
+
+                    <label
+                        for="socialImageInput"
+                        class="social-upload-button"
+                        data-i18n="photo"
+                    >
+                        <i data-lucide="image"></i>
+                        <span>Photo</span>
+                    </label>
+
+
+                    <label
+                        for="socialVideoInput"
+                        class="social-upload-button"
+                        data-i18n="video"
+                    >
+                        <i data-lucide="video"></i>
+                        <span>Video</span>
+                    </label>
+
+
+                    <button
+                        type="button"
+                        class="social-create-option"
+                        id="socialTagButton"
+                    >
+                        <i data-lucide="tag"></i>
+                        <span>Tag</span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="social-create-option"
+                        id="socialMentionButton"
+                    >
+                        <i data-lucide="at-sign"></i>
+                        <span>Mention</span>
+                    </button>
+
+                </div>
+
+
+                <input
+                    type="file"
+                    id="socialImageInput"
+                    accept="image/*"
+                    hidden
+                >
+
+
+                <input
+                    type="file"
+                    id="socialVideoInput"
+                    accept="video/*"
+                    hidden
+                >
+
+
+                <button
+                    type="submit"
+                    id="socialPostButton"
+                >
+                    <i data-lucide="send"></i>
+                    <span data-i18n="post">Post</span>
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- =====================================================
+         SOCIAL FEED
+    ====================================================== -->
+
+    <div class="social-feed-container">
+
+        <div class="social-feed-header">
+
+            <div>
+                <p class="eyebrow">
+                    <i data-lucide="rss"></i>
+                    SOCIAL FEED
+                </p>
+
+                <h3 data-i18n="latestPosts">
+                    Latest Posts
+                </h3>
+            </div>
+
+
+            <div class="social-feed-controls">
+
+                <button
+                    type="button"
+                    class="social-feed-control active"
+                    id="socialFeedLatestButton"
+                >
+                    <i data-lucide="clock-3"></i>
+                    Latest
+                </button>
+
+
+                <button
+                    type="button"
+                    class="social-feed-control"
+                    id="socialFeedFollowingButton"
+                >
+                    <i data-lucide="users"></i>
+                    Following
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             FEED
+        ================================================== -->
+
+        <div
+            id="socialFeed"
+            class="social-feed"
+        >
+
+            <!-- Empty state -->
+
+            <div class="social-empty-state">
+
+                <div class="social-empty-icon">
+                    <i data-lucide="newspaper"></i>
+                </div>
+
+                <h3>No posts yet</h3>
+
+                <p>
+                    Be the first to share something with
+                    the PATRIODX community.
+                </p>
+
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    id="socialEmptyCreatePostButton"
+                >
+                    <i data-lucide="plus"></i>
+                    Create Your First Post
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         POST ACTION MODAL
+    ====================================================== -->
+
+    <div
+        id="socialPostMenu"
+        class="social-post-menu"
+        style="display: none;"
+    >
+
+        <div class="social-post-menu-inner">
+
+            <div class="social-post-menu-header">
+
+                <strong>
+                    Post Options
+                </strong>
+
+                <button
+                    type="button"
+                    id="closeSocialPostMenu"
+                    aria-label="Close"
+                >
+                    <i data-lucide="x"></i>
+                </button>
+
+            </div>
+
+
+            <button type="button" id="socialSavePostButton">
+                <i data-lucide="bookmark"></i>
+                Save Post
+            </button>
+
+
+            <button type="button" id="socialTranslatePostButton">
+                <i data-lucide="languages"></i>
+                Translate
+            </button>
+
+
+            <button type="button" id="socialSharePostButton">
+                <i data-lucide="share-2"></i>
+                Share
+            </button>
+
+
+            <button type="button" id="socialReportPostButton">
+                <i data-lucide="flag"></i>
+                Report Post
+            </button>
+
+        </div>
+
+    </div>
+
+
+</section>
+<!-- =========================================================
+     PATRIODX MESSAGING
+========================================================= -->
+
+<section
+    id="messaging"
+    class="section"
+>
+
+
+<div class="section-heading">
+
+    <div>
+
+        <p class="eyebrow">
+            <i data-lucide="message-circle"></i> PATRIODX MESSAGING
+        </p>
+
+        <h2>
+            Messages
+        </h2>
+
+        <p>
+            Connect and communicate with people
+            across the PATRIODX community.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="messaging-layout">
+
+
+    <!-- CONVERSATIONS -->
+
+    <div class="chart-card conversations-card">
+
+        <div class="messaging-card-header">
+
+            <h3>
+                Conversations
+            </h3>
+
+            <button
+                type="button"
+                id="newConversationButton"
+                class="messaging-new-button"
+            >
+                + New
+            </button>
+
+        </div>
+
+
+        <div
+            id="conversationList"
+            class="conversation-list"
+        >
+
+            <div class="messaging-empty-state">
+
+                <div><i data-lucide="message-circle"></i></div>
+
+                <h3>
+                    No conversations
+                </h3>
+
+                <p>
+                    Start a conversation with
+                    someone on PATRIODX.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CHAT -->
+
+    <div class="chart-card chat-card">
+
+        <div
+            id="chatHeader"
+            class="chat-header"
+        >
+
+            <div>
+
+                <h3>
+                    PATRIODX Messages
+                </h3>
+
+                <p>
+                    Select a conversation to start chatting.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="messageList"
+            class="message-list"
+        >
+
+            <div class="messaging-empty-state">
+
+                <div><i data-lucide="message-circle"></i></div>
+
+                <h3>
+                    No conversation selected
+                </h3>
+
+                <p>
+                    Choose a conversation from the left.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form
+            id="messageForm"
+            class="message-form"
+        >
+
+            <input
+                type="text"
+                id="messageInput"
+                placeholder="Write a message..."
+                autocomplete="off"
+                maxlength="2000"
+                disabled
+                required
+            >
+
+            <button
+                type="submit"
+                id="messageSendButton"
+                disabled
+            >
+                Send
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+</section>
+<!-- =========================================================
+     PATRIODX NOTIFICATIONS
+========================================================= -->
+<section id="notifications" class="section">
+
+    <div class="notifications-page">
+
+        <div class="notifications-header">
+
+            <div>
+                <p class="eyebrow">
+                    <i data-lucide="bell"></i>
+                    NOTIFICATIONS
+                </p>
+
+                <h2>Notifications</h2>
+
+                <p class="notifications-subtitle">
+                    Stay up to date with activity on PATRIODX.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="secondary-btn"
+                id="markAllNotificationsButton"
+            >
+                <i data-lucide="check-check"></i>
+                Mark all as read
+            </button>
+
+        </div>
+
+
+     <div class="notifications-toolbar">
+
+    <button
+        type="button"
+        class="notification-filter active"
+        data-notification-filter="all"
+        onclick="setNotificationFilter('all', this)"
+    >
+        All
+    </button>
+
+    <button
+        type="button"
+        class="notification-filter"
+        data-notification-filter="unread"
+        onclick="setNotificationFilter('unread', this)"
+    >
+        Unread
+    </button>
+
+</div>
+
+
+        <div
+            id="notificationsList"
+            class="notifications-list"
+        >
+
+            <div class="notifications-empty">
+
+                <div class="notifications-empty-icon">
+                    <i data-lucide="bell-off"></i>
+                </div>
+
+                <h3>No notifications yet</h3>
+
+                <p>
+                    New activity will appear here.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+   <!-- =========================================================
+     NEW CONVERSATION MODAL
+========================================================= -->
+
+<div
+    id="newConversationModal"
+    class="messaging-modal"
+    style="display: none;"
+>
+
+    <div class="messaging-modal-content">
+
+        <div class="messaging-modal-header">
+
+            <div>
+                <p class="eyebrow">
+                    <i data-lucide="message-circle-plus"></i>
+                    NEW CONVERSATION
+                </p>
+
+                <h3>
+                    Start a conversation
+                </h3>
+            </div>
+
+            <button
+                type="button"
+                id="closeNewConversationModal"
+                class="messaging-modal-close"
+                aria-label="Close"
+            >
+                <i data-lucide="x"></i>
+            </button>
+
+        </div>
+
+
+        <p class="messaging-modal-description">
+            Choose someone from PATRIODX to start chatting.
+        </p>
+
+
+        <input
+            type="text"
+            id="conversationUserSearch"
+            class="messaging-user-search"
+            placeholder="Search users..."
+            autocomplete="off"
+        >
+
+
+        <div
+            id="conversationUserList"
+            class="conversation-user-list"
+        >
+
+            <div class="messaging-empty-state">
+                <div>
+                    <i data-lucide="loader-circle"></i>
+                </div>
+
+                <p>
+                    Loading users...
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- =========================================================
+     ANALYTICS
+========================================================= -->
+
+<section
+    id="analytics"
+    class="section"
+>
+
+<div class="section-heading">
+
+    <div>
+
+        <p class="eyebrow">
+            BUSINESS INTELLIGENCE
+        </p>
+
+
+        <h2>
+            Analytics
+        </h2>
+
+
+        <p>
+            Understand how your business is performing.
+        </p>
+
+    </div>
+
+</div>
+
+
+
+<div class="analytics-grid">
+
+
+    <div class="analytics-card">
+
+        <span>
+            <i data-lucide="banknote"></i>
+        </span>
+
+        <p>
+            Average Sale
+        </p>
+
+        <strong id="averageSale">
+            $0.00
+        </strong>
+
+    </div>
+
+
+
+    <div class="analytics-card">
+
+        <span>
+            <i data-lucide="package"></i>
+        </span>
+
+        <p>
+            Units In Stock
+        </p>
+
+        <strong id="unitsInStock">
+            0
+        </strong>
+
+    </div>
+
+
+
+    <div class="analytics-card">
+
+        <span>
+            <i data-lucide="briefcase-business"></i>
+        </span>
+
+        <p>
+            Inventory Value
+        </p>
+
+        <strong id="inventoryValue">
+            $0.00
+        </strong>
+
+    </div>
+
+
+
+    <div class="analytics-card">
+
+        <span>
+            <i data-lucide="trophy"></i>
+        </span>
+
+        <p>
+            Best Seller
+        </p>
+
+        <strong id="bestSeller">
+            —
+        </strong>
+
+    </div>
+
+</div>
+
+<div class="business-analytics-toolbar">
+    <label for="revenuePeriodFilter">Revenue period</label>
+
+    <select
+        id="revenuePeriodFilter"
+        onchange="renderAnalytics()"
+    >
+        <option value="7">Last 7 days</option>
+        <option value="30" selected>Last 30 days</option>
+        <option value="all">All recorded sales</option>
+    </select>
+</div>
+
+<div class="chart-card">
+
+    <h3>
+        <i data-lucide="chart-line"></i> Revenue Trend
+    </h3>
+
+
+    <p>
+        Your revenue over time.
+    </p>
+
+
+    <div
+        id="revenueChart"
+        class="chart"
+    >
+
+        <div class="empty-chart">
+            Make your first sale to see your revenue trend.
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="analytics-two-column">
+
+
+    <div class="chart-card">
+
+        <h3>
+            <i data-lucide="trophy"></i> Top Products
+        </h3>
+
+
+        <div id="topProducts">
+
+            <div class="empty-state">
+                No sales yet.
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="chart-card">
+
+        <h3>
+            <i data-lucide="triangle-alert"></i> Inventory Alerts
+        </h3>
+
+
+        <div id="inventoryAlerts">
+
+            <div class="success-message">
+                <i data-lucide="circle-check"></i> All products have healthy stock levels.
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="chart-card">
+
+    <h3>
+        <i data-lucide="chart-column"></i> Sales Overview
+    </h3>
+
+
+    <div class="overview-grid">
+
+
+        <div>
+
+            <span>
+                Total revenue
+            </span>
+
+            <strong id="overviewRevenue">
+                $0.00
+            </strong>
+
+        </div>
+
+
+        <div>
+
+            <span>
+                Units sold
+            </span>
+
+            <strong id="unitsSold">
+                0
+            </strong>
+
+        </div>
+
+
+        <div>
+
+            <span>
+                Average sale
+            </span>
+
+            <strong id="overviewAverage">
+                $0.00
+            </strong>
+
+        </div>
+
+
+        <div>
+
+            <span>
+                Largest sale
+            </span>
+
+            <strong id="largestSale">
+                $0.00
+            </strong>
+
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================================
+     PRODUCTS
+========================================================= -->
+
+<section
+    id="products"
+    class="section"
+>
+
+
+<div class="section-heading">
+
+    <div>
+
+        <p class="eyebrow">
+            INVENTORY
+        </p>
+
+
+        <h2>
+            Products
+        </h2>
+
+
+        <p>
+            Manage what your business sells.
+        </p>
+
+    </div>
+
+
+    <button
+        type="button"
+        onclick="openProductModal()"
+    >
+        + Add Product
+    </button>
+
+</div>
+
+<div class="business-inventory-summary">
+
+
+<button type="button" class="business-inventory-stat" onclick="setInventorySummaryFilter('all')">
+    <span class="business-inventory-stat-icon blue">
+        <i data-lucide="package"></i>
+    </span>
+    <span class="business-inventory-stat-label">Total Products</span>
+    <strong id="inventoryTotalProducts">0</strong>
+    <small>Different products</small>
+</button>
+
+<button type="button" class="business-inventory-stat" onclick="setInventorySummaryFilter('all')">
+    <span class="business-inventory-stat-icon green">
+        <i data-lucide="boxes"></i>
+    </span>
+    <span class="business-inventory-stat-label">Units in Stock</span>
+    <strong id="inventoryTotalUnits">0</strong>
+    <small>Total available quantity</small>
+</button>
+
+<button type="button" class="business-inventory-stat" onclick="setInventorySummaryFilter('low-stock')">
+    <span class="business-inventory-stat-icon amber">
+        <i data-lucide="alert-triangle"></i>
+    </span>
+    <span class="business-inventory-stat-label">Low Stock</span>
+    <strong id="inventoryLowStock">0</strong>
+    <small>Products with 1–5 units</small>
+</button>
+
+<button type="button" class="business-inventory-stat" onclick="setInventorySummaryFilter('out-of-stock')">
+    <span class="business-inventory-stat-icon red">
+        <i data-lucide="package-x"></i>
+    </span>
+    <span class="business-inventory-stat-label">Out of Stock</span>
+    <strong id="inventoryOutOfStock">0</strong>
+    <small>Products with zero units</small>
+</button>
+
+
+</div>
+
+<section class="business-inventory-alerts" id="businessInventoryAlerts">
+
+
+<div class="business-inventory-alerts-header">
+    <div>
+        <span class="business-inventory-eyebrow">INVENTORY HEALTH</span>
+        <h3>Inventory alerts</h3>
+        <p>Products that may need your attention.</p>
+    </div>
+
+    <span class="business-inventory-alert-count" id="inventoryAlertCount">
+        0 alerts
+    </span>
+</div>
+
+<div class="business-inventory-alert-list" id="inventoryAlertList">
+    <div class="business-inventory-alert-empty">
+        <i data-lucide="check-circle"></i>
+        <span>Your inventory is looking good.</span>
+    </div>
+</div>
+
+
+</section>
+<section class="business-product-performance" id="businessProductPerformance">
+
+<div class="business-performance-header">
+    <div>
+        <span class="business-performance-eyebrow">SALES INTELLIGENCE</span>
+        <h3>Product Performance</h3>
+        <p>Understand which products generate sales and revenue.</p>
+    </div>
+
+    <span class="business-performance-period">All recorded sales</span>
+</div>
+
+<div class="business-performance-summary">
+
+    <div class="business-performance-summary-card">
+        <span>Total units sold</span>
+        <strong id="performanceTotalUnits">0</strong>
+    </div>
+
+    <div class="business-performance-summary-card">
+        <span>Product revenue</span>
+        <strong id="performanceTotalRevenue">$0.00</strong>
+    </div>
+
+    <div class="business-performance-summary-card">
+        <span>Products sold</span>
+        <strong id="performanceProductsSold">0</strong>
+    </div>
+
+    <div class="business-performance-summary-card">
+        <span>No recorded sales</span>
+        <strong id="performanceProductsWithoutSales">0</strong>
+    </div>
+
+</div>
+
+<div class="business-performance-panels">
+
+    <div class="business-performance-panel">
+        <div class="business-performance-panel-heading">
+            <div class="business-performance-panel-icon">
+                <i data-lucide="trophy"></i>
+            </div>
+
+            <div>
+                <h4>Best-selling products</h4>
+                <p>Ranked by units sold</p>
+            </div>
+        </div>
+
+        <div id="performanceBestSellers">
+            <div class="business-performance-empty">
+                Record a sale to see product rankings.
+            </div>
+        </div>
+    </div>
+
+    <div class="business-performance-panel">
+        <div class="business-performance-panel-heading">
+            <div class="business-performance-panel-icon">
+                <i data-lucide="package-search"></i>
+            </div>
+
+            <div>
+                <h4>Products without sales</h4>
+                <p>Current products with no matching sales records</p>
+            </div>
+        </div>
+
+        <div id="performanceNoSales">
+            <div class="business-performance-empty">
+                Product performance will appear here.
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+</section>
+
+<div class="search-bar business-inventory-toolbar">
+
+    <input
+        type="search"
+        id="productSearch"
+        placeholder="Search products..."
+        aria-label="Search products"
+    >
+
+    <select
+        id="productStockFilter"
+        class="business-stock-filter"
+        aria-label="Filter products by stock status"
+        onchange="renderProducts()"
+    >
+        <option value="all">All products</option>
+        <option value="in-stock">In stock</option>
+        <option value="low-stock">Low stock</option>
+        <option value="out-of-stock">Out of stock</option>
+    </select>
+
+</div>
+
+
+
+<div
+    id="productsList"
+    class="items-grid"
+>
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            <i data-lucide="package"></i>
+        </div>
+
+
+        <h3>
+            No products yet
+        </h3>
+
+
+        <p>
+            Add your first product to start
+            managing your inventory.
+        </p>
+
+    </div>
+
+</div>
+
+
+</section>
+
+<!-- =========================================================
+     CUSTOMERS
+========================================================= -->
+
+<section
+    id="customers"
+    class="section"
+>
+
+
+<div class="section-heading">
+
+    <div>
+
+        <p class="eyebrow">
+            CUSTOMERS
+        </p>
+
+
+        <h2>
+            Customers
+        </h2>
+
+
+        <p>
+            Keep track of the people you serve.
+        </p>
+
+    </div>
+
+
+    <button
+        type="button"
+        onclick="openCustomerModal()"
+    >
+        + Add Customer
+    </button>
+
+</div>
+
+
+
+<div class="search-bar">
+
+    <input
+        type="search"
+        id="customerSearch"
+        placeholder="Search customers..."
+    >
+
+</div>
+
+
+
+<div
+    id="customersList"
+    class="items-grid"
+>
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            <i data-lucide="users"></i>
+        </div>
+
+
+        <h3>
+            No customers yet
+        </h3>
+
+
+        <p>
+            Add your first customer to start
+            building your customer list.
+        </p>
+
+    </div>
+
+</div>
+
+
+</section>
+
+<!-- =========================================================
+     SALES
+========================================================= -->
+
+<section
+    id="sales"
+    class="section"
+>
+
+
+<div class="section-heading">
+
+    <div>
+
+        <p class="eyebrow">
+            SALES
+        </p>
+
+
+        <h2>
+            Recent Sales
+        </h2>
+
+
+        <p>
+            Track your completed transactions.
+        </p>
+
+    </div>
+
+
+    <button
+        type="button"
+        onclick="openSaleModal()"
+    >
+        + Record Sale
+    </button>
+
+</div>
+
+
+
+<div class="search-bar">
+
+    <input
+        type="search"
+        id="salesSearch"
+        placeholder="Search sales..."
+    >
+
+</div>
+
+
+
+<div
+    id="salesList"
+    class="sales-list"
+>
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            <i data-lucide="receipt"></i>
+        </div>
+
+
+        <h3>
+            No sales yet
+        </h3>
+
+
+        <p>
+            Your recorded sales will appear here.
+        </p>
+
+    </div>
+
+</div>
+
+
+</section>
+
+<!-- =========================================================
+     INVOICES
+========================================================= -->
+
+<section
+    id="invoices"
+    class="section"
+>
+
+
+<div class="section-heading">
+
+    <div>
+
+        <p class="eyebrow">
+            BILLING
+        </p>
+
+
+        <h2>
+            Invoices
+        </h2>
+
+
+        <p>
+            Create professional invoices
+            for your customers.
+        </p>
+
+    </div>
+
+
+    <button
+        type="button"
+        onclick="openInvoiceModal()"
+    >
+        + Create Invoice
+    </button>
+
+</div>
+
+
+<!-- PATRIODX — INVOICE FINANCIAL OVERVIEW -->
+<div class="business-invoice-overview">
+
+    <article class="business-invoice-metric total">
+        <div class="business-invoice-metric-top">
+            <span>Total invoiced</span>
+            <span class="business-invoice-metric-icon">
+                <i data-lucide="file-text"></i>
+            </span>
+        </div>
+
+        <strong id="invoiceSummaryTotal">$0.00</strong>
+        <small>All recorded invoices</small>
+    </article>
+
+    <article class="business-invoice-metric paid">
+        <div class="business-invoice-metric-top">
+            <span>Paid</span>
+            <span class="business-invoice-metric-icon">
+                <i data-lucide="circle-check"></i>
+            </span>
+        </div>
+
+        <strong id="invoiceSummaryPaid">$0.00</strong>
+        <small id="invoiceSummaryPaidCount">0 paid invoices</small>
+    </article>
+
+    <article class="business-invoice-metric outstanding">
+        <div class="business-invoice-metric-top">
+            <span>Outstanding</span>
+            <span class="business-invoice-metric-icon">
+                <i data-lucide="clock-3"></i>
+            </span>
+        </div>
+
+        <strong id="invoiceSummaryOutstanding">$0.00</strong>
+        <small id="invoiceSummaryOutstandingCount">0 unpaid invoices</small>
+    </article>
+
+    <article class="business-invoice-metric overdue">
+        <div class="business-invoice-metric-top">
+            <span>Overdue</span>
+            <span class="business-invoice-metric-icon">
+                <i data-lucide="alert-circle"></i>
+            </span>
+        </div>
+
+        <strong id="invoiceSummaryOverdue">$0.00</strong>
+        <small id="invoiceSummaryOverdueCount">0 overdue invoices</small>
+    </article>
+
+</div>
+<div class="search-bar">
+
+    <input
+        type="search"
+        id="invoiceSearch"
+        placeholder="Search invoices..."
+    >
+
+
+    <select id="invoiceStatusFilter">
+
+        <option value="all">
+            All invoices
+        </option>
+
+        <option value="paid">
+            Paid
+        </option>
+
+        <option value="unpaid">
+            Unpaid
+        </option>
+
+    </select>
+
+</div>
+
+
+
+<div
+    id="invoicesList"
+    class="invoice-list"
+>
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            <i data-lucide="receipt"></i>
+        </div>
+
+
+        <h3>
+            No invoices yet
+        </h3>
+
+
+        <p>
+            Create your first invoice for a customer.
+        </p>
+
+    </div>
+
+</div>
+
+
+</section>
+
+<!-- =========================================================
+     CONTACT
+     SINGLE CONTACT SECTION
+========================================================= -->
+
+<section
+    id="contact"
+    class="section contact-section"
+>
+
+
+<div class="section-heading">
+
+    <div>
+
+        <p class="eyebrow">
+            GET IN TOUCH
+        </p>
+
+
+        <h2>
+            Contact PATRIODX
+        </h2>
+
+
+        <p>
+            Have a question, suggestion or need help with
+           PATRIODX? We'd love to hear from you.
+        </p>
+
+    </div>
+
+</div>
+
+
+
+<div class="contact-grid">
+
+
+    <!-- EMAIL -->
+
+    <div class="contact-card">
+
+        <div class="contact-icon">
+            <i data-lucide="mail"></i>
+        </div>
+
+        <h3>
+            Email
+        </h3>
+
+        <p>
+            Have a question? Send us an email.
+        </p>
+
+        <a
+            href="mailto:patriodx@gmail.com"
+            class="contact-link"
+        >
+          patriodx@gmail.com
+        </a>
+
+    </div>
+
+
+
+   
+
+
+
+ <!-- PATRIODX -->
+
+    <div class="contact-card">
+
+        <div class="contact-icon">
+            <i data-lucide="globe"></i>
+        </div>
+
+        <h3>
+        PATRIODX
+        </h3>
+
+        <p>
+            Simple tools for growing businesses.
+        </p>
+
+        <span class="contact-link">
+            Available worldwide
+        </span>
+
+    </div>
+
+
+
+    <!-- SUPPORT -->
+
+    <div class="contact-card">
+
+        <div class="contact-icon">
+            <i data-lucide="rocket"></i>
+        </div>
+
+        <h3>
+            Need Business Support?
+        </h3>
+
+        <p>
+            Tell us what you need and we'll get back to you.
+        </p>
+
+        <a
+            href="mailto:patriodx@gmail.com?subject=PATRIODX%20Support"
+            class="contact-link"
+        >
+            Get Support
+        </a>
+
+    </div>
+
+</div>
+
+
+
+<!-- CONTACT FORM -->
+
+<div class="contact-form-card">
+
+    <div class="contact-form-heading">
+
+        <p class="eyebrow">
+            SEND A MESSAGE
+        </p>
+
+
+        <h2>
+            Let's talk.
+        </h2>
+
+
+        <p>
+            Fill out the form below and your email application
+            will open with your message ready to send.
+        </p>
+
+    </div>
+
+
+    <form
+        id="contactForm"
+        onsubmit="sendContactMessage(event)"
+    >
+
+        <div class="contact-form-grid">
+
+            <div class="form-group">
+
+                <label for="contactName">
+                    Your Name
+                </label>
+
+                <input
+                    type="text"
+                    id="contactName"
+                    name="name"
+                    placeholder="Your name"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="contactEmail">
+                    Your Email
+                </label>
+
+                <input
+                    type="email"
+                    id="contactEmail"
+                    name="email"
+                    placeholder="you@example.com"
+                    required
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="contactSubject">
+                Subject
+            </label>
+
+            <input
+                type="text"
+                id="contactSubject"
+                name="subject"
+                placeholder="How can we help?"
+                required
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="contactMessage">
+                Message
+            </label>
+
+            <textarea
+                id="contactMessage"
+                name="message"
+                rows="6"
+                placeholder="Tell us what you need..."
+                required
+            ></textarea>
+
+        </div>
+
+
+        <button
+            type="submit"
+        >
+            <i data-lucide="send"></i> Send Message
+        </button>
+
+    </form>
+
+</div>
+
+
+</section>
+
+<!-- =========================================================
+    ACCOUNT
+    ========================================================= -->
+   <section id="account" class="section">
+
+    <!-- SETTINGS HEADER -->
+    <div class="section-heading">
+
+        <div>
+
+            <p class="eyebrow">
+                <i data-lucide="settings"></i>
+                SETTINGS & ACTIVITY
+            </p>
+
+            <h2>
+                Settings & Activity
+            </h2>
+
+            <p>
+                Manage your account, privacy, social activity, language and subscription.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         ACCOUNT
+         ===================================================== -->
+
+    <div class="chart-card settings-card">
+
+        <div class="settings-card-heading">
+
+            <span class="settings-icon">
+                <i data-lucide="user-round"></i>
+            </span>
+
+            <div>
+                <h3>Account</h3>
+                <p>Manage your personal account information.</p>
+            </div>
+
+        </div>
+
+
+        <div class="settings-list">
+
+            <div class="settings-row">
+                <div>
+                    <strong>Email</strong>
+                    <small id="accountEmail">—</small>
+                </div>
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    id="changeEmailButton"
+                >
+                    <i data-lucide="mail"></i>
+                    Change Email
+                </button>
+            </div>
+
+
+            <div class="settings-row">
+                <div>
+                    <strong>Password</strong>
+                    <small>Keep your account secure.</small>
+                </div>
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    onclick="changePassword()"
+                >
+                    <i data-lucide="lock-keyhole"></i>
+                    Change Password
+                </button>
+            </div>
+
+
+            <div class="settings-row">
+                <div>
+                    <strong>Profile</strong>
+                    <small>Manage your username, bio and profile.</small>
+                </div>
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    onclick="scrollToSection('profile')"
+                >
+                    <i data-lucide="user-round"></i>
+                    Open Profile
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+ <!-- =========================================================
+     APPEARANCE
+========================================================= -->
+
+<div
+    id="settingsAppearance"
+    class="settings-section"
+>
+    <h2>Appearance</h2>
+
+    <p class="settings-description">
+        Customize how PATRIODX looks.
+    </p>
+
+    <div class="settings-card">
+
+        <div class="settings-card-content">
+            <strong>Dark Mode</strong>
+
+            <span>
+                Switch between light and dark appearance.
+            </span>
+        </div>
+
+        <label class="settings-toggle">
+            <input
+                type="checkbox"
+                id="settingsDarkModeToggle"
+            >
+
+            <span class="settings-toggle-slider"></span>
+        </label>
+
+      </div>
+
+</div>
+
+<!-- =====================================================
+     ACCOUNT ACTIONS
+===================================================== -->
+
+<div class="settings-card">
+
+    <div class="settings-card-content">
+
+        <strong>Add Account</strong>
+
+        <span>
+            Add another PATRIODX account and switch between accounts.
+        </span>
+
+    </div>
+
+    <button
+        type="button"
+        id="addAccountButton"
+        class="settings-action-button"
+    >
+        Add Account
+    </button>
+
+</div>
+
+
+<div class="settings-card">
+
+    <div class="settings-card-content">
+
+        <strong>Log Out</strong>
+
+        <span>
+            Sign out of your PATRIODX account on this device.
+        </span>
+
+    </div>
+
+    <button
+        type="button"
+        id="settingsLogoutButton"
+        class="settings-danger-button"
+    >
+        Log Out
+    </button>
+
+</div>
+
+
+    <!-- =====================================================
+         PRIVACY
+         ===================================================== -->
+
+    <div class="chart-card settings-card">
+
+        <div class="settings-card-heading">
+
+            <span class="settings-icon">
+                <i data-lucide="shield"></i>
+            </span>
+
+            <div>
+                <h3>Privacy</h3>
+                <p>Control who can interact with you.</p>
+            </div>
+
+        </div>
+
+
+        <div class="settings-grid">
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="accountPrivacyButton"
+            >
+                <i data-lucide="lock"></i>
+                <strong>Account Privacy</strong>
+                <small>Public or private account</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="messagePrivacyButton"
+            >
+                <i data-lucide="message-circle"></i>
+                <strong>Messages</strong>
+                <small>Who can message you</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="mentionPrivacyButton"
+            >
+                <i data-lucide="at-sign"></i>
+                <strong>Mentions</strong>
+                <small>Control who can mention you</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="tagPrivacyButton"
+            >
+                <i data-lucide="tag"></i>
+                <strong>Tags</strong>
+                <small>Control who can tag you</small>
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SOCIAL
+         ===================================================== -->
+
+    <div class="chart-card settings-card">
+
+        <div class="settings-card-heading">
+
+            <span class="settings-icon">
+                <i data-lucide="users"></i>
+            </span>
+
+            <div>
+                <h3>Social</h3>
+                <p>Manage your connections and social activity.</p>
+            </div>
+
+        </div>
+
+
+        <div class="settings-grid">
+
+            <button
+                type="button"
+                class="settings-tile"
+                onclick="scrollToSection('social')"
+            >
+                <i data-lucide="newspaper"></i>
+                <strong>Social Feed</strong>
+                <small>Posts, stories and interactions</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="followersButton"
+            >
+                <i data-lucide="users"></i>
+                <strong>Followers & Following</strong>
+                <small>Manage your connections</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="blockedUsersButton"
+            >
+                <i data-lucide="user-x"></i>
+                <strong>Blocked Users</strong>
+                <small>Manage blocked accounts</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="inviteFriendsButton"
+            >
+                <i data-lucide="user-plus"></i>
+                <strong>Invite Friends</strong>
+                <small>Invite people to PATRIODX</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="crosspostingButton"
+            >
+                <i data-lucide="share-2"></i>
+                <strong>Crossposting</strong>
+                <small>Manage cross-posting</small>
+            </button>
+
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         STORIES
+         ===================================================== -->
+
+    <div class="chart-card settings-card">
+
+        <div class="settings-card-heading">
+
+            <span class="settings-icon">
+                <i data-lucide="circle-play"></i>
+            </span>
+
+            <div>
+                <h3>Stories</h3>
+                <p>Manage stories and your story archive.</p>
+            </div>
+
+        </div>
+
+
+        <div class="settings-grid">
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="storyPrivacyButton"
+            >
+                <i data-lucide="eye"></i>
+                <strong>Story Privacy</strong>
+                <small>Choose who can see your stories</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="storyArchiveButton"
+            >
+                <i data-lucide="archive"></i>
+                <strong>Story Archive</strong>
+                <small>View expired stories</small>
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         LANGUAGE
+         ===================================================== -->
+
+    <div class="chart-card settings-card">
+
+        <div class="settings-card-heading">
+
+            <span class="settings-icon">
+                <i data-lucide="languages"></i>
+            </span>
+
+            <div>
+                <h3>Language & Translation</h3>
+                <p>Manage your language and translation preferences.</p>
+            </div>
+
+        </div>
+
+
+        <div class="settings-row">
+
+            <div>
+                <strong>Language</strong>
+                <small>Choose your preferred PATRIODX language.</small>
+            </div>
+
+            <select
+                id="settingsLanguageSelector"
+                class="language-selector"
+            >
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+                <option value="pt">Português</option>
+                <option value="de">Deutsch</option>
+                <option value="it">Italiano</option>
+                <option value="ar">العربية</option>
+                <option value="zh">中文</option>
+                <option value="ja">日本語</option>
+                <option value="ko">한국어</option>
+                <option value="hi">हिन्दी</option>
+                <option value="sw">Kiswahili</option>
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         NOTIFICATIONS
+         ===================================================== -->
+
+    <div class="chart-card settings-card">
+
+        <div class="settings-card-heading">
+
+            <span class="settings-icon">
+                <i data-lucide="bell"></i>
+            </span>
+
+            <div>
+                <h3>Notifications</h3>
+                <p>Manage your notification activity.</p>
+            </div>
+
+        </div>
+
+
+        <div class="settings-grid">
+
+            <button
+                type="button"
+                class="settings-tile"
+                onclick="scrollToSection('notifications')"
+            >
+                <i data-lucide="bell"></i>
+                <strong>Notifications</strong>
+                <small>View your notifications</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="notificationSettingsButton"
+            >
+                <i data-lucide="sliders-horizontal"></i>
+                <strong>Notification Settings</strong>
+                <small>Choose what you receive</small>
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         HELP & SUPPORT
+         ===================================================== -->
+
+    <div class="chart-card settings-card">
+
+        <div class="settings-card-heading">
+
+            <span class="settings-icon">
+                <i data-lucide="life-buoy"></i>
+            </span>
+
+            <div>
+                <h3>Help & Support</h3>
+                <p>Get help with PATRIODX.</p>
+            </div>
+
+        </div>
+
+
+        <div class="settings-grid">
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="reportProblemButton"
+            >
+                <i data-lucide="flag"></i>
+                <strong>Report a Problem</strong>
+                <small>Tell us about an issue</small>
+            </button>
+
+
+            <button
+                type="button"
+                class="settings-tile"
+                id="helpCenterButton"
+            >
+                <i data-lucide="circle-help"></i>
+                <strong>Help Center</strong>
+                <small>Get help with PATRIODX</small>
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         BUSINESS & SUBSCRIPTION
+         ===================================================== -->
+
+    <div class="chart-card settings-card">
+
+        <div class="settings-card-heading">
+
+            <span class="settings-icon">
+                <i data-lucide="briefcase-business"></i>
+            </span>
+
+            <div>
+                <h3>Business & Subscription</h3>
+                <p>Manage your PATRIODX business account.</p>
+            </div>
+
+        </div>
+
+
+        <div class="analytics-grid">
+
+            <div class="analytics-card">
+                <span>
+                    <i data-lucide="building-2"></i>
+                </span>
+
+                <p>Business Name</p>
+
+                <strong id="accountBusinessName">
+                    —
+                </strong>
+            </div>
+
+
+            <div class="analytics-card">
+                <span>
+                    <i data-lucide="credit-card"></i>
+                </span>
+
+                <p>Current Plan</p>
+
+                <strong id="accountPlan">
+                    FREE
+                </strong>
+            </div>
+
+
+            <div class="analytics-card">
+                <span>
+                    <i data-lucide="activity"></i>
+                </span>
+
+                <p>Account Status</p>
+
+                <strong id="accountStatus">
+                    Active
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="form-buttons">
+
+            <button
+                type="button"
+                id="proUpgradeButton"
+                onclick="startProPlan()"
+            >
+                <i data-lucide="rocket"></i>
+                Upgrade to Pro — $9/month
+            </button>
+
+
+            <button
+                type="button"
+                class="secondary-btn"
+                onclick="startBusinessPlan()"
+            >
+                <i data-lucide="briefcase-business"></i>
+                Choose Business — $19/month
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         PLAN USAGE
+         ===================================================== -->
+
+    <div class="chart-card settings-card">
+
+        <div class="settings-card-heading">
+
+            <span class="settings-icon">
+                <i data-lucide="chart-column"></i>
+            </span>
+
+            <div>
+                <h3>Plan Usage</h3>
+                <p>See how much of your current plan you are using.</p>
+            </div>
+
+        </div>
+
+
+        <div class="overview-grid">
+
+            <div>
+                <span>Products</span>
+                <strong id="accountProductsUsage">0 / 20</strong>
+            </div>
+
+            <div>
+                <span>Customers</span>
+                <strong id="accountCustomersUsage">0 / 20</strong>
+            </div>
+
+            <div>
+                <span>Sales This Month</span>
+                <strong id="accountSalesUsage">0 / 30</strong>
+            </div>
+
+            <div>
+                <span>Invoices This Month</span>
+                <strong id="accountInvoicesUsage">0 / 5</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DANGER ZONE
+         ===================================================== -->
+
+    <div class="danger-zone">
+
+        <div>
+
+            <p class="eyebrow">
+                <i data-lucide="triangle-alert"></i>
+                DANGER ZONE
+            </p>
+
+            <h3>
+                Delete Account
+            </h3>
+
+            <p>
+                Permanently remove your PATRIODX account and associated data.
+            </p>
+
+        </div>
+
+
+        <div class="data-actions">
+
+            <button
+                type="button"
+                class="danger-btn"
+                onclick="deleteAccount()"
+            >
+                <i data-lucide="trash-2"></i>
+                Delete Account
+            </button>
+
+        </div>
+
+    </div>
+
+<!-- =========================================================
+     BUSINESS DATA
+========================================================= -->
+
+<section class="danger-zone">
+
+    <div>
+
+        <p class="eyebrow">
+            BUSINESS DATA
+        </p>
+
+
+        <h3>
+            Manage Your Business Data
+        </h3>
+
+
+        <p>
+            Backup, restore or reset all products,
+            customers, sales and invoices stored
+            in this browser.
+        </p>
+
+    </div>
+
+
+
+    <div class="data-actions">
+
+
+       <button
+    type="button"
+    class="secondary-btn"
+    onclick="exportBusinessData()"
+>
+    <i data-lucide="upload"></i>
+    Export Backup
+</button>
+
+
+     <button
+    type="button"
+    class="secondary-btn"
+    onclick="document.getElementById('backupFileInput').click()"
+>
+    <i data-lucide="download"></i>
+    Import Backup
+</button>
+
+
+<input
+    type="file"
+    id="backupFileInput"
+    accept=".json,application/json"
+    style="display:none"
+    onchange="importBusinessData(this.files[0]); this.value='';"
+>
+
+
+
+<button
+    type="button"
+    class="danger-btn"
+    onclick="resetBusinessData()"
+>
+    <i data-lucide="trash-2"></i>
+    Reset Business Data
+</button>
+
+</div>
+
+</section>
+</section>
+
+<!-- =========================================================
+     PRODUCT MODAL
+========================================================= -->
+
+<div
+    id="productModal"
+    class="modal"
+>
+
+    <div class="modal-content">
+
+
+        <button
+            type="button"
+            class="close-btn"
+            onclick="closeProductModal()"
+        >
+            ×
+        </button>
+
+
+        <h2 id="productModalTitle">
+            Add Product
+        </h2>
+
+
+
+        <form id="productForm">
+
+
+            <input
+                type="hidden"
+                id="productId"
+            >
+
+
+            <label>
+                Product Name
+            </label>
+
+
+            <input
+                type="text"
+                id="productName"
+                placeholder="e.g. MacBook Pro"
+                required
+            >
+
+
+            <label>
+                Price (USD)
+            </label>
+
+
+            <input
+                type="number"
+                id="productPrice"
+                placeholder="1956"
+                min="0"
+                step="0.01"
+                required
+            >
+
+
+          <label for="productCostPrice">
+    Cost Price (USD)
+</label>
+
+<input
+    type="number"
+    id="productCostPrice"
+    placeholder="e.g. 1200"
+    min="0"
+    step="0.01"
+>
+
+<small class="product-cost-help">
+    What your business pays for one unit. Leave blank if unknown.
+</small>
+
+<label for="productStock">
+    Stock
+</label>
+
+<input
+    type="number"
+    id="productStock"
+    placeholder="10"
+    min="0"
+    step="1"
+    required
+>
+<label for="productDescription">Product Description</label>
+
+<textarea id="productDescription" placeholder="Describe your product..." rows="3"></textarea>
+
+<label for="productCategory">Category</label> <input type="text" id="productCategory" placeholder="e.g. Electronics">
+
+<label for="productImageFile">Upload Product Picture</label>
+
+<input
+    type="file"
+    id="productImageFile"
+    accept="image/jpeg,image/png,image/webp,image/gif"
+    onchange="previewProductImage(this)"
+>
+
+<div id="productImagePreviewContainer" style="display:none; margin:12px 0;">
+    <img
+        id="productImagePreview"
+        src=""
+        alt="Product image preview"
+        style="width:100%; max-width:220px; max-height:220px; object-fit:contain; border-radius:12px;"
+    >
+</div>
+
+<small style="display:block; margin-bottom:12px;">
+    Choose a picture from your device. Maximum size: 5 MB.
+</small>
+
+<label for="productImageUrl">Or enter an Image URL</label>
+
+<input
+    type="url"
+    id="productImageUrl"
+    placeholder="https://example.com/product.jpg"
+>
+
+<label class="marketplace-publish-option">
+    <input type="checkbox" id="productPublish">
+    Publish this product to the PATRIODX Marketplace
+</label>
+
+
+            <button type="submit">
+                Save Product
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     CUSTOMER MODAL
+========================================================= -->
+
+<div
+    id="customerModal"
+    class="modal"
+>
+
+    <div class="modal-content">
+
+
+        <button
+            type="button"
+            class="close-btn"
+            onclick="closeCustomerModal()"
+        >
+            ×
+        </button>
+
+
+        <h2>
+            Add Customer
+        </h2>
+
+
+
+        <form id="customerForm">
+
+
+            <label>
+                Customer Name
+            </label>
+
+
+            <input
+                type="text"
+                id="customerName"
+                placeholder="John Smith"
+                required
+            >
+
+
+            <label>
+                Email
+            </label>
+
+
+            <input
+                type="email"
+                id="customerEmail"
+                placeholder="john@example.com"
+            >
+
+
+            <label>
+                Phone
+            </label>
+
+
+            <input
+                type="tel"
+                id="customerPhone"
+                placeholder="+1 555 123 4567"
+            >
+
+
+            <button type="submit">
+                Save Customer
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     SALE MODAL
+========================================================= -->
+
+<div
+    id="saleModal"
+    class="modal"
+>
+
+    <div class="modal-content">
+
+
+        <button
+            type="button"
+            class="close-btn"
+            onclick="closeSaleModal()"
+        >
+            ×
+        </button>
+
+
+        <h2>
+            Record Sale
+        </h2>
+
+
+
+        <form id="saleForm">
+
+
+            <label>
+                Product
+            </label>
+
+
+            <select
+                id="saleProduct"
+                required
+            >
+
+                <option value="">
+                    Select a product
+                </option>
+
+            </select>
+
+
+
+            <label>
+                Quantity
+            </label>
+
+
+            <input
+                type="number"
+                id="saleQuantity"
+                value="1"
+                min="1"
+                step="1"
+                required
+            >
+
+
+
+            <div class="sale-total">
+
+                <span>
+                    Total (USD)
+                </span>
+
+
+                <strong id="saleTotal">
+                    $0.00
+                </strong>
+
+            </div>
+
+
+
+            <button type="submit">
+                Record Sale
+            </button>
+
+
+
+            <button
+                type="button"
+                class="secondary-btn"
+                onclick="closeSaleModal()"
+            >
+                Cancel
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     INVOICE MODAL
+========================================================= -->
+
+<div
+    id="invoiceModal"
+    class="modal"
+>
+
+    <div class="modal-content invoice-modal">
+
+
+        <button
+            type="button"
+            class="close-btn"
+            onclick="closeInvoiceModal()"
+        >
+            ×
+        </button>
+
+
+
+        <div class="invoice-modal-header">
+
+            <p class="eyebrow">
+               PATRIODX BILLING
+            </p>
+
+
+            <h2>
+                Create Invoice
+            </h2>
+
+
+            <p>
+                Create a professional invoice
+                for your customer.
+            </p>
+
+        </div>
+
+
+
+        <form id="invoiceForm">
+
+
+            <label>
+                Invoice Number
+            </label>
+
+
+            <input
+                type="text"
+                id="invoiceNumber"
+                readonly
+            >
+
+
+            <label>
+                Customer
+            </label>
+
+
+            <select
+                id="invoiceCustomer"
+                required
+            >
+
+                <option value="">
+                    Select a customer
+                </option>
+
+            </select>
+
+
+            <label>
+                Product
+            </label>
+
+
+            <select
+                id="invoiceProduct"
+                required
+            >
+
+                <option value="">
+                    Select a product
+                </option>
+
+            </select>
+
+
+            <label>
+                Quantity
+            </label>
+
+
+            <input
+                type="number"
+                id="invoiceQuantity"
+                value="1"
+                min="1"
+                step="1"
+                required
+            >
+
+
+            <label>
+                Due Date
+            </label>
+
+
+            <input
+                type="date"
+                id="invoiceDueDate"
+                required
+            >
+
+
+            <label>
+                Discount (USD)
+            </label>
+
+
+            <input
+                type="number"
+                id="invoiceDiscount"
+                value="0"
+                min="0"
+                step="0.01"
+            >
+
+
+            <label>
+                Tax (%)
+            </label>
+
+
+            <input
+                type="number"
+                id="invoiceTax"
+                value="0"
+                min="0"
+                step="0.01"
+            >
+
+
+
+            <div class="invoice-preview">
+
+
+                <div class="invoice-preview-row">
+
+                    <span>
+                        Subtotal
+                    </span>
+
+                    <strong id="invoiceSubtotal">
+                        $0.00
+                    </strong>
+
+                </div>
+
+
+
+                <div class="invoice-preview-row">
+
+                    <span>
+                        Discount
+                    </span>
+
+                    <strong id="invoiceDiscountDisplay">
+                        -$0.00
+                    </strong>
+
+                </div>
+
+
+
+                <div class="invoice-preview-row">
+
+                    <span>
+                        Tax
+                    </span>
+
+
+                    <strong id="invoiceTaxDisplay">
+                        $0.00
+                    </strong>
+
+                </div>
+
+
+
+                <div class="invoice-total-row">
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong id="invoiceTotal">
+                        $0.00
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="form-buttons">
+
+
+                <button type="submit">
+                    Create Invoice
+                </button>
+
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    onclick="closeInvoiceModal()"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     VIEW INVOICE MODAL
+========================================================= -->
+
+<div
+    id="invoiceViewModal"
+    class="modal"
+>
+
+    <div class="modal-content invoice-modal">
+
+
+        <button
+            type="button"
+            class="close-btn"
+            onclick="closeInvoiceViewModal()"
+        >
+            ×
+        </button>
+
+
+
+      <div id="invoiceViewContent">
+
+    <div class="empty-state">
+
+        <div class="empty-icon">
+            <i data-lucide="receipt"></i>
+        </div>
+
+
+                <h3>
+                    Invoice
+                </h3>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="form-buttons">
+
+            <button
+                type="button"
+                class="secondary-btn"
+                onclick="closeInvoiceViewModal()"
+            >
+                Close
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- =========================================================
+     PATRIODX MARKETPLACE
+========================================================= -->
+
+<section
+    id="marketplace"
+    class="section patriodx-marketplace-page"
+    style="display: none;"
+>
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">
+                <i data-lucide="store"></i>
+                PATRIODX COMMERCE
+            </p>
+
+            <h2>Marketplace</h2>
+
+            <p>
+                Discover products from businesses across PATRIODX.
+                Shop, explore and support independent businesses.
+            </p>
+        </div>
+    </div>
+
+    <div class="patriodx-marketplace-frame">
+        <iframe
+            id="patriodxMarketplaceFrame"
+            src="marketplace.html?embedded=1"
+            title="PATRIODX Marketplace"
+            loading="lazy"
+            referrerpolicy="strict-origin-when-cross-origin"
+        ></iframe>
+    </div>
+</section>
+
+</main>
+<!-- =========================================================
+     PATRIODX STORY VIEWER
+========================================================= -->
+
+<div
+    id="patriodxStoryViewer"
+    class="patriodx-story-viewer"
+    style="display:none;"
+>
+
+    <button
+        type="button"
+        id="storyViewerClose"
+        class="story-viewer-close"
+        aria-label="Close story"
+        title="Close"
+    >
+        <i data-lucide="x"></i>
+    </button>
+
+    <div class="story-viewer-progress">
+        <div
+            id="storyViewerProgress"
+            class="story-viewer-progress-bar"
+        ></div>
+    </div>
+
+    <div class="story-viewer-header">
+
+        <div
+            id="storyViewerAvatar"
+            class="story-viewer-avatar"
+        ></div>
+
+        <div class="story-viewer-user">
+
+            <strong
+                id="storyViewerUsername"
+            >
+                PATRIODX User
+            </strong>
+
+            <span
+                id="storyViewerTime"
+            >
+                Just now
+            </span>
+
+        </div>
+
+    </div>
+
+    <div
+        id="storyViewerContent"
+        class="story-viewer-content"
+    ></div>
+
+    <button
+        type="button"
+        id="storyViewerPrevious"
+        class="story-viewer-nav story-viewer-previous"
+        aria-label="Previous story"
+    >
+        <i data-lucide="chevron-left"></i>
+    </button>
+
+    <button
+        type="button"
+        id="storyViewerNext"
+        class="story-viewer-nav story-viewer-next"
+        aria-label="Next story"
+    >
+        <i data-lucide="chevron-right"></i>
+    </button>
+
+</div>
+<!-- =========================================================
+     ADD STORY MODAL
+========================================================= -->
+
+<div
+    id="addStoryModal"
+    class="modal"
+    style="display:none;"
+>
+
+    <div class="modal-content">
+
+        <button
+            type="button"
+            class="close-btn"
+            onclick="closeAddStoryModal()"
+        >
+            ×
+        </button>
+
+        <div class="modal-header">
+
+            <p class="eyebrow">
+                PATRIODX STORIES
+            </p>
+
+            <h2>
+                Add Story
+            </h2>
+
+            <p>
+                Share a photo or video that disappears after 24 hours.
+            </p>
+
+        </div>
+
+        <form id="addStoryForm">
+
+            <label for="storyMedia">
+                Photo or Video
+            </label>
+
+            <input
+                type="file"
+                id="storyMedia"
+                accept="image/*,video/*"
+                required
+            >
+
+            <div
+                id="storyPreview"
+                style="display:none; margin-top:15px;"
+            ></div>
+
+            <div class="form-buttons">
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    onclick="closeAddStoryModal()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                    id="postStoryButton"
+                >
+                    <i data-lucide="send"></i>
+                    Post Story
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer>
+
+    <div class="footer-content">
+
+
+        <div class="footer-brand">
+
+            <strong>
+                PATRIODX
+            </strong>
+
+            <p>
+                Run your business smarter.
+            </p>
+
+        </div>
+
+
+
+        <div class="footer-contact">
+
+            <strong>
+                Contact
+            </strong>
+
+
+          <p>
+    <a href="mailto:patriodx@gmail.com">
+        <i data-lucide="mail"></i>
+        patriodx@gmail.com
+    </a>
+</p>
+
+           
+
+        </div>
+
+
+        <div class="footer-links">
+
+            <strong>
+                Quick Links
+            </strong>
+
+
+            <p>
+                <a href="#dashboard">
+                    Dashboard
+                </a>
+            </p>
+
+
+            <p>
+                <a href="#analytics">
+                    Analytics
+                </a>
+            </p>
+
+
+            <p>
+                <a href="#products">
+                    Products
+                </a>
+            </p>
+
+
+            <p>
+                <a href="#contact">
+                    Contact
+                </a>
+            </p>
+
+            <p>
+                <a href="#account">
+                    Account
+                </a>
+            </p>
+
+            <p>
+                <a href="privacy.html">
+                    Privacy Policy
+                </a>
+            </p>
+
+            <p>
+                <a href="terms.html">
+                    Terms of Service
+                </a>
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+   <div class="footer-bottom">
+
+    <p>
+        © 2026 PATRIODX. All rights reserved.
+    </p>
+
+</div>
+</footer>
+
+
+
+<!-- =========================================================
+     PAYSTACK
+     
+     MUST LOAD BEFORE script.js
+========================================================= -->
+<script
+    src="https://js.paystack.co/v2/inline.js"
+></script>
+
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- PATRIODX JAVASCRIPT -->
+<script src="script.js"></script>
+<script>
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js")
+            .then(() => {
+                console.log("PATRIODX service worker registered");
+            })
+            .catch(error => {
+                console.error(
+                    "PATRIODX service worker registration failed:",
+                    error
+                );
+            });
+    });
+}
+</script>
+    <!-- =========================================================
+     CHANGE PASSWORD MODAL
+========================================================= -->
+
+<div
+    id="changePasswordModal"
+    class="password-modal"
+    style="display:none;"
+>
+
+    <div
+        class="password-modal-overlay"
+        onclick="closeChangePasswordModal()"
+    ></div>
+
+    <div
+        class="password-modal-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="changePasswordTitle"
+    >
+
+        <button
+            type="button"
+            class="password-modal-close"
+            onclick="closeChangePasswordModal()"
+            aria-label="Close"
+        >
+            <i data-lucide="x"></i>
+        </button>
+
+        <div class="password-modal-icon">
+            <i data-lucide="lock-keyhole"></i>
+        </div>
+
+        <h2 id="changePasswordTitle">
+            Change Password
+        </h2>
+
+        <p class="password-modal-description">
+            Create a new password for your PATRIODX account.
+        </p>
+
+
+        <!-- NEW PASSWORD -->
+
+        <div class="password-field">
+
+            <label for="newPassword">
+                New Password
+            </label>
+
+            <div class="password-input-wrapper">
+
+                <input
+                    type="password"
+                    id="newPassword"
+                    placeholder="Enter new password"
+                    autocomplete="new-password"
+                    minlength="8"
+                    maxlength="72"
+                >
+
+                <button
+                    type="button"
+                    class="password-toggle-button"
+                    onclick="togglePasswordVisibility('newPassword', this)"
+                    aria-label="Show password"
+                >
+                    <i data-lucide="eye"></i>
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- CONFIRM PASSWORD -->
+
+        <div class="password-field">
+
+            <label for="confirmPassword">
+                Confirm New Password
+            </label>
+
+            <div class="password-input-wrapper">
+
+                <input
+                    type="password"
+                    id="confirmPassword"
+                    placeholder="Confirm new password"
+                    autocomplete="new-password"
+                    minlength="8"
+                    maxlength="72"
+                >
+
+                <button
+                    type="button"
+                    class="password-toggle-button"
+                    onclick="togglePasswordVisibility('confirmPassword', this)"
+                    aria-label="Show password"
+                >
+                    <i data-lucide="eye"></i>
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="changePasswordMessage"
+            class="password-modal-message"
+            style="display:none;"
+        ></div>
+
+
+        <div class="password-modal-actions">
+
+            <button
+                type="button"
+                class="secondary-btn"
+                onclick="closeChangePasswordModal()"
+            >
+                Cancel
+            </button>
+
+            <button
+                type="button"
+                class="primary-btn"
+                id="updatePasswordButton"
+                onclick="updatePATRIODXPassword()"
+            >
+                <i data-lucide="shield-check"></i>
+                Update Password
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+    <!-- GO LIVE MODAL -->
+
+<div
+    id="goLiveModal"
+    class="go-live-modal"
+    style="display:none;"
+>
+    <div
+        class="go-live-overlay"
+        onclick="closeGoLiveModal()"
+    ></div>
+
+    <div
+        class="go-live-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="goLiveTitle"
+    >
+
+        <button
+            type="button"
+            class="go-live-close"
+            onclick="closeGoLiveModal()"
+            aria-label="Close"
+        >
+            <i data-lucide="x"></i>
+        </button>
+
+        <div class="go-live-icon">
+            <i data-lucide="radio"></i>
+        </div>
+
+        <h2 id="goLiveTitle">
+            Go Live
+        </h2>
+
+        <p class="go-live-description">
+            Start a live broadcast on PATRIODX.
+        </p>
+
+        <div class="go-live-field">
+            <label for="liveTitleInput">
+                Live Title
+            </label>
+
+            <input
+                type="text"
+                id="liveTitleInput"
+                placeholder="What are you going live about?"
+                maxlength="100"
+            >
+        </div>
+
+        <div class="go-live-field">
+            <label for="livePrivacySelect">
+                Who can watch?
+            </label>
+
+            <select id="livePrivacySelect">
+                <option value="everyone">Everyone</option>
+                <option value="followers">Followers</option>
+                <option value="private">Only me</option>
+            </select>
+        </div>
+
+        <div
+            id="goLiveMessage"
+            class="go-live-message"
+            style="display:none;"
+        ></div>
+
+        <div class="go-live-actions">
+
+            <button
+                type="button"
+                class="secondary-btn"
+                onclick="closeGoLiveModal()"
+            >
+                Cancel
+            </button>
+
+            <button
+                type="button"
+                class="primary-btn"
+                id="startLiveButton"
+                onclick="startPATRIODXLive()"
+            >
+                <i data-lucide="radio"></i>
+                Start Live
+            </button>
+
+        </div>
+
+    </div>
+    <!-- MOBILE CREATE SHEET -->
+<div
+    id="mobileCreateSheet"
+    class="mobile-action-overlay"
+    style="display:none;"
+>
+
+    <div
+        class="mobile-action-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="mobileCreateTitle"
+    >
+
+        <div class="mobile-sheet-handle"></div>
+
+        <div class="mobile-sheet-header">
+
+            <div>
+                <p class="eyebrow">PATRIODX</p>
+
+                <h2 id="mobileCreateTitle">
+                    Create
+                </h2>
+
+                <p>
+                    Share something with your PATRIODX community.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="mobile-sheet-close"
+                id="mobileCreateClose"
+                aria-label="Close Create menu"
+            >
+                <i data-lucide="x"></i>
+            </button>
+
+        </div>
+
+
+        <div class="mobile-action-list">
+
+            <!-- POST -->
+            <button
+                type="button"
+                class="mobile-action-item"
+                id="mobileCreatePost"
+            >
+                <span class="mobile-action-item-icon">
+                    <i data-lucide="square-pen"></i>
+                </span>
+
+                <span>
+                    <strong>Create Post</strong>
+                    <small>
+                        Share an update, photo or video.
+                    </small>
+                </span>
+
+                <i data-lucide="chevron-right"></i>
+            </button>
+
+
+            <!-- STORY -->
+            <button
+                type="button"
+                class="mobile-action-item"
+                id="mobileCreateStory"
+            >
+                <span class="mobile-action-item-icon">
+                    <i data-lucide="circle-play"></i>
+                </span>
+
+                <span>
+                    <strong>Add Story</strong>
+                    <small>
+                        Share something for 24 hours.
+                    </small>
+                </span>
+
+                <i data-lucide="chevron-right"></i>
+            </button>
+
+
+            <!-- LIVE -->
+            <button
+                type="button"
+                class="mobile-action-item"
+                id="mobileCreateLive"
+            >
+                <span class="mobile-action-item-icon">
+                    <i data-lucide="radio"></i>
+                </span>
+
+                <span>
+                    <strong>Go Live</strong>
+                    <small>
+                        Start a live broadcast on PATRIODX.
+                    </small>
+                </span>
+
+                <i data-lucide="chevron-right"></i>
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+</div>
+    <!-- PATRIODX PROFILE POST VIEWER -->
+
+<div
+    id="profilePostViewer"
+    class="profile-post-viewer"
+    style="display: none;"
+    aria-hidden="true"
+>
+    <div
+        class="profile-post-viewer-overlay"
+        onclick="closeProfilePostViewer()"
+    ></div>
+
+<div
+    class="profile-post-viewer-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-label="View profile post"
+>
+    <button
+        type="button"
+        class="profile-post-viewer-close"
+        onclick="closeProfilePostViewer()"
+        aria-label="Close post"
+    >
+        <i data-lucide="x"></i>
+    </button>
+
+    <div
+        id="profilePostViewerMedia"
+        class="profile-post-viewer-media"
+    ></div>
+
+    <div class="profile-post-viewer-details">
+        <!-- Post author -->
+<div
+    id="profilePostViewerAuthor"
+    class="profile-post-viewer-author"
+></div>
+
+<!-- Caption -->
+<div
+    id="profilePostViewerCaption"
+    class="profile-post-viewer-caption"
+></div>
+
+<!-- Instagram-style post interactions -->
+<div class="profile-post-viewer-actions">
+
+    <div class="profile-post-viewer-action-buttons">
+
+        <button
+            type="button"
+            id="profilePostViewerLike"
+            class="profile-post-viewer-action-button"
+            aria-label="Like post"
+            title="Like post"
+        >
+            <i data-lucide="heart"></i>
+        </button>
+
+        <button
+            type="button"
+            id="profilePostViewerCommentFocus"
+            class="profile-post-viewer-action-button"
+            aria-label="View comments"
+            title="View comments"
+        >
+            <i data-lucide="message-circle"></i>
+        </button>
+
+        <button
+            type="button"
+            id="profilePostViewerShare"
+            class="profile-post-viewer-action-button"
+            aria-label="Share post"
+            title="Share post"
+        >
+            <i data-lucide="send"></i>
+        </button>
+
+    </div>
+
+    <!-- Like count -->
+    <div
+        id="profilePostViewerLikeCount"
+        class="profile-post-viewer-like-count"
+    >
+        Loading likes...
+    </div>
+
+    <!-- Comments -->
+    <div class="profile-post-viewer-comments-section">
+
+        <div
+            id="profilePostViewerComments"
+            class="profile-post-viewer-comments"
+        >
+            Loading comments...
+        </div>
+
+        <form
+            id="profilePostViewerCommentForm"
+            class="profile-post-viewer-comment-form"
+        >
+            <input
+                type="text"
+                id="profilePostViewerCommentInput"
+                placeholder="Add a comment..."
+                maxlength="2000"
+                autocomplete="off"
+                aria-label="Write a comment"
+            >
+
+            <button type="submit">
+                Post
+            </button>
+        </form>
+
+    </div>
+
+</div>
+
+<!-- Post date -->
+<div
+    id="profilePostViewerDate"
+    class="profile-post-viewer-date"
+></div>
+    </div>
+</div>
+
+
+</div>
+
+</body>
+</html>
