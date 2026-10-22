@@ -5635,8 +5635,11 @@ async function startPATRIODX() {
 
     if (!authenticated) return;
 
-    await loadData();
+   await loadData();
 await loadMyProfile();
+
+// Load stories after restoring the signed-in user.
+await loadPATRIODXStories();
     setupNotifications();
     loadPlan();
 
@@ -9160,7 +9163,73 @@ showPATRIODXToast(
 }
 }
 
+/* =========================================================
+   SOCIAL POST TAG AND MENTION BUTTONS
+========================================================= */
 
+function insertSocialComposerText(text) {
+    const composer = document.getElementById("socialPostContent");
+
+    if (!composer) {
+        return;
+    }
+
+    const start = composer.selectionStart ?? composer.value.length;
+    const end = composer.selectionEnd ?? start;
+
+    const before = composer.value.slice(0, start);
+    const after = composer.value.slice(end);
+
+    const prefix = before && !/\s$/.test(before) ? " " : "";
+    const insertion = prefix + text;
+
+    composer.value = before + insertion + after;
+
+    const cursorPosition = before.length + insertion.length;
+
+    composer.focus();
+    composer.setSelectionRange(cursorPosition, cursorPosition);
+}
+
+function setupSocialTagMentionButtons() {
+    const tagButton = document.getElementById("socialTagButton");
+    const mentionButton = document.getElementById("socialMentionButton");
+
+    if (tagButton && tagButton.dataset.handlerReady !== "true") {
+        tagButton.dataset.handlerReady = "true";
+
+        tagButton.addEventListener("click", function () {
+            const username = window.prompt(
+                "Enter the username to tag, without the @ symbol:"
+            );
+
+            if (!username) {
+                return;
+            }
+
+            const cleanUsername = username
+                .trim()
+                .replace(/^@+/, "")
+                .replace(/[^\w.-]/g, "");
+
+            if (!cleanUsername) {
+                return;
+            }
+
+            insertSocialComposerText("@" + cleanUsername);
+        });
+    }
+
+    if (mentionButton && mentionButton.dataset.handlerReady !== "true") {
+        mentionButton.dataset.handlerReady = "true";
+
+        mentionButton.addEventListener("click", function () {
+            insertSocialComposerText("@");
+        });
+    }
+}
+
+setupSocialTagMentionButtons();
 /* =========================================================
    START SOCIAL
 ========================================================= */
