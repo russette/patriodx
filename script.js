@@ -17552,18 +17552,23 @@ sidebar.querySelectorAll(".sidebar-link").forEach(link => {
 * The HTML for the Create sheet appears after script.js.
 * Initialize after the complete document has been parsed.
   */
-  function setupPATRIODXMobileActions() {
- if (document.readyState === "loading") {
-    document.addEventListener(
-        "DOMContentLoaded",
-        setupMobileCreateSheet,
-        { once: true }
-    );
-} else {
-    setupMobileCreateSheet();
+ function setupPATRIODXMobileActions() {
+const createButton = document.getElementById("mobileCreateButton");
+const moreButton = document.getElementById("mobileMoreButton");
+const sheet = document.getElementById("mobileCreateSheet");
+
+
+console.log("PATRIODX mobile controls:", {
+    createButton: !!createButton,
+    moreButton: !!moreButton,
+    createSheet: !!sheet
+});
+
+setupMobileCreateSheet();
+setupMobileMoreButton();
+
+
 }
-  setupMobileMoreButton();
-  }
 
 if (document.readyState === "loading") {
 document.addEventListener(
@@ -17574,6 +17579,7 @@ setupPATRIODXMobileActions,
 } else {
 setupPATRIODXMobileActions();
 }
+
 
 /* =========================================================
    PATRIODX IN-SITE TOAST NOTIFICATIONS
