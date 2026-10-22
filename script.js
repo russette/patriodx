@@ -5633,13 +5633,13 @@ async function startPATRIODX() {
     const authenticated =
         await loadUser();
 
-    if (!authenticated) return;
+       if (!authenticated) return;
 
-   await loadData();
-await loadMyProfile();
+    await loadData();
+    await loadMyProfile();
 
-// Load stories after restoring the signed-in user.
-await loadPATRIODXStories();
+    // Load stories after restoring the signed-in user.
+    await loadPATRIODXStories();
     setupNotifications();
     loadPlan();
 
@@ -9198,26 +9198,31 @@ function setupSocialTagMentionButtons() {
     if (tagButton && tagButton.dataset.handlerReady !== "true") {
         tagButton.dataset.handlerReady = "true";
 
-        tagButton.addEventListener("click", function () {
-            const username = window.prompt(
-                "Enter the username to tag, without the @ symbol:"
-            );
+        tagButton.addEventListener("click", async function () {
+    const username = await showPATRIODXInput(
+        "Tag Someone",
+        "Enter the person's PATRIODX username below. We'll add their @username to your post."
+    );
 
-            if (!username) {
-                return;
-            }
+    if (!username) {
+        return;
+    }
 
-            const cleanUsername = username
-                .trim()
-                .replace(/^@+/, "")
-                .replace(/[^\w.-]/g, "");
+    const cleanUsername = username
+        .trim()
+        .replace(/^@+/, "")
+        .replace(/[^\w.-]/g, "");
 
-            if (!cleanUsername) {
-                return;
-            }
+    if (!cleanUsername) {
+        showPATRIODXToast(
+            "Please enter a valid username.",
+            "warning"
+        );
+        return;
+    }
 
-            insertSocialComposerText("@" + cleanUsername);
-        });
+    insertSocialComposerText("@" + cleanUsername);
+});
     }
 
     if (mentionButton && mentionButton.dataset.handlerReady !== "true") {
