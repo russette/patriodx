@@ -17481,12 +17481,24 @@ sheet.addEventListener("click", event => {
 
 document.getElementById("mobileCreatePost")?.addEventListener("click", () => {
     closeMobileCreateSheet();
+
     if (typeof navigatePATRIODX === "function") {
         navigatePATRIODX("social");
     }
-    document.getElementById("homePostContent")?.focus();
-});
 
+    setTimeout(() => {
+        const composer = document.getElementById("socialPostContent");
+
+        if (composer) {
+            composer.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+
+            composer.focus({ preventScroll: true });
+        }
+    }, 200);
+});
 document.getElementById("mobileCreateStory")?.addEventListener("click", () => {
     closeMobileCreateSheet();
     if (typeof openAddStoryModal === "function") {
