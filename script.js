@@ -18488,7 +18488,7 @@ document.addEventListener("click", function (event) {
     sheet.style.setProperty("display", "flex", "important");
     sheet.style.setProperty("position", "fixed", "important");
     sheet.style.setProperty("inset", "0", "important");
-    sheet.style.setProperty("z-index", "20000", "important");
+    sheet.style.setProperty("z-index", "1000001", "important");
 
     document.body.classList.add("mobile-create-open");
 

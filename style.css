@@ -17471,3 +17471,8 @@ body.mobile-sidebar-open::after {
 transition: none !important;
 }
 }
+
+/* PATRIODX FIX: Keep the mobile Create menu above bottom navigation */
+.mobile-action-overlay {
+    z-index: 1000001 !important;
+}
