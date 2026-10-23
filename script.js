@@ -9010,136 +9010,115 @@ if (postError) {
 ========================================================= */
 
 async function deleteSocialPost(postId) {
+    if (!currentUser) {
+        showPATRIODXToast(
+            "Please sign in to delete a post.",
+            "warning"
+        );
+        return;
+    }
 
-    if (!currentUser) return;
+    if (typeof showPATRIODXConfirm !== "function") {
+        showPATRIODXToast(
+            "The confirmation dialog is unavailable.",
+            "error"
+        );
+        return;
+    }
 
-
-    const confirmed =
-        await showPATRIODXConfirm(
+    try {
+        const confirmed = await showPATRIODXConfirm(
             "Delete Post",
             "Delete this post? This cannot be undone."
         );
 
-    if (!confirmed) return;
+        if (!confirmed) return;
 
+        const { data: post, error: postError } =
+            await supabaseClient
+                .from("posts")
+                .select("id,user_id,image_url,video_url")
+                .eq("id", postId)
+                .maybeSingle();
 
-    const { data: post, error: postError } =
-        await supabaseClient
-            .from("posts")
-            .select(
-                "id,user_id,image_url,video_url"
-            )
-            .eq(
-                "id",
-                postId
-            )
-            .single();
+        if (postError) throw postError;
 
-
- if (postError) {
-
-    showPATRIODXToast(
-        "Could not find this post.",
-        "error"
-    );
-
-    return;
-}
-    if (
-        post.user_id !==
-        currentUser.id
-    ) {
-
-      showPATRIODXToast(
-    "You can only delete your own posts.",
-    "warning"
-);
-
-        return;
-    }
-
-
-    const { error } =
-        await supabaseClient
-            .from("posts")
-            .delete()
-            .eq(
-                "id",
-                postId
-            )
-            .eq(
-                "user_id",
-                currentUser.id
+        if (!post) {
+            showPATRIODXToast(
+                "This post could not be found.",
+                "error"
             );
+            return;
+        }
 
+        if (post.user_id !== currentUser.id) {
+            showPATRIODXToast(
+                "You can only delete your own posts.",
+                "warning"
+            );
+            return;
+        }
 
-    if (error) {
+        const { data: deletedPosts, error: deleteError } =
+            await supabaseClient
+                .from("posts")
+                .delete()
+                .eq("id", postId)
+                .eq("user_id", currentUser.id)
+                .select("id");
 
-        console.error(
-            "Delete post error:",
-            error
-        );
+        if (deleteError) throw deleteError;
 
-      showPATRIODXToast(
-    "Could not delete post. " +
-    error.message,
-    "error"
-);
-        return;
-    }
+        if (!deletedPosts || deletedPosts.length === 0) {
+            showPATRIODXToast(
+                "The post was not deleted. Check your permissions and try again.",
+                "error"
+            );
+            return;
+        }
 
-
-    /*
-       Remove the media file from storage.
-       The post is already deleted even if
-       storage cleanup fails.
-    */
-
-    try {
-
-        const mediaUrl =
-            post.image_url ||
-            post.video_url;
-
+        // Remove the associated media file when possible.
+        const mediaUrl = post.image_url || post.video_url;
 
         if (mediaUrl) {
-
-            const marker =
-                "/patriodx-media/";
-
-            const index =
-                mediaUrl.indexOf(marker);
-
+            const marker = "/patriodx-media/";
+            const index = mediaUrl.indexOf(marker);
 
             if (index !== -1) {
+                const filePath = mediaUrl.substring(
+                    index + marker.length
+                );
 
-                const filePath =
-                    mediaUrl
-                        .substring(
-                            index +
-                            marker.length
-                        );
+                const { error: storageError } =
+                    await supabaseClient
+                        .storage
+                        .from("patriodx-media")
+                        .remove([filePath]);
 
-
-                await supabaseClient
-                    .storage
-                    .from("patriodx-media")
-                    .remove([
-                        filePath
-                    ]);
+                if (storageError) {
+                    console.warn(
+                        "Post deleted, but media cleanup failed:",
+                        storageError
+                    );
+                }
             }
         }
 
-    } catch (storageError) {
+        await loadSocialPosts();
 
-        console.warn(
-            "Media cleanup failed:",
-            storageError
+        showPATRIODXToast(
+            "Your post was deleted successfully.",
+            "success"
+        );
+
+    } catch (error) {
+        console.error("Delete post error:", error);
+
+        showPATRIODXToast(
+            error.message || "Could not delete the post. Please try again.",
+            "error"
         );
     }
-
-
-    await loadSocialPosts();
 }
 
 
