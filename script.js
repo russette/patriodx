@@ -63,7 +63,75 @@ function safe(value) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
+function renderClickableMentions(content) {
+    return safe(content).replace(
+        /(^|[\s(])@([A-Za-z0-9_.-]{2,30})\b/g,
+        function (match, prefix, username) {
+            return prefix +
+                `<a href="#" class="patriodx-mention-link"
+                    data-mention-username="${username}"
+                    style="color:var(--primary-color, #6366f1);
+                           font-weight:600;
+                           text-decoration:none;">
+                    @${username}</a>`;
+        }
+    );
+}
+document.addEventListener("click", async function (event) {
+    const mention = event.target.closest(".patriodx-mention-link");
 
+    if (!mention) {
+        return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const username = mention.dataset.mentionUsername;
+
+    if (!username) {
+        return;
+    }
+
+    try {
+        const { data: profile, error } = await supabaseClient
+            .from("profiles")
+            .select("id")
+            .ilike("username", username)
+            .maybeSingle();
+
+        if (error) {
+            throw error;
+        }
+
+        if (!profile) {
+            showPATRIODXToast(
+                "This user could not be found.",
+                "info"
+            );
+            return;
+        }
+
+        await loadPublicProfile(profile.id);
+
+        const profileCard =
+            document.getElementById("publicProfileCard");
+
+        if (profileCard) {
+            profileCard.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    } catch (error) {
+        console.error("Could not open tagged profile:", error);
+
+        showPATRIODXToast(
+            "Could not open this profile. Please try again.",
+            "error"
+        );
+    }
+});
 function todayString() {
     return new Date().toISOString().split("T")[0];
 }
@@ -7898,9 +7966,9 @@ const author =
                         ${
                             post.content
                                 ? `
-                                    <div class="social-post-content">
-                                        ${safe(post.content)}
-                                    </div>
+                                   <div class="social-post-content">
+    ${renderClickableMentions(post.content)}
+</div>
                                 `
                                 : ""
                         }
@@ -9820,9 +9888,11 @@ async function loadHomePosts() {
                     ${
                         post.content
                             ? `
-                                <div class="social-post-content">
-                                    ${safe(post.content)}
-                                </div>
+<div class="social-post-content">
+    ${renderClickableMentions(post.content)}
+</div>
+
+
                             `
                             : ""
                     }
