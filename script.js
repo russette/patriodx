@@ -7920,47 +7920,106 @@ const author =
 
                             </div>
 
-
                             <div class="social-post-menu-actions">
 
-                                ${
-                                    !isOwnPost
-                                        ? `
-                                            <button
-                                                type="button"
-                                                class="social-post-icon-button"
-                                                onclick="reportSocialPost('${post.id}')"
-                                                title="Report post"
-                                                aria-label="Report post"
-                                            >
-                                                <i data-lucide="flag"></i>
-                                            </button>
-                                        `
-                                        : ""
-                                }
+                                <button
+                                    type="button"
+                                    class="social-post-icon-button social-post-menu-toggle"
+                                    onclick="toggleSocialPostMenu('${post.id}', event)"
+                                    title="Post options"
+                                    aria-label="Post options"
+                                    aria-expanded="false"
+                                    aria-controls="social-post-menu-${post.id}"
+                                >
+                                    <i data-lucide="more-horizontal"></i>
+                                </button>
 
+                                <div
+                                    class="social-post-dropdown"
+                                    id="social-post-menu-${post.id}"
+                                    hidden
+                                >
+                                    <button
+                                        type="button"
+                                        class="social-post-menu-item"
+                                        onclick="saveSocialPost('${post.id}')"
+                                    >
+                                        <i data-lucide="bookmark"></i>
+                                        <span>Save post</span>
+                                    </button>
 
-                                ${
-                                    isOwnPost
-                                        ? `
-                                            <button
-                                                type="button"
-                                                class="social-post-icon-button"
-                                                onclick="deleteSocialPost('${post.id}')"
-                                                title="Delete post"
-                                                aria-label="Delete post"
-                                            >
-                                                <i data-lucide="trash-2"></i>
-                                            </button>
-                                        `
-                                        : ""
-                                }
+                                    ${
+                                        isOwnPost
+                                            ? `
+                                                <button
+                                                    type="button"
+                                                    class="social-post-menu-item"
+                                                    onclick="toggleSocialPostSetting('${post.id}', 'hide_like_count', ${!post.hide_like_count})"
+                                                >
+                                                    <i data-lucide="heart"></i>
+                                                    <span>${post.hide_like_count ? "Show like count" : "Hide like count"}</span>
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    class="social-post-menu-item"
+                                                    onclick="toggleSocialPostSetting('${post.id}', 'hide_share_count', ${!post.hide_share_count})"
+                                                >
+                                                    <i data-lucide="share-2"></i>
+                                                    <span>${post.hide_share_count ? "Show share count" : "Hide share count"}</span>
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    class="social-post-menu-item"
+                                                    onclick="toggleSocialPostSetting('${post.id}', 'comments_enabled', ${post.comments_enabled === false})"
+                                                >
+                                                    <i data-lucide="message-circle"></i>
+                                                    <span>${post.comments_enabled === false ? "Turn on commenting" : "Turn off commenting"}</span>
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    class="social-post-menu-item"
+                                                    onclick="editSocialPost('${post.id}')"
+                                                    ${Date.now() - new Date(post.created_at).getTime() > 15 * 60 * 1000 ? "disabled" : ""}
+                                                >
+                                                    <i data-lucide="pencil"></i>
+                                                    <span>Edit post</span>
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    class="social-post-menu-item"
+                                                    onclick="toggleSocialPostSetting('${post.id}', 'is_pinned', ${!post.is_pinned})"
+                                                >
+                                                    <i data-lucide="pin"></i>
+                                                    <span>${post.is_pinned ? "Unpin from profile" : "Pin to profile"}</span>
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    class="social-post-menu-item social-post-delete-item"
+                                                    onclick="deleteSocialPost('${post.id}')"
+                                                >
+                                                    <i data-lucide="trash-2"></i>
+                                                    <span>Delete post</span>
+                                                </button>
+                                            `
+                                            : `
+                                                <button
+                                                    type="button"
+                                                    class="social-post-menu-item"
+                                                    onclick="reportSocialPost('${post.id}')"
+                                                >
+                                                    <i data-lucide="flag"></i>
+                                                    <span>Report post</span>
+                                                </button>
+                                            `
+                                    }
+                                </div>
 
                             </div>
-
-                        </div>
-
-
                         <!-- POST CONTENT -->
 
                         ${
@@ -9683,6 +9742,321 @@ if (socialFeed) {
     loadSocialPosts();
 }
 
+/* =========================================================
+PATRIODX THREE-DOT POST MENU
+========================================================= */
+
+function toggleSocialPostMenu(postId, event) {
+if (event) {
+event.preventDefault();
+event.stopPropagation();
+}
+
+
+const menu = document.getElementById(
+    `social-post-menu-${postId}`
+);
+
+if (!menu) return;
+
+const willOpen = menu.hidden;
+
+document.querySelectorAll(".social-post-dropdown").forEach(item => {
+    item.hidden = true;
+});
+
+document.querySelectorAll(".social-post-menu-toggle").forEach(button => {
+    button.setAttribute("aria-expanded", "false");
+});
+
+if (willOpen) {
+    menu.hidden = false;
+
+    const toggle = menu.parentElement?.querySelector(
+        ".social-post-menu-toggle"
+    );
+
+    toggle?.setAttribute("aria-expanded", "true");
+}
+
+}
+
+document.addEventListener("click", function(event) {
+if (event.target.closest(".social-post-menu-actions")) return;
+
+document.querySelectorAll(".social-post-dropdown").forEach(menu => {
+    menu.hidden = true;
+});
+
+document.querySelectorAll(".social-post-menu-toggle").forEach(button => {
+    button.setAttribute("aria-expanded", "false");
+});
+
+
+});
+
+/* Save or unsave a post privately for the current user. */
+async function saveSocialPost(postId) {
+if (!currentUser) {
+showPATRIODXToast("Please sign in to save posts.", "warning");
+return;
+}
+
+
+try {
+    const { data: existing, error: lookupError } =
+        await supabaseClient
+            .from("saved_posts")
+            .select("id")
+            .eq("user_id", currentUser.id)
+            .eq("post_id", postId)
+            .maybeSingle();
+
+    if (lookupError) throw lookupError;
+
+    if (existing) {
+        const { error } = await supabaseClient
+            .from("saved_posts")
+            .delete()
+            .eq("id", existing.id)
+            .eq("user_id", currentUser.id);
+
+        if (error) throw error;
+
+        showPATRIODXToast("Post removed from your saved posts.", "success");
+    } else {
+        const { error } = await supabaseClient
+            .from("saved_posts")
+            .insert({
+                user_id: currentUser.id,
+                post_id: postId
+            });
+
+        if (error) throw error;
+
+        showPATRIODXToast("Post saved privately.", "success");
+    }
+
+    document.querySelectorAll(".social-post-dropdown").forEach(menu => {
+        menu.hidden = true;
+    });
+} catch (error) {
+    console.error("Save post error:", error);
+
+    showPATRIODXToast(
+        error.message || "Could not save this post.",
+        "error"
+    );
+}
+
+
+}
+
+/* Update one of the supported settings on a post owned by the user. */
+async function toggleSocialPostSetting(postId, setting, value) {
+const allowedSettings = [
+"hide_like_count",
+"hide_share_count",
+"comments_enabled",
+"is_pinned"
+];
+
+if (!currentUser) {
+    showPATRIODXToast("Please sign in first.", "warning");
+    return;
+}
+
+if (!allowedSettings.includes(setting)) {
+    showPATRIODXToast("Invalid post setting.", "error");
+    return;
+}
+
+try {
+    const { data: post, error: lookupError } = await supabaseClient
+        .from("posts")
+        .select("id, user_id")
+        .eq("id", postId)
+        .maybeSingle();
+
+    if (lookupError) throw lookupError;
+
+    if (!post || post.user_id !== currentUser.id) {
+        showPATRIODXToast(
+            "You can only change settings on your own posts.",
+            "warning"
+        );
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("posts")
+        .update({ [setting]: Boolean(value) })
+        .eq("id", postId)
+        .eq("user_id", currentUser.id);
+
+    if (error) throw error;
+
+    document.querySelectorAll(".social-post-dropdown").forEach(menu => {
+        menu.hidden = true;
+    });
+
+    showPATRIODXToast("Post setting updated.", "success");
+
+    await loadSocialPosts();
+
+    if (typeof loadHomePosts === "function") {
+        await loadHomePosts();
+    }
+} catch (error) {
+    console.error("Update post setting error:", error);
+
+    showPATRIODXToast(
+        error.message || "Could not update this post setting.",
+        "error"
+    );
+}
+
+
+}
+
+/* Edit a post using an in-app modal; the database trigger enforces 15 minutes. */
+async function editSocialPost(postId) {
+if (!currentUser) {
+showPATRIODXToast("Please sign in first.", "warning");
+return;
+}
+
+
+try {
+    const { data: post, error } = await supabaseClient
+        .from("posts")
+        .select("id, user_id, content, created_at")
+        .eq("id", postId)
+        .maybeSingle();
+
+    if (error) throw error;
+
+    if (!post || post.user_id !== currentUser.id) {
+        showPATRIODXToast("You can only edit your own posts.", "warning");
+        return;
+    }
+
+    const age = Date.now() - new Date(post.created_at).getTime();
+
+    if (!Number.isFinite(age) || age > 15 * 60 * 1000) {
+        showPATRIODXToast(
+            "Posts can only be edited within 15 minutes of creation.",
+            "warning"
+        );
+        await loadSocialPosts();
+        return;
+    }
+
+    const overlay = document.createElement("div");
+    overlay.className = "patriodx-confirm-overlay";
+
+    overlay.innerHTML = `
+        <div class="patriodx-confirm-modal social-post-edit-modal"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="socialPostEditTitle">
+            <h3 id="socialPostEditTitle">Edit post</h3>
+            <p>Update the text of your post.</p>
+
+            <textarea
+                class="patriodx-input social-post-edit-textarea"
+                aria-label="Post text"
+                maxlength="5000"
+                rows="7"
+            ></textarea>
+
+            <div class="patriodx-confirm-actions">
+                <button type="button"
+                        class="secondary-btn"
+                        data-edit-cancel>
+                    Cancel
+                </button>
+                <button type="button"
+                        class="primary-btn"
+                        data-edit-save>
+                    Save changes
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const textarea = overlay.querySelector("textarea");
+    const cancelButton = overlay.querySelector("[data-edit-cancel]");
+    const saveButton = overlay.querySelector("[data-edit-save]");
+
+    textarea.value = post.content || "";
+    textarea.focus();
+
+    cancelButton.addEventListener("click", () => overlay.remove());
+
+    overlay.addEventListener("click", event => {
+        if (event.target === overlay) overlay.remove();
+    });
+
+    saveButton.addEventListener("click", async () => {
+        const content = textarea.value.trim();
+
+        if (!content) {
+            showPATRIODXToast("Post text cannot be empty.", "warning");
+            textarea.focus();
+            return;
+        }
+
+        saveButton.disabled = true;
+        saveButton.textContent = "Saving...";
+
+        try {
+            const { error: updateError } = await supabaseClient
+                .from("posts")
+                .update({
+                    content,
+                    updated_at: new Date().toISOString()
+                })
+                .eq("id", postId)
+                .eq("user_id", currentUser.id);
+
+            if (updateError) throw updateError;
+
+            overlay.remove();
+
+            showPATRIODXToast("Post updated successfully.", "success");
+
+            await loadSocialPosts();
+
+            if (typeof loadHomePosts === "function") {
+                await loadHomePosts();
+            }
+        } catch (updateError) {
+            console.error("Edit post error:", updateError);
+
+            showPATRIODXToast(
+                updateError.message ||
+                    "Could not edit this post.",
+                "error"
+            );
+
+            saveButton.disabled = false;
+            saveButton.textContent = "Save changes";
+        }
+    });
+} catch (error) {
+    console.error("Load post for editing error:", error);
+
+    showPATRIODXToast(
+        error.message || "Could not open the post editor.",
+        "error"
+    );
+}
+
+
+}
 
 /* =========================================================
    GLOBAL FUNCTIONS
@@ -9708,6 +10082,10 @@ window.deleteSocialPost =
 
 window.reportSocialPost =
     reportSocialPost;
+    window.toggleSocialPostMenu = toggleSocialPostMenu;
+window.saveSocialPost = saveSocialPost;
+window.toggleSocialPostSetting = toggleSocialPostSetting;
+window.editSocialPost = editSocialPost;
 /* =========================================================
    PATRIODX VERIFICATION BADGES
 ========================================================= */
