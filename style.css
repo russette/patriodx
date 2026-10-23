@@ -17879,115 +17879,113 @@ color: #b91c1c !important;
     }
 }
 /* ==========================================
-   PATRIODX — MOBILE SOCIAL FEED REPAIR
-   ========================================== */
+PATRIODX — MOBILE SOCIAL FEED REPAIR
+========================================== */
 
 @media screen and (max-width: 600px) {
 
-    /* Keep every post within the phone screen */
-    .social-post-card {
-        width: 100% !important;
-        min-width: 0 !important;
-        height: auto !important;
-        min-height: 0 !important;
-        box-sizing: border-box !important;
-    }
+.social-post-card {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+}
 
-    /* Keep Like, Comment and Share in one row */
-    .social-post-actions-bar {
-        display: grid !important;
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        align-items: stretch !important;
-        width: 100% !important;
-        gap: 0 !important;
-        height: auto !important;
-        min-height: 48px !important;
-    }
+/* Like, Comment and Share */
+.social-post-actions-bar {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 0 !important;
+    height: auto !important;
+    min-height: 46px !important;
+}
 
-    /* Stop action labels breaking into individual letters */
-    .social-post-actions-bar .social-action-button {
-        display: inline-flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 5px !important;
+.social-post-actions-bar .social-action-button {
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
 
-        width: 100% !important;
-        min-width: 0 !important;
-        min-height: 48px !important;
-        height: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 46px !important;
+    height: auto !important;
 
-        padding: 8px 2px !important;
-        margin: 0 !important;
+    padding: 6px 2px !important;
+    margin: 0 !important;
 
-        font-size: 12px !important;
-        line-height: 1.2 !important;
-        white-space: nowrap !important;
-        word-break: normal !important;
-        overflow-wrap: normal !important;
-    }
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+}
 
-    .social-post-actions-bar .social-action-button span {
-        display: inline !important;
-        min-width: 0 !important;
-        white-space: nowrap !important;
-        word-break: normal !important;
-        overflow-wrap: normal !important;
-    }
+.social-post-actions-bar .social-action-button span {
+    display: inline-block !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+}
 
-    .social-post-actions-bar .social-action-button svg {
-        display: block !important;
-        flex: 0 0 17px !important;
-        width: 17px !important;
-        height: 17px !important;
-    }
+.social-post-actions-bar .social-action-button svg {
+    display: block !important;
+    flex: 0 0 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+}
 
-    /* Keep post media responsive */
-    .social-post-card img,
-    .social-post-card video {
-        max-width: 100%;
-    }
+.social-post-card img,
+.social-post-card video {
+    max-width: 100%;
+}
 
-    .social-post-card .social-post-image,
-    .social-post-card .social-post-video {
-        display: block !important;
-        width: 100% !important;
-        height: auto !important;
-        max-height: 520px !important;
-        object-fit: contain !important;
-    }
+.social-post-card .social-post-image,
+.social-post-card .social-post-video {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: 520px !important;
+    object-fit: contain !important;
+}
 
-    /* Keep the three-dot button properly aligned */
-    .social-post-header {
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-        min-width: 0 !important;
-    }
+.social-post-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+}
 
-    .social-post-author-area {
-        flex: 1 1 auto !important;
-        min-width: 0 !important;
-    }
+.social-post-author-area {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
 
-    .social-post-menu-actions {
-        flex: 0 0 42px !important;
-        width: 42px !important;
-        min-width: 42px !important;
-        margin-left: auto !important;
-    }
+.social-post-menu-actions {
+    flex: 0 0 42px !important;
+    width: 42px !important;
+    min-width: 42px !important;
+    margin-left: auto !important;
+}
 
-    /* Keep dropdown options readable */
-    .social-post-dropdown {
-        position: fixed !important;
-        top: auto !important;
-        right: 12px !important;
-        bottom: 12px !important;
-        width: min(280px, calc(100vw - 24px)) !important;
-        max-width: calc(100vw - 24px) !important;
-        max-height: 70vh !important;
-        overflow-y: auto !important;
-        z-index: 99999 !important;
-    }
+.social-post-dropdown {
+    position: fixed !important;
+    top: auto !important;
+    right: 12px !important;
+    bottom: 12px !important;
+    width: min(280px, calc(100vw - 24px)) !important;
+    max-width: calc(100vw - 24px) !important;
+    max-height: 70vh !important;
+    overflow-y: auto !important;
+    z-index: 99999 !important;
+}
+
+
 }
