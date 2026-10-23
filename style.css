@@ -17476,3 +17476,25 @@ transition: none !important;
 .mobile-action-overlay {
     z-index: 1000001 !important;
 }
+
+/* PATRIODX: Make the Delete post button visible */
+.social-post-menu-actions button[aria-label="Delete post"] {
+    color: #ef4444 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-post-menu-actions button[aria-label="Delete post"] svg {
+    width: 20px;
+    height: 20px;
+    stroke: #ef4444 !important;
+    opacity: 1 !important;
+}
+
+.social-post-menu-actions button[aria-label="Delete post"]:hover {
+    background: rgba(239, 68, 68, 0.12) !important;
+    color: #dc2626 !important;
+}
