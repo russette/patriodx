@@ -8206,6 +8206,7 @@ if (currentUser && typeof updateSocialLikeButton === "function") {
 setupSocialFeedTabs();
 
 }
+
 /* =========================================================
    CREATE POST
 ========================================================= */
@@ -8219,45 +8220,32 @@ if (socialPostForm) {
             event.preventDefault();
 
             if (!currentUser) {
-
                 showPATRIODXToast(
                     "Please log in before creating a post.",
                     "warning"
                 );
-
                 return;
             }
 
             const content =
                 document
-                    .getElementById(
-                        "socialPostContent"
-                    )
+                    .getElementById("socialPostContent")
                     .value
                     .trim();
 
-            if (
-                !content &&
-                !selectedSocialFile
-            ) {
-
+            if (!content && !selectedSocialFile) {
                 showPATRIODXToast(
                     "Please write something or select a photo/video.",
                     "warning"
                 );
-
                 return;
             }
 
             const button =
-                document.getElementById(
-                    "socialPostButton"
-                );
+                document.getElementById("socialPostButton");
 
             button.disabled = true;
-
-            button.textContent =
-                "Uploading...";
+            button.textContent = "Uploading...";
 
             try {
 
@@ -8275,54 +8263,115 @@ if (socialPostForm) {
                         selectedSocialFile.type
                             .startsWith("image/")
                     ) {
-
-                        imageUrl =
-                            uploadedUrl;
-
+                        imageUrl = uploadedUrl;
                     } else {
-
-                        videoUrl =
-                            uploadedUrl;
+                        videoUrl = uploadedUrl;
                     }
                 }
 
-                const { error } =
+                // Create the post and retrieve its ID.
+                const { data: newPost, error } =
                     await supabaseClient
                         .from("posts")
                         .insert({
-
-                            user_id:
-                                currentUser.id,
+                            user_id: currentUser.id,
 
                             business_id:
-                                currentBusiness?.id ||
-                                null,
+                                currentBusiness?.id || null,
 
-                            content:
-                                content || null,
+                            content: content || null,
 
-                            image_url:
-                                imageUrl,
+                            image_url: imageUrl,
 
-                            video_url:
-                                videoUrl
-
-                        });
+                            video_url: videoUrl
+                        })
+                        .select("id")
+                        .single();
 
                 if (error) {
                     throw error;
                 }
 
+                // Notify users tagged in the post.
+                if (content && newPost?.id) {
+
+                    try {
+
+                        const usernames = [
+                            ...new Set(
+                                Array.from(
+                                    content.matchAll(
+                                        /(^|[\s(])@([A-Za-z0-9_.-]{2,30})\b/g
+                                    ).map(match => match[2])
+                                )
+                            )];
+
+                        if (usernames.length > 0) {
+
+                            const { data: taggedProfiles, error: profileError } =
+                                await supabaseClient
+                                    .from("profiles")
+                                    .select("id, username")
+                                    .in("username", usernames);
+
+                            if (profileError) {
+                                throw profileError;
+                            }
+
+                            const notifications = (
+                                taggedProfiles || []
+                            )
+                                .filter(profile =>
+                                    profile.id !== currentUser.id
+                                )
+                                .map(profile => ({
+                                    user_id: profile.id,
+                                    type: "tag",
+                                    title: "You were tagged",
+                                    message:
+                                        `${currentUser.username || "Someone"} tagged you in a post.`,
+                                    related_id: newPost.id,
+                                    is_read: false
+                                }));
+
+                            if (notifications.length > 0) {
+
+                                const { error: notificationError } =
+                                    await supabaseClient
+                                        .from("notifications")
+                                        .insert(notifications);
+
+                                if (notificationError) {
+                                    console.error(
+                                        "Could not create tag notifications:",
+                                        notificationError
+                                    );
+
+                                    showPATRIODXToast(
+                                        "Your post was published, but some tag notifications could not be sent.",
+                                        "warning"
+                                    );
+                                }
+                            }
+                        }
+
+                    } catch (notificationError) {
+
+                        // A notification failure must not undo a published post.
+                        console.error(
+                            "Tag notification error:",
+                            notificationError
+                        );
+                    }
+                }
+
                 document
-                    .getElementById(
-                        "socialPostContent"
-                    )
+                    .getElementById("socialPostContent")
                     .value = "";
 
                 clearSocialMedia();
 
-                button.disabled =
-                    false;
+                button.disabled = false;
 
                 button.innerHTML =
                     '<i data-lucide="megaphone"></i> Post';
@@ -8332,6 +8381,11 @@ if (socialPostForm) {
                 }
 
                 await loadSocialPosts();
+
+                showPATRIODXToast(
+                    "Your post was published successfully!",
+                    "success"
+                );
 
             } catch (error) {
 
@@ -8346,8 +8400,7 @@ if (socialPostForm) {
                     "error"
                 );
 
-                button.disabled =
-                    false;
+                button.disabled = false;
 
                 button.innerHTML =
                     '<i data-lucide="megaphone"></i> Post';
@@ -8359,6 +8412,7 @@ if (socialPostForm) {
         }
     );
 }
+
 
 
 /* =========================================================
@@ -12996,8 +13050,9 @@ LIKE / COMMENT — OPEN THE POST IN THE EXISTING VIEWER
 ----------------------------------------------------- */
 
 if (
-type === "like" ||
-type === "comment"
+    type === "like" ||
+    type === "comment" ||
+    type === "tag"
 ) {
 const postId = notification.related_id;
 
