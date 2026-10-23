@@ -9745,44 +9745,52 @@ if (socialFeed) {
 /* =========================================================
 PATRIODX THREE-DOT POST MENU
 ========================================================= */
-
 function toggleSocialPostMenu(postId, event) {
-if (event) {
-event.preventDefault();
-event.stopPropagation();
-}
-
+event?.preventDefault();
+event?.stopPropagation();
 
 const menu = document.getElementById(
     `social-post-menu-${postId}`
 );
 
-if (!menu) return;
+if (!menu) {
+    console.error("PATRIODX: Post menu not found:", postId);
+    return;
+}
 
-const willOpen = menu.hidden;
+const shouldOpen = menu.hidden;
 
+// Close all other post menus.
 document.querySelectorAll(".social-post-dropdown").forEach(item => {
     item.hidden = true;
 });
 
+// Reset every three-dot button.
 document.querySelectorAll(".social-post-menu-toggle").forEach(button => {
     button.setAttribute("aria-expanded", "false");
 });
 
-if (willOpen) {
+// Open the selected menu.
+if (shouldOpen) {
     menu.hidden = false;
 
-    const toggle = menu.parentElement?.querySelector(
-        ".social-post-menu-toggle"
-    );
-
-    toggle?.setAttribute("aria-expanded", "true");
+    menu.parentElement
+        ?.querySelector(".social-post-menu-toggle")
+        ?.setAttribute("aria-expanded", "true");
 }
 
+
 }
 
+// Make the function accessible to inline onclick handlers.
+window.toggleSocialPostMenu = toggleSocialPostMenu;
+
+// Close menus when clicking outside them.
 document.addEventListener("click", function(event) {
-if (event.target.closest(".social-post-menu-actions")) return;
+if (event.target.closest(".social-post-menu-actions")) {
+return;
+}
+
 
 document.querySelectorAll(".social-post-dropdown").forEach(menu => {
     menu.hidden = true;
@@ -9794,6 +9802,7 @@ document.querySelectorAll(".social-post-menu-toggle").forEach(button => {
 
 
 });
+
 
 /* Save or unsave a post privately for the current user. */
 async function saveSocialPost(postId) {
