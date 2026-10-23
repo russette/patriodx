@@ -9190,7 +9190,359 @@ function insertSocialComposerText(text) {
     composer.focus();
     composer.setSelectionRange(cursorPosition, cursorPosition);
 }
+/* =========================================================
+   PATRIODX SOCIAL USER PICKER — NO BROWSER POPUPS
+========================================================= */
 
+function showPATRIODXUserPicker() {
+    return new Promise(function (resolve) {
+        if (!currentUser) {
+            showPATRIODXToast(
+                "Please sign in to tag someone.",
+                "warning"
+            );
+            resolve(null);
+            return;
+        }
+
+        const overlay = document.createElement("div");
+
+        overlay.id = "patriodxUserPicker";
+        overlay.style.cssText = `
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(7px);
+            -webkit-backdrop-filter: blur(7px);
+        `;
+
+        overlay.innerHTML = `
+            <section style="
+                width: 100%;
+                max-width: 440px;
+                max-height: 82vh;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                background: var(--card-bg, #ffffff);
+                color: var(--text-color, #0f172a);
+                border: 1px solid var(--border-color, #e2e8f0);
+                border-radius: 22px;
+                box-shadow: 0 25px 80px rgba(0,0,0,.25);
+            ">
+                <header style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 12px;
+                    padding: 20px;
+                    border-bottom: 1px solid var(--border-color, #e2e8f0);
+                ">
+                    <div>
+                        <h2 style="font-size:20px;margin:0 0 4px;">
+                            Tag Someone
+                        </h2>
+                        <p style="
+                            margin:0;
+                            font-size:13px;
+                            color:var(--muted-text,#64748b);
+                        ">
+                            Find a PATRIODX account
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        data-picker-close
+                        aria-label="Close"
+                        style="
+                            width:40px;
+                            min-width:40px;
+                            height:40px;
+                            padding:0;
+                            border-radius:50%;
+                            background:var(--input-bg,#f1f5f9);
+                            color:var(--text-color,#0f172a);
+                            font-size:23px;
+                        "
+                    >×</button>
+                </header>
+
+                <div style="padding:18px 20px 10px;">
+                    <input
+                        type="search"
+                        data-picker-search
+                        placeholder="Search by name or @username..."
+                        autocomplete="off"
+                        style="
+                            width:100%;
+                            min-height:48px;
+                            padding:12px 15px;
+                            border:1px solid var(--border-color,#cbd5e1);
+                            border-radius:12px;
+                            background:var(--input-bg,#f8fafc);
+                            color:var(--text-color,#0f172a);
+                            font-size:15px;
+                            outline-offset:2px;
+                        "
+                    >
+                </div>
+
+                <div
+                    data-picker-results
+                    aria-live="polite"
+                    style="
+                        min-height:130px;
+                        overflow-y:auto;
+                        padding:8px 14px 18px;
+                    "
+                >
+                    <p style="
+                        padding:22px 8px;
+                        text-align:center;
+                        color:var(--muted-text,#64748b);
+                        font-size:14px;
+                    ">
+                        Type a name or username to find people.
+                    </p>
+                </div>
+            </section>
+        `;
+
+        document.body.appendChild(overlay);
+
+        const searchInput =
+            overlay.querySelector("[data-picker-search]");
+
+        const results =
+            overlay.querySelector("[data-picker-results]");
+
+        let finished = false;
+        let searchTimer;
+        let requestNumber = 0;
+
+        function closePicker(profile = null) {
+            if (finished) return;
+
+            finished = true;
+            clearTimeout(searchTimer);
+            document.removeEventListener("keydown", onKeyDown);
+            overlay.remove();
+            resolve(profile);
+        }
+
+        function onKeyDown(event) {
+            if (event.key === "Escape") {
+                closePicker();
+            }
+        }
+
+        function showMessage(message) {
+            results.replaceChildren();
+
+            const paragraph = document.createElement("p");
+
+            paragraph.textContent = message;
+            paragraph.style.cssText = `
+                padding:22px 8px;
+                text-align:center;
+                color:var(--muted-text,#64748b);
+                font-size:14px;
+            `;
+
+            results.appendChild(paragraph);
+        }
+
+        function addProfileRow(profile) {
+            const button = document.createElement("button");
+
+            button.type = "button";
+            button.style.cssText = `
+                display:flex;
+                align-items:center;
+                gap:12px;
+                width:100%;
+                min-height:68px;
+                padding:10px;
+                margin:0 0 5px;
+                text-align:left;
+                color:var(--text-color,#0f172a);
+                background:transparent;
+                border-radius:13px;
+                box-shadow:none;
+                transform:none;
+            `;
+
+            const avatar = document.createElement("img");
+
+            avatar.alt = "";
+            avatar.loading = "lazy";
+            avatar.style.cssText = `
+                width:46px;
+                height:46px;
+                flex:0 0 46px;
+                border-radius:50%;
+                object-fit:cover;
+                background:var(--input-bg,#e2e8f0);
+            `;
+
+            if (profile.avatar_url) {
+                avatar.src = profile.avatar_url;
+            } else {
+                avatar.style.display = "none";
+            }
+
+            avatar.addEventListener("error", function () {
+                avatar.style.display = "none";
+            });
+
+            const details = document.createElement("span");
+
+            details.style.cssText = `
+                display:flex;
+                flex-direction:column;
+                min-width:0;
+                flex:1;
+            `;
+
+            const displayName = document.createElement("strong");
+
+            displayName.textContent =
+                profile.display_name ||
+                profile.username ||
+                "PATRIODX User";
+
+            displayName.style.cssText = `
+                font-size:14px;
+                overflow-wrap:anywhere;
+            `;
+
+            const username = document.createElement("span");
+
+            username.textContent = profile.username
+                ? "@" + profile.username
+                : "PATRIODX member";
+
+            username.style.cssText = `
+                font-size:12px;
+                color:var(--muted-text,#64748b);
+                overflow-wrap:anywhere;
+            `;
+
+            const selectLabel = document.createElement("span");
+
+            selectLabel.textContent = "Select";
+            selectLabel.style.cssText = `
+                font-size:12px;
+                font-weight:700;
+                color:#2563eb;
+            `;
+
+            details.append(displayName, username);
+            button.append(avatar, details, selectLabel);
+
+            button.addEventListener("mouseenter", function () {
+                button.style.background =
+                    "var(--input-bg,#f1f5f9)";
+            });
+
+            button.addEventListener("mouseleave", function () {
+                button.style.background = "transparent";
+            });
+
+            button.addEventListener("click", function () {
+                closePicker(profile);
+            });
+
+            results.appendChild(button);
+        }
+
+        async function searchProfiles() {
+            const query = searchInput.value
+                .trim()
+                .replace(/^@+/, "")
+                .replace(/[%_,()]/g, "");
+
+            const thisRequest = ++requestNumber;
+
+            if (query.length < 2) {
+                showMessage(
+                    "Type at least 2 characters to search."
+                );
+                return;
+            }
+
+            showMessage("Searching PATRIODX accounts...");
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from("profiles")
+                    .select(
+                        "id, username, display_name, avatar_url"
+                    )
+                    .neq("id", currentUser.id)
+                    .or(
+                        "username.ilike.%" + query +
+                        "%,display_name.ilike.%" + query + "%"
+                    )
+                    .order("username", { ascending: true })
+                    .limit(10);
+
+                if (finished || thisRequest !== requestNumber) {
+                    return;
+                }
+
+                if (error) throw error;
+
+                results.replaceChildren();
+
+                if (!data || data.length === 0) {
+                    showMessage("No matching PATRIODX accounts found.");
+                    return;
+                }
+
+                data.forEach(addProfileRow);
+
+            } catch (error) {
+                console.error(
+                    "PATRIODX tag search failed:",
+                    error
+                );
+
+                if (thisRequest === requestNumber) {
+                    showMessage(
+                        "Couldn't load accounts. Please try again."
+                    );
+                }
+            }
+        }
+
+        searchInput.addEventListener("input", function () {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(searchProfiles, 250);
+        });
+
+        overlay.querySelector("[data-picker-close]")
+            .addEventListener("click", function () {
+                closePicker();
+            });
+
+        overlay.addEventListener("click", function (event) {
+            if (event.target === overlay) {
+                closePicker();
+            }
+        });
+
+        document.addEventListener("keydown", onKeyDown);
+
+        searchInput.focus();
+    });
+}
 function setupSocialTagMentionButtons() {
     const tagButton = document.getElementById("socialTagButton");
     const mentionButton = document.getElementById("socialMentionButton");
@@ -9198,31 +9550,16 @@ function setupSocialTagMentionButtons() {
     if (tagButton && tagButton.dataset.handlerReady !== "true") {
         tagButton.dataset.handlerReady = "true";
 
-        tagButton.addEventListener("click", async function () {
-    const username = await showPATRIODXInput(
-        "Tag Someone",
-        "Enter the person's PATRIODX username below. We'll add their @username to your post."
-    );
+  
+      tagButton.addEventListener("click", async function () {
+          const profile = await showPATRIODXUserPicker();
 
-    if (!username) {
-        return;
-    }
+          if (!profile || !profile.username) {
+              return;
+          }
 
-    const cleanUsername = username
-        .trim()
-        .replace(/^@+/, "")
-        .replace(/[^\w.-]/g, "");
-
-    if (!cleanUsername) {
-        showPATRIODXToast(
-            "Please enter a valid username.",
-            "warning"
-        );
-        return;
-    }
-
-    insertSocialComposerText("@" + cleanUsername);
-});
+          insertSocialComposerText("@" + profile.username);
+      });
     }
 
     if (mentionButton && mentionButton.dataset.handlerReady !== "true") {
@@ -9235,6 +9572,7 @@ function setupSocialTagMentionButtons() {
 }
 
 setupSocialTagMentionButtons();
+
 /* =========================================================
    START SOCIAL
 ========================================================= */
