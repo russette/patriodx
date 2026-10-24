@@ -1,0 +1,1 @@
+Get-Clipboard -Raw | Set-Content .\style-editor-recovery.css -NoNewline

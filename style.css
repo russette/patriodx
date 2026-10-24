@@ -18147,3 +18147,176 @@ stroke: currentColor !important;
 body.dark-mode .social-post-dropdown .social-post-menu-item span {
 color: inherit !important;
 }
+/* =========================================================
+   PATRIODX — INSTAGRAM-STYLE MOBILE MESSAGING
+========================================================= */
+
+.patriodx-chat-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.patriodx-chat-title .patriodx-verification-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.message-bubble {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+.message-bubble img,
+.message-bubble video {
+    max-width: 100%;
+    height: auto;
+}
+
+@media (max-width: 768px) {
+    #messaging {
+        padding: 0 !important;
+    }
+
+    #messaging > .section-heading {
+        padding: 16px 14px 8px;
+    }
+
+    #messaging .messaging-layout {
+        display: block !important;
+        position: relative;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    #messaging .conversations-card,
+    #messaging .chat-card {
+        width: 100%;
+        min-width: 0;
+        min-height: 0;
+        height: auto;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    #messaging .conversations-card {
+        display: block;
+        padding: 16px 12px;
+    }
+
+    #messaging .chat-card {
+        display: none;
+    }
+
+    #messaging.mobile-chat-open .conversations-card {
+        display: none;
+    }
+
+    #messaging.mobile-chat-open .chat-card {
+        display: flex;
+        height: calc(
+            100dvh - 130px - env(safe-area-inset-bottom)
+        );
+        min-height: 360px;
+        border-left: 0;
+        border-right: 0;
+    }
+
+    #messaging .conversation-list {
+        max-height: none;
+        overflow-y: visible;
+    }
+
+    #messaging .conversation-item {
+        min-height: 70px;
+        padding: 12px 8px;
+        border-radius: 12px;
+    }
+
+    #messaging .chat-header {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        flex-shrink: 0;
+        min-height: 64px;
+        padding: 10px 12px;
+    }
+
+    #messaging .message-list {
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: none;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 16px 12px;
+    }
+
+    #messaging .message-bubble {
+        max-width: 85%;
+        padding: 10px 13px;
+        font-size: 15px;
+        line-height: 1.45;
+    }
+
+    #messaging .message-form {
+        position: sticky;
+        bottom: 0;
+        z-index: 5;
+        flex-shrink: 0;
+        margin: 0;
+        padding: 9px 10px
+            calc(9px + env(safe-area-inset-bottom));
+        border-radius: 0;
+        background: var(--card-bg, #111827);
+    }
+
+    #messaging .message-form input {
+        min-width: 0;
+        font-size: 16px;
+    }
+
+    #messaging .message-form button {
+        min-height: 42px;
+    }
+
+    #messaging .chat-header-profile {
+        min-width: 0;
+    }
+
+    #messaging .chat-header-details {
+        min-width: 0;
+    }
+
+    #messaging .chat-header-details h3 {
+        overflow-wrap: anywhere;
+    }
+}
+.mobile-chat-back {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    #messaging .mobile-chat-back {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        margin-right: 8px;
+        border-radius: 50%;
+        background: transparent;
+        color: inherit;
+    }
+
+    #messaging .mobile-chat-back svg {
+        width: 22px;
+        height: 22px;
+    }
+}
