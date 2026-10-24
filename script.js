@@ -9861,6 +9861,189 @@ try {
 
 
 }
+/* =========================================================
+PATRIODX SAVED POSTS
+========================================================= */
+
+async function loadSavedPosts() {
+const container = document.getElementById("savedPostsList");
+if (!container) return;
+
+if (!currentUser) {
+    container.innerHTML = `
+        <div class="social-empty-state">
+            <h3>Please sign in</h3>
+            <p>Sign in to view your saved posts.</p>
+        </div>`;
+    return;
+}
+
+container.innerHTML = `
+    <div class="social-empty-state">
+        <h3>Loading saved posts...</h3>
+    </div>`;
+
+try {
+    const { data: savedItems, error: savedError } =
+        await supabaseClient
+            .from("saved_posts")
+            .select("post_id")
+            .eq("user_id", currentUser.id);
+
+    if (savedError) throw savedError;
+
+    if (!savedItems?.length) {
+        container.innerHTML = `
+            <div class="social-empty-state">
+                <h3>No saved posts yet</h3>
+                <p>Save a post from Social and it will appear here.</p>
+            </div>`;
+        return;
+    }
+
+    const postIds = [...new Set(savedItems.map(item => item.post_id))];
+
+    const { data: posts, error: postsError } =
+        await supabaseClient
+            .from("posts")
+            .select("*")
+            .in("id", postIds)
+            .order("created_at", { ascending: false });
+
+    if (postsError) throw postsError;
+
+    if (!posts?.length) {
+        container.innerHTML = `
+            <div class="social-empty-state">
+                <h3>No available saved posts</h3>
+                <p>The original posts may have been deleted.</p>
+            </div>`;
+        return;
+    }
+
+    const userIds = [...new Set(posts.map(post => post.user_id).filter(Boolean))];
+    let profiles = [];
+
+    if (userIds.length) {
+        const { data, error } = await supabaseClient
+            .from("profiles")
+            .select("id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at")
+            .in("id", userIds);
+
+        if (error) throw error;
+        profiles = data || [];
+    }
+
+    const profileMap = new Map(profiles.map(profile => [profile.id, profile]));
+
+    container.innerHTML = posts.map(post => {
+        const profile = profileMap.get(post.user_id);
+        const author = profile?.display_name || profile?.username || "PATRIODX User";
+
+        return `
+            <article class="social-post-card saved-post-card">
+                <div class="social-post-header">
+                    <div class="social-post-avatar">
+                        ${profile?.avatar_url
+                            ? `<img src="${safe(profile.avatar_url)}" alt="${safe(author)}" loading="lazy">`
+                            : `<span>${safe(author.charAt(0).toUpperCase())}</span>`}
+                    </div>
+
+                    <div class="social-post-author-area">
+                        <div class="social-post-author">
+                            ${safe(author)}
+                            ${typeof getPATRIODXBadge === "function"
+                                ? getPATRIODXBadge(profile)
+                                : ""}
+                        </div>
+                        <div class="social-post-date">${formatDate(post.created_at)}</div>
+                    </div>
+                </div>
+
+                ${post.content
+                    ? `<div class="social-post-content">${renderClickableMentions(post.content)}</div>`
+                    : ""}
+
+                ${post.image_url
+                    ? `<div class="social-media-wrapper">
+                           <img src="${safe(post.image_url)}" class="social-post-image" alt="Post image" loading="lazy">
+                       </div>`
+                    : ""}
+
+                ${post.video_url
+                    ? `<div class="social-media-wrapper">
+                           <video src="${safe(post.video_url)}" class="social-post-video" controls preload="metadata"></video>
+                       </div>`
+                    : ""}
+
+                <div class="saved-post-actions">
+                    <button type="button" class="secondary-btn" data-remove-saved-post="${safe(post.id)}">
+                        <i data-lucide="bookmark-minus"></i>
+                        Remove saved post
+                    </button>
+                </div>
+            </article>`;
+    }).join("");
+
+    if (typeof lucide !== "undefined") lucide.createIcons();
+
+} catch (error) {
+    console.error("Load saved posts error:", error);
+    container.innerHTML = `
+        <div class="social-empty-state">
+            <h3>Couldn't load saved posts</h3>
+            <p>Please try again.</p>
+        </div>`;
+    showPATRIODXToast("Could not load saved posts.", "error");
+}
+
+
+}
+
+window.loadSavedPosts = loadSavedPosts;
+
+/* Remove a saved post without deleting the original post. */
+async function removeSavedPost(postId, button) {
+if (!currentUser || !postId) return;
+
+
+if (button) {
+    button.disabled = true;
+    button.textContent = "Removing...";
+}
+
+try {
+    const { error } = await supabaseClient
+        .from("saved_posts")
+        .delete()
+        .eq("user_id", currentUser.id)
+        .eq("post_id", postId);
+
+    if (error) throw error;
+
+    showPATRIODXToast("Post removed from your saved posts.", "success");
+    await loadSavedPosts();
+
+} catch (error) {
+    console.error("Remove saved post error:", error);
+    showPATRIODXToast("Could not remove this saved post.", "error");
+    if (button) {
+        button.disabled = false;
+        button.textContent = "Remove saved post";
+    }
+}
+
+
+}
+
+document.getElementById("savedPostsList")?.addEventListener("click", event => {
+const button = event.target.closest("[data-remove-saved-post]");
+if (!button) return;
+
+removeSavedPost(button.dataset.removeSavedPost, button);
+
+
+});
 
 /* Update one of the supported settings on a post owned by the user. */
 async function toggleSocialPostSetting(postId, setting, value) {
@@ -16345,6 +16528,7 @@ const PATRIODX_PAGES = [
     "dashboard",
     "profile",
     "social",
+    "saved",
     "messaging",
     "notifications",
     "analytics",
@@ -16357,7 +16541,6 @@ const PATRIODX_PAGES = [
     "contact",
     "account"
 ];
-
 const PATRIODX_EXTRA_SECTIONS = [
     ".features-section",
     ".pricing-section",
@@ -16455,7 +16638,9 @@ function navigatePATRIODX(page) {
 
     patriodxShow(selected);
 
-
+if (page === "saved") {
+    loadSavedPosts();
+}
     /* =====================================================
        HOME
     ===================================================== */
