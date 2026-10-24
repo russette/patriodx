@@ -8017,11 +8017,12 @@ const author =
                                                 </button>
                                             `
                                     }
-                                </div>
+                                                               </div>
 
                             </div>
-                        <!-- POST CONTENT -->
 
+                        </div>
+                        <!-- POST CONTENT -->
                         ${
                             post.content
                                 ? `
