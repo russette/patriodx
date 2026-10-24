@@ -18119,3 +18119,31 @@ PATRIODX — MOBILE SOCIAL FEED REPAIR
         font-size: 12px !important;
     }
 }
+/* PATRIODX — Dark Mode for the Three-Dot Post Menu */
+body.dark-mode .social-post-dropdown {
+background: #1e293b !important;
+color: #f1f5f9 !important;
+border: 1px solid #334155 !important;
+box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4) !important;
+}
+
+body.dark-mode .social-post-dropdown .social-post-menu-item {
+background: transparent !important;
+color: #f1f5f9 !important;
+border-color: transparent !important;
+}
+
+body.dark-mode .social-post-dropdown .social-post-menu-item:hover {
+background: #334155 !important;
+color: #ffffff !important;
+}
+
+body.dark-mode .social-post-dropdown .social-post-menu-item i,
+body.dark-mode .social-post-dropdown .social-post-menu-item svg {
+color: #cbd5e1 !important;
+stroke: currentColor !important;
+}
+
+body.dark-mode .social-post-dropdown .social-post-menu-item span {
+color: inherit !important;
+}
