@@ -18764,3 +18764,86 @@ color: inherit !important;
     box-shadow: 0 0 0 2px
         color-mix(in srgb, var(--primary-color, #6366f1) 15%, transparent);
 }
+
+/* =========================================
+   PATRIODX PEOPLE SEARCH — LIGHT MODE
+========================================= */
+
+.messaging-people-search {
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #dbe2ea);
+    color: var(--text-color, #0f172a);
+    transition: background-color 0.2s ease,
+                border-color 0.2s ease,
+                color 0.2s ease;
+}
+
+.messaging-people-search input {
+    background: transparent;
+    color: var(--text-color, #0f172a);
+    caret-color: var(--primary-color, #2563eb);
+}
+
+.messaging-people-search input::placeholder {
+    color: var(--muted-text, #64748b);
+    opacity: 1;
+}
+
+.messaging-people-search i,
+.messaging-people-search svg {
+    color: var(--muted-text, #64748b);
+    stroke: currentColor;
+}
+
+.messaging-people-search:focus-within {
+    border-color: var(--primary-color, #2563eb);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* =========================================
+   DARK MODE
+   Supports common PATRIODX theme selectors
+========================================= */
+
+html[data-theme="dark"] .messaging-people-search,
+body.dark-mode .messaging-people-search,
+body.dark-theme .messaging-people-search,
+html.dark .messaging-people-search {
+    background: var(--card-bg, #1e293b);
+    border-color: var(--border-color, #334155);
+    color: var(--text-color, #f1f5f9);
+}
+
+html[data-theme="dark"] .messaging-people-search input,
+body.dark-mode .messaging-people-search input,
+body.dark-theme .messaging-people-search input,
+html.dark .messaging-people-search input {
+    color: var(--text-color, #f1f5f9);
+    background: transparent;
+}
+
+html[data-theme="dark"] .messaging-people-search input::placeholder,
+body.dark-mode .messaging-people-search input::placeholder,
+body.dark-theme .messaging-people-search input::placeholder,
+html.dark .messaging-people-search input::placeholder {
+    color: var(--muted-text, #94a3b8);
+}
+
+html[data-theme="dark"] .messaging-people-search i,
+html[data-theme="dark"] .messaging-people-search svg,
+body.dark-mode .messaging-people-search i,
+body.dark-mode .messaging-people-search svg,
+body.dark-theme .messaging-people-search i,
+body.dark-theme .messaging-people-search svg,
+html.dark .messaging-people-search i,
+html.dark .messaging-people-search svg {
+    color: var(--muted-text, #94a3b8);
+}
+
+html[data-theme="dark"] .messaging-people-search:focus-within,
+body.dark-mode .messaging-people-search:focus-within,
+body.dark-theme .messaging-people-search:focus-within,
+html.dark .messaging-people-search:focus-within {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+}
