@@ -149,7 +149,18 @@ function formatDate(date) {
 
     return d.toLocaleDateString();
 }
+function formatMessageTime(date) {
+    if (!date) return "";
 
+    const parsed = new Date(date);
+
+    if (Number.isNaN(parsed.getTime())) return "";
+
+    return parsed.toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit"
+    });
+}
 
 // =========================================================
 // PLAN CHECKING
@@ -12026,9 +12037,7 @@ async function loadMessages(conversationId) {
 
                         ${attachmentHTML}
 
-                        <span class="message-time">
-                            ${safe(formatDate(message.created_at))}
-                        </span>
+                       <span class="message-time">${safe(formatMessageTime(message.created_at))}</span>
                     </div>
 
                     <div class="patriodx-message-actions">
@@ -12137,66 +12146,73 @@ async function getMessageReactions(messageId) {
 }
 
 
+
 async function toggleMessageReaction(messageId, reaction) {
-    if (!currentUser) return;
-
-    const allowedReactions = ["❤️", "😂", "😮", "😢", "🔥", "👍"];
-
-    if (!allowedReactions.includes(reaction)) return;
-
-    const { data: existing, error: lookupError } =
-        await supabaseClient
-            .from("message_reactions")
-            .select("id, reaction")
-            .eq("message_id", messageId)
-            .eq("user_id", currentUser.id)
-            .maybeSingle();
-
-    if (lookupError) {
-        console.error("Reaction lookup failed:", lookupError);
+    if (!currentUser) {
+        showPATRIODXToast("Please sign in to react.", "warning");
         return;
     }
 
-    if (existing && existing.reaction === reaction) {
-        const { error } = await supabaseClient
-            .from("message_reactions")
-            .delete()
-            .eq("id", existing.id);
+    const allowedReactions = ["❤️", "😂", "😮", "😢", "🔥", "👍"];
 
-        if (error) {
-            console.error("Could not remove reaction:", error);
-            return;
-        }
-    } else if (existing) {
-        const { error } = await supabaseClient
-            .from("message_reactions")
-            .update({ reaction })
-            .eq("id", existing.id);
-
-        if (error) {
-            console.error("Could not update reaction:", error);
-            return;
-        }
-    } else {
-        const { error } = await supabaseClient
-            .from("message_reactions")
-            .insert({
-                message_id: messageId,
-                user_id: currentUser.id,
-                reaction
-            });
-
-        if (error) {
-            console.error("Could not add reaction:", error);
-            return;
-        }
+    if (!messageId || !allowedReactions.includes(reaction)) {
+        console.error("Invalid message reaction:", { messageId, reaction });
+        return;
     }
 
-    if (activeConversationId) {
-        await loadMessages(activeConversationId);
+    try {
+        const { data: existing, error: lookupError } =
+            await supabaseClient
+                .from("message_reactions")
+                .select("id, reaction")
+                .eq("message_id", messageId)
+                .eq("user_id", currentUser.id);
+
+        if (lookupError) throw lookupError;
+
+        const userReactions = existing || [];
+        const sameReaction = userReactions.find(
+            item => item.reaction === reaction
+        );
+
+        if (sameReaction) {
+            const { error } = await supabaseClient
+                .from("message_reactions")
+                .delete()
+                .eq("id", sameReaction.id)
+                .eq("user_id", currentUser.id);
+
+            if (error) throw error;
+        } else if (userReactions.length > 0) {
+            const { error } = await supabaseClient
+                .from("message_reactions")
+                .update({ reaction })
+                .eq("id", userReactions[0].id)
+                .eq("user_id", currentUser.id);
+
+            if (error) throw error;
+        } else {
+            const { error } = await supabaseClient
+                .from("message_reactions")
+                .insert({
+                    message_id: messageId,
+                    user_id: currentUser.id,
+                    reaction
+                });
+
+            if (error) throw error;
+        }
+
+        await loadMessages(activeConversationId || "");
+    } catch (error) {
+        console.error("PATRIODX reaction failed:", error);
+
+        showPATRIODXToast(
+            error.message || "Could not save reaction. Check permissions.",
+            "error"
+        );
     }
 }
-
 
 async function deleteOwnMessage(messageId) {
     if (!currentUser) return;
@@ -12715,7 +12731,15 @@ if (messageList && !messageList.dataset.reactionsReady) {
             .message-row:hover .patriodx-message-actions {
                 display: none;
             }
+.message-row.actions-open .patriodx-message-actions {
+    display: flex;
+}
 
+.patriodx-message-actions button {
+    pointer-events: auto;
+    position: relative;
+    z-index: 2;
+}
             .message-row.actions-open .patriodx-message-actions {
                 display: flex;
             }
