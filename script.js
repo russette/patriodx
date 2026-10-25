@@ -11786,7 +11786,15 @@ if (!membersError) {
         const { data: profile, error: profileError } =
             await supabaseClient
                 .from("profiles")
-                .select("username, display_name, avatar_url")
+               .select(`
+    id,
+    username,
+    display_name,
+    avatar_url,
+    is_verified,
+    is_owner,
+    verification_expires_at
+`)
                 .eq("id", otherUserId)
                 .single();
 
@@ -11802,6 +11810,11 @@ const title =
     otherUser?.display_name ||
     otherUser?.username ||
     "PATRIODX User";
+
+const verificationBadge =
+    typeof getPATRIODXBadge === "function"
+        ? getPATRIODXBadge(otherUser)
+        : "";
 
 const username =
     otherUser?.username
@@ -11832,7 +11845,22 @@ const chatHeader = document.getElementById("chatHeader");
 
 if (chatHeader) {
 
+    const messagingSection =
+        document.getElementById("messaging");
+
+    if (messagingSection) {
+        messagingSection.classList.add("mobile-chat-open");
+    }
+
     chatHeader.innerHTML = `
+        <button
+            type="button"
+            id="mobileChatBackButton"
+            class="mobile-chat-back"
+            aria-label="Back to conversations"
+        >
+            <i data-lucide="arrow-left"></i>
+        </button>
         <div class="chat-header-profile">
 
             <div class="chat-header-avatar-wrap">
@@ -11846,7 +11874,10 @@ if (chatHeader) {
             </div>
 
             <div class="chat-header-details">
-                <h3>${safe(title)}</h3>
+                <h3 class="patriodx-chat-title">
+    <span>${safe(title)}</span>
+    ${verificationBadge}
+</h3>
                 <p>${safe(username)}</p>
                 <small
                     id="patriodxChatOnlineStatus"
@@ -19570,5 +19601,16 @@ window.addEventListener("message", function (event) {
 
     marketplaceFrame.style.height = `${Math.ceil(height)}px`;
 });
+// Return to the conversation list on mobile
+document.addEventListener("click", function (event) {
+    const backButton = event.target.closest("#mobileChatBackButton");
 
-// write test
+    if (!backButton) return;
+
+    const messagingSection = document.getElementById("messaging");
+
+    if (messagingSection) {
+        messagingSection.classList.remove("mobile-chat-open");
+    }
+});
+// PATRIODX mobile messaging changes
