@@ -12682,13 +12682,13 @@ if (messageList && !messageList.dataset.reactionsReady) {
             font-size: 12px;
         }
 
-        /* Typing indicator — light and dark mode */
+        /* Typing indicator — light mode */
 .patriodx-typing-indicator {
     display: block;
     min-height: 18px;
     margin: 5px 0 0;
     padding: 0;
-    color: var(--muted-text, #64748b);
+    color: #475569 !important;
     font-size: 12px;
     line-height: 1.4;
     font-weight: 500;
@@ -12702,8 +12702,9 @@ if (messageList && !messageList.dataset.reactionsReady) {
     display: block;
 }
 
+/* Typing indicator — dark mode */
 body.dark-mode .patriodx-typing-indicator {
-    color: #cbd5e1;
+    color: #cbd5e1 !important;
 }
 /* Reaction controls — light mode */
 .patriodx-message-actions,
