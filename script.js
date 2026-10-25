@@ -12244,7 +12244,6 @@ async function getMessageReactions(messageId) {
 }
 
 
-
 async function toggleMessageReaction(messageId, reaction) {
     if (!currentUser) {
         showPATRIODXToast("Please sign in to react.", "warning");
@@ -12258,20 +12257,59 @@ async function toggleMessageReaction(messageId, reaction) {
         return;
     }
 
+    const row = messageList?.querySelector(
+        `[data-message-id="${CSS.escape(String(messageId))}"]`
+    );
+
+    const container = row?.querySelector(".patriodx-reactions");
+
+    if (!container) return;
+
+    // Save the current UI so we can restore it if saving fails.
+    const previousHTML = container.innerHTML;
+    const previousCache = patriodxReactionCache.get(messageId);
+
+    // Optimistically update the reaction immediately.
+    const existingButton = [...container.querySelectorAll(
+        "[data-reaction-emoji]"
+    )].find(button => button.dataset.reactionEmoji === reaction);
+
+    if (existingButton?.classList.contains("mine")) {
+        const count = parseInt(existingButton.textContent.match(/\d+/)?.[0] || "0", 10);
+
+        if (count <= 1) {
+            existingButton.remove();
+        } else {
+            existingButton.textContent = `${reaction} ${count - 1}`;
+            existingButton.classList.remove("mine");
+        }
+    } else if (existingButton) {
+        const count = parseInt(existingButton.textContent.match(/\d+/)?.[0] || "0", 10);
+        existingButton.textContent = `${reaction} ${count + 1}`;
+        existingButton.classList.add("mine");
+    } else {
+        container.insertAdjacentHTML(
+            "beforeend",
+            `<button type="button"
+                class="patriodx-reaction mine"
+                data-reaction-message="${safe(messageId)}"
+                data-reaction-emoji="${safe(reaction)}">${safe(reaction)} 1</button>`
+        );
+    }
+
+    patriodxReactionCache.set(messageId, container.innerHTML);
+
     try {
-        const { data: existing, error: lookupError } =
-            await supabaseClient
-                .from("message_reactions")
-                .select("id, reaction")
-                .eq("message_id", messageId)
-                .eq("user_id", currentUser.id);
+        const { data: existing, error: lookupError } = await supabaseClient
+            .from("message_reactions")
+            .select("id, reaction")
+            .eq("message_id", messageId)
+            .eq("user_id", currentUser.id);
 
         if (lookupError) throw lookupError;
 
         const userReactions = existing || [];
-        const sameReaction = userReactions.find(
-            item => item.reaction === reaction
-        );
+        const sameReaction = userReactions.find(item => item.reaction === reaction);
 
         if (sameReaction) {
             const { error } = await supabaseClient
@@ -12301,17 +12339,34 @@ async function toggleMessageReaction(messageId, reaction) {
             if (error) throw error;
         }
 
-        await loadMessages(activeConversationId || "");
+        // Refresh this message's reactions only, not the entire chat.
+        const updatedHTML = await getMessageReactions(messageId);
+
+        patriodxReactionCache.set(messageId, updatedHTML || "");
+
+        if (activeConversationId && row.isConnected) {
+            container.innerHTML = updatedHTML || "";
+        }
     } catch (error) {
         console.error("PATRIODX reaction failed:", error);
 
+        // Restore the previous state if Supabase rejects the change.
+        if (row.isConnected) {
+            container.innerHTML = previousHTML;
+        }
+
+        if (previousCache === undefined) {
+            patriodxReactionCache.delete(messageId);
+        } else {
+            patriodxReactionCache.set(messageId, previousCache);
+        }
+
         showPATRIODXToast(
-            error.message || "Could not save reaction. Check permissions.",
+            error.message || "Could not save reaction.",
             "error"
         );
     }
 }
-
 async function deleteOwnMessage(messageId) {
     if (!currentUser) return;
 
@@ -12904,245 +12959,187 @@ body.dark-mode .patriodx-reaction:hover {
 
     document.head.appendChild(style);
 })();
+
 /* =========================================================
-SEND MESSAGE — TEXT + IMAGE ATTACHMENTS
+SEND MESSAGE — INSTANT TEXT UI + BACKGROUND SAVE
 ========================================================= */
 
 if (messageForm && !messageForm.dataset.sendHandlerReady) {
+    messageForm.dataset.sendHandlerReady = "true";
 
+    messageForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
 
-    
-messageForm.dataset.sendHandlerReady = "true";
-
-messageForm.addEventListener("submit", async function(event) {
-
-    event.preventDefault();
-
-    if (!currentUser) {
-        showPATRIODXToast(
-            "Please log in before sending messages.",
-            "warning"
-        );
-        return;
-    }
-
-    if (!activeConversationId) {
-        showPATRIODXToast(
-            "Please select a conversation first.",
-            "warning"
-        );
-        return;
-    }
-
-    const content = messageInput.value.trim();
-
-    const attachmentInput =
-        document.getElementById("patriodxAttachmentInput");
-
-    const attachmentFile =
-        attachmentInput?.files?.[0] || null;
-
-    // Require text or an image.
-    if (!content && !attachmentFile) {
-        showPATRIODXToast(
-            "Write a message or choose an image.",
-            "warning"
-        );
-        return;
-    }
-
-    // Validate the image before uploading.
-    if (attachmentFile) {
-
-        if (!attachmentFile.type.startsWith("image/")) {
+        if (!currentUser || !activeConversationId) {
             showPATRIODXToast(
-                "Please select an image file.",
+                "Please sign in and select a conversation.",
                 "warning"
             );
             return;
         }
 
-        if (attachmentFile.size > 5 * 1024 * 1024) {
-            showPATRIODXToast(
-                "Images must be 5 MB or smaller.",
-                "warning"
-            );
-            return;
-        }
-    }
+        const content = messageInput.value.trim();
+        const attachmentInput =
+            document.getElementById("patriodxAttachmentInput");
+        const attachmentFile = attachmentInput?.files?.[0] || null;
 
-    const conversationId = activeConversationId;
+        if (!content && !attachmentFile) return;
 
-    messageSendButton.disabled = true;
-
-    let attachmentPath = null;
-
-    try {
-
-        // Upload the image to the private Supabase bucket.
         if (attachmentFile) {
+            if (!attachmentFile.type.startsWith("image/")) {
+                showPATRIODXToast("Please select an image file.", "warning");
+                return;
+            }
 
-            showPATRIODXToast(
-                "Uploading image...",
-                "info"
-            );
-
-            attachmentPath =
-                await uploadMessageAttachment(attachmentFile);
-
-            if (!attachmentPath) {
+            if (attachmentFile.size > 5 * 1024 * 1024) {
+                showPATRIODXToast("Images must be 5 MB or smaller.", "warning");
                 return;
             }
         }
 
-        // Insert the message.
-        const { error: messageError } =
-            await supabaseClient
-                .from("messages")
-                .insert({
-                    conversation_id: conversationId,
-                    sender_id: currentUser.id,
-                    content: content || "",
-                    attachment_url: attachmentPath
-                });
+        const conversationId = activeConversationId;
+        const temporaryId = `pending-${crypto.randomUUID()}`;
+        const createdAt = new Date().toISOString();
 
-        if (messageError) {
-
-            console.error(
-                "Could not send message:",
-                messageError
-            );
-
-            // Remove an uploaded image if the message failed.
-            if (attachmentPath) {
-                const { error: cleanupError } =
-                    await supabaseClient
-                        .storage
-                        .from("message-attachments")
-                        .remove([attachmentPath]);
-
-                if (cleanupError) {
-                    console.error(
-                        "Could not remove unused attachment:",
-                        cleanupError
-                    );
-                }
-            }
-
-            showPATRIODXToast(
-                "Could not send message: " +
-                messageError.message,
-                "error"
-            );
-
-            return;
-        }
-
-        // Clear the composer after successful sending.
+        // Snapshot the current message before clearing the composer.
         messageInput.value = "";
+        messageInput.required = false;
 
-        if (attachmentInput) {
-            attachmentInput.value = "";
-        }
+        if (attachmentInput) attachmentInput.value = "";
 
         const attachmentName =
             document.getElementById("patriodxAttachmentName");
+        if (attachmentName) attachmentName.textContent = "";
 
-        if (attachmentName) {
-            attachmentName.textContent = "";
+        // Text messages appear immediately. Attachments still need uploading.
+        let attachmentPath = null;
+
+        const optimisticRow = document.createElement("div");
+        optimisticRow.className = "message-row mine pending";
+        optimisticRow.dataset.messageId = temporaryId;
+
+        optimisticRow.innerHTML = `
+            <div class="message-bubble mine">
+                ${content
+                    ? `<div class="message-content">${safe(content)}</div>`
+                    : ""}
+                <span class="message-time">${safe(formatMessageTime(createdAt))}</span>
+            </div>
+            <div class="message-send-status" aria-live="polite">Sending…</div>
+        `;
+
+        if (!attachmentFile && messageList &&
+            activeConversationId === conversationId) {
+            messageList.querySelector(".messaging-empty-state")?.remove();
+            messageList.appendChild(optimisticRow);
+            messageList.scrollTop = messageList.scrollHeight;
         }
 
-        messageInput.required = false;
+        messageSendButton.disabled = true;
 
-        // Preserve existing recipient notification behavior.
-        const { data: conversationMembers, error: membersError } =
-            await supabaseClient
-                .from("conversation_members")
-                .select("user_id")
-                .eq("conversation_id", conversationId);
+        try {
+            if (attachmentFile) {
+                showPATRIODXToast("Uploading image…", "info");
+                attachmentPath =
+                    await uploadMessageAttachment(attachmentFile);
 
-        if (membersError) {
-            console.error(
-                "Could not load conversation members:",
-                membersError
-            );
-        }
+                if (!attachmentPath) {
+                    messageInput.value = content;
+                    return;
+                }
+            }
 
-        if (conversationMembers) {
+            const { data: savedMessage, error: messageError } =
+                await supabaseClient
+                    .from("messages")
+                    .insert({
+                        conversation_id: conversationId,
+                        sender_id: currentUser.id,
+                        content: content || "",
+                        attachment_url: attachmentPath
+                    })
+                    .select("*")
+                    .single();
 
-            const recipient = conversationMembers.find(
-                member => member.user_id !== currentUser.id
-            );
+if (messageError) throw messageError;
 
-            if (recipient) {
+// Remove the temporary message after Supabase confirms saving.
+// The realtime subscription should display the confirmed message.
+optimisticRow.remove();
 
-                const { data: senderProfile } =
-                    await supabaseClient
-                        .from("profiles")
-                        .select("display_name, username")
-                        .eq("id", currentUser.id)
-                        .single();
 
-                const senderName =
-                    senderProfile?.display_name ||
-                    senderProfile?.username ||
-                    "PATRIODX User";
 
-                const { error: notificationError } =
-                    await supabaseClient
-                        .from("notifications")
-                        .insert({
-                            user_id: recipient.user_id,
-                            type: "message",
-                            title: senderName,
-                            message: attachmentFile && !content
-                                ? "sent you an image."
-                                : attachmentFile
-                                    ? "sent you a message with an image."
-                                    : "sent you a message.",
-                            related_id: conversationId,
-                            is_read: false
-                        });
+            // Notification work runs separately and cannot hold up sending.
+            void (async () => {
+                try {
+                    const { data: members, error: membersError } =
+                        await supabaseClient
+                            .from("conversation_members")
+                            .select("user_id")
+                            .eq("conversation_id", conversationId);
 
-                if (notificationError) {
+                    if (membersError) throw membersError;
+
+                    const recipient = (members || []).find(
+                        member => member.user_id !== currentUser.id
+                    );
+
+                    if (!recipient) return;
+
+                    const senderName =
+                        currentUser.user_metadata?.display_name ||
+                        currentUser.user_metadata?.username ||
+                        currentUser.email ||
+                        "PATRIODX User";
+
+                    const { error: notificationError } =
+                        await supabaseClient
+                            .from("notifications")
+                            .insert({
+                                user_id: recipient.user_id,
+                                type: "message",
+                                title: senderName,
+                                message: attachmentFile && !content
+                                    ? "sent you an image."
+                                    : attachmentFile
+                                        ? "sent you a message with an image."
+                                        : "sent you a message.",
+                                related_id: conversationId,
+                                is_read: false
+                            });
+
+                    if (notificationError) throw notificationError;
+                } catch (notificationError) {
                     console.error(
-                        "Could not create message notification:",
+                        "Message notification failed:",
                         notificationError
                     );
                 }
-            }
+            })();
+
+        } catch (error) {
+            console.error("Could not send message:", error);
+
+            optimisticRow.remove();
+
+            // Restore text so the user can retry if saving failed.
+            messageInput.value = content;
+
+            showPATRIODXToast(
+                "Message wasn't sent. Your text has been restored so you can retry.",
+                "error"
+            );
+
+        } finally {
+            messageSendButton.disabled = false;
+            messageInput.focus();
         }
-
-        // Refresh only if the user is still in this conversation.
-        if (activeConversationId === conversationId) {
-            await loadMessages(conversationId);
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Unexpected message sending error:",
-            error
-        );
-
-        showPATRIODXToast(
-            "Something went wrong while sending your message.",
-            "error"
-        );
-
-    } finally {
-
-        messageSendButton.disabled = false;
-
-    }
-
-});
-
-
+    });
 }
 
+
 /* =========================================================
-   REALTIME MESSAGES
+   REALTIME MESSAGES — OPTIMIZED
 ========================================================= */
 function subscribeToMessages(conversationId) {
     if (messagingRealtimeChannel) {
@@ -13167,18 +13164,130 @@ function subscribeToMessages(conversationId) {
                 table: "messages",
                 filter: `conversation_id=eq.${conversationId}`
             },
-            async () => {
+            async (payload) => {
                 if (activeConversationId !== conversationId) return;
 
-                await loadMessages(conversationId);
+                const message = payload.new;
+                const oldMessage = payload.old;
 
-                const { error } = await supabaseClient.rpc(
-                    "mark_messages_read",
-                    { p_conversation_id: conversationId }
+                // Deletions should remove only the affected message.
+                if (payload.eventType === "DELETE") {
+                    const deletedRow = messageList?.querySelector(
+                        `[data-message-id="${CSS.escape(String(oldMessage?.id))}"]`
+                    );
+                    deletedRow?.remove();
+                    return;
+                }
+
+                if (!message?.id) return;
+
+                const existingRow = messageList?.querySelector(
+                    `[data-message-id="${CSS.escape(String(message.id))}"]`
                 );
 
-                if (error) {
-                    console.error("Read receipt update failed:", error);
+                // If this is an UPDATE, refresh the conversation only when
+                // the message isn't already rendered and cannot be updated safely.
+                if (payload.eventType === "UPDATE") {
+                    if (!existingRow) {
+                        void loadMessages(conversationId);
+                        return;
+                    }
+
+                    const content = existingRow.querySelector(".message-content");
+
+                    if (content && content.textContent !== (message.content || "")) {
+                        content.textContent = message.content || "";
+                    }
+
+                    const seen = existingRow.querySelector(".message-seen-status");
+
+                    if (message.sender_id === currentUser.id && message.is_read) {
+                        if (!seen) {
+                            const status = document.createElement("div");
+                            status.className = "message-seen-status";
+                            status.textContent = "Seen";
+                            existingRow.appendChild(status);
+                        }
+                    } else {
+                        seen?.remove();
+                    }
+
+                    return;
+                }
+
+                // Ignore an INSERT if the message is already on screen.
+                if (existingRow) return;
+
+                const mine = message.sender_id === currentUser.id;
+
+                // Build the new row without reloading the conversation.
+                const row = document.createElement("div");
+                row.className = `message-row ${mine ? "mine" : "theirs"}`;
+                row.dataset.messageId = message.id;
+
+                row.innerHTML = `
+                    <div class="message-bubble ${mine ? "mine" : "theirs"}">
+                        ${
+                            message.content
+                                ? `<div class="message-content">${safe(message.content)}</div>`
+                                : ""
+                        }
+                        <span class="message-time">${safe(formatMessageTime(message.created_at))}</span>
+                    </div>
+
+                    <div class="patriodx-message-actions">
+                        <button type="button"
+                            class="patriodx-message-action"
+                            data-react-heart="${safe(message.id)}"
+                            aria-label="React with heart">❤️</button>
+                        <button type="button"
+                            class="patriodx-message-action"
+                            data-react-laugh="${safe(message.id)}"
+                            aria-label="React with laughter">😂</button>
+                        <button type="button"
+                            class="patriodx-message-action"
+                            data-react-like="${safe(message.id)}"
+                            aria-label="React with thumbs up">👍</button>
+                        ${
+                            mine
+                                ? `<button type="button"
+                                    class="patriodx-message-action danger-btn"
+                                    data-delete-message="${safe(message.id)}">Delete</button>`
+                                : ""
+                        }
+                    </div>
+
+                    <div class="patriodx-reactions"
+                        data-reactions-for="${safe(message.id)}"></div>
+                `;
+
+                messageList.querySelector(".messaging-empty-state")?.remove();
+                messageList.appendChild(row);
+                messageList.scrollTop = messageList.scrollHeight;
+
+                // Load this message's reactions in the background.
+                void getMessageReactions(message.id)
+                    .then(html => {
+                        patriodxReactionCache.set(message.id, html || "");
+
+                        if (row.isConnected) {
+                            const reactions = row.querySelector(".patriodx-reactions");
+                            if (reactions) reactions.innerHTML = html || "";
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Could not load new message reactions:", error);
+                    });
+
+                // Mark incoming messages read without blocking the UI.
+                if (!mine) {
+                    void supabaseClient.rpc("mark_messages_read", {
+                        p_conversation_id: conversationId
+                    }).then(({ error }) => {
+                        if (error) {
+                            console.error("Read receipt update failed:", error);
+                        }
+                    });
                 }
             }
         )
@@ -13190,119 +13299,111 @@ function subscribeToMessages(conversationId) {
                 schema: "public",
                 table: "message_reactions"
             },
-            async () => {
-                if (activeConversationId === conversationId) {
-                    await loadMessages(conversationId);
+            async (payload) => {
+                if (activeConversationId !== conversationId) return;
+
+                const messageId =
+                    payload?.new?.message_id ||
+                    payload?.old?.message_id;
+
+                if (!messageId) return;
+
+                try {
+                    const html = await getMessageReactions(messageId);
+                    patriodxReactionCache.set(messageId, html || "");
+
+                    const row = messageList?.querySelector(
+                        `[data-message-id="${CSS.escape(String(messageId))}"]`
+                    );
+
+                    const container = row?.querySelector(".patriodx-reactions");
+
+                    if (container) container.innerHTML = html || "";
+                } catch (error) {
+                    console.error("Could not refresh reactions:", error);
                 }
             }
         )
 
-    .on("broadcast", { event: "typing" }, async ({ payload }) => {
-    if (!payload || payload.user_id === currentUser.id) return;
+        .on("broadcast", { event: "typing" }, async ({ payload }) => {
+            if (!payload || payload.user_id === currentUser.id) return;
 
-    const header = document.getElementById("chatHeader");
-    if (!header) return;
+            const header = document.getElementById("chatHeader");
+            if (!header) return;
 
-    let indicator = document.getElementById("patriodxTypingIndicator");
+            let indicator = document.getElementById("patriodxTypingIndicator");
 
-    if (!indicator) {
-        indicator = document.createElement("p");
-        indicator.id = "patriodxTypingIndicator";
-        indicator.className = "patriodx-typing-indicator";
-        header.appendChild(indicator);
-    }
+            if (!indicator) {
+                indicator = document.createElement("p");
+                indicator.id = "patriodxTypingIndicator";
+                indicator.className = "patriodx-typing-indicator";
+                header.appendChild(indicator);
+            }
 
-    clearTimeout(window.patriodxTypingTimer);
+            clearTimeout(window.patriodxTypingTimer);
 
-    if (payload.typing === false) {
-        indicator.textContent = "";
-        indicator.classList.remove("is-typing");
-        return;
-    }
+            if (payload.typing === false) {
+                indicator.textContent = "";
+                indicator.classList.remove("is-typing");
+                return;
+            }
 
-    // Resolve the actual sender's name from their PATRIODX profile.
-    let senderName = "";
+            let senderName = "";
 
-    try {
-        const { data: profile, error } = await supabaseClient
-            .from("profiles")
-            .select("display_name, username")
-            .eq("id", payload.user_id)
-            .maybeSingle();
+            try {
+                const { data: profile, error } = await supabaseClient
+                    .from("profiles")
+                    .select("display_name, username")
+                    .eq("id", payload.user_id)
+                    .maybeSingle();
 
-        if (error) throw error;
+                if (error) throw error;
 
-        senderName =
-            profile?.display_name?.trim() ||
-            (profile?.username ? `@${profile.username}` : "");
-    } catch (error) {
-        console.error("Could not load typing user's profile:", error);
-    }
+                senderName =
+                    profile?.display_name?.trim() ||
+                    (profile?.username ? `@${profile.username}` : "");
+            } catch (error) {
+                console.error("Could not load typing user's profile:", error);
+            }
 
-    // Do not show a misleading generic name if the profile cannot be loaded.
-    if (!senderName) senderName = "Someone";
+            if (activeConversationId !== conversationId) return;
 
-    // Ignore a delayed profile response if the conversation changed.
-    if (activeConversationId !== conversationId) return;
+            indicator.textContent = `${senderName || "Someone"} is typing…`;
+            indicator.classList.add("is-typing");
 
-    indicator.textContent = `${senderName} is typing…`;
-    indicator.classList.add("is-typing");
+            window.patriodxTypingTimer = setTimeout(() => {
+                indicator.textContent = "";
+                indicator.classList.remove("is-typing");
+            }, 3000);
+        })
 
-    window.patriodxTypingTimer = setTimeout(() => {
-        indicator.textContent = "";
-        indicator.classList.remove("is-typing");
-    }, 3000);
-})
+        .on("presence", { event: "sync" }, () => {
+            const states = messagingRealtimeChannel.presenceState();
 
-       .on("presence", { event: "sync" }, () => {
+            document.querySelectorAll("[data-presence-user]").forEach(node => {
+                const userId = node.dataset.presenceUser;
+                const online = Boolean(states[userId]);
 
-const states = messagingRealtimeChannel.presenceState();
+                node.classList.toggle("online", online);
+                node.classList.toggle("offline", !online);
+                node.title = online ? "Online" : "Offline";
+            });
 
-/* UPDATE EXISTING PRESENCE INDICATORS */
+            const onlineDot = document.getElementById("patriodxChatOnlineDot");
+            const onlineStatus = document.getElementById("patriodxChatOnlineStatus");
 
-document.querySelectorAll("[data-presence-user]").forEach(node => {
+            if (!onlineDot || !onlineStatus) return;
 
-    const userId = node.dataset.presenceUser;
-    const online = Boolean(states[userId]);
+            const otherUserId = onlineDot.dataset.userId;
+            const online = Boolean(otherUserId && states[otherUserId]);
 
-    node.classList.toggle("online", online);
-    node.classList.toggle("offline", !online);
+            onlineDot.classList.toggle("online", online);
+            onlineDot.classList.toggle("offline", !online);
+            onlineDot.title = online ? "Online" : "Offline";
 
-    node.title = online ? "Online" : "Offline";
-});
-
-/* UPDATE THE ACTIVE CONVERSATION HEADER */
-
-const onlineDot = document.getElementById(
-    "patriodxChatOnlineDot"
-);
-
-const onlineStatus = document.getElementById(
-    "patriodxChatOnlineStatus"
-);
-
-if (!onlineDot || !onlineStatus) return;
-
-/*
-   Store the other participant's ID on the header
-   so Presence can identify the correct person.
-*/
-
-const otherUserId = onlineDot.dataset.userId;
-
-const online = Boolean(
-    otherUserId && states[otherUserId]
-);
-
-onlineDot.classList.toggle("online", online);
-onlineDot.classList.toggle("offline", !online);
-onlineDot.title = online ? "Online" : "Offline";
-
-onlineStatus.textContent = online ? "Online" : "Offline";
-onlineStatus.classList.toggle("online", online);
-
-})
-
+            onlineStatus.textContent = online ? "Online" : "Offline";
+            onlineStatus.classList.toggle("online", online);
+        })
 
         .subscribe(async status => {
             if (status === "SUBSCRIBED") {
@@ -13314,85 +13415,6 @@ onlineStatus.classList.toggle("online", online);
         });
 
     setupPATRIODXTyping(conversationId);
-}
-
-
-function setupPATRIODXTyping(conversationId) {
-if (!messageInput || !currentUser) return;
-
-
-if (messageInput.dataset.typingReady === "true") return;
-
-messageInput.dataset.typingReady = "true";
-
-let typingTimer = null;
-let lastTypingSent = 0;
-let isTyping = false;
-
-async function sendTypingEvent(typing) {
-    if (
-        !messagingRealtimeChannel ||
-        !activeConversationId ||
-        activeConversationId !== conversationId
-    ) {
-        return;
-    }
-
-    const channel = messagingRealtimeChannel;
-
-    const { error } = await channel.send({
-        type: "broadcast",
-        event: "typing",
-        payload: {
-            user_id: currentUser.id,
-            name:
-                currentUser.user_metadata?.display_name ||
-                currentUser.user_metadata?.username ||
-                "PATRIODX User",
-            typing
-        }
-    });
-
-    if (error) {
-        console.error("Typing indicator update failed:", error);
-    }
-}
-
-messageInput.addEventListener("input", () => {
-    if (!messageInput.value.trim()) {
-        clearTimeout(typingTimer);
-
-        if (isTyping) {
-            isTyping = false;
-            sendTypingEvent(false);
-        }
-
-        return;
-    }
-
-    const now = Date.now();
-
-    if (!isTyping || now - lastTypingSent >= 1000) {
-        lastTypingSent = now;
-        isTyping = true;
-        sendTypingEvent(true);
-    }
-
-    clearTimeout(typingTimer);
-
-    typingTimer = setTimeout(() => {
-        isTyping = false;
-        sendTypingEvent(false);
-    }, 2500);
-});
-
-messageForm?.addEventListener("submit", () => {
-    clearTimeout(typingTimer);
-    isTyping = false;
-    sendTypingEvent(false);
-});
-
-
 }
 
 /* =========================================================
