@@ -19638,3 +19638,47 @@ document.addEventListener("click", function (event) {
     }
 });
 // PATRIODX mobile messaging changes
+/* PATRIODX — Refresh inbox when Messages becomes visible */
+(() => {
+    let lastRefresh = 0;
+
+    async function refreshMessagingInbox() {
+        const messaging = document.getElementById("messaging");
+
+        if (
+            !messaging ||
+            !currentUser ||
+            !messagingListIsVisible(messaging)
+        ) {
+            return;
+        }
+
+        const now = Date.now();
+
+        if (now - lastRefresh < 800) return;
+
+        lastRefresh = now;
+
+        if (typeof loadConversations === "function") {
+            await loadConversations();
+        }
+    }
+
+    function messagingListIsVisible(element) {
+        return element.getClientRects().length > 0 &&
+            getComputedStyle(element).display !== "none";
+    }
+
+    document.addEventListener("click", event => {
+        const trigger = event.target.closest(
+            '[href="#messaging"], [data-section="messaging"], [data-target="messaging"]'
+        );
+
+        if (!trigger) return;
+
+        setTimeout(refreshMessagingInbox, 150);
+        setTimeout(refreshMessagingInbox, 500);
+    });
+
+    window.addEventListener("pageshow", refreshMessagingInbox);
+})();
