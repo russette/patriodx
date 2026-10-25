@@ -12682,12 +12682,69 @@ if (messageList && !messageList.dataset.reactionsReady) {
             font-size: 12px;
         }
 
-        /* Typing indicator */
-        .patriodx-typing-indicator {
-            font-size: 12px;
-            opacity: 0.75;
-        }
+        /* Typing indicator — light and dark mode */
+.patriodx-typing-indicator {
+    display: block;
+    min-height: 18px;
+    margin: 5px 0 0;
+    padding: 0;
+    color: var(--muted-text, #64748b);
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: 500;
+}
 
+.patriodx-typing-indicator:empty {
+    display: none;
+}
+
+.patriodx-typing-indicator.is-typing {
+    display: block;
+}
+
+body.dark-mode .patriodx-typing-indicator {
+    color: #cbd5e1;
+}
+/* Reaction controls — light mode */
+.patriodx-message-actions,
+.patriodx-reaction {
+    background: var(--card-bg, #ffffff);
+    color: var(--text-color, #0f172a);
+    border-color: var(--border-color, #e2e8f0);
+}
+
+.patriodx-message-action {
+    color: var(--text-color, #0f172a);
+}
+
+.patriodx-reaction.mine {
+    background: var(--reaction-selected-bg, #f3e8ff);
+    color: var(--reaction-selected-text, #6d28d9);
+    border-color: var(--primary-color, #7c3aed);
+}
+
+/* Reaction controls — dark mode */
+body.dark-mode .patriodx-message-actions,
+body.dark-mode .patriodx-reaction {
+    background: #111827;
+    color: #f1f5f9;
+    border-color: #374151;
+}
+
+body.dark-mode .patriodx-message-action {
+    color: #f1f5f9;
+}
+
+body.dark-mode .patriodx-reaction.mine {
+    background: #3b2767;
+    color: #e9d5ff;
+    border-color: #a78bfa;
+}
+
+body.dark-mode .patriodx-message-action:hover,
+body.dark-mode .patriodx-reaction:hover {
+    background: #273449;
+}
         /* Presence indicators */
         .patriodx-online-dot {
             display: inline-block;
@@ -13041,38 +13098,61 @@ function subscribeToMessages(conversationId) {
             }
         )
 
-     .on("broadcast", { event: "typing" }, ({ payload }) => {
-if (!payload || payload.user_id === currentUser.id) return;
+    .on("broadcast", { event: "typing" }, async ({ payload }) => {
+    if (!payload || payload.user_id === currentUser.id) return;
 
-const header = document.getElementById("chatHeader");
-if (!header) return;
+    const header = document.getElementById("chatHeader");
+    if (!header) return;
 
-let indicator = document.getElementById(
-    "patriodxTypingIndicator"
-);
+    let indicator = document.getElementById("patriodxTypingIndicator");
 
-if (!indicator) {
-    indicator = document.createElement("p");
-    indicator.id = "patriodxTypingIndicator";
-    indicator.className = "patriodx-typing-indicator";
-    header.appendChild(indicator);
-}
+    if (!indicator) {
+        indicator = document.createElement("p");
+        indicator.id = "patriodxTypingIndicator";
+        indicator.className = "patriodx-typing-indicator";
+        header.appendChild(indicator);
+    }
 
-clearTimeout(window.patriodxTypingTimer);
+    clearTimeout(window.patriodxTypingTimer);
 
-if (payload.typing === false) {
-    indicator.textContent = "";
-    return;
-}
+    if (payload.typing === false) {
+        indicator.textContent = "";
+        indicator.classList.remove("is-typing");
+        return;
+    }
 
-indicator.textContent =
-    `${payload.name || "Someone"} is typing…`;
+    // Resolve the actual sender's name from their PATRIODX profile.
+    let senderName = "";
 
-window.patriodxTypingTimer = setTimeout(() => {
-    indicator.textContent = "";
-}, 3000);
+    try {
+        const { data: profile, error } = await supabaseClient
+            .from("profiles")
+            .select("display_name, username")
+            .eq("id", payload.user_id)
+            .maybeSingle();
 
+        if (error) throw error;
 
+        senderName =
+            profile?.display_name?.trim() ||
+            (profile?.username ? `@${profile.username}` : "");
+    } catch (error) {
+        console.error("Could not load typing user's profile:", error);
+    }
+
+    // Do not show a misleading generic name if the profile cannot be loaded.
+    if (!senderName) senderName = "Someone";
+
+    // Ignore a delayed profile response if the conversation changed.
+    if (activeConversationId !== conversationId) return;
+
+    indicator.textContent = `${senderName} is typing…`;
+    indicator.classList.add("is-typing");
+
+    window.patriodxTypingTimer = setTimeout(() => {
+        indicator.textContent = "";
+        indicator.classList.remove("is-typing");
+    }, 3000);
 })
 
        .on("presence", { event: "sync" }, () => {
