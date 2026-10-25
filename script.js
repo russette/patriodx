@@ -10886,7 +10886,28 @@ const conversationUserSearch =
     document.getElementById(
         "conversationUserSearch"
     );
+const messagingPeopleSearch =
+    document.getElementById("messagingPeopleSearch");
 
+if (messagingPeopleSearch) {
+    messagingPeopleSearch.addEventListener("input", function () {
+        const query = this.value.trim();
+
+        if (!newConversationModal) return;
+
+        newConversationModal.style.display = "flex";
+
+        if (conversationUserSearch) {
+            conversationUserSearch.value = query;
+        }
+
+        if (conversationUsers.length) {
+            renderConversationUsers();
+        } else {
+            loadConversationUsers();
+        }
+    });
+}
 const conversationUserList =
     document.getElementById(
         "conversationUserList"

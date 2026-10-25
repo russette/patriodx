@@ -18727,3 +18727,40 @@ color: inherit !important;
         padding: 8px 12px !important;
     }
 }
+/* PATRIODX: visible people search in conversations */
+.messaging-people-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 0;
+    padding: 0 14px;
+    min-height: 46px;
+    border: 1px solid var(--border-color, #d1d5db);
+    border-radius: 12px;
+    background: var(--card-background, #fff);
+}
+
+.messaging-people-search i {
+    width: 19px;
+    height: 19px;
+    flex-shrink: 0;
+    opacity: 0.65;
+}
+
+.messaging-people-search input {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 14px;
+}
+
+.messaging-people-search:focus-within {
+    border-color: var(--primary-color, #6366f1);
+    box-shadow: 0 0 0 2px
+        color-mix(in srgb, var(--primary-color, #6366f1) 15%, transparent);
+}
