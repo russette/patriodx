@@ -18575,3 +18575,86 @@ color: inherit !important;
         color: #9ca3af;
     }
 }
+/* PATRIODX — Full-screen mobile conversation */
+@media (max-width: 768px) {
+    body:has(#messaging.mobile-chat-open) {
+        overflow: hidden;
+    }
+
+    #messaging.mobile-chat-open {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 9998 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        margin: 0 !important;
+        padding: env(safe-area-inset-top) 0
+                 env(safe-area-inset-bottom) !important;
+        overflow: hidden !important;
+        background: var(--card-bg, #fff) !important;
+    }
+
+    #messaging.mobile-chat-open > .section-heading {
+        display: none !important;
+    }
+
+    #messaging.mobile-chat-open .messaging-layout {
+        display: flex !important;
+        flex: 1 1 auto !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    #messaging.mobile-chat-open .conversations-card {
+        display: none !important;
+    }
+
+    #messaging.mobile-chat-open .chat-card {
+        display: flex !important;
+        flex: 1 1 auto !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+    }
+
+    #messaging.mobile-chat-open .chat-header {
+        position: relative !important;
+        top: auto !important;
+        flex: 0 0 auto !important;
+    }
+
+    #messaging.mobile-chat-open .message-list {
+        flex: 1 1 0 !important;
+        min-height: 0 !important;
+        height: auto !important;
+        overflow-y: auto !important;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #messaging.mobile-chat-open .message-form {
+        position: relative !important;
+        bottom: auto !important;
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding-bottom: max(8px, env(safe-area-inset-bottom)) !important;
+    }
+
+    body.dark-mode #messaging.mobile-chat-open {
+        background: var(--card-bg, #111827) !important;
+    }
+}
