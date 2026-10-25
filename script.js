@@ -11756,7 +11756,10 @@ async function openConversation(conversationId) {
 
 activeConversationId = conversationId;
 
-await loadConversations();
+// Refresh the inbox in the background without blocking chat opening.
+loadConversations().catch(error => {
+    console.error("Background conversation refresh failed:", error);
+});
 
 messageInput.disabled = false;
 messageSendButton.disabled = false;
@@ -11935,14 +11938,32 @@ subscribeToMessages(conversationId);
 }
 
 /* =========================================================
-   LOAD MESSAGES
+   LOAD MESSAGES — OPTIMIZED
 ========================================================= */
+const patriodxReactionCache = window.patriodxReactionCache ||
+    (window.patriodxReactionCache = new Map());
+
+const patriodxAttachmentCache = window.patriodxAttachmentCache ||
+    (window.patriodxAttachmentCache = new Map());
+
 async function loadMessages(conversationId) {
-    if (!messageList || !currentUser) return;
+    if (!messageList || !currentUser || !conversationId) return;
 
     const requestedConversation = conversationId;
+    const requestedList = messageList;
 
-    messageList.innerHTML = `
+    // Prevent older requests from replacing a newer conversation.
+    window.patriodxMessageLoadToken =
+        (window.patriodxMessageLoadToken || 0) + 1;
+
+    const loadToken = window.patriodxMessageLoadToken;
+
+    const isCurrentRequest = () =>
+        activeConversationId === requestedConversation &&
+        window.patriodxMessageLoadToken === loadToken &&
+        messageList === requestedList;
+
+    requestedList.innerHTML = `
         <div class="messaging-empty-state">
             <p>Loading messages...</p>
         </div>
@@ -11951,12 +11972,14 @@ async function loadMessages(conversationId) {
     const { data: messages, error } = await supabaseClient
         .from("messages")
         .select("*")
-        .eq("conversation_id", conversationId)
+        .eq("conversation_id", requestedConversation)
         .order("created_at", { ascending: true });
+
+    if (!isCurrentRequest()) return;
 
     if (error) {
         console.error("Could not load messages:", error);
-        messageList.innerHTML = `
+        requestedList.innerHTML = `
             <div class="messaging-empty-state">
                 <p>Could not load messages. Please try again.</p>
             </div>
@@ -11964,10 +11987,8 @@ async function loadMessages(conversationId) {
         return;
     }
 
-    if (activeConversationId !== requestedConversation) return;
-
     if (!messages || messages.length === 0) {
-        messageList.innerHTML = `
+        requestedList.innerHTML = `
             <div class="messaging-empty-state">
                 <h3>No messages yet</h3>
                 <p>Send the first message.</p>
@@ -11980,127 +12001,204 @@ async function loadMessages(conversationId) {
         .reverse()
         .find(message => message.sender_id === currentUser.id);
 
-    const renderedMessages = await Promise.all(
-        messages.map(async message => {
-            const mine = message.sender_id === currentUser.id;
+    // Render text and cached content immediately.
+    const renderedMessages = messages.map(message => {
+        const mine = message.sender_id === currentUser.id;
+        const reactions = patriodxReactionCache.get(message.id) || "";
 
-            const reactions = await getMessageReactions(message.id);
+        const cachedAttachment =
+            patriodxAttachmentCache.get(message.attachment_url);
 
-            let attachmentHTML = "";
+        let attachmentHTML = "";
 
-            if (message.attachment_url) {
-                const imageURL = await getMessageAttachmentUrl(
-                    message.attachment_url
-                );
-
-                if (imageURL) {
-                    attachmentHTML = `
-                        <a
-                            href="${safe(imageURL)}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <img
-                                class="patriodx-attachment-preview"
-                                src="${safe(imageURL)}"
-                                alt="Image attachment"
-                                loading="lazy"
-                            >
-                        </a>
-                    `;
-                } else {
-                    attachmentHTML = `
-                        <p class="patriodx-attachment-unavailable">
-                            Image unavailable
-                        </p>
-                    `;
-                }
-            }
-
-            const showSeen =
-                mine &&
-                latestOutgoing &&
-                message.id === latestOutgoing.id &&
-                message.is_read === true;
-
-            return `
-                <div
-                    class="message-row ${mine ? "mine" : "theirs"}"
-                    data-message-id="${safe(message.id)}"
-                >
-                    <div class="message-bubble ${mine ? "mine" : "theirs"}">
-                        ${
-                            message.content
-                                ? `<div class="message-content">${safe(message.content)}</div>`
-                                : ""
-                        }
-
-                        ${attachmentHTML}
-
-                       <span class="message-time">${safe(formatMessageTime(message.created_at))}</span>
+        if (message.attachment_url) {
+            if (cachedAttachment) {
+                attachmentHTML = `
+                    <a href="${safe(cachedAttachment)}"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        <img class="patriodx-attachment-preview"
+                             src="${safe(cachedAttachment)}"
+                             alt="Image attachment"
+                             loading="lazy">
+                    </a>
+                `;
+            } else {
+                attachmentHTML = `
+                    <div class="patriodx-attachment-loading"
+                         data-attachment-for="${safe(message.id)}">
                     </div>
+                `;
+            }
+        }
 
-                    <div class="patriodx-message-actions">
-                        <button
-                            type="button"
+        const showSeen =
+            mine &&
+            latestOutgoing &&
+            message.id === latestOutgoing.id &&
+            message.is_read === true;
+
+        return `
+            <div class="message-row ${mine ? "mine" : "theirs"}"
+                 data-message-id="${safe(message.id)}">
+                <div class="message-bubble ${mine ? "mine" : "theirs"}">
+                    ${
+                        message.content
+                            ? `<div class="message-content">${safe(message.content)}</div>`
+                            : ""
+                    }
+
+                    ${attachmentHTML}
+
+                    <span class="message-time">${safe(formatMessageTime(message.created_at))}</span>
+                </div>
+
+                <div class="patriodx-message-actions">
+                    <button type="button"
                             class="patriodx-message-action"
                             data-react-heart="${safe(message.id)}"
                             aria-label="React with heart"
-                            title="React with heart"
-                        >❤️</button>
+                            title="React with heart">❤️</button>
 
-                        <button
-                            type="button"
+                    <button type="button"
                             class="patriodx-message-action"
                             data-react-laugh="${safe(message.id)}"
                             aria-label="React with laughter"
-                            title="React with laughter"
-                        >😂</button>
+                            title="React with laughter">😂</button>
 
-                        <button
-                            type="button"
+                    <button type="button"
                             class="patriodx-message-action"
                             data-react-like="${safe(message.id)}"
                             aria-label="React with thumbs up"
-                            title="React with thumbs up"
-                        >👍</button>
-
-                        ${
-                            mine
-                                ? `
-                                    <button
-                                        type="button"
-                                        class="patriodx-message-action danger-btn"
-                                        data-delete-message="${safe(message.id)}"
-                                    >Delete</button>
-                                `
-                                : ""
-                        }
-                    </div>
-
-                    <div class="patriodx-reactions">
-                        ${reactions}
-                    </div>
+                            title="React with thumbs up">👍</button>
 
                     ${
-                        showSeen
-                            ? `<div class="message-seen-status">Seen</div>`
+                        mine
+                            ? `<button type="button"
+                                       class="patriodx-message-action danger-btn"
+                                       data-delete-message="${safe(message.id)}">Delete</button>`
                             : ""
                     }
                 </div>
-            `;
-        })
-    );
 
-    if (activeConversationId !== requestedConversation) return;
+                <div class="patriodx-reactions"
+                     data-reactions-for="${safe(message.id)}">${reactions}</div>
 
-    messageList.innerHTML = renderedMessages.join("");
-    messageList.scrollTop = messageList.scrollHeight;
+                ${
+                    showSeen
+                        ? `<div class="message-seen-status">Seen</div>`
+                        : ""
+                }
+            </div>
+        `;
+    });
+
+    if (!isCurrentRequest()) return;
+
+    requestedList.innerHTML = renderedMessages.join("");
+    requestedList.scrollTop = requestedList.scrollHeight;
 
     if (typeof lucide !== "undefined") {
         lucide.createIcons();
     }
+
+    // Resolve attachments and reactions after the messages are visible.
+    // Keep a bounded number of concurrent requests to avoid flooding Supabase.
+    const backgroundTasks = [];
+
+    for (const message of messages) {
+        if (message.attachment_url &&
+            !patriodxAttachmentCache.has(message.attachment_url)) {
+            backgroundTasks.push(async () => {
+                try {
+                    const url = await getMessageAttachmentUrl(
+                        message.attachment_url
+                    );
+
+                    if (!url) return;
+
+                    patriodxAttachmentCache.set(
+                        message.attachment_url,
+                        url
+                    );
+
+                    if (!isCurrentRequest()) return;
+
+                    const row = requestedList.querySelector(
+                        `[data-message-id="${CSS.escape(String(message.id))}"]`
+                    );
+
+                    const placeholder = row?.querySelector(
+                        `[data-attachment-for="${CSS.escape(String(message.id))}"]`
+                    );
+
+                    if (placeholder) {
+                        placeholder.outerHTML = `
+                            <a href="${safe(url)}"
+                               target="_blank"
+                               rel="noopener noreferrer">
+                                <img class="patriodx-attachment-preview"
+                                     src="${safe(url)}"
+                                     alt="Image attachment"
+                                     loading="lazy">
+                            </a>
+                        `;
+                    }
+                } catch (attachmentError) {
+                    console.error(
+                        "Could not load message attachment:",
+                        attachmentError
+                    );
+                }
+            });
+        }
+
+        if (!patriodxReactionCache.has(message.id)) {
+            backgroundTasks.push(async () => {
+                try {
+                    const reactionHTML = await getMessageReactions(message.id);
+
+                    patriodxReactionCache.set(message.id, reactionHTML || "");
+
+                    if (!isCurrentRequest()) return;
+
+                    const reactionContainer = requestedList.querySelector(
+                        `[data-reactions-for="${CSS.escape(String(message.id))}"]`
+                    );
+
+                    if (reactionContainer) {
+                        reactionContainer.innerHTML = reactionHTML || "";
+                    }
+                } catch (reactionError) {
+                    console.error(
+                        "Could not load reactions for message:",
+                        message.id,
+                        reactionError
+                    );
+                }
+            });
+        }
+    }
+
+    // Run only four background tasks at once.
+    let nextTask = 0;
+
+    async function runBackgroundWorker() {
+        while (nextTask < backgroundTasks.length) {
+            const task = backgroundTasks[nextTask++];
+            await task();
+        }
+    }
+
+    await Promise.all(
+        Array.from(
+            { length: Math.min(4, backgroundTasks.length) },
+            () => runBackgroundWorker()
+        )
+    );
 }
+
+
 /* =========================================================
    PATRIODX MESSAGING ENHANCEMENTS
 ========================================================= */

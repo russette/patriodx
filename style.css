@@ -18701,3 +18701,29 @@ color: inherit !important;
         overflow-wrap: anywhere !important;
     }
 }
+
+/* PATRIODX — Larger mobile chat back button */
+@media (max-width: 768px) {
+    #messaging.mobile-chat-open .mobile-chat-back {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex: 0 0 48px !important;
+        width: 48px !important;
+        min-width: 48px !important;
+        height: 48px !important;
+        min-height: 48px !important;
+        margin: 0 10px 0 0 !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        font-size: 30px !important;
+        line-height: 1 !important;
+        cursor: pointer !important;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    #messaging.mobile-chat-open .chat-header {
+        gap: 8px !important;
+        padding: 8px 12px !important;
+    }
+}
