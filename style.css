@@ -18463,3 +18463,115 @@ color: inherit !important;
         overflow-y: auto;
     }
 }
+
+/* PATRIODX — Compact Instagram-style mobile message composer */
+@media (max-width: 768px) {
+    #messaging #messageForm {
+        display: flex !important;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        min-width: 0;
+        padding: 8px 10px !important;
+        margin: 0;
+        box-sizing: border-box;
+        background: var(--card-bg, #ffffff) !important;
+        border-top: 1px solid var(--border-color, #e5e7eb);
+    }
+
+    /* Smaller attachment button */
+    #messaging #patriodxAttachButton {
+        display: inline-flex;
+        flex: 0 0 42px;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        min-width: 42px;
+        height: 42px;
+        min-height: 42px;
+        padding: 0 !important;
+        margin: 0;
+        border: none;
+        border-radius: 50%;
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 21px;
+        line-height: 1;
+        box-shadow: none;
+        transform: none;
+    }
+
+    /* Compact message input */
+    #messaging #messageInput {
+        flex: 1 1 auto;
+        width: 0;
+        min-width: 0;
+        height: 42px;
+        min-height: 42px;
+        max-height: 110px;
+        margin: 0;
+        padding: 10px 14px;
+        border: 1px solid var(--border-color, #d1d5db);
+        border-radius: 22px;
+        background: var(--input-bg, #f3f4f6);
+        color: var(--text-color, #111827);
+        font-size: 15px;
+        line-height: 1.4;
+        box-sizing: border-box;
+    }
+
+    #messaging #messageInput::placeholder {
+        color: var(--muted-text, #6b7280);
+        opacity: 1;
+    }
+
+    /* Compact Send button */
+    #messaging #messageSendButton {
+        display: inline-flex;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        min-width: 64px;
+        width: auto;
+        height: 42px;
+        min-height: 42px;
+        margin: 0;
+        padding: 0 14px !important;
+        border: none;
+        border-radius: 22px;
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 700;
+        box-shadow: none;
+        transform: none;
+    }
+
+    /* Prevent the selected file name from expanding the composer */
+    #messaging #patriodxAttachmentName {
+        flex: 0 1 auto;
+        min-width: 0;
+        max-width: 80px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 11px;
+    }
+
+    /* Keep the composer readable in dark mode */
+    body.dark-mode #messaging #messageForm {
+        background: var(--card-bg, #111827) !important;
+        border-top-color: var(--border-color, #374151);
+    }
+
+    body.dark-mode #messaging #messageInput {
+        background: var(--input-bg, #1f2937);
+        color: #f9fafb;
+        border-color: #374151;
+    }
+
+    body.dark-mode #messaging #messageInput::placeholder {
+        color: #9ca3af;
+    }
+}
