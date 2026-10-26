@@ -11828,7 +11828,14 @@ if (chatHeader) {
         >
             <i data-lucide="arrow-left"></i>
         </button>
-        <div class="chat-header-profile">
+       <div
+    class="chat-header-profile"
+    role="button"
+    tabindex="0"
+    data-open-chat-profile="${safe(otherUserId || "")}"
+    aria-label="View ${safe(title)}'s profile"
+    style="cursor:pointer;"
+>
 
             <div class="chat-header-avatar-wrap">
                 ${avatarHTML}
@@ -13478,6 +13485,49 @@ if (
 
 window.openConversation =
     openConversation;
+    document.addEventListener("click", async function (event) {
+    const profileTarget = event.target.closest(
+        "[data-open-chat-profile]"
+    );
+
+    if (!profileTarget) return;
+
+    const userId = profileTarget.dataset.openChatProfile;
+
+    if (!userId || !userId.trim()) return;
+
+    event.preventDefault();
+
+    try {
+        await loadPublicProfile(userId);
+
+        document.getElementById("publicProfileCard")
+            ?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+    } catch (error) {
+        console.error("Could not open chat user's profile:", error);
+
+        showPATRIODXToast(
+            "Could not open this profile. Please try again.",
+            "error"
+        );
+    }
+});
+
+document.addEventListener("keydown", function (event) {
+    const profileTarget = event.target.closest(
+        "[data-open-chat-profile]"
+    );
+
+    if (!profileTarget) return;
+
+    if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        profileTarget.click();
+    }
+});
 /* =========================================================
    PATRIODX NOTIFICATIONS
 ========================================================= */
@@ -15708,7 +15758,47 @@ async function followUser(userId) {
    await loadPublicProfile(userId);
 await loadMyFollowCounts();
 }
+// --------------------------------------
+// MESSAGE BUTTON
+// --------------------------------------
 
+const messageButton = document.getElementById(
+    "publicProfileMessageButton"
+);
+
+if (messageButton) {
+    if (!currentUser || userId === currentUser.id) {
+        messageButton.style.display = "none";
+    } else {
+        messageButton.style.display = "inline-flex";
+
+        messageButton.onclick = async function () {
+            messageButton.disabled = true;
+
+            try {
+                if (typeof createConversationWithUser !== "function") {
+                    throw new Error(
+                        "The messaging function is unavailable."
+                    );
+                }
+
+                await createConversationWithUser(userId);
+            } catch (error) {
+                console.error(
+                    "Could not start conversation from profile:",
+                    error
+                );
+
+                showPATRIODXToast(
+                    "Could not open this conversation. Please try again.",
+                    "error"
+                );
+            } finally {
+                messageButton.disabled = false;
+            }
+        };
+    }
+}
 // ------------------------------------------
 // UNFOLLOW USER
 // ------------------------------------------
