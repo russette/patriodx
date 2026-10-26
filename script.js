@@ -10990,157 +10990,89 @@ async function loadConversationUsers() {
 
 
 function renderConversationUsers() {
+    if (!conversationUserList) return;
 
-    if (!conversationUserList) {
-        return;
-    }
+    const search = (
+        conversationUserSearch?.value ||
+        messagingPeopleSearch?.value ||
+        ""
+    ).trim().toLowerCase();
 
+    const users = conversationUsers.filter(user => {
+        const name = (user.display_name || "").toLowerCase();
+        const username = (user.username || "").toLowerCase();
 
-    const search =
-        (
-            conversationUserSearch?.value ||
-            ""
-        )
-        .trim()
-        .toLowerCase();
-
-
-    const users =
-        conversationUsers.filter(
-            user => {
-
-                const name =
-                    (
-                        user.display_name ||
-                        ""
-                    ).toLowerCase();
-
-                const username =
-                    (
-                        user.username ||
-                        ""
-                    ).toLowerCase();
-
-                return (
-                    name.includes(search) ||
-                    username.includes(search)
-                );
-
-            }
-        );
-
+        return name.includes(search) || username.includes(search);
+    });
 
     if (!users.length) {
-
         conversationUserList.innerHTML = `
             <div class="messaging-empty-state">
-
-                <div>
-                    <i data-lucide="user-x"></i>
-                </div>
-
-                <h3>
-                    No users found
-                </h3>
-
-                <p>
-                    Try a different search.
-                </p>
-
+                <i data-lucide="user-round-x"></i>
+                <h3>No people found</h3>
+                <p>Try another name or username.</p>
             </div>
         `;
 
-        if (typeof lucide !== "undefined") {
-            lucide.createIcons();
-        }
-
+        if (typeof lucide !== "undefined") lucide.createIcons();
         return;
     }
 
+    conversationUserList.innerHTML = users.map(user => {
+        const name = user.display_name || user.username || "PATRIODX User";
+        const username = user.username ? `@${user.username}` : "";
 
-    conversationUserList.innerHTML =
-        users.map(
-            user => {
+        const avatar = user.avatar_url
+            ? `<img src="${safe(user.avatar_url)}"
+                    alt=""
+                    loading="lazy"
+                    onerror="this.style.display='none';">`
+            : `<i data-lucide="user-round"></i>`;
 
-                const name =
-                    user.display_name ||
-                    user.username ||
-                    "PATRIODX User";
+        return `
+            <button
+                type="button"
+                class="conversation-user-item"
+                data-user-id="${safe(user.id)}"
+            >
+                <div class="conversation-user-avatar">
+                    ${avatar}
+                </div>
 
-                const username =
-                    user.username
-                        ? `@${user.username}`
-                        : "";
+                <div class="conversation-user-info">
+                    <strong>${safe(name)}</strong>
+                    <span>${safe(username || "PATRIODX member")}</span>
+                </div>
 
-                return `
-                    <button
-                        type="button"
-                        class="conversation-user-item"
-                        data-user-id="${user.id}"
-                    >
-
-                        <div class="conversation-user-avatar">
-                            <i data-lucide="user"></i>
-                        </div>
-
-                        <div class="conversation-user-info">
-
-                            <strong>
-                                ${safe(name)}
-                            </strong>
-
-                            ${
-                                username
-                                    ? `
-                                        <span>
-                                            ${safe(username)}
-                                        </span>
-                                    `
-                                    : ""
-                            }
-
-                        </div>
-
-                    </button>
-                `;
-
-            }
-        ).join("");
-
+                <span class="conversation-user-open" aria-hidden="true">
+                    <i data-lucide="message-circle"></i>
+                </span>
+            </button>
+        `;
+    }).join("");
 
     conversationUserList
-        .querySelectorAll(
-            ".conversation-user-item"
-        )
+        .querySelectorAll(".conversation-user-item")
         .forEach(button => {
+            button.addEventListener("click", async function () {
+                const userId = this.dataset.userId;
+                if (!userId) return;
 
-            button.addEventListener(
-                "click",
-                function() {
+                this.disabled = true;
 
-                    const userId =
-                        this.dataset.userId;
-
-                    if (!userId) {
-                        return;
+                try {
+                    await createConversationWithUser(userId);
+                    if (newConversationModal) {
+                        newConversationModal.style.display = "none";
                     }
-
-                    createConversationWithUser(
-                        userId
-                    );
-
+                } finally {
+                    this.disabled = false;
                 }
-            );
-
+            });
         });
 
-
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
-    }
+    if (typeof lucide !== "undefined") lucide.createIcons();
 }
-
-
 async function createConversationWithUser(otherUserId) {
     if (!currentUser || !otherUserId) {
         return;

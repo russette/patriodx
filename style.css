@@ -18847,3 +18847,233 @@ html.dark .messaging-people-search:focus-within {
     border-color: #60a5fa;
     box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
 }
+/* =========================================
+   PATRIODX MESSAGING — POLISHED USER PICKER
+========================================= */
+
+.conversation-user-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+    min-height: 70px;
+    padding: 12px;
+    margin-bottom: 8px;
+    color: var(--text-color, #0f172a);
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 14px;
+    text-align: left;
+    box-shadow: none;
+    transform: none;
+}
+
+.conversation-user-item:hover {
+    background: var(--input-bg, #f1f5f9);
+    border-color: var(--primary-color, #2563eb);
+    box-shadow: none;
+    transform: none;
+}
+
+.conversation-user-avatar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 46px;
+    width: 46px;
+    height: 46px;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--input-bg, #e2e8f0);
+}
+
+.conversation-user-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.conversation-user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.conversation-user-info strong,
+.conversation-user-info span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.conversation-user-info strong {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.conversation-user-info span {
+    margin-top: 3px;
+    color: var(--muted-text, #64748b);
+    font-size: 12px;
+}
+
+/* Presence indicators */
+.patriodx-online-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    flex: 0 0 9px;
+    border-radius: 50%;
+    background: #9ca3af;
+}
+
+.patriodx-online-dot.online {
+    background: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.13);
+}
+
+.patriodx-online-dot.offline {
+    background: #9ca3af;
+}
+
+/* Dark mode */
+body.dark-mode .conversation-user-item {
+    color: var(--text-color, #f1f5f9);
+    background: var(--card-bg, #111827);
+    border-color: var(--border-color, #374151);
+}
+
+body.dark-mode .conversation-user-item:hover {
+    background: var(--input-bg, #1f2937);
+    border-color: #60a5fa;
+}
+
+body.dark-mode .conversation-user-avatar {
+    background: var(--input-bg, #1f2937);
+}
+
+body.dark-mode .conversation-user-info span {
+    color: var(--muted-text, #9ca3af);
+}
+
+@media (max-width: 768px) {
+    .conversation-user-item {
+        min-height: 66px;
+        padding: 10px;
+    }
+
+    .conversation-user-avatar {
+        flex-basis: 44px;
+        width: 44px;
+        height: 44px;
+    }
+}
+/* PATRIODX MESSAGING — USER PICKER */
+#newConversationModal .conversation-user-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 68px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    color: var(--text-color, #0f172a);
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 14px;
+    text-align: left;
+    box-shadow: none;
+    transform: none;
+    transition: background .2s, border-color .2s;
+}
+
+#newConversationModal .conversation-user-item:hover {
+    background: var(--input-bg, #f1f5f9);
+    border-color: var(--primary-color, #2563eb);
+    box-shadow: none;
+    transform: none;
+}
+
+#newConversationModal .conversation-user-item:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+#newConversationModal .conversation-user-avatar {
+    display: flex;
+    flex: 0 0 46px;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--input-bg, #e2e8f0);
+}
+
+#newConversationModal .conversation-user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#newConversationModal .conversation-user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+#newConversationModal .conversation-user-info strong,
+#newConversationModal .conversation-user-info span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#newConversationModal .conversation-user-info strong {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+#newConversationModal .conversation-user-info span {
+    margin-top: 3px;
+    color: var(--muted-text, #64748b);
+    font-size: 12px;
+}
+
+#newConversationModal .conversation-user-open {
+    display: flex;
+    align-items: center;
+    color: var(--muted-text, #64748b);
+}
+
+body.dark-mode #newConversationModal .conversation-user-item,
+body.dark-theme #newConversationModal .conversation-user-item,
+html[data-theme="dark"] #newConversationModal .conversation-user-item {
+    color: var(--text-color, #f1f5f9);
+    background: var(--card-bg, #111827);
+    border-color: var(--border-color, #374151);
+}
+
+body.dark-mode #newConversationModal .conversation-user-item:hover,
+body.dark-theme #newConversationModal .conversation-user-item:hover,
+html[data-theme="dark"] #newConversationModal .conversation-user-item:hover {
+    background: var(--input-bg, #1f2937);
+    border-color: #60a5fa;
+}
+
+body.dark-mode #newConversationModal .conversation-user-info span,
+body.dark-theme #newConversationModal .conversation-user-info span,
+html[data-theme="dark"] #newConversationModal .conversation-user-info span {
+    color: var(--muted-text, #9ca3af);
+}
+
+@media (max-width: 768px) {
+    #newConversationModal .conversation-user-item {
+        min-height: 64px;
+        padding: 10px;
+    }
+}
