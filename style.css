@@ -19269,3 +19269,160 @@ html[data-theme="dark"] #messaging {
         font-size: 32px !important;
     }
 }
+
+/* PATRIODX story viewed and unviewed indicators */
+.social-story-item.story-unviewed .social-story-avatar {
+    outline: 3px solid #d62976;
+    outline-offset: 3px;
+}
+
+.social-story-item.story-viewed .social-story-avatar {
+    outline: 3px solid #a1a1aa;
+    outline-offset: 3px;
+}
+
+.social-story-item {
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 768px) {
+    .social-story-item {
+        min-width: 64px;
+    }
+}
+
+/* =========================================
+   PATRIODX — SOCIAL FEED IMPROVEMENTS
+========================================= */
+
+.social-post-card {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.social-post-content {
+    overflow-wrap: anywhere;
+    word-break: normal;
+    line-height: 1.65;
+}
+
+.social-media-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.social-post-image,
+.social-post-video {
+    max-width: 100%;
+}
+
+.social-post-card button:focus-visible,
+.social-story-item:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 3px;
+}
+
+/* =========================================
+   PATRIODX — PROFILE IMPROVEMENTS
+========================================= */
+
+.profile-posts:has(.social-post-card),
+.public-profile-posts:has(.social-post-card) {
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.profile-posts .social-post-card,
+.public-profile-posts .social-post-card {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.profile-posts .social-post-content,
+.public-profile-posts .social-post-content {
+    min-width: 0;
+    padding: 12px;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.profile-header,
+.public-profile-card .profile-header {
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.profile-main-info {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.profile-main-info h2,
+.profile-main-info p {
+    overflow-wrap: anywhere;
+}
+
+.profile-stats > div {
+    min-width: 0;
+}
+
+/* =========================================
+   MOBILE SOCIAL FEED + PROFILES
+========================================= */
+
+@media (max-width: 600px) {
+    .social-stories-card {
+        padding: 14px;
+    }
+
+    .social-stories {
+        gap: 13px;
+        overscroll-behavior-x: contain;
+    }
+
+    .social-post-card {
+        margin-bottom: 12px;
+        border-radius: 12px;
+    }
+
+    .social-post-content {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .social-post-image,
+    .social-post-video {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .profile-posts:has(.social-post-card),
+    .public-profile-posts:has(.social-post-card) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 2px;
+    }
+
+    .profile-posts .social-post-content,
+    .public-profile-posts .social-post-content {
+        padding: 8px;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .profile-header,
+    .public-profile-card .profile-header {
+        gap: 10px;
+        max-width: 100%;
+    }
+
+    .profile-main-info {
+        flex: 1 1 auto;
+        overflow-wrap: anywhere;
+    }
+}

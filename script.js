@@ -6736,7 +6736,22 @@ async function loadPATRIODXStories() {
         (profiles || []).forEach(profile => {
             profileMap[profile.id] = profile;
         });
+const viewedStoryIds = new Set();
 
+if (currentUser) {
+    const { data: views, error: viewsError } = await supabaseClient
+        .from("story_views")
+        .select("story_id")
+        .eq("viewer_id", currentUser.id);
+
+    if (viewsError) {
+        console.error("Could not load viewed stories:", viewsError);
+    } else {
+        (views || []).forEach(view => {
+            viewedStoryIds.add(view.story_id);
+        });
+    }
+}
         stories.forEach(story => {
 
             const profile =
@@ -6761,13 +6776,20 @@ async function loadPATRIODXStories() {
                 storyData
             );
 
-            const storyButton =
-                document.createElement("button");
+           const storyButton =
+    document.createElement("button");
 
-            storyButton.type = "button";
+storyButton.type = "button";
 
-            storyButton.className =
-                "social-story-item";
+storyButton.className = "social-story-item";
+
+if (currentUser && story.user_id !== currentUser.id) {
+    storyButton.classList.add(
+        viewedStoryIds.has(story.id)
+            ? "story-viewed"
+            : "story-unviewed"
+    );
+}
 
             const avatar =
                 document.createElement("span");
@@ -11073,15 +11095,11 @@ function renderConversationUsers() {
 
     if (typeof lucide !== "undefined") lucide.createIcons();
 }
+
 async function createConversationWithUser(otherUserId) {
     if (!currentUser || !otherUserId) {
-        return;
+        return false;
     }
-
-    /*
-     * First check whether a conversation already exists
-     * between the current user and the selected user.
-     */
 
     const { data: myMemberships, error: myMembershipError } =
         await supabaseClient
@@ -11090,10 +11108,7 @@ async function createConversationWithUser(otherUserId) {
             .eq("user_id", currentUser.id);
 
     if (myMembershipError) {
-        console.error(
-            "Could not load your conversations:",
-            myMembershipError
-        );
+        console.error("Could not load your conversations:", myMembershipError);
 
         showPATRIODXToast(
             "Could not check existing conversations. " +
@@ -11101,12 +11116,11 @@ async function createConversationWithUser(otherUserId) {
             "error"
         );
 
-        return;
+        return false;
     }
 
     const myConversationIds =
-        (myMemberships || [])
-            .map(member => member.conversation_id);
+        (myMemberships || []).map(member => member.conversation_id);
 
     if (myConversationIds.length) {
         const { data: otherMemberships, error: otherMembershipError } =
@@ -11114,10 +11128,7 @@ async function createConversationWithUser(otherUserId) {
                 .from("conversation_members")
                 .select("conversation_id")
                 .eq("user_id", otherUserId)
-                .in(
-                    "conversation_id",
-                    myConversationIds
-                );
+                .in("conversation_id", myConversationIds);
 
         if (otherMembershipError) {
             console.error(
@@ -11131,19 +11142,17 @@ async function createConversationWithUser(otherUserId) {
                 "error"
             );
 
-            return;
+            return false;
         }
 
-        const sharedConversation =
-            (otherMemberships || [])[0];
+        const sharedConversation = (otherMemberships || [])[0];
 
         if (sharedConversation) {
             const existingConversationId =
                 sharedConversation.conversation_id;
 
             if (newConversationModal) {
-                newConversationModal.style.display =
-                    "none";
+                newConversationModal.style.display = "none";
             }
 
             if (conversationUserSearch) {
@@ -11151,34 +11160,21 @@ async function createConversationWithUser(otherUserId) {
             }
 
             await loadConversations();
-            await openConversation(
-                existingConversationId
-            );
+            await openConversation(existingConversationId);
 
-            return;
+            return true;
         }
     }
 
-    /*
-     * No existing conversation was found.
-     * Create a new one.
-     */
-
-    const conversationId =
-        crypto.randomUUID();
+    const conversationId = crypto.randomUUID();
 
     const { error: conversationError } =
         await supabaseClient
             .from("conversations")
-            .insert({
-                id: conversationId
-            });
+            .insert({ id: conversationId });
 
     if (conversationError) {
-        console.error(
-            "Could not create conversation:",
-            conversationError
-        );
+        console.error("Could not create conversation:", conversationError);
 
         showPATRIODXToast(
             "Could not create conversation. " +
@@ -11186,28 +11182,19 @@ async function createConversationWithUser(otherUserId) {
             "error"
         );
 
-        return;
+        return false;
     }
-
-    /*
-     * Add the current user first.
-     */
 
     const { error: currentMemberError } =
         await supabaseClient
             .from("conversation_members")
             .insert({
-                conversation_id:
-                    conversationId,
-                user_id:
-                    currentUser.id
+                conversation_id: conversationId,
+                user_id: currentUser.id
             });
 
     if (currentMemberError) {
-        console.error(
-            "Could not add current user:",
-            currentMemberError
-        );
+        console.error("Could not add current user:", currentMemberError);
 
         showPATRIODXToast(
             "Could not join the conversation. " +
@@ -11215,28 +11202,19 @@ async function createConversationWithUser(otherUserId) {
             "error"
         );
 
-        return;
+        return false;
     }
-
-    /*
-     * Then add the selected user.
-     */
 
     const { error: otherMemberError } =
         await supabaseClient
             .from("conversation_members")
             .insert({
-                conversation_id:
-                    conversationId,
-                user_id:
-                    otherUserId
+                conversation_id: conversationId,
+                user_id: otherUserId
             });
 
     if (otherMemberError) {
-        console.error(
-            "Could not add the selected user:",
-            otherMemberError
-        );
+        console.error("Could not add the selected user:", otherMemberError);
 
         showPATRIODXToast(
             "Could not add the selected user. " +
@@ -11244,12 +11222,11 @@ async function createConversationWithUser(otherUserId) {
             "error"
         );
 
-        return;
+        return false;
     }
 
     if (newConversationModal) {
-        newConversationModal.style.display =
-            "none";
+        newConversationModal.style.display = "none";
     }
 
     if (conversationUserSearch) {
@@ -11258,7 +11235,10 @@ async function createConversationWithUser(otherUserId) {
 
     await loadConversations();
     await openConversation(conversationId);
+
+    return true;
 }
+
 
 /* =========================================================
    LOAD CONVERSATIONS — PATRIODX
@@ -16040,9 +16020,9 @@ if (messageButton) {
                     messageButton.disabled = true;
 
                     try {
-                     await createConversationWithUser(userId);
+                  const opened = await createConversationWithUser(userId);
 
-if (typeof navigatePATRIODX === "function") {
+if (opened && typeof navigatePATRIODX === "function") {
     navigatePATRIODX("messaging");
 }
                     } catch (error) {
