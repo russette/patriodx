@@ -16011,7 +16011,11 @@ if (messageButton) {
                     messageButton.disabled = true;
 
                     try {
-                        await createConversationWithUser(userId);
+                     await createConversationWithUser(userId);
+
+if (typeof navigatePATRIODX === "function") {
+    navigatePATRIODX("messaging");
+}
                     } catch (error) {
                         console.error(
                             "Could not start conversation:",
