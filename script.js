@@ -14609,7 +14609,36 @@ if (profileAvatar) {
     }
 }
 
+// =========================================================
+// UPDATE STORIES AND CREATE-POST PROFILE AVATARS
+// =========================================================
 
+const socialStoryAvatar =
+    document.getElementById("socialStoryAvatar");
+
+const socialCreateAvatar =
+    document.getElementById("socialCreateAvatar");
+
+const socialCreateName =
+    document.getElementById("socialCreateName");
+
+const avatarUrl = currentProfile.avatar_url;
+
+const avatarHTML = avatarUrl
+    ? `<img src="${safe(avatarUrl)}" alt="${safe(displayName)}">`
+    : '<i data-lucide="user"></i>';
+
+if (socialStoryAvatar) {
+    socialStoryAvatar.innerHTML = avatarHTML;
+}
+
+if (socialCreateAvatar) {
+    socialCreateAvatar.innerHTML = avatarHTML;
+}
+
+if (socialCreateName) {
+    socialCreateName.textContent = displayName;
+}
 /* =========================================================
    RENDER ALL PROFILE LUCIDE ICONS
    Run AFTER all profile HTML has been updated.
