@@ -13372,9 +13372,11 @@ function subscribeToMessages(conversationId) {
                     online_at: new Date().toISOString()
                 });
             }
-        });
+               });
 
-    setupPATRIODXTyping(conversationId);
+    if (typeof setupPATRIODXTyping === "function") {
+        setupPATRIODXTyping(conversationId);
+    }
 }
 
 /* =========================================================
