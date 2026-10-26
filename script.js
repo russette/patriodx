@@ -18818,7 +18818,11 @@ if (file.size > 50 * 1024 * 1024) {
             preview.innerHTML = "";
         }
 
-        await loadSocialPosts();
+               await loadSocialPosts();
+
+        if (typeof loadPATRIODXStories === "function") {
+            await loadPATRIODXStories();
+        }
 
     } catch (error) {
 
