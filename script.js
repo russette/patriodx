@@ -16115,8 +16115,8 @@ if (opened && typeof navigatePATRIODX === "function") {
     }
 
 
-    postsElement.innerHTML = posts.map(post => {
-
+postsElement.innerHTML = (
+    await Promise.all(posts.map(async post => {
         const date = post.created_at
             ? new Date(post.created_at).toLocaleString()
             : "";
@@ -16126,9 +16126,10 @@ if (opened && typeof navigatePATRIODX === "function") {
         if (post.image_url) {
             media = `
                 <img
-                    src="${post.image_url}"
+                    src="${escapeHTML(post.image_url)}"
                     class="social-post-image"
                     alt="Post image"
+                    loading="lazy"
                 >
             `;
         }
@@ -16138,49 +16139,58 @@ if (opened && typeof navigatePATRIODX === "function") {
                 <video
                     class="social-post-image"
                     controls
+                    preload="metadata"
                 >
-                    <source src="${post.video_url}">
+                    <source src="${escapeHTML(post.video_url)}">
                 </video>
             `;
         }
 
+        let stats = { likes: 0, comments: 0 };
+        let liked = false;
+
+        try {
+            [stats, liked] = await Promise.all([
+                getSocialCounts(post.id),
+                hasLikedSocialPost(post.id)
+            ]);
+        } catch (error) {
+            console.error(
+                "Could not load public profile post statistics:",
+                post.id,
+                error
+            );
+        }
 
         return `
             <article class="social-post-card">
 
                 <div class="social-post-header">
-
                     <div class="social-post-avatar">
                         ${
                             profile.avatar_url
-                            ? `<img src="${profile.avatar_url}" alt="Profile picture">`
-                           : '<i data-lucide="user"></i>'
+                                ? `<img src="${escapeHTML(profile.avatar_url)}" alt="Profile picture">`
+                                : '<i data-lucide="user"></i>'
                         }
                     </div>
 
                     <div class="social-post-author">
-
                         <strong>
-                            ${escapeHTML(
-                                profile.display_name ||
-                                "PATRIODX User"
-                            )}
+                            ${escapeHTML(profile.display_name || "PATRIODX User")}
                         </strong>
 
                         <span>
                             ${
                                 profile.username
-                                ? "@" + escapeHTML(profile.username)
-                                : ""
+                                    ? "@" + escapeHTML(profile.username)
+                                    : ""
                             }
                         </span>
-
                     </div>
 
                     <div class="social-post-date">
                         ${escapeHTML(date)}
                     </div>
-
                 </div>
 
                 <div class="social-post-content">
@@ -16189,61 +16199,180 @@ if (opened && typeof navigatePATRIODX === "function") {
 
                 ${media}
 
+                <div
+                    class="public-profile-post-stats"
+                    id="public-profile-stats-${escapeHTML(post.id)}"
+                >
+                    <span>
+                        <i data-lucide="heart"></i>
+                        <span class="public-profile-like-count">${stats.likes}</span>
+                        <span>likes</span>
+                    </span>
+
+                    <span>
+                        <i data-lucide="message-circle"></i>
+                        ${stats.comments}
+                        <span>comments</span>
+                    </span>
+                </div>
+
+                <div class="public-profile-post-actions">
+                    <button
+                        type="button"
+                        class="social-like-button public-profile-like-button ${liked ? "liked" : ""}"
+                        data-post-id="${escapeHTML(post.id)}"
+                        aria-label="${liked ? "Unlike post" : "Like post"}"
+                        title="${liked ? "Unlike" : "Like"}"
+                    >
+                        <i data-lucide="heart"></i>
+                        <span>${liked ? "Liked" : "Like"}</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="public-profile-comment-button"
+                        data-post-id="${escapeHTML(post.id)}"
+                    >
+                        <i data-lucide="message-circle"></i>
+                        Comment
+                    </button>
+                </div>
             </article>
         `;
+    }))
+).join("");
 
-      }).join("");
+if (typeof lucide !== "undefined") {
+    lucide.createIcons();
+}
 
-    // Make public profile posts clickable
-    postsElement
-        .querySelectorAll(".social-post-card")
-        .forEach((card, index) => {
+// Make public profile posts clickable
+postsElement
+    .querySelectorAll(".social-post-card")
+    .forEach((card, index) => {
 
-            const post = posts[index];
+        const post = posts[index];
+        if (!post) return;
+
+        card.style.cursor = "pointer";
+        card.setAttribute("role", "button");
+        card.setAttribute("tabindex", "0");
+        card.setAttribute("aria-label", "Open post");
+
+        function openThisPost() {
+            openProfilePostViewer({
+                postId: post.id,
+                imageUrl: post.image_url || "",
+                videoUrl: post.video_url || "",
+                author: profile.display_name || "PATRIODX User",
+                caption: post.content || "",
+                date: post.created_at
+                    ? new Date(post.created_at).toLocaleString()
+                    : ""
+            });
+        }
+
+        card.addEventListener("click", function (event) {
+            // Preserve video controls and action buttons
+            if (event.target.closest("video, button, a")) return;
+            openThisPost();
+        });
+
+        card.addEventListener("keydown", function (event) {
+            if (
+                event.target === card &&
+                (event.key === "Enter" || event.key === " ")
+            ) {
+                event.preventDefault();
+                openThisPost();
+            }
+        });
+    });
+
+// Handle likes on public profile posts
+postsElement
+    .querySelectorAll(".public-profile-like-button")
+    .forEach(button => {
+        button.addEventListener("click", async function (event) {
+            event.stopPropagation();
+
+            const postId = this.dataset.postId;
+            if (!postId || this.disabled) return;
+
+            this.disabled = true;
+
+            try {
+                await likeSocialPost(postId);
+
+                const [stats, liked] = await Promise.all([
+                    getSocialCounts(postId),
+                    hasLikedSocialPost(postId)
+                ]);
+
+                const statsElement = document.getElementById(
+                    `public-profile-stats-${postId}`
+                );
+
+                if (statsElement) {
+                    const countElement = statsElement.querySelector(
+                        ".public-profile-like-count"
+                    );
+
+                    if (countElement) {
+                        countElement.textContent = stats.likes;
+                    }
+                }
+
+                this.classList.toggle("liked", liked);
+                this.setAttribute(
+                    "aria-label",
+                    liked ? "Unlike post" : "Like post"
+                );
+                this.title = liked ? "Unlike" : "Like";
+
+                const label = this.querySelector("span");
+                if (label) {
+                    label.textContent = liked ? "Liked" : "Like";
+                }
+
+                if (typeof lucide !== "undefined") {
+                    lucide.createIcons();
+                }
+            } catch (error) {
+                console.error("Public profile like error:", error);
+            } finally {
+                this.disabled = false;
+            }
+        });
+    });
+
+// Open the post viewer when Comment is clicked
+postsElement
+    .querySelectorAll(".public-profile-comment-button")
+    .forEach(button => {
+        button.addEventListener("click", function (event) {
+            event.stopPropagation();
+
+            const post = posts.find(
+                item => String(item.id) === String(this.dataset.postId)
+            );
 
             if (!post) return;
 
-            card.style.cursor = "pointer";
-            card.setAttribute("role", "button");
-            card.setAttribute("tabindex", "0");
-            card.setAttribute("aria-label", "Open post");
-
-            function openThisPost() {
-                openProfilePostViewer({
-                    postId: post.id,
-                    imageUrl: post.image_url || "",
-                    videoUrl: post.video_url || "",
-                    author:
-                        profile.display_name ||
-                        "PATRIODX User",
-                    caption: post.content || "",
-                    date: post.created_at
-                        ? new Date(post.created_at).toLocaleString()
-                        : ""
-                });
-            }
-
-            card.addEventListener("click", function (event) {
-
-                // Preserve video playback controls
-                if (event.target.closest("video, button, a")) {
-                    return;
-                }
-
-                openThisPost();
-            });
-
-            card.addEventListener("keydown", function (event) {
-
-                if (
-                    event.target === card &&
-                    (event.key === "Enter" || event.key === " ")
-                ) {
-                    event.preventDefault();
-                    openThisPost();
-                }
+            openProfilePostViewer({
+                postId: post.id,
+                imageUrl: post.image_url || "",
+                videoUrl: post.video_url || "",
+                author: profile.display_name || "PATRIODX User",
+                caption: post.content || "",
+                date: post.created_at
+                    ? new Date(post.created_at).toLocaleString()
+                    : ""
             });
         });
+    });
+
+
 }
 function escapeHTML(value) {
     return String(value ?? "")
@@ -16251,8 +16380,9 @@ function escapeHTML(value) {
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(/'/g, "&#39;");
 }
+
 // ------------------------------------------
 // SEARCH USERS
 // ------------------------------------------

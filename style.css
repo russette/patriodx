@@ -19426,3 +19426,157 @@ html[data-theme="dark"] #messaging {
         overflow-wrap: anywhere;
     }
 }
+
+/* Fix comments being cramped or hidden on mobile */
+@media (max-width: 600px) {
+    .profile-post-viewer,
+    .profile-post-modal,
+    .social-post-viewer,
+    .post-viewer {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .profile-post-viewer *,
+    .profile-post-modal *,
+    .social-post-viewer *,
+    .post-viewer * {
+        box-sizing: border-box;
+    }
+
+    .profile-post-viewer .comments,
+    .profile-post-modal .comments,
+    .social-post-viewer .comments,
+    .post-viewer .comments,
+    .profile-post-viewer .comment,
+    .profile-post-modal .comment,
+    .social-post-viewer .comment,
+    .post-viewer .comment {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+        white-space: normal;
+    }
+
+    .profile-post-viewer input,
+    .profile-post-modal input,
+    .social-post-viewer input,
+    .post-viewer input,
+    .profile-post-viewer textarea,
+    .profile-post-modal textarea,
+    .social-post-viewer textarea,
+    .post-viewer textarea {
+        min-width: 0;
+        max-width: 100%;
+    }
+}
+
+/* PATRIODX — mobile profile and post layout */
+@media (max-width: 600px) {
+    .public-profile-card,
+    .public-profile-posts,
+    .profile-posts {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    .public-profile-card *,
+    .public-profile-posts *,
+    .profile-posts * {
+        box-sizing: border-box;
+    }
+
+    .public-profile-card {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .public-profile-posts,
+    .profile-posts {
+        overflow-x: hidden;
+    }
+
+    .public-profile-posts .social-post-card,
+    .profile-posts .social-post-card {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .public-profile-posts .social-post-header,
+    .profile-posts .social-post-header {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .public-profile-posts .social-post-actions,
+    .profile-posts .social-post-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        max-width: 100%;
+    }
+
+    .public-profile-posts .social-post-actions button,
+    .profile-posts .social-post-actions button {
+        min-width: 36px;
+        max-width: 100%;
+        flex-shrink: 0;
+    }
+
+    .public-profile-posts .social-post-content,
+    .profile-posts .social-post-content {
+        overflow-wrap: anywhere;
+        white-space: pre-wrap;
+    }
+}
+.public-profile-post-stats,
+.public-profile-post-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.public-profile-post-stats > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    overflow-wrap: anywhere;
+}
+
+.public-profile-post-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 40px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.public-profile-post-actions button.liked {
+    color: #e54861;
+}
+
+@media (max-width: 600px) {
+    .public-profile-post-stats,
+    .public-profile-post-actions {
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .public-profile-post-actions button {
+        min-height: 44px;
+        padding: 8px;
+    }
+}
