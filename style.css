@@ -10763,13 +10763,13 @@ overflow: hidden;
 box-shadow: none;
 }
 
-/* Hide post details in the grid preview */
+/* Hide post headers in the grid preview, but allow written tweets to display */
+
 .profile-posts .social-post-header,
-.profile-posts .social-post-content,
-.public-profile-posts .social-post-header,
-.public-profile-posts .social-post-content {
+.public-profile-posts .social-post-header {
 display: none;
 }
+
 
 /* Consistent image tiles */
 .profile-posts .social-post-image,
