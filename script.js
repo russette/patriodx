@@ -15758,47 +15758,7 @@ async function followUser(userId) {
    await loadPublicProfile(userId);
 await loadMyFollowCounts();
 }
-// --------------------------------------
-// MESSAGE BUTTON
-// --------------------------------------
 
-const messageButton = document.getElementById(
-    "publicProfileMessageButton"
-);
-
-if (messageButton) {
-    if (!currentUser || userId === currentUser.id) {
-        messageButton.style.display = "none";
-    } else {
-        messageButton.style.display = "inline-flex";
-
-        messageButton.onclick = async function () {
-            messageButton.disabled = true;
-
-            try {
-                if (typeof createConversationWithUser !== "function") {
-                    throw new Error(
-                        "The messaging function is unavailable."
-                    );
-                }
-
-                await createConversationWithUser(userId);
-            } catch (error) {
-                console.error(
-                    "Could not start conversation from profile:",
-                    error
-                );
-
-                showPATRIODXToast(
-                    "Could not open this conversation. Please try again.",
-                    "error"
-                );
-            } finally {
-                messageButton.disabled = false;
-            }
-        };
-    }
-}
 // ------------------------------------------
 // UNFOLLOW USER
 // ------------------------------------------
@@ -16026,7 +15986,50 @@ if (badgeElement) {
         }
     }
 
+// --------------------------------------
+// MESSAGE BUTTON
+// --------------------------------------
 
+const messageButton = document.getElementById(
+    "publicProfileMessageButton"
+);
+
+if (messageButton) {
+    messageButton.style.display = "none";
+    messageButton.onclick = null;
+
+    if (currentUser && userId !== currentUser.id) {
+        try {
+            const following = await isFollowingUser(userId);
+
+            if (following) {
+                messageButton.style.display = "inline-flex";
+
+                messageButton.onclick = async function () {
+                    messageButton.disabled = true;
+
+                    try {
+                        await createConversationWithUser(userId);
+                    } catch (error) {
+                        console.error(
+                            "Could not start conversation:",
+                            error
+                        );
+
+                        showPATRIODXToast(
+                            "Could not open this conversation. Please try again.",
+                            "error"
+                        );
+                    } finally {
+                        messageButton.disabled = false;
+                    }
+                };
+            }
+        } catch (error) {
+            console.error("Could not check follow status:", error);
+        }
+    }
+}
     // --------------------------------------
     // FOLLOW COUNTS
     // --------------------------------------
