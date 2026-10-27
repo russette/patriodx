@@ -19580,3 +19580,149 @@ html[data-theme="dark"] #messaging {
         padding: 8px;
     }
 }
+
+/* =========================================
+   PATRIODX — IMPROVED PROFILE POST CARDS
+   Responsive styling for phones and laptops
+========================================= */
+
+.profile-posts:has(.social-post-card),
+.public-profile-posts:has(.social-post-card) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    align-items: start;
+    overflow: visible;
+}
+
+.profile-posts .social-post-card,
+.public-profile-posts .social-post-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.profile-posts .social-post-card:hover,
+.public-profile-posts .social-post-card:hover {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.10);
+}
+
+.profile-posts .social-post-header,
+.public-profile-posts .social-post-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+}
+
+.profile-posts .social-post-content,
+.public-profile-posts .social-post-content {
+    padding: 14px 16px;
+    color: #1f2937;
+    font-size: 14px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.profile-posts .social-post-image,
+.public-profile-posts .social-post-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 520px;
+    aspect-ratio: auto;
+    object-fit: contain;
+    background: #f3f4f6;
+    border-radius: 0;
+    margin: 0;
+}
+
+.profile-posts .social-post-card video,
+.public-profile-posts .social-post-card video {
+    display: block;
+    width: 100%;
+    max-height: 520px;
+    object-fit: contain;
+    background: #111111;
+}
+
+.profile-posts .social-post-actions,
+.public-profile-posts .social-post-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px 14px;
+}
+
+.profile-posts .social-post-actions button,
+.public-profile-posts .social-post-actions button {
+    min-height: 40px;
+    padding: 8px 10px;
+    border-radius: 9px;
+    background: transparent;
+    color: inherit;
+    box-shadow: none;
+    transform: none;
+}
+
+.profile-posts .social-post-actions button:hover,
+.public-profile-posts .social-post-actions button:hover {
+    background: #f3f4f6;
+    box-shadow: none;
+    transform: none;
+}
+
+body.dark-mode .profile-posts .social-post-card,
+body.dark-mode .public-profile-posts .social-post-card {
+    background: #171717;
+    border-color: #303030;
+    color: #f5f5f5;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+}
+
+body.dark-mode .profile-posts .social-post-content,
+body.dark-mode .public-profile-posts .social-post-content {
+    color: #f3f4f6;
+}
+
+body.dark-mode .profile-posts .social-post-actions button:hover,
+body.dark-mode .public-profile-posts .social-post-actions button:hover {
+    background: #292929;
+}
+
+@media (max-width: 700px) {
+    .profile-posts:has(.social-post-card),
+    .public-profile-posts:has(.social-post-card) {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+    }
+
+    .profile-posts .social-post-card,
+    .public-profile-posts .social-post-card {
+        border-radius: 14px;
+    }
+
+    .profile-posts .social-post-image,
+    .public-profile-posts .social-post-image {
+        max-height: 460px;
+    }
+
+    .profile-posts .social-post-card video,
+    .public-profile-posts .social-post-card video {
+        max-height: 460px;
+    }
+}

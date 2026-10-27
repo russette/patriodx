@@ -11283,9 +11283,7 @@ async function createConversationWithUser(otherUserId) {
                 conversationUserSearch.value = "";
             }
 
-            await loadConversations();
-            await openConversation(existingConversationId);
-
+         await openConversation(existingConversationId);
             return true;
         }
     }
@@ -11357,9 +11355,7 @@ async function createConversationWithUser(otherUserId) {
         conversationUserSearch.value = "";
     }
 
-    await loadConversations();
-    await openConversation(conversationId);
-
+   await openConversation(conversationId);
     return true;
 }
 
@@ -15252,18 +15248,21 @@ async function loadMyProfilePosts() {
                         : "";
 
 
-                const video =
-                    post.video_url
-                        ? `
-                            <video
-                                src="${safe(post.video_url)}"
-                                class="social-post-video"
-                                controls
-                                preload="metadata"
-                            ></video>
-                        `
-                        : "";
-
+               const video = post.video_url
+    ? `
+        <div class="social-media-wrapper">
+            <video
+                src="${safe(post.video_url)}"
+                class="social-post-video"
+                controls
+                muted
+                playsinline
+                loop
+                preload="metadata"
+            ></video>
+        </div>
+    `
+    : "";
 
                 return `
 
@@ -15299,14 +15298,19 @@ async function loadMyProfilePosts() {
 
                             <div>
 
-                                <div
-                                    class="social-post-author"
-                                >
-                                    ${safe(
-                                        currentProfile?.display_name ||
-                                        "PATRIODX User"
-                                    )}
-                                </div>
+                               <div class="social-post-author">
+    ${safe(
+        currentProfile?.display_name ||
+        currentProfile?.username ||
+        "PATRIODX User"
+    )}
+
+    ${
+        typeof getPATRIODXBadge === "function"
+            ? getPATRIODXBadge(currentProfile)
+            : ""
+    }
+</div>
 
 
                                 <div
@@ -15347,7 +15351,35 @@ async function loadMyProfilePosts() {
 
                   })
             .join("");
+// Autoplay profile videos when visible, and pause them when off-screen.
+if ("IntersectionObserver" in window) {
+    const profileVideoObserver = new IntersectionObserver(
+        entries => {
+            entries.forEach(entry => {
+                const video = entry.target;
 
+                if (entry.isIntersecting) {
+                    video.play().catch(() => {
+                        // Keep the native controls available if autoplay is blocked.
+                    });
+                } else {
+                    video.pause();
+                }
+            });
+        },
+        {
+            threshold: 0.6
+        }
+    );
+
+    profilePosts
+        .querySelectorAll(".social-post-video")
+        .forEach(video => {
+            video.muted = true;
+            video.playsInline = true;
+            profileVideoObserver.observe(video);
+        });
+}
     // Make your profile posts clickable
     profilePosts
         .querySelectorAll(".social-post-card")
@@ -15994,6 +16026,15 @@ if (profileSection) {
         .forEach(heading => {
             heading.style.display = "none";
         });
+}
+
+// Hide Find People and Discover People while viewing a public profile.
+const profileSearchCard = document
+    .getElementById("profileSearchForm")
+    ?.closest(".profile-search-card");
+
+if (profileSearchCard) {
+    profileSearchCard.style.display = "none";
 }
 
 
