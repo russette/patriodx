@@ -612,7 +612,7 @@ function notifyMarketplaceHeight() {
     const notice = document.getElementById("notice");
 
     let marketplaceProducts = [];
-
+let marketplaceSellerProfiles = {};
     let cart = [];
 
     try {
@@ -636,7 +636,39 @@ function notifyMarketplaceHeight() {
             "'": "&#39;"
         })[character]);
     }
+function getPATRIODXBadge(profile) {
+    if (!profile) return "";
 
+    if (profile.is_owner) {
+        return `
+            <span title="PATRIODX Owner"
+                style="color:#f59e0b;font-weight:700;"
+                aria-label="PATRIODX Owner">★</span>
+        `;
+    }
+
+    if (!profile.is_verified) return "";
+
+    if (profile.verification_expires_at) {
+        const expiry = new Date(profile.verification_expires_at);
+
+        if (
+            !Number.isNaN(expiry.getTime()) &&
+            expiry <= new Date()
+        ) {
+            return "";
+        }
+    }
+
+    return `
+        <span title="Verified on PATRIODX"
+            style="display:inline-flex;align-items:center;
+                   justify-content:center;width:16px;height:16px;
+                   border-radius:50%;background:#1877f2;color:#fff;
+                   font-size:11px;font-weight:700;vertical-align:middle;"
+            aria-label="Verified">✓</span>
+    `;
+}
     function showNotice(message, isError = false) {
         notice.textContent = message;
         notice.classList.toggle("error", isError);
@@ -814,9 +846,22 @@ function notifyMarketplaceHeight() {
                                 : ""
                         }
 
-                        <h3 class="product-name">
-                            ${escapeHTML(product.name || "Unnamed product")}
-                        </h3>
+                       <h3 class="product-name">
+    ${escapeHTML(product.name || "Unnamed product")}
+</h3>
+
+${
+    marketplaceSellerProfiles[product.business_id]
+        ? `
+            <div class="marketplace-seller">
+                <span>Seller</span>
+                ${getPATRIODXBadge(
+                    marketplaceSellerProfiles[product.business_id]
+                )}
+            </div>
+        `
+        : ""
+}
 
                         <p class="product-description">
                             ${escapeHTML(
@@ -973,10 +1018,74 @@ function notifyMarketplaceHeight() {
             return;
         }
 
-        marketplaceProducts = data || [];
+       marketplaceProducts = data || [];
+marketplaceSellerProfiles = {};
 
-        renderCategories();
-        renderProducts();
+const businessIds = [
+    ...new Set(
+        marketplaceProducts
+            .map(product => product.business_id)
+            .filter(Boolean)
+    )
+];
+
+if (businessIds.length > 0) {
+    const { data: businesses, error: businessesError } =
+        await marketplaceDB
+            .from("businesses")
+            .select("id, owner_id")
+            .in("id", businessIds);
+
+    if (businessesError) {
+        console.error(
+            "Error loading marketplace sellers:",
+            businessesError
+        );
+    } else {
+        const ownerIds = [
+            ...new Set(
+                (businesses || [])
+                    .map(business => business.owner_id)
+                    .filter(Boolean)
+            )
+        ];
+
+        if (ownerIds.length > 0) {
+            const { data: profiles, error: profilesError } =
+                await marketplaceDB
+                    .from("profiles")
+                    .select(
+                        "id, username, display_name, is_verified, is_owner, verification_expires_at"
+                    )
+                    .in("id", ownerIds);
+
+            if (profilesError) {
+                console.error(
+                    "Error loading seller verification badges:",
+                    profilesError
+                );
+            } else {
+                const profilesById = Object.fromEntries(
+                    (profiles || []).map(profile => [
+                        profile.id,
+                        profile
+                    ])
+                );
+
+                (businesses || []).forEach(business => {
+                    const profile = profilesById[business.owner_id];
+
+                    if (profile) {
+                        marketplaceSellerProfiles[business.id] = profile;
+                    }
+                });
+            }
+        }
+    }
+}
+
+renderCategories();
+renderProducts();
     }
 const checkoutForm = document.getElementById(
     "marketplaceCheckoutForm"

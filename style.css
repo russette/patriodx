@@ -19726,3 +19726,28 @@ body.dark-mode .public-profile-posts .social-post-actions button:hover {
         max-height: 460px;
     }
 }
+/* PATRIODX — Desktop profile alignment correction */
+@media screen and (min-width: 701px) {
+#profile {
+width: 100%;
+min-width: 0;
+margin-left: 0;
+margin-right: 0;
+}
+
+
+#profile .profile-page-card,
+#profile .profile-posts {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#profile .profile-posts:has(.social-post-card) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+
+}

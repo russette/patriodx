@@ -6683,10 +6683,9 @@ async function loadPATRIODXStories() {
 
         const { data: stories, error } =
             await supabaseClient
-                .from("stories")
                 .select(
-                    "id, user_id, media_url, media_type, created_at, expires_at"
-                )
+    "id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at"
+)
                 .gt(
                     "expires_at",
                     new Date().toISOString()
@@ -6719,16 +6718,16 @@ async function loadPATRIODXStories() {
             )
         ];
 
-        const { data: profiles, error: profileError } =
-            await supabaseClient
-                .from("profiles")
-                .select(
-                    "id, username, display_name, avatar_url"
-                )
-                .in(
-                    "id",
-                    userIds
-                );
+       const { data: profiles, error: profileError } =
+    await supabaseClient
+        .from("profiles")
+        .select(
+            "id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at"
+        )
+        .in(
+            "id",
+            userIds
+        );
 
         if (profileError) {
             throw profileError;
@@ -6821,13 +6820,19 @@ if (currentUser && story.user_id !== currentUser.id) {
             }
 
             const nameElement =
-                document.createElement("strong");
+    document.createElement("strong");
 
-            nameElement.textContent =
-                name;
+nameElement.textContent = name;
 
-            storyButton.appendChild(avatar);
-            storyButton.appendChild(nameElement);
+if (typeof getPATRIODXBadge === "function") {
+    nameElement.insertAdjacentHTML(
+        "beforeend",
+        getPATRIODXBadge(profile)
+    );
+}
+
+storyButton.appendChild(avatar);
+storyButton.appendChild(nameElement);
 
             const storyIndex =
                 patriodxStoryViewerStories.length - 1;
@@ -7018,6 +7023,13 @@ async function renderPATRIODXStoryViewer() {
         "PATRIODX User";
 
     username.textContent = name;
+
+if (typeof getPATRIODXBadge === "function") {
+    username.insertAdjacentHTML(
+        "beforeend",
+        getPATRIODXBadge(profile)
+    );
+}
 
     avatar.innerHTML = "";
 
@@ -9183,22 +9195,13 @@ if (postError) {
     const { error: notificationError } =
         await supabaseClient
             .from("notifications")
-            .insert({
-
-                user_id:
-                    postData.user_id,
-
-                type:
-                    "comment",
-
-                title:
-                    `${commenterName} commented on your post`,
-
-                message:
-                    content
-
-            });
-
+           .insert({
+    user_id: postData.user_id,
+    sender_id: currentUser.id,
+    type: "comment",
+    title: `${commenterName} commented on your post`,
+    message: content
+});
     if (notificationError) {
 
         console.error(
@@ -10436,59 +10439,57 @@ window.reportSocialPost =
 window.saveSocialPost = saveSocialPost;
 window.toggleSocialPostSetting = toggleSocialPostSetting;
 window.editSocialPost = editSocialPost;
-/* =========================================================
-   PATRIODX VERIFICATION BADGES
-========================================================= */
 
 function getPATRIODXBadge(profile) {
+if (!profile) return "";
 
-    if (!profile) return "";
-if (
-    profile.is_verified &&
-    profile.verification_expires_at
-) {
-    const expiresAt =
-        new Date(
-            profile.verification_expires_at
-        );
+
+// The PATRIODX Owner badge is independent of paid verification.
+if (profile.is_owner) {
+    return `
+        <span
+            class="patriodx-verification-badge owner-badge"
+            title="PATRIODX Owner"
+            aria-label="PATRIODX Owner"
+        >
+            <i data-lucide="star"></i>
+            <i data-lucide="check"></i>
+        </span>
+    `;
+}
+
+if (!profile.is_verified) return "";
+
+// Hide expired verification badges.
+if (profile.verification_expires_at) {
+    const expiresAt = new Date(
+        profile.verification_expires_at
+    );
 
     if (
+        !Number.isNaN(expiresAt.getTime()) &&
         expiresAt <= new Date()
     ) {
         return "";
     }
 }
-    if (profile.is_owner) {
-        return `
-            <span
-    class="patriodx-verification-badge owner-badge"
-    title="PATRIODX Owner"
-    aria-label="PATRIODX Owner"
->
-    <i data-lucide="star"></i>
-    <i data-lucide="check"></i>
-</span>
-        `;
-    }
 
-    if (profile.is_verified) {
-        return `
-           <span 
-    class="patriodx-verification-badge verified-badge" 
-    title="PATRIODX Verified" 
-    aria-label="PATRIODX Verified" 
-> 
-    <i data-lucide="star"></i> 
-    <i data-lucide="check"></i> 
-</span>
-        `;
-    }
+return `
+    <span
+        class="patriodx-verification-badge verified-badge"
+        title="PATRIODX Verified"
+        aria-label="PATRIODX Verified"
+    >
+        <i data-lucide="star"></i>
+        <i data-lucide="check"></i>
+    </span>
+`;
 
-    return "";
+
 }
 
-window.getPATRIODXBadge =
-    getPATRIODXBadge;
+window.getPATRIODXBadge = getPATRIODXBadge;
+
 /* =========================================================
    PATRIODX HOME FEED
 ========================================================= */
@@ -11507,11 +11508,11 @@ async function loadConversations() {
                 data: profileData,
                 error: profileError
             } = await supabaseClient
-                .from("profiles")
-                .select(
-                    "id, username, display_name, avatar_url"
-                )
-                .in("id", otherUserIds);
+               .from("profiles")
+.select(
+    "id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at"
+)
+.in("id", otherUserIds);
 
             if (profileError) {
                 console.error(
@@ -13157,6 +13158,7 @@ optimisticRow.remove();
                             .from("notifications")
                             .insert({
                                 user_id: recipient.user_id,
+                                sender_id: currentUser.id,
                                 type: "message",
                                 title: senderName,
                                 message: attachmentFile && !content
@@ -13693,7 +13695,44 @@ async function loadNotifications() {
             .order("created_at", {
                 ascending: false
             });
+if (error) {
+    console.error("Error loading notifications:", error);
+    return;
+}
 
+const senderIds = [
+    ...new Set(
+        (data || [])
+            .map(notification => notification.sender_id)
+            .filter(Boolean)
+    )
+];
+
+let senderProfiles = {};
+
+if (senderIds.length > 0) {
+    const { data: profiles, error: profilesError } =
+        await supabaseClient
+            .from("profiles")
+            .select(
+                "id, username, display_name, is_verified, is_owner, verification_expires_at"
+            )
+            .in("id", senderIds);
+
+    if (profilesError) {
+        console.error(
+            "Error loading notification sender profiles:",
+            profilesError
+        );
+    } else {
+        senderProfiles = Object.fromEntries(
+            (profiles || []).map(profile => [
+                profile.id,
+                profile
+            ])
+        );
+    }
+}
 
     if (error) {
 
@@ -13720,7 +13759,7 @@ async function loadNotifications() {
 
         return;
     }
-
+window.notificationSenderProfiles = senderProfiles;
 
     notificationsCache = data || [];
 
@@ -13853,11 +13892,19 @@ function renderNotifications() {
                         <p class="notification-text">
 
                             <strong>
-                                ${
-                                    notification.title ||
-                                    "PATRIODX Notification"
-                                }
-                            </strong>
+    ${
+        notification.title ||
+        "PATRIODX Notification"
+    }
+    ${
+        window.notificationSenderProfiles?.[notification.sender_id] &&
+        typeof getPATRIODXBadge === "function"
+            ? getPATRIODXBadge(
+                window.notificationSenderProfiles[notification.sender_id]
+            )
+            : ""
+    }
+</strong>
 
                             ${
                                 notification.message
@@ -15298,19 +15345,31 @@ async function loadMyProfilePosts() {
 
                             <div>
 
-                               <div class="social-post-author">
+                           <div class="social-post-author">
     ${safe(
         currentProfile?.display_name ||
         currentProfile?.username ||
         "PATRIODX User"
     )}
 
-    ${
-        typeof getPATRIODXBadge === "function"
-            ? getPATRIODXBadge(currentProfile)
-            : ""
-    }
+
+${
+    typeof getPATRIODXBadge === "function"
+        ? getPATRIODXBadge(currentProfile)
+        : ""
+}
+
+
 </div>
+
+<div class="social-post-username">
+    ${safe(
+        currentProfile?.username
+            ? "@" + currentProfile.username.replace(/^@/, "")
+            : ""
+    )}
+</div>
+
 
 
                                 <div
@@ -15649,9 +15708,9 @@ async function loadProfileFollowList(userId, type) {
         error: profileError
     } = await supabaseClient
         .from("profiles")
-        .select(
-            "id, username, display_name, avatar_url"
-        )
+      .select(
+    "id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at"
+)
         .in("id", userIds);
 
     if (profileError) {
@@ -15709,12 +15768,13 @@ async function loadProfileFollowList(userId, type) {
 
                     <div class="profile-follow-list-info">
 
-                        <strong>
-                            ${escapeHTML(
-                                profile.display_name ||
-                                "PATRIODX User"
-                            )}
-                        </strong>
+                       <strong>
+    ${escapeHTML(
+        profile.display_name ||
+        "PATRIODX User"
+    )}
+    ${getPATRIODXBadge(profile)}
+</strong>
 
                         <span>
                             ${
@@ -16339,19 +16399,24 @@ postsElement.innerHTML = (
                         }
                     </div>
 
-                    <div class="social-post-author">
-                        <strong>
-                            ${escapeHTML(profile.display_name || "PATRIODX User")}
-                        </strong>
+                   <div class="social-post-author">
+    <strong>
+        ${escapeHTML(profile.display_name || "PATRIODX User")}
+        ${
+            typeof getPATRIODXBadge === "function"
+                ? getPATRIODXBadge(profile)
+                : ""
+        }
+    </strong>
 
-                        <span>
-                            ${
-                                profile.username
-                                    ? "@" + escapeHTML(profile.username)
-                                    : ""
-                            }
-                        </span>
-                    </div>
+    <span>
+        ${
+            profile.username
+                ? "@" + escapeHTML(profile.username.replace(/^@/, ""))
+                : ""
+        }
+    </span>
+</div>
 
                     <div class="social-post-date">
                         ${escapeHTML(date)}
@@ -16580,7 +16645,7 @@ async function searchPATRIODXUsers(username) {
     const { data, error } =
         await supabaseClient
             .from("profiles")
-            .select("id, username, display_name, avatar_url, bio")
+          .select("id, username, display_name, avatar_url, bio, is_verified, is_owner, verification_expires_at")
             .ilike("username", `%${cleanUsername}%`)
             .limit(10);
 
@@ -16634,12 +16699,18 @@ return `
 
         <div class="profile-search-result-info">
 
-            <div class="profile-search-result-name">
-                ${escapeHTML(
-                    profile.display_name ||
-                    "PATRIODX User"
-                )}
-            </div>
+           <div class="profile-search-result-name">
+    ${escapeHTML(
+        profile.display_name ||
+        "PATRIODX User"
+    )}
+    ${
+        typeof getPATRIODXBadge === "function"
+            ? getPATRIODXBadge(profile)
+            : ""
+    }
+</div>
+
 
             <div class="profile-search-result-username">
                 ${
@@ -16881,24 +16952,26 @@ async function loadDiscoverPeople() {
                             ${avatar}
                         </span>
 
-                        <span class="discover-person-info">
-                            <strong>
-                                ${escapeHTML(
-                                    profile.display_name ||
-                                    "PATRIODX User"
-                                )}
-                            </strong>
-
-                            <span>
-                                ${
-                                    profile.username
-                                        ? "@" + escapeHTML(
-                                            profile.username
-                                        )
-                                        : "@user"
-                                }
-                            </span>
-                        </span>
+                      <span class="discover-person-info">
+    <strong>
+        ${escapeHTML(
+            profile.display_name ||
+            "PATRIODX User"
+        )}
+        ${
+            typeof getPATRIODXBadge === "function"
+                ? getPATRIODXBadge(profile)
+                : ""
+        }
+    </strong>
+    <span>
+        ${
+            profile.username
+                ? "@" + escapeHTML(profile.username)
+                : "@user"
+        }
+    </span>
+</span>
                     </button>
 
                     ${
@@ -19645,8 +19718,18 @@ async function refreshProfilePostViewer(postId) {
             const content = document.createElement("div");
             content.className = "social-comment-content";
 
-            const name = document.createElement("strong");
-            name.textContent = author;
+           const name = document.createElement("strong");
+name.textContent = author;
+
+if (
+    profile &&
+    typeof getPATRIODXBadge === "function"
+) {
+    name.insertAdjacentHTML(
+        "beforeend",
+        getPATRIODXBadge(profile)
+    );
+}
 
             const text = document.createElement("p");
             text.className = "social-comment-text";
