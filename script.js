@@ -6665,7 +6665,10 @@ function setupSocialFeedTabs() {
 let patriodxStoryViewerStories = [];
 let patriodxStoryViewerIndex = 0;
 let patriodxStoryViewerTimer = null;
-
+let patriodxStoryProgressDuration = 0;
+let patriodxStoryProgressStartedAt = 0;
+let patriodxStoryProgressRemaining = 0;
+let patriodxStoryProgressPaused = false;
 
 async function loadPATRIODXStories() {
 
@@ -7066,37 +7069,46 @@ async function renderPATRIODXStoryViewer() {
 
         viewerContent.appendChild(video);
 
-        video.addEventListener(
-            "loadedmetadata",
-            function () {
+video.addEventListener("loadedmetadata", function () {
+    clearTimeout(patriodxStoryViewerTimer);
 
-                const duration =
-                    Math.min(
-                        Math.max(
-                            video.duration || 5,
-                            3
-                        ),
-                        15
-                    );
+    const progress = document.getElementById("storyViewerProgress");
 
-                startPATRIODXStoryProgress(
-                    duration
-                );
+    if (progress) {
+        progress.style.transition = "none";
+        progress.style.width = "0%";
+    }
 
-            },
-            {
-                once: true
-            }
+    function updateVideoStoryProgress() {
+        if (
+            !progress ||
+            !Number.isFinite(video.duration) ||
+            video.duration <= 0
+        ) {
+            return;
+        }
+
+        const percent = Math.min(
+            100,
+            Math.max(0, (video.currentTime / video.duration) * 100)
         );
 
-        video.addEventListener(
-            "ended",
-            function () {
+        progress.style.transition = "none";
+        progress.style.width = `${percent}%`;
+    }
 
-                showNextPATRIODXStory();
+    video.addEventListener("timeupdate", updateVideoStoryProgress);
 
-            }
-        );
+    video.addEventListener("ended", function () {
+        if (progress) {
+            progress.style.width = "100%";
+        }
+
+        showNextPATRIODXStory();
+    }, { once: true });
+
+}, { once: true });
+
 
     } else {
 
@@ -7123,49 +7135,108 @@ async function renderPATRIODXStoryViewer() {
     }
 }
 
+function startPATRIODXStoryProgress(duration) {
+    const progress = document.getElementById("storyViewerProgress");
 
-function startPATRIODXStoryProgress(
-    duration
-) {
+    if (!progress) return;
 
-    const progress =
-        document.getElementById(
-            "storyViewerProgress"
-        );
+    clearTimeout(patriodxStoryViewerTimer);
 
-    if (!progress) {
-        return;
-    }
-
-    clearTimeout(
-        patriodxStoryViewerTimer
-    );
+    patriodxStoryProgressDuration = duration * 1000;
+    patriodxStoryProgressRemaining = duration * 1000;
+    patriodxStoryProgressStartedAt = Date.now();
+    patriodxStoryProgressPaused = false;
 
     progress.style.transition = "none";
     progress.style.width = "0%";
 
-    requestAnimationFrame(
-        function () {
+    requestAnimationFrame(() => {
+        if (patriodxStoryProgressPaused) return;
 
-            progress.style.transition =
-                `width ${duration}s linear`;
+        progress.style.transition = `width ${duration}s linear`;
+        progress.style.width = "100%";
+    });
 
-            progress.style.width = "100%";
-
+    patriodxStoryViewerTimer = setTimeout(() => {
+        if (!patriodxStoryProgressPaused) {
+            showNextPATRIODXStory();
         }
-    );
-
-    patriodxStoryViewerTimer =
-        setTimeout(
-            function () {
-
-                showNextPATRIODXStory();
-
-            },
-            duration * 1000
-        );
+    }, duration * 1000);
 }
 
+function pausePATRIODXStoryProgress() {
+    if (patriodxStoryProgressPaused) return;
+
+    patriodxStoryProgressPaused = true;
+    clearTimeout(patriodxStoryViewerTimer);
+
+    const progress = document.getElementById("storyViewerProgress");
+    const video = document.querySelector("#storyViewerContent video");
+
+    if (video) {
+        video.pause();
+        return;
+    }
+
+    if (progress) {
+        const computedWidth = parseFloat(
+            window.getComputedStyle(progress).width
+        );
+        const parentWidth = progress.parentElement?.clientWidth || 0;
+
+        if (parentWidth > 0) {
+            const percent = Math.min(
+                100,
+                Math.max(0, (computedWidth / parentWidth) * 100)
+            );
+
+            patriodxStoryProgressRemaining =
+                patriodxStoryProgressDuration * (1 - percent / 100);
+
+            progress.style.transition = "none";
+            progress.style.width = `${percent}%`;
+        }
+    }
+}
+
+
+function resumePATRIODXStoryProgress() {
+    if (!patriodxStoryProgressPaused) return;
+
+    patriodxStoryProgressPaused = false;
+
+    const progress = document.getElementById("storyViewerProgress");
+    const video = document.querySelector("#storyViewerContent video");
+
+    if (video) {
+        video.play().catch(() => {});
+        return;
+    }
+
+    if (!progress) return;
+
+    const remaining = Math.max(0, patriodxStoryProgressRemaining);
+
+    if (remaining <= 0) {
+        showNextPATRIODXStory();
+        return;
+    }
+
+    patriodxStoryProgressStartedAt = Date.now();
+
+    requestAnimationFrame(() => {
+        if (patriodxStoryProgressPaused) return;
+
+        progress.style.transition = `width ${remaining}ms linear`;
+        progress.style.width = "100%";
+    });
+
+    patriodxStoryViewerTimer = setTimeout(() => {
+        if (!patriodxStoryProgressPaused) {
+            showNextPATRIODXStory();
+        }
+    }, remaining);
+}
 
 function showPreviousPATRIODXStory() {
 
@@ -7337,7 +7408,60 @@ function setupPATRIODXStoryViewer() {
     }
 
     closeButton.dataset.ready = "true";
+const storyContent = document.getElementById("storyViewerContent");
 
+if (storyContent && storyContent.dataset.pauseReady !== "true") {
+    storyContent.dataset.pauseReady = "true";
+
+    let storyPointerStartX = 0;
+    let storyPointerStartY = 0;
+    let storyPointerStartTime = 0;
+
+    storyContent.addEventListener("pointerdown", event => {
+        if (event.target.closest("video, button, input")) return;
+
+        storyPointerStartX = event.clientX;
+        storyPointerStartY = event.clientY;
+        storyPointerStartTime = Date.now();
+
+        pausePATRIODXStoryProgress();
+    });
+
+    storyContent.addEventListener("pointerup", event => {
+        if (event.target.closest("video, button, input")) {
+            resumePATRIODXStoryProgress();
+            return;
+        }
+
+        const deltaX = Math.abs(event.clientX - storyPointerStartX);
+        const deltaY = Math.abs(event.clientY - storyPointerStartY);
+        const elapsed = Date.now() - storyPointerStartTime;
+
+        // Ignore long presses and swipes.
+        if (elapsed > 300 || deltaX > 15 || deltaY > 15) {
+            resumePATRIODXStoryProgress();
+            return;
+        }
+
+        // Resume the current story before navigating.
+        resumePATRIODXStoryProgress();
+
+        const bounds = storyContent.getBoundingClientRect();
+        const tapX = event.clientX - bounds.left;
+
+        if (tapX < bounds.width / 2) {
+            showPreviousPATRIODXStory();
+        } else {
+            showNextPATRIODXStory();
+        }
+    });
+
+    ["pointercancel", "pointerleave"].forEach(type => {
+        storyContent.addEventListener(type, () => {
+            resumePATRIODXStoryProgress();
+        });
+    });
+}
     closeButton.addEventListener(
         "click",
         function () {
