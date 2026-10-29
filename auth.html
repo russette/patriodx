@@ -675,25 +675,23 @@ if (!/^[a-z0-9_]+$/.test(username)) {
 
 }
 
-            const { data, error } =
-                await supabaseClient.auth
-                    .signUp({
+          const emailRedirectTo = new URL(
+    "index.html",
+    window.location.href
+).href;
 
-                        email: email,
-
-                        password: password,
-
-                       options: {
-    data: {
-        business_name:
-            businessName,
-
-        username:
-            username
-    }
-}
-
-                    });
+const { data, error } =
+    await supabaseClient.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+            emailRedirectTo: emailRedirectTo,
+            data: {
+                business_name: businessName,
+                username: username
+            }
+        }
+    });
 
 
             if (error) {

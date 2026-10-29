@@ -11086,8 +11086,8 @@ async function loadConversationUsers() {
     const { data, error } =
         await supabaseClient
             .from("profiles")
-           .select(
-    "id, username, display_name, avatar_url"
+          .select(
+    "id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at"
 )
             .neq(
                 "id",
@@ -11187,7 +11187,12 @@ function renderConversationUsers() {
                 </div>
 
                 <div class="conversation-user-info">
-                    <strong>${safe(name)}</strong>
+                   <strong>
+    ${safe(name)}
+    ${typeof getPATRIODXBadge === "function"
+        ? getPATRIODXBadge(user)
+        : ""}
+</strong>
                     <span>${safe(username || "PATRIODX member")}</span>
                 </div>
 
@@ -15630,8 +15635,11 @@ async function getProfileFollowCounts(userId) {
 // ------------------------------------------
 // LOAD FOLLOWERS / FOLLOWING LIST
 // ------------------------------------------
+let profileFollowListRequestId = 0;
 async function loadProfileFollowList(userId, type) {
-
+const requestId = ++profileFollowListRequestId;
+const requestedUserId = userId;
+const requestedType = type;
     const list =
         document.getElementById(
             "publicProfileFollowList"
@@ -15664,7 +15672,12 @@ async function loadProfileFollowList(userId, type) {
         .from("profile_follows")
         .select(userColumn)
         .eq(column, userId);
-
+if (
+    requestId !== profileFollowListRequestId ||
+    requestedUserId !== viewedProfileUserId
+) {
+    return;
+}
     if (followError) {
 
         console.error(
@@ -15712,7 +15725,12 @@ async function loadProfileFollowList(userId, type) {
     "id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at"
 )
         .in("id", userIds);
-
+if (
+    requestId !== profileFollowListRequestId ||
+    requestedUserId !== viewedProfileUserId
+) {
+    return;
+}
     if (profileError) {
 
         console.error(
@@ -18894,9 +18912,9 @@ async function performGlobalSearch(query) {
     const { data, error } =
         await supabaseClient
             .from("profiles")
-            .select(
-                "id, username, display_name, avatar_url"
-            )
+          .select(
+    "id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at"
+)
             .or(
                 `username.ilike.%${cleanQuery}%,display_name.ilike.%${cleanQuery}%`
             )
@@ -18971,9 +18989,14 @@ async function performGlobalSearch(query) {
 
                     <span class="global-search-result-content">
 
-                        <span class="global-search-result-name">
-                            ${escapeHTML(name)}
-                        </span>
+                       <span class="global-search-result-name">
+    ${escapeHTML(name)}
+    ${
+        typeof getPATRIODXBadge === "function"
+            ? getPATRIODXBadge(profile)
+            : ""
+    }
+</span>
 
                         <span class="global-search-result-username">
                             ${escapeHTML(username)}
