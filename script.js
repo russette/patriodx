@@ -6681,21 +6681,13 @@ async function loadPATRIODXStories() {
 
     try {
 
-        const { data: stories, error } =
-            await supabaseClient
-                .select(
-    "id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at"
-)
-                .gt(
-                    "expires_at",
-                    new Date().toISOString()
-                )
-                .order(
-                    "created_at",
-                    {
-                        ascending: false
-                    }
-                );
+        const { data: stories, error } = await supabaseClient
+    .from("stories")
+    .select("*")
+    .gt("expires_at", new Date().toISOString())
+    .order("created_at", {
+        ascending: false
+    });
 
         if (error) {
             throw error;
