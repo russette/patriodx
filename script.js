@@ -10653,12 +10653,33 @@ window.editSocialPost = editSocialPost;
 function getPATRIODXBadge(profile) {
     if (!profile) return "";
 
-    const isOwner = Boolean(profile.is_owner);
+    // Custom PATRIODX badge: gold for the owner.
+    if (profile.is_owner) {
+        return `
+            <span
+                class="patriodx-verification-badge owner-badge"
+                title="PATRIODX Founder"
+                aria-label="PATRIODX Founder"
+            >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path class="patriodx-badge-shield"
+                        d="M12 1.5 14.7 3l3.1-.1 1.1 2.9 2.5 1.8-.8 3 1 2.9-2.1 2.2-.5 3-3 .7L12 21.5l-3-2.1-3-.7-.5-3-2.1-2.2 1-2.9-.8-3 2.5-1.8 1.1-2.9 3.1.1Z"
+                    />
+                    <path class="patriodx-badge-symbol"
+                        d="m8.5 11.5 2.2 2.2 4.8-5"
+                    />
+                    <path class="patriodx-badge-star"
+                        d="m12 5.8.8 1.6 1.8.3-1.3 1.3.3 1.8-1.6-.9-1.6.9.3-1.8-1.3-1.3 1.8-.3Z"
+                    />
+                </svg>
+            </span>
+        `;
+    }
 
-    if (!isOwner && !profile.is_verified) return "";
+    if (!profile.is_verified) return "";
 
-    // Hide expired verification badges.
-    if (!isOwner && profile.verification_expires_at) {
+    // Do not display expired verification.
+    if (profile.verification_expires_at) {
         const expiresAt = new Date(profile.verification_expires_at);
 
         if (
@@ -10669,65 +10690,25 @@ function getPATRIODXBadge(profile) {
         }
     }
 
-    const badgeClass = isOwner
-        ? "owner-badge"
-        : "verified-badge";
-
-    const badgeTitle = isOwner
-        ? "PATRIODX Founder"
-        : "PATRIODX Verified";
-
-    const badgeColor = isOwner
-        ? "#F5B82E"
-        : "#1D9BF0";
-
+    // Custom blue PATRIODX verification badge.
     return `
         <span
-            class="patriodx-verification-badge ${badgeClass}"
-            title="${badgeTitle}"
-            aria-label="${badgeTitle}"
-            role="img"
+            class="patriodx-verification-badge verified-badge"
+            title="PATRIODX Verified"
+            aria-label="PATRIODX Verified"
         >
-            <svg
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-                focusable="false"
-            >
-                <path
-                    class="patriodx-badge-shield"
-                    fill="${badgeColor}"
-                    d="M12 1.5
-                       C13.4 1.5 14.2 3 15.5 3.2
-                       C16.8 3.4 18.2 2.7 19.2 3.7
-                       C20.2 4.7 19.5 6.1 19.7 7.4
-                       C19.9 8.7 21.4 9.5 21.4 11
-                       C21.4 12.5 19.9 13.3 19.7 14.6
-                       C19.5 15.9 20.2 17.3 19.2 18.3
-                       C18.2 19.3 16.8 18.6 15.5 18.8
-                       C14.2 19 13.4 20.5 12 20.5
-                       C10.6 20.5 9.8 19 8.5 18.8
-                       C7.2 18.6 5.8 19.3 4.8 18.3
-                       C3.8 17.3 4.5 15.9 4.3 14.6
-                       C4.1 13.3 2.6 12.5 2.6 11
-                       C2.6 9.5 4.1 8.7 4.3 7.4
-                       C4.5 6.1 3.8 4.7 4.8 3.7
-                       C5.8 2.7 7.2 3.4 8.5 3.2
-                       C9.8 3 10.6 1.5 12 1.5 Z"
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path class="patriodx-badge-shield"
+                    d="M12 1.5 14.7 3l3.1-.1 1.1 2.9 2.5 1.8-.8 3 1 2.9-2.1 2.2-.5 3-3 .7L12 21.5l-3-2.1-3-.7-.5-3-2.1-2.2 1-2.9-.8-3 2.5-1.8 1.1-2.9 3.1.1Z"
                 />
-                <path
-                    class="patriodx-badge-symbol"
-                    d="M7.5 11.8 10.4 14.7 16.7 8.5"
-                    fill="none"
-                    stroke="#FFFFFF"
-                    stroke-width="2.2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                <path class="patriodx-badge-symbol"
+                    d="m7.5 12 3 3 6-6"
                 />
             </svg>
         </span>
     `;
 }
+
 window.getPATRIODXBadge = getPATRIODXBadge;
 /* =========================================================
    PATRIODX HOME FEED
