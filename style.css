@@ -20484,3 +20484,89 @@ flex-basis: 18px !important;
     min-width: 19px !important;
     flex-basis: 19px !important;
 }
+/* PATRIODX — FIX VERIFIED BADGE SHAPE */
+.patriodx-verification-badge {
+    display: inline-flex !important;
+    position: relative !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    flex: 0 0 18px !important;
+
+    margin: 0 3px !important;
+    padding: 0 !important;
+    vertical-align: -3px !important;
+    line-height: 1 !important;
+}
+
+/* Keep the SVG as one complete badge */
+.patriodx-verification-badge > svg {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    max-width: 18px !important;
+    max-height: 18px !important;
+
+    overflow: visible !important;
+}
+
+/* Blue verified background */
+.patriodx-verification-badge.verified-badge
+.patriodx-badge-shield {
+    fill: #1D9BF0 !important;
+    stroke: none !important;
+}
+
+/* White checkmark */
+.patriodx-verification-badge .patriodx-badge-symbol {
+    fill: none !important;
+    stroke: #FFFFFF !important;
+    stroke-width: 2.4 !important;
+    stroke-linecap: round !important;
+    stroke-linejoin: round !important;
+}
+
+/* Preserve the gold founder badge */
+.patriodx-verification-badge.owner-badge {
+    width: 19px !important;
+    height: 19px !important;
+    min-width: 19px !important;
+    min-height: 19px !important;
+    flex-basis: 19px !important;
+}
+
+.patriodx-verification-badge.owner-badge > svg {
+    width: 19px !important;
+    height: 19px !important;
+    min-width: 19px !important;
+    min-height: 19px !important;
+    max-width: 19px !important;
+    max-height: 19px !important;
+}
+
+.patriodx-verification-badge.owner-badge
+.patriodx-badge-shield {
+    fill: #F5B82E !important;
+    stroke: #BD8410 !important;
+    stroke-width: 0.6 !important;
+}
+
+@media (max-width: 600px) {
+    .patriodx-verification-badge {
+        width: 18px !important;
+        height: 18px !important;
+        min-width: 18px !important;
+        min-height: 18px !important;
+        flex-basis: 18px !important;
+    }
+}
