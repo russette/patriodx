@@ -20074,3 +20074,71 @@ body.dark-mode #newConversationModal .messaging-modal-close:hover {
 .patriodx-verification-badge.owner-badge .patriodx-badge-star {
     display: none;
 }
+/* =========================================
+PATRIODX VERIFIED BADGES — DESKTOP + MOBILE
+========================================= */
+
+.patriodx-verification-badge {
+display: inline-flex !important;
+width: 23px !important;
+height: 23px !important;
+min-width: 23px !important;
+flex: 0 0 23px !important;
+align-items: center;
+justify-content: center;
+vertical-align: -5px;
+margin-left: 5px;
+line-height: 1;
+}
+
+.patriodx-verification-badge svg {
+display: block;
+width: 100% !important;
+height: 100% !important;
+overflow: visible;
+}
+
+/* Blue verified badge */
+.patriodx-verification-badge.verified-badge .patriodx-badge-shield {
+fill: #1D9BF0;
+stroke: #1684D6;
+stroke-width: 0.6;
+}
+
+/* White checkmark */
+.patriodx-verification-badge .patriodx-badge-symbol {
+fill: none;
+stroke: #FFFFFF;
+stroke-width: 2.4;
+stroke-linecap: round;
+stroke-linejoin: round;
+}
+
+/* Gold PATRIODX founder badge */
+.patriodx-verification-badge.owner-badge {
+width: 26px !important;
+height: 26px !important;
+min-width: 26px !important;
+flex-basis: 26px !important;
+}
+
+/* Keep badges readable on phones */
+@media (max-width: 600px) {
+.patriodx-verification-badge {
+width: 23px !important;
+height: 23px !important;
+min-width: 23px !important;
+flex-basis: 23px !important;
+vertical-align: -5px;
+margin-left: 4px;
+}
+
+.patriodx-verification-badge.owner-badge {
+    width: 25px !important;
+    height: 25px !important;
+    min-width: 25px !important;
+    flex-basis: 25px !important;
+}
+
+
+}
