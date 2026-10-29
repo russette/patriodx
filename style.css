@@ -20437,3 +20437,50 @@ flex-basis: 18px !important;
         max-height: 18px !important;
     }
 }
+/* PATRIODX verification badge — consistent social-media sizing */
+.patriodx-verification-badge {
+    display: inline-flex !important;
+    position: relative !important;
+    vertical-align: -3px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    flex: 0 0 18px !important;
+    margin-left: 3px !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+}
+
+.patriodx-verification-badge > svg {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    overflow: visible !important;
+    transform: none !important;
+}
+
+.patriodx-verification-badge .patriodx-badge-shield {
+    stroke: none !important;
+}
+
+.patriodx-verification-badge .patriodx-badge-symbol {
+    fill: none !important;
+    stroke: #fff !important;
+    stroke-width: 2.2 !important;
+    stroke-linecap: round !important;
+    stroke-linejoin: round !important;
+}
+
+.patriodx-verification-badge.owner-badge {
+    width: 19px !important;
+    height: 19px !important;
+    min-width: 19px !important;
+    flex-basis: 19px !important;
+}
