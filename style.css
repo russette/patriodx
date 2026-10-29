@@ -20142,3 +20142,135 @@ margin-left: 4px;
 
 
 }
+/* PATRIODX — Larger verification badges on every screen */
+.patriodx-verification-badge,
+.patriodx-chat-title .patriodx-verification-badge {
+display: inline-flex !important;
+align-items: center !important;
+justify-content: center !important;
+
+
+width: 30px !important;
+height: 30px !important;
+min-width: 30px !important;
+min-height: 30px !important;
+flex: 0 0 30px !important;
+flex-shrink: 0 !important;
+
+margin-left: 5px !important;
+padding: 0 !important;
+vertical-align: middle !important;
+line-height: 1 !important;
+overflow: visible !important;
+
+}
+
+.patriodx-verification-badge > svg,
+.patriodx-chat-title .patriodx-verification-badge > svg {
+display: block !important;
+width: 30px !important;
+height: 30px !important;
+min-width: 30px !important;
+min-height: 30px !important;
+max-width: none !important;
+flex-shrink: 0 !important;
+}
+
+/* Gold founder badge — only your owner account */
+.patriodx-verification-badge.owner-badge {
+width: 32px !important;
+height: 32px !important;
+min-width: 32px !important;
+min-height: 32px !important;
+flex-basis: 32px !important;
+}
+
+.patriodx-verification-badge.owner-badge > svg {
+width: 32px !important;
+height: 32px !important;
+min-width: 32px !important;
+min-height: 32px !important;
+max-width: none !important;
+}
+
+/* Phone sizing */
+@media (max-width: 600px) {
+.patriodx-verification-badge {
+width: 28px !important;
+height: 28px !important;
+min-width: 28px !important;
+min-height: 28px !important;
+flex-basis: 28px !important;
+}
+
+
+.patriodx-verification-badge > svg {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    min-height: 28px !important;
+    max-width: none !important;
+}
+
+.patriodx-verification-badge.owner-badge {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+    flex-basis: 30px !important;
+}
+
+.patriodx-verification-badge.owner-badge > svg {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+    max-width: none !important;
+}
+
+
+}
+/* PATRIODX — Professional social media verification badge */
+
+.patriodx-verification-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    flex: 0 0 16px !important;
+    margin-left: 3px !important;
+    padding: 0 !important;
+    vertical-align: -2px !important;
+    line-height: 1 !important;
+}
+
+.patriodx-verification-badge svg {
+    display: block !important;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    max-width: 16px !important;
+    max-height: 16px !important;
+}
+
+/* Gold founder badge */
+.patriodx-verification-badge.owner-badge {
+    width: 17px !important;
+    height: 17px !important;
+    min-width: 17px !important;
+    min-height: 17px !important;
+    flex-basis: 17px !important;
+}
+
+.patriodx-verification-badge.owner-badge svg {
+    width: 17px !important;
+    height: 17px !important;
+    min-width: 17px !important;
+    min-height: 17px !important;
+    max-width: 17px !important;
+    max-height: 17px !important;
+}
