@@ -20570,3 +20570,10 @@ flex-basis: 18px !important;
         flex-basis: 18px !important;
     }
 }
+/* PATRIODX FIX: Remove the legacy blue circle behind the SVG */
+.patriodx-verification-badge.verified-badge {
+    background: transparent !important;
+    border-radius: 0 !important;
+    color: inherit !important;
+    box-shadow: none !important;
+}
