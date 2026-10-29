@@ -19795,3 +19795,282 @@ margin-right: 0;
         ) !important;
     }
 }
+/* =========================================================
+PATRIODX HOME — SOCIAL COMMERCE FEED
+========================================================= */
+
+.home-marketplace-insert {
+width: 100%;
+min-width: 0;
+margin: 18px 0;
+padding: 18px;
+overflow: hidden;
+border: 1px solid var(--border-color, #e2e8f0);
+border-radius: 18px;
+background: var(--card-bg, #ffffff);
+box-shadow: 0 4px 18px rgba(15, 23, 42, 0.045);
+}
+
+.home-marketplace-heading {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 12px;
+margin-bottom: 15px;
+}
+
+.home-marketplace-heading h3 {
+margin: 0;
+font-size: 18px;
+font-weight: 800;
+}
+
+.home-marketplace-heading p {
+margin: 3px 0 0;
+color: var(--muted-text, #64748b);
+font-size: 13px;
+}
+
+.home-marketplace-view-all {
+flex-shrink: 0;
+padding: 8px 12px;
+border: 1px solid var(--border-color, #e2e8f0);
+border-radius: 10px;
+background: transparent;
+color: var(--text-color, #0f172a);
+font-size: 12px;
+font-weight: 750;
+}
+
+.home-marketplace-grid {
+display: grid;
+grid-template-columns: repeat(3, minmax(0, 1fr));
+gap: 12px;
+}
+
+.home-marketplace-product {
+min-width: 0;
+overflow: hidden;
+border: 1px solid var(--border-color, #e2e8f0);
+border-radius: 13px;
+background: var(--card-bg, #ffffff);
+}
+
+.home-marketplace-product-image {
+display: block;
+width: 100%;
+height: 150px;
+object-fit: cover;
+background: var(--input-bg, #f1f5f9);
+}
+
+.home-marketplace-product-details {
+padding: 11px;
+}
+
+.home-marketplace-product-name {
+margin: 0 0 6px;
+font-size: 14px;
+font-weight: 750;
+line-height: 1.4;
+overflow-wrap: anywhere;
+}
+
+.home-marketplace-product-price {
+margin-bottom: 7px;
+color: var(--primary-color, #2563eb);
+font-size: 16px;
+font-weight: 850;
+}
+
+.home-marketplace-product-seller {
+color: var(--muted-text, #64748b);
+font-size: 12px;
+overflow-wrap: anywhere;
+}
+
+.home-marketplace-product-status {
+margin-top: 5px;
+font-size: 11px;
+font-weight: 700;
+}
+
+.home-marketplace-product-status.is-unavailable {
+color: #b42318;
+}
+
+.home-marketplace-open {
+display: block;
+width: 100%;
+margin-top: 10px;
+padding: 9px;
+border-radius: 9px;
+background: var(--primary-color, #2563eb);
+color: #fff;
+text-align: center;
+text-decoration: none;
+font-size: 12px;
+font-weight: 750;
+}
+
+.home-marketplace-open:hover {
+filter: brightness(.94);
+}
+
+@media (max-width: 600px) {
+.home-marketplace-insert {
+padding: 13px;
+border-radius: 14px;
+}
+
+
+.home-marketplace-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+}
+
+.home-marketplace-product-image {
+    height: 125px;
+}
+
+.home-marketplace-product-details {
+    padding: 9px;
+}
+
+.home-marketplace-heading h3 {
+    font-size: 16px;
+}
+
+
+}
+.home-marketplace-seller-link {
+    display: inline;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--primary-color, #2563eb);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: none;
+    transform: none;
+}
+
+.home-marketplace-seller-link:hover {
+    background: transparent;
+    text-decoration: underline;
+    box-shadow: none;
+    transform: none;
+}
+/* PATRIODX — Clear, accessible New Conversation close button */
+
+#newConversationModal .messaging-modal-close {
+    width: 48px !important;
+    min-width: 48px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    padding: 0 !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+
+    border: 2px solid #cbd5e1 !important;
+    border-radius: 14px !important;
+
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+
+    opacity: 1 !important;
+    cursor: pointer !important;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease !important;
+}
+
+#newConversationModal .messaging-modal-close svg {
+    width: 25px !important;
+    height: 25px !important;
+    stroke-width: 2.5 !important;
+}
+
+#newConversationModal .messaging-modal-close:hover {
+    background: #dbeafe !important;
+    border-color: #2563eb !important;
+    color: #1d4ed8 !important;
+
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+body.dark-mode #newConversationModal .messaging-modal-close {
+    background: #263449 !important;
+    color: #ffffff !important;
+    border-color: #64748b !important;
+}
+
+body.dark-mode #newConversationModal .messaging-modal-close:hover {
+    background: #1d4ed8 !important;
+    border-color: #60a5fa !important;
+    color: #ffffff !important;
+}
+/* PATRIODX — Custom verification identity */
+
+.patriodx-verification-badge {
+    display: inline-flex !important;
+    width: 21px;
+    height: 21px;
+    flex: 0 0 21px;
+    align-items: center;
+    justify-content: center;
+    vertical-align: -4px;
+    margin-left: 4px;
+    line-height: 1;
+}
+
+.patriodx-verification-badge svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.patriodx-verification-badge .patriodx-badge-shield {
+    fill: #1877f2;
+    stroke: #1264d8;
+    stroke-width: 0.6;
+    stroke-linejoin: round;
+}
+
+.patriodx-verification-badge .patriodx-badge-symbol {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.patriodx-verification-badge.owner-badge {
+    width: 24px;
+    height: 24px;
+    flex-basis: 24px;
+}
+
+.patriodx-verification-badge.owner-badge .patriodx-badge-shield {
+    fill: #f5b82e;
+    stroke: #bd8410;
+    stroke-width: 0.8;
+}
+
+.patriodx-verification-badge.owner-badge .patriodx-badge-symbol {
+    stroke: #fff;
+    stroke-width: 2.5;
+}
+
+.patriodx-verification-badge.owner-badge .patriodx-badge-star {
+    display: none;
+}

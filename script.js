@@ -7538,6 +7538,196 @@ if (storyContent && storyContent.dataset.pauseReady !== "true") {
         }
     );
 }
+// =========================================================
+// PATRIODX HOME — MARKETPLACE PRODUCTS
+// =========================================================
+
+async function loadHomeMarketplaceProducts() {
+    try {
+        const { data: products, error } = await supabaseClient
+            .from("marketplace_products")
+            .select(
+                "id,business_id,name,description,category,price,image_url,in_stock,created_at"
+            )
+            .order("created_at", { ascending: false })
+            .limit(12);
+
+        if (error) throw error;
+
+        const items = products || [];
+
+        if (!items.length) return [];
+
+        const businessIds = [
+            ...new Set(items.map(p => p.business_id).filter(Boolean))
+        ];
+
+        let sellerMap = {};
+
+        if (businessIds.length) {
+            const { data: businesses, error: businessError } =
+                await supabaseClient
+                    .from("businesses")
+                    .select("id,owner_id")
+                    .in("id", businessIds);
+
+            if (businessError) throw businessError;
+
+            const ownerIds = [
+                ...new Set(
+                    (businesses || [])
+                        .map(b => b.owner_id)
+                        .filter(Boolean)
+                )
+            ];
+
+            if (ownerIds.length) {
+                const { data: profiles, error: profileError } =
+                    await supabaseClient
+                        .from("profiles")
+                        .select(
+                            "id,username,display_name,avatar_url,is_verified,is_owner,verification_expires_at"
+                        )
+                        .in("id", ownerIds);
+
+                if (profileError) throw profileError;
+
+                const profileMap = new Map(
+                    (profiles || []).map(profile => [
+                        profile.id,
+                        profile
+                    ])
+                );
+
+                (businesses || []).forEach(business => {
+                    const profile = profileMap.get(business.owner_id);
+
+                    if (profile) {
+                        sellerMap[business.id] = profile;
+                    }
+                });
+            }
+        }
+
+        return items.map(product => ({
+            ...product,
+            seller: sellerMap[product.business_id] || null
+        }));
+    } catch (error) {
+        console.error(
+            "PATRIODX Home marketplace products could not load:",
+            error
+        );
+
+        // Product failures must not stop social posts from loading.
+        return [];
+    }
+}
+
+
+// =========================================================
+// RENDER HOME MARKETPLACE PRODUCTS
+// =========================================================
+
+function renderHomeMarketplaceProducts(products) {
+    if (!products || !products.length) return "";
+
+    const cards = products.slice(0, 3).map(product => {
+        const seller = product.seller;
+        const sellerName =
+            seller?.display_name ||
+            (seller?.username ? `@${seller.username}` : "PATRIODX Seller");
+
+        const image = product.image_url
+            ? `<img
+                    class="home-marketplace-product-image"
+                    src="${safe(product.image_url)}"
+                    alt="${safe(product.name || "Product")}"
+                    loading="lazy"
+                    onerror="this.style.display='none'"
+               >`
+            : `<div class="home-marketplace-product-image"
+                    style="display:grid;place-items:center;font-size:36px">
+                    🛍️
+               </div>`;
+
+        const badge =
+            seller && typeof getPATRIODXBadge === "function"
+                ? getPATRIODXBadge(seller)
+                : "";
+
+        const price = Number(product.price);
+        const priceText = Number.isFinite(price)
+            ? `$${price.toFixed(2)}`
+            : "Price unavailable";
+
+        return `
+            <article class="home-marketplace-product">
+                ${image}
+
+                <div class="home-marketplace-product-details">
+                    <h4 class="home-marketplace-product-name">
+                        ${safe(product.name || "Unnamed product")}
+                    </h4>
+
+                    <div class="home-marketplace-product-price">
+                        ${priceText}
+                    </div>
+
+                    <div class="home-marketplace-product-seller">
+                        Seller:
+                        ${
+                            seller?.id
+                                ? `<button
+                                    type="button"
+                                    class="home-marketplace-seller-link"
+                                    data-home-seller-id="${safe(seller.id)}"
+                                   >${safe(sellerName)}</button>`
+                                : safe(sellerName)
+                        }
+                        ${badge}
+                    </div>
+
+                    <div class="home-marketplace-product-status ${
+                        product.in_stock === false ? "is-unavailable" : ""
+                    }">
+                        ${
+                            product.in_stock === false
+                                ? "Out of stock"
+                                : "Available"
+                        }
+                    </div>
+
+                    <a
+                        class="home-marketplace-open"
+                        href="marketplace.html"
+                    >Visit Marketplace</a>
+                </div>
+            </article>
+        `;
+    }).join("");
+
+    return `
+        <section class="home-marketplace-insert"
+                 aria-label="Marketplace picks">
+            <div class="home-marketplace-heading">
+                <div>
+                    <h3>Marketplace Picks</h3>
+                    <p>Discover products from PATRIODX sellers.</p>
+                </div>
+
+                <a class="home-marketplace-view-all"
+                   href="marketplace.html">
+                    View all
+                </a>
+            </div>
+
+            <div class="home-marketplace-grid">
+                ${cards}
+            </div>
+        </section>
+    `;
+}
 async function loadSocialPosts() {
 
     await loadPATRIODXStories();
@@ -7954,14 +8144,18 @@ const postProfileMap =
             })
         );
 
-
+// Load marketplace products only for the Latest feed.
+const homeMarketplaceProducts =
+    mode === "latest"
+        ? await loadHomeMarketplaceProducts()
+        : [];
     /* =========================================================
        RENDER FEED
     ========================================================= */
 
     socialFeed.innerHTML =
         postsWithCounts
-            .map(post => {
+                   .map((post, postIndex) => {
 
                 const isOwnPost =
                     post.user_id === currentUser?.id;
@@ -8346,11 +8540,25 @@ const author =
 
                         </div>
 
-                    </article>
-                `;
+                </article>
+            ` + (
+                mode === "latest" &&
+                (postIndex + 1) % 3 === 0 &&
+                homeMarketplaceProducts.length
+                    ? renderHomeMarketplaceProducts(
+                        homeMarketplaceProducts.slice(
+                            ((Math.floor(postIndex / 3)) * 3) %
+                            homeMarketplaceProducts.length,
+                            ((Math.floor(postIndex / 3)) * 3) %
+                            homeMarketplaceProducts.length + 3
+                        )
+                    )
+                    : ""
+            );
 
-            })
-            .join("");
+        })
+        .join("");
+
 
 // Open a user's public profile from their post name or avatar.
 socialFeed
@@ -9907,120 +10115,123 @@ if (socialFeed) {
 PATRIODX THREE-DOT POST MENU
 ========================================================= */
 function toggleSocialPostMenu(postId, event) {
-event?.preventDefault();
-event?.stopPropagation();
+    event?.preventDefault();
+    event?.stopPropagation();
 
-const menu = document.getElementById(
-    `social-post-menu-${postId}`
-);
+    const menu = document.getElementById(
+        `social-post-menu-${postId}`
+    );
 
-if (!menu) {
-    console.error("PATRIODX: Post menu not found:", postId);
-    return;
-}
-
-const shouldOpen = menu.hidden;
-
-// Close all other post menus.
-document.querySelectorAll(".social-post-dropdown").forEach(item => {
-    item.hidden = true;
-});
-
-// Reset every three-dot button.
-document.querySelectorAll(".social-post-menu-toggle").forEach(button => {
-    button.setAttribute("aria-expanded", "false");
-});
-
-// Open the selected menu.
-if (shouldOpen) {
-    menu.hidden = false;
-
-    menu.parentElement
-        ?.querySelector(".social-post-menu-toggle")
-        ?.setAttribute("aria-expanded", "true");
-}
-
-
-}
-
-// Make the function accessible to inline onclick handlers.
-window.toggleSocialPostMenu = toggleSocialPostMenu;
-
-// Close menus when clicking outside them.
-document.addEventListener("click", function(event) {
-if (event.target.closest(".social-post-menu-actions")) {
-return;
-}
-
-
-document.querySelectorAll(".social-post-dropdown").forEach(menu => {
-    menu.hidden = true;
-});
-
-document.querySelectorAll(".social-post-menu-toggle").forEach(button => {
-    button.setAttribute("aria-expanded", "false");
-});
-
-
-});
-
-
-/* Save or unsave a post privately for the current user. */
-async function saveSocialPost(postId) {
-if (!currentUser) {
-showPATRIODXToast("Please sign in to save posts.", "warning");
-return;
-}
-
-
-try {
-    const { data: existing, error: lookupError } =
-        await supabaseClient
-            .from("saved_posts")
-            .select("id")
-            .eq("user_id", currentUser.id)
-            .eq("post_id", postId)
-            .maybeSingle();
-
-    if (lookupError) throw lookupError;
-
-    if (existing) {
-        const { error } = await supabaseClient
-            .from("saved_posts")
-            .delete()
-            .eq("id", existing.id)
-            .eq("user_id", currentUser.id);
-
-        if (error) throw error;
-
-        showPATRIODXToast("Post removed from your saved posts.", "success");
-    } else {
-        const { error } = await supabaseClient
-            .from("saved_posts")
-            .insert({
-                user_id: currentUser.id,
-                post_id: postId
-            });
-
-        if (error) throw error;
-
-        showPATRIODXToast("Post saved privately.", "success");
+    if (!menu) {
+        console.error(
+            "PATRIODX: Post menu not found:",
+            postId
+        );
+        return;
     }
 
-    document.querySelectorAll(".social-post-dropdown").forEach(menu => {
-        menu.hidden = true;
+    const shouldOpen = menu.hidden;
+
+    // Close all other menus first.
+    document.querySelectorAll(".social-post-dropdown").forEach(item => {
+        item.hidden = true;
+        item.style.removeProperty("top");
+        item.style.removeProperty("left");
+        item.style.removeProperty("right");
+        item.style.removeProperty("bottom");
     });
-} catch (error) {
-    console.error("Save post error:", error);
 
-    showPATRIODXToast(
-        error.message || "Could not save this post.",
-        "error"
+    document.querySelectorAll(".social-post-menu-toggle").forEach(button => {
+        button.setAttribute("aria-expanded", "false");
+    });
+
+    if (!shouldOpen) {
+        return;
+    }
+
+    const button = event?.currentTarget;
+
+    if (!button) {
+        console.error("PATRIODX: Menu trigger button not found.");
+        return;
+    }
+
+    // Reveal the menu so its dimensions can be measured.
+    menu.hidden = false;
+
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const margin = 12;
+    const gap = 8;
+
+    const buttonRect = button.getBoundingClientRect();
+
+    // Override conflicting CSS positioning rules.
+    menu.style.setProperty("position", "fixed", "important");
+    menu.style.setProperty("right", "auto", "important");
+    menu.style.setProperty("bottom", "auto", "important");
+    menu.style.setProperty("width", "min(300px, calc(100vw - 24px))", "important");
+    menu.style.setProperty("max-width", "calc(100vw - 24px)", "important");
+    menu.style.setProperty(
+        "max-height",
+        `calc(100dvh - ${margin * 2}px)`,
+        "important"
     );
+    menu.style.setProperty("overflow-y", "auto", "important");
+    menu.style.setProperty("overflow-x", "hidden", "important");
+    menu.style.setProperty("z-index", "999999", "important");
+
+    const menuRect = menu.getBoundingClientRect();
+    const menuWidth = Math.min(
+        menuRect.width,
+        viewportWidth - margin * 2
+    );
+    const menuHeight = Math.min(
+        menuRect.height,
+        viewportHeight - margin * 2
+    );
+
+    // Align the menu's right edge with the trigger button.
+    let left = buttonRect.right - menuWidth;
+
+    // Keep the menu inside the horizontal screen edges.
+    left = Math.max(
+        margin,
+        Math.min(left, viewportWidth - menuWidth - margin)
+    );
+
+    // Prefer opening below the button.
+    let top = buttonRect.bottom + gap;
+
+    // If there isn't enough room below, open above.
+    if (
+        top + menuHeight >
+        viewportHeight - margin
+    ) {
+        const topPosition = buttonRect.top - menuHeight - gap;
+
+        if (topPosition >= margin) {
+            top = topPosition;
+        } else {
+            // If neither side has enough room, keep it onscreen.
+            top = Math.max(
+                margin,
+                Math.min(
+                    top,
+                    viewportHeight - menuHeight - margin
+                )
+            );
+        }
+    }
+
+    menu.style.setProperty("left", `${left}px`, "important");
+    menu.style.setProperty("top", `${top}px`, "important");
+
+    button.setAttribute("aria-expanded", "true");
 }
 
-
-}
+// Keep the function accessible to inline onclick handlers.
+window.toggleSocialPostMenu = toggleSocialPostMenu;
 /* =========================================================
 PATRIODX SAVED POSTS
 ========================================================= */
@@ -10439,57 +10650,66 @@ window.reportSocialPost =
 window.saveSocialPost = saveSocialPost;
 window.toggleSocialPostSetting = toggleSocialPostSetting;
 window.editSocialPost = editSocialPost;
-
 function getPATRIODXBadge(profile) {
-if (!profile) return "";
+    if (!profile) return "";
 
+    // Custom PATRIODX badge: gold for the owner.
+    if (profile.is_owner) {
+        return `
+            <span
+                class="patriodx-verification-badge owner-badge"
+                title="PATRIODX Founder"
+                aria-label="PATRIODX Founder"
+            >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path class="patriodx-badge-shield"
+                        d="M12 1.5 14.7 3l3.1-.1 1.1 2.9 2.5 1.8-.8 3 1 2.9-2.1 2.2-.5 3-3 .7L12 21.5l-3-2.1-3-.7-.5-3-2.1-2.2 1-2.9-.8-3 2.5-1.8 1.1-2.9 3.1.1Z"
+                    />
+                    <path class="patriodx-badge-symbol"
+                        d="m8.5 11.5 2.2 2.2 4.8-5"
+                    />
+                    <path class="patriodx-badge-star"
+                        d="m12 5.8.8 1.6 1.8.3-1.3 1.3.3 1.8-1.6-.9-1.6.9.3-1.8-1.3-1.3 1.8-.3Z"
+                    />
+                </svg>
+            </span>
+        `;
+    }
 
-// The PATRIODX Owner badge is independent of paid verification.
-if (profile.is_owner) {
+    if (!profile.is_verified) return "";
+
+    // Do not display expired verification.
+    if (profile.verification_expires_at) {
+        const expiresAt = new Date(profile.verification_expires_at);
+
+        if (
+            !Number.isNaN(expiresAt.getTime()) &&
+            expiresAt <= new Date()
+        ) {
+            return "";
+        }
+    }
+
+    // Custom blue PATRIODX verification badge.
     return `
         <span
-            class="patriodx-verification-badge owner-badge"
-            title="PATRIODX Owner"
-            aria-label="PATRIODX Owner"
+            class="patriodx-verification-badge verified-badge"
+            title="PATRIODX Verified"
+            aria-label="PATRIODX Verified"
         >
-            <i data-lucide="star"></i>
-            <i data-lucide="check"></i>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path class="patriodx-badge-shield"
+                    d="M12 1.5 14.7 3l3.1-.1 1.1 2.9 2.5 1.8-.8 3 1 2.9-2.1 2.2-.5 3-3 .7L12 21.5l-3-2.1-3-.7-.5-3-2.1-2.2 1-2.9-.8-3 2.5-1.8 1.1-2.9 3.1.1Z"
+                />
+                <path class="patriodx-badge-symbol"
+                    d="m7.5 12 3 3 6-6"
+                />
+            </svg>
         </span>
     `;
 }
 
-if (!profile.is_verified) return "";
-
-// Hide expired verification badges.
-if (profile.verification_expires_at) {
-    const expiresAt = new Date(
-        profile.verification_expires_at
-    );
-
-    if (
-        !Number.isNaN(expiresAt.getTime()) &&
-        expiresAt <= new Date()
-    ) {
-        return "";
-    }
-}
-
-return `
-    <span
-        class="patriodx-verification-badge verified-badge"
-        title="PATRIODX Verified"
-        aria-label="PATRIODX Verified"
-    >
-        <i data-lucide="star"></i>
-        <i data-lucide="check"></i>
-    </span>
-`;
-
-
-}
-
 window.getPATRIODXBadge = getPATRIODXBadge;
-
 /* =========================================================
    PATRIODX HOME FEED
 ========================================================= */
@@ -10870,7 +11090,7 @@ async function toggleHomeComments(postId) {
                                 </strong>
 
                                 <p>
-                                    ${safe(comment.content)}
+                                  ${renderClickableMentions(comment.content || "")}
                                 </p>
 
                                 <small>
@@ -11028,7 +11248,47 @@ const closeNewConversationModal =
     document.getElementById(
         "closeNewConversationModal"
     );
+function closeNewConversationPicker() {
+    if (!newConversationModal) return;
 
+    newConversationModal.style.display = "none";
+    document.body.style.overflow = "";
+
+    if (conversationUserSearch) {
+        conversationUserSearch.value = "";
+    }
+}
+
+if (closeNewConversationModal) {
+    closeNewConversationModal.addEventListener(
+        "click",
+        function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            closeNewConversationPicker();
+        }
+    );
+}
+
+// Close when clicking the dark backdrop.
+if (newConversationModal) {
+    newConversationModal.addEventListener("click", function (event) {
+        if (event.target === newConversationModal) {
+            closeNewConversationPicker();
+        }
+    });
+}
+
+// Close with Escape.
+document.addEventListener("keydown", function (event) {
+    if (
+        event.key === "Escape" &&
+        newConversationModal &&
+        newConversationModal.style.display !== "none"
+    ) {
+        closeNewConversationPicker();
+    }
+});
 const conversationUserSearch =
     document.getElementById(
         "conversationUserSearch"
@@ -13485,94 +13745,36 @@ function subscribeToMessages(conversationId) {
         setupPATRIODXTyping(conversationId);
     }
 }
-
 /* =========================================================
-   NEW CONVERSATION
+   NEW CONVERSATION — OPEN USER PICKER
 ========================================================= */
 
 if (newConversationButton) {
-
-    newConversationButton.addEventListener(
-        "click",
-        async function() {
-
-            if (!currentUser) {
-
-                showPATRIODXToast(
-                    "Please log in first.",
-                    "warning"
-                );
-
-                return;
-            }
-
-            /* Generate the conversation ID ourselves */
-            const conversationId =
-                crypto.randomUUID();
-
-            /* Create conversation */
-            const { error: conversationError } =
-                await supabaseClient
-                    .from("conversations")
-                    .insert({
-                        id: conversationId
-                    });
-
-            if (conversationError) {
-
-                console.error(
-                    "Could not create conversation:",
-                    conversationError
-                );
-
-                showPATRIODXToast(
-                    "Could not create conversation. " +
-                    conversationError.message,
-                    "error"
-                );
-
-                return;
-            }
-
-            /* Add current user as a member */
-            const { error: memberError } =
-                await supabaseClient
-                    .from("conversation_members")
-                    .insert({
-                        conversation_id:
-                            conversationId,
-
-                        user_id:
-                            currentUser.id
-                    });
-
-            if (memberError) {
-
-                console.error(
-                    "Could not add conversation member:",
-                    memberError
-                );
-
-                showPATRIODXToast(
-                    "Conversation was created, but you could not be added. " +
-                    memberError.message,
-                    "error"
-                );
-
-                return;
-            }
-
-            /* Reload conversations */
-            await loadConversations();
-
-            /* Open the new conversation */
-            await openConversation(
-                conversationId
-            );
-
+    newConversationButton.addEventListener("click", async function () {
+        if (!currentUser) {
+            showPATRIODXToast("Please log in first.", "warning");
+            return;
         }
-    );
 
+        if (!newConversationModal) return;
+
+        newConversationModal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+
+        if (conversationUserSearch) {
+            conversationUserSearch.value = "";
+        }
+
+        await loadConversationUsers();
+
+        requestAnimationFrame(() => {
+            conversationUserSearch?.focus();
+        });
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+    });
 }
 /* =========================================================
    START MESSAGING
@@ -16745,7 +16947,9 @@ return `
 
 
     }).join("");
-
+if (typeof lucide !== "undefined") {
+    lucide.createIcons();
+}
 
     document
         .querySelectorAll(".profile-search-result")
@@ -19753,11 +19957,11 @@ if (
         getPATRIODXBadge(profile)
     );
 }
-
-            const text = document.createElement("p");
-            text.className = "social-comment-text";
-            text.textContent = comment.content || "";
-
+const text = document.createElement("p");
+text.className = "social-comment-text";
+text.innerHTML = renderClickableMentions(
+    comment.content || ""
+);
             const date = document.createElement("small");
             date.textContent = formatDate(comment.created_at);
 
@@ -20349,3 +20553,20 @@ document.addEventListener("click", function (event) {
 
     window.addEventListener("pageshow", refreshMessagingInbox);
 })();
+// Open seller profiles from Home marketplace cards.
+document.addEventListener("click", function (event) {
+    const button = event.target.closest(".home-marketplace-seller-link");
+
+    if (!button) return;
+
+    const userId = button.dataset.homeSellerId;
+
+    if (userId && typeof loadPublicProfile === "function") {
+        loadPublicProfile(userId);
+
+        document.getElementById("publicProfileCard")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+});
