@@ -20570,3 +20570,63 @@ document.addEventListener("click", function (event) {
         });
     }
 });
+/* Save or unsave a post privately for the current user. */
+async function saveSocialPost(postId) {
+    if (!currentUser) {
+        showPATRIODXToast("Please sign in to save posts.", "warning");
+        return;
+    }
+
+    try {
+        const { data: existing, error: lookupError } =
+            await supabaseClient
+                .from("saved_posts")
+                .select("id")
+                .eq("user_id", currentUser.id)
+                .eq("post_id", postId)
+                .maybeSingle();
+
+        if (lookupError) throw lookupError;
+
+        if (existing) {
+            const { error } = await supabaseClient
+                .from("saved_posts")
+                .delete()
+                .eq("id", existing.id)
+                .eq("user_id", currentUser.id);
+
+            if (error) throw error;
+
+            showPATRIODXToast(
+                "Post removed from your saved posts.",
+                "success"
+            );
+        } else {
+            const { error } = await supabaseClient
+                .from("saved_posts")
+                .insert({
+                    user_id: currentUser.id,
+                    post_id: postId
+                });
+
+            if (error) throw error;
+
+            showPATRIODXToast("Post saved privately.", "success");
+        }
+
+        document.querySelectorAll(".social-post-dropdown")
+            .forEach(menu => {
+                menu.hidden = true;
+            });
+
+    } catch (error) {
+        console.error("Save post error:", error);
+
+        showPATRIODXToast(
+            error.message || "Could not save this post.",
+            "error"
+        );
+    }
+}
+
+window.saveSocialPost = saveSocialPost;
