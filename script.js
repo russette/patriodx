@@ -10653,7 +10653,7 @@ window.editSocialPost = editSocialPost;
 function getPATRIODXBadge(profile) {
     if (!profile) return "";
 
-    // Custom PATRIODX badge: gold for the owner.
+    // Gold founder badge — preserve the existing design.
     if (profile.is_owner) {
         return `
             <span
@@ -10678,7 +10678,7 @@ function getPATRIODXBadge(profile) {
 
     if (!profile.is_verified) return "";
 
-    // Do not display expired verification.
+    // Hide expired verification.
     if (profile.verification_expires_at) {
         const expiresAt = new Date(profile.verification_expires_at);
 
@@ -10690,7 +10690,7 @@ function getPATRIODXBadge(profile) {
         }
     }
 
-    // Custom blue PATRIODX verification badge.
+    // Blue scalloped verification badge.
     return `
         <span
             class="patriodx-verification-badge verified-badge"
@@ -10699,7 +10699,31 @@ function getPATRIODXBadge(profile) {
         >
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path class="patriodx-badge-shield"
-                    d="M12 1.5 14.7 3l3.1-.1 1.1 2.9 2.5 1.8-.8 3 1 2.9-2.1 2.2-.5 3-3 .7L12 21.5l-3-2.1-3-.7-.5-3-2.1-2.2 1-2.9-.8-3 2.5-1.8 1.1-2.9 3.1.1Z"
+                    d="M12 1.5
+                       L14.5 3.1
+                       L17.4 2.6
+                       L18.5 5.3
+                       L21.1 6.5
+                       L20.6 9.3
+                       L22.1 12
+                       L20.6 14.7
+                       L21.1 17.5
+                       L18.5 18.7
+                       L17.4 21.4
+                       L14.5 20.9
+                       L12 22.5
+                       L9.5 20.9
+                       L6.6 21.4
+                       L5.5 18.7
+                       L2.9 17.5
+                       L3.4 14.7
+                       L1.9 12
+                       L3.4 9.3
+                       L2.9 6.5
+                       L5.5 5.3
+                       L6.6 2.6
+                       L9.5 3.1
+                       Z"
                 />
                 <path class="patriodx-badge-symbol"
                     d="m7.5 12 3 3 6-6"
