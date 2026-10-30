@@ -8524,7 +8524,7 @@ const author =
     <button
         type="button"
         class="social-action-button"
-        onclick="toggleHomeComments('${post.id}')"
+        onclick="toggleComments('${post.id}')"
         aria-label="View comments"
         title="Comment"
     >
@@ -11223,7 +11223,39 @@ async function toggleHomeComments(postId) {
 
         return;
     }
+const commentUserIds = [
+    ...new Set(
+        (comments || [])
+            .map(comment => comment.user_id)
+            .filter(Boolean)
+    )
+];
 
+let commentProfiles = [];
+
+if (commentUserIds.length) {
+    const { data: profiles, error: profileError } =
+        await supabaseClient
+            .from("profiles")
+            .select("id, username, display_name, avatar_url")
+            .in("id", commentUserIds);
+
+    if (profileError) {
+        console.error(
+            "Could not load Home comment profiles:",
+            profileError
+        );
+    } else {
+        commentProfiles = profiles || [];
+    }
+}
+
+const commentProfileMap = new Map(
+    commentProfiles.map(profile => [
+        profile.id,
+        profile
+    ])
+);
     commentsBox.innerHTML = `
         <div
             id="home-comments-list-${postId}"
@@ -11231,29 +11263,50 @@ async function toggleHomeComments(postId) {
         >
             ${
                 comments?.length
-                    ? comments.map(comment => `
-                        <div class="social-comment">
-                            <div class="social-comment-avatar">
-                               <i data-lucide="user"></i>
-                            </div>
+                    ? comments.map(comment => {
+    const profile = commentProfileMap.get(comment.user_id);
 
-                            <div class="social-comment-body">
-                                <strong>
-                                    PATRIODX User
-                                </strong>
+    const displayName =
+        profile?.display_name ||
+        profile?.username ||
+        "PATRIODX User";
 
-                                <p>
-                                  ${renderClickableMentions(comment.content || "")}
-                                </p>
+    const username = profile?.username
+        ? `@${safe(profile.username)}`
+        : "";
 
-                                <small>
-                                    ${formatDate(
-                                        comment.created_at
-                                    )}
-                                </small>
-                            </div>
-                        </div>
-                    `).join("")
+    const avatar = profile?.avatar_url
+        ? `<img src="${safe(profile.avatar_url)}"
+                alt=""
+                loading="lazy"
+                onerror="this.style.display='none';">`
+        : `<i data-lucide="user"></i>`;
+
+    return `
+        <div class="social-comment">
+            <div class="social-comment-avatar">
+                ${avatar}
+            </div>
+
+            <div class="social-comment-body">
+                <strong>${safe(displayName)}</strong>
+
+                ${username
+                    ? `<span class="social-comment-username">${username}</span>`
+                    : ""
+                }
+
+                <p>
+                    ${renderClickableMentions(comment.content || "")}
+                </p>
+
+                <small>
+                    ${formatDate(comment.created_at)}
+                </small>
+            </div>
+        </div>
+    `;
+}).join("")
                     : `
                         <div class="social-comments-loading">
                             No comments yet.
@@ -16425,11 +16478,11 @@ await loadMyFollowCounts();
 // ------------------------------------------
 // LOAD PUBLIC PROFILE
 // ------------------------------------------
-
+let publicProfileRequestId = 0;
 async function loadPublicProfile(userId) {
 
   if (!userId) return;
-
+const requestId = ++publicProfileRequestId;
 // Make the Profile section visible before displaying the user.
 if (typeof navigatePATRIODX === "function") {
     navigatePATRIODX("profile");

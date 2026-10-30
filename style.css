@@ -20923,3 +20923,30 @@ body.dark-mode .mobile-sheet-close svg {
     word-break: normal;
     overflow-wrap: normal;
 }
+/* PATRIODX — X-style post author layout */
+
+.social-post-card .social-post-author-area {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: baseline !important;
+    column-gap: 6px !important;
+    row-gap: 0 !important;
+}
+
+.social-post-card .social-post-author {
+    flex: 0 1 auto !important;
+}
+
+.social-post-card .social-post-username {
+    display: inline !important;
+    flex: 0 1 auto !important;
+    color: #8491a3;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.social-post-card .social-post-date {
+    flex: 0 0 100% !important;
+    margin-top: 2px !important;
+    font-size: 12px;
+}
