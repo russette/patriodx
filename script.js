@@ -8324,11 +8324,13 @@ const author =
                                     </div>
                                 ` : ""}
 
-                                <div class="social-post-date">
-                                    ${formatDate(post.created_at)}
-                                </div>
+                              <div class="social-post-date">
+    ${formatDate(post.created_at)}
+</div>
 
-                            <div class="social-post-menu-actions">
+</div>
+
+<div class="social-post-menu-actions">
 
                                 <button
                                     type="button"
