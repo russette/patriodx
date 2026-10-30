@@ -22,7 +22,6 @@ let socialFeedMode = "latest";
 // =========================================================
 // PLAN LIMITS
 // =========================================================
-
 const PLAN_LIMITS = {
     free: {
         products: 20,
@@ -32,10 +31,10 @@ const PLAN_LIMITS = {
     },
 
     pro: {
-        products: Infinity,
-        customers: Infinity,
-        salesPerMonth: Infinity,
-        invoicesPerMonth: Infinity
+        products: 100,
+        customers: 250,
+        salesPerMonth: 500,
+        invoicesPerMonth: 100
     },
 
     business: {
@@ -45,7 +44,6 @@ const PLAN_LIMITS = {
         invoicesPerMonth: Infinity
     }
 };
-
 
 // =========================================================
 // BASIC HELPERS
@@ -218,72 +216,47 @@ function getInvoicesThisMonth() {
 
     }).length;
 }
-
 function canCreate(type) {
+    const limits = PLAN_LIMITS[currentPlan] || PLAN_LIMITS.free;
 
-    const limits =
-        PLAN_LIMITS[currentPlan] || PLAN_LIMITS.free;
-
-    if (type === "product") {
-
-        if (products.length >= limits.products) {
-
-          showPATRIODXToast(
-    "Free plan limit reached: 20 products. Upgrade to Pro for unlimited products.",
-    "warning"
-);
-
-            return false;
+    const checks = {
+        product: {
+            count: products.length,
+            limit: limits.products,
+            label: "products"
+        },
+        customer: {
+            count: customers.length,
+            limit: limits.customers,
+            label: "customers"
+        },
+        sale: {
+            count: getSalesThisMonth(),
+            limit: limits.salesPerMonth,
+            label: "sales this month"
+        },
+        invoice: {
+            count: getInvoicesThisMonth(),
+            limit: limits.invoicesPerMonth,
+            label: "invoices this month"
         }
-    }
+    };
 
-    if (type === "customer") {
+    const check = checks[type];
 
-        if (customers.length >= limits.customers) {
+    if (!check) return true;
 
-           showPATRIODXToast(
-    "Free plan limit reached: 20 customers. Upgrade to Pro for unlimited customers.",
-    "warning"
-);
-            return false;
-        }
-    }
+    if (check.count >= check.limit) {
+        showPATRIODXToast(
+            `${currentPlan.toUpperCase()} plan limit reached: ${check.limit} ${check.label}. Upgrade your plan to get more capacity.`,
+            "warning"
+        );
 
-    if (type === "sale") {
-
-        const count =
-            getSalesThisMonth();
-
-        if (count >= limits.salesPerMonth) {
-
-           showPATRIODXToast(
-    "Free plan limit reached: 30 customers. Upgrade to Pro for unlimited sales.",
-    "warning"
-);
-            return false;
-        }
-    }
-
-    if (type === "invoice") {
-
-        const count =
-            getInvoicesThisMonth();
-
-        if (count >= limits.invoicesPerMonth) {
-
-            showPATRIODXToast(
-    "Free plan limit reached: 5 invoices this month. Upgrade to Pro for unlimited invoices.",
-    "warning"
-);
-
-            return false;
-        }
+        return false;
     }
 
     return true;
 }
-
-
 // =========================================================
 // AUTH / SUPABASE
 // =========================================================
@@ -479,9 +452,30 @@ async function loadData() {
 
     invoices =
         invoicesResult.data || [];
+        updatePlanUsage();
 }
 
+function updatePlanUsage() {
+    const limits = PLAN_LIMITS[currentPlan] || PLAN_LIMITS.free;
 
+    const usage = {
+        accountProductsUsage: [products.length, limits.products],
+        accountCustomersUsage: [customers.length, limits.customers],
+        accountSalesUsage: [getSalesThisMonth(), limits.salesPerMonth],
+        accountInvoicesUsage: [getInvoicesThisMonth(), limits.invoicesPerMonth]
+    };
+
+    Object.entries(usage).forEach(([id, values]) => {
+        const element = document.getElementById(id);
+        if (!element) return;
+
+        const [used, limit] = values;
+        element.textContent =
+            `${used.toLocaleString()} / ${
+                limit === Infinity ? "Unlimited" : limit.toLocaleString()
+            }`;
+    });
+}
 /* =========================================================
    PATRIODX NAVIGATION COMPATIBILITY
    All navigation goes through the app router.
@@ -5731,6 +5725,7 @@ async function startPATRIODX() {
        if (!authenticated) return;
 
     await loadData();
+    updatePlanUsage();
     await loadMyProfile();
 
     // Load stories after restoring the signed-in user.
