@@ -7731,6 +7731,44 @@ function renderHomeMarketplaceProducts(products) {
         </section>
     `;
 }
+// PATRIODX feed video autoplay
+const patriodxFeedVideoObserver = new IntersectionObserver(
+    entries => {
+        entries.forEach(entry => {
+            const video = entry.target;
+
+            if (entry.isIntersecting) {
+                // Pause other videos so only the visible one plays.
+                document.querySelectorAll(".social-post-video").forEach(otherVideo => {
+                    if (otherVideo !== video) {
+                        otherVideo.pause();
+                    }
+                });
+
+                video.play().catch(error => {
+                    console.log("Video autoplay was blocked:", error);
+                });
+            } else {
+                video.pause();
+            }
+        });
+    },
+    {
+        threshold: 0.6
+    }
+);
+
+function observePATRIODXFeedVideos(container) {
+    if (!container) return;
+
+    container.querySelectorAll(".social-post-video").forEach(video => {
+        video.muted = true;
+        video.playsInline = true;
+        video.loop = true;
+
+        patriodxFeedVideoObserver.observe(video);
+    });
+}
 async function loadSocialPosts() {
 
     await loadPATRIODXStories();
@@ -8206,13 +8244,15 @@ const author =
                     post.video_url
                         ? `
                             <div class="social-media-wrapper">
-
-                                <video
-                                    src="${safe(post.video_url)}"
-                                    class="social-post-video"
-                                    controls
-                                    preload="metadata"
-                                ></video>
+<video
+    src="${safe(post.video_url)}"
+    class="social-post-video"
+    controls
+    muted
+    playsinline
+    loop
+    preload="metadata"
+></video>
 
                             </div>
                         `
@@ -8276,15 +8316,17 @@ const author =
                                             `
                                             : ""
                                     }
-
                                 </div>
 
+                                ${authorProfile?.username ? `
+                                    <div class="social-post-username">
+                                        @${safe(authorProfile.username)}
+                                    </div>
+                                ` : ""}
 
                                 <div class="social-post-date">
                                     ${formatDate(post.created_at)}
                                 </div>
-
-                            </div>
 
                             <div class="social-post-menu-actions">
 
@@ -8561,7 +8603,7 @@ const author =
 
         })
         .join("");
-
+observePATRIODXFeedVideos(socialFeed);
 
 // Open a user's public profile from their post name or avatar.
 socialFeed
@@ -10235,6 +10277,24 @@ function toggleSocialPostMenu(postId, event) {
 
 // Keep the function accessible to inline onclick handlers.
 window.toggleSocialPostMenu = toggleSocialPostMenu;
+// Close post menus when clicking or tapping outside them.
+document.addEventListener("click", function (event) {
+    if (event.target.closest(".social-post-menu-actions")) {
+        return;
+    }
+
+    document.querySelectorAll(".social-post-dropdown").forEach(menu => {
+        menu.hidden = true;
+        menu.style.removeProperty("top");
+        menu.style.removeProperty("left");
+        menu.style.removeProperty("right");
+        menu.style.removeProperty("bottom");
+    });
+
+    document.querySelectorAll(".social-post-menu-toggle").forEach(button => {
+        button.setAttribute("aria-expanded", "false");
+    });
+});
 /* =========================================================
 PATRIODX SAVED POSTS
 ========================================================= */
@@ -10821,12 +10881,15 @@ async function loadHomePosts() {
             const video = post.video_url
                 ? `
                     <div class="social-media-wrapper">
-                        <video
-                            src="${safe(post.video_url)}"
-                            class="social-post-video"
-                            controls
-                            preload="metadata"
-                        ></video>
+                       <video
+    src="${safe(post.video_url)}"
+    class="social-post-video"
+    controls
+    muted
+    playsinline
+    loop
+    preload="metadata"
+></video>
                     </div>
                 `
                 : "";
@@ -10863,9 +10926,91 @@ async function loadHomePosts() {
                                         : ""
                                 }
                             </div>
-
+${profile?.username ? `
+    <div class="social-post-username">
+        @${safe(profile.username)}
+    </div>
+` : ""}
                             <div class="social-post-date">
                                 ${formatDate(post.created_at)}
+                            </div>
+                                               </div>
+
+                        <div class="social-post-menu-actions">
+                            <button
+                                type="button"
+                                class="social-post-icon-button social-post-menu-toggle"
+                                onclick="toggleSocialPostMenu('${post.id}', event)"
+                                title="Post options"
+                                aria-label="Post options"
+                                aria-expanded="false"
+                                aria-controls="social-post-menu-${post.id}"
+                            >
+                                <i data-lucide="more-horizontal"></i>
+                            </button>
+
+                            <div
+                                class="social-post-dropdown"
+                                id="social-post-menu-${post.id}"
+                                hidden
+                            >
+                                <button
+                                    type="button"
+                                    class="social-post-menu-item"
+                                    onclick="saveSocialPost('${post.id}')"
+                                >
+                                    <i data-lucide="bookmark"></i>
+                                    <span>Save post</span>
+                                </button>
+
+                                ${
+                                    isOwnPost
+                                        ? `
+                                            <button type="button" class="social-post-menu-item"
+                                                onclick="toggleSocialPostSetting('${post.id}', 'hide_like_count', ${!post.hide_like_count})">
+                                                <i data-lucide="heart"></i>
+                                                <span>${post.hide_like_count ? "Show like count" : "Hide like count"}</span>
+                                            </button>
+
+                                            <button type="button" class="social-post-menu-item"
+                                                onclick="toggleSocialPostSetting('${post.id}', 'hide_share_count', ${!post.hide_share_count})">
+                                                <i data-lucide="share-2"></i>
+                                                <span>${post.hide_share_count ? "Show share count" : "Hide share count"}</span>
+                                            </button>
+
+                                            <button type="button" class="social-post-menu-item"
+                                                onclick="toggleSocialPostSetting('${post.id}', 'comments_enabled', ${post.comments_enabled === false})">
+                                                <i data-lucide="message-circle"></i>
+                                                <span>${post.comments_enabled === false ? "Turn on commenting" : "Turn off commenting"}</span>
+                                            </button>
+
+                                            <button type="button" class="social-post-menu-item"
+                                                onclick="editSocialPost('${post.id}')"
+                                                ${Date.now() - new Date(post.created_at).getTime() > 15 * 60 * 1000 ? "disabled" : ""}>
+                                                <i data-lucide="pencil"></i>
+                                                <span>Edit post</span>
+                                            </button>
+
+                                            <button type="button" class="social-post-menu-item"
+                                                onclick="toggleSocialPostSetting('${post.id}', 'is_pinned', ${!post.is_pinned})">
+                                                <i data-lucide="pin"></i>
+                                                <span>${post.is_pinned ? "Unpin from profile" : "Pin to profile"}</span>
+                                            </button>
+
+                                            <button type="button" class="social-post-menu-item social-post-delete-item"
+                                                onclick="deleteSocialPost('${post.id}')">
+                                                <i data-lucide="trash-2"></i>
+                                                <span>Delete post</span>
+                                            </button>
+                                        `
+                                        : `
+                                            <button type="button" class="social-post-menu-item"
+                                                onclick="reportSocialPost('${post.id}')">
+                                                <i data-lucide="flag"></i>
+                                                <span>Report post</span>
+                                            </button>
+                                        `
+                                }
                             </div>
                         </div>
                     </header>
@@ -10932,6 +11077,7 @@ data-post-id="${post.id}"
                 </article>
             `;
         }).join("");
+        observePATRIODXFeedVideos(homeFeed);
 // Open the author's public profile from Home posts.
 homeFeed.querySelectorAll("[data-profile-user-id]").forEach(element => {
     element.style.cursor = "pointer";
@@ -14190,7 +14336,8 @@ function updateNotificationUnreadBadge() {
 /* ---------------------------------------------------------
 NOTIFICATION CLICK
 --------------------------------------------------------- */
-
+let mobileProfileReturnSection = "profile";
+let mobilePostViewerReturnSection = "profile";
 async function handleNotificationClick(notificationId) {
 
 
@@ -14222,6 +14369,7 @@ if (
     type === "comment" ||
     type === "tag"
 ) {
+    mobilePostViewerReturnSection = "notifications";
 const postId = notification.related_id;
 
 
@@ -14318,7 +14466,7 @@ if (type === "message") {
 ----------------------------------------------------- */
 
 if (type === "follow") {
-
+mobileProfileReturnSection = "notifications";
     const followerId =
         notification.related_id;
 
@@ -19793,7 +19941,15 @@ if (mediaContainer) {
 
     mediaContainer.replaceChildren();
 }
+if (mobilePostViewerReturnSection === "notifications") {
+    document.body.classList.remove("mobile-public-profile-view");
 
+    if (typeof navigatePATRIODX === "function") {
+        navigatePATRIODX("notifications");
+    }
+
+    mobilePostViewerReturnSection = "profile";
+}
 
 }
 
@@ -20695,7 +20851,9 @@ document.getElementById("publicProfileBackButton")
 
         viewedProfileUserId = null;
 
-        if (typeof navigatePATRIODX === "function") {
-            navigatePATRIODX("profile");
-        }
+       if (typeof navigatePATRIODX === "function") {
+    navigatePATRIODX(mobileProfileReturnSection);
+
+    mobileProfileReturnSection = "profile";
+}
     });
