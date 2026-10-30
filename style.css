@@ -20611,18 +20611,17 @@ flex-basis: 18px !important;
     width: 100% !important;
     height: 100% !important;
 }
-
-/* Light mode — dark tick for clear contrast */
+/* Light mode — white tick */
 body:not(.dark-mode) .patriodx-verification-badge .patriodx-badge-symbol {
-    stroke: #172033 !important;
+    stroke: #FFFFFF !important;
     stroke-width: 2.5 !important;
     stroke-linecap: round !important;
     stroke-linejoin: round !important;
 }
 
-/* Dark mode — white tick */
+/* Dark mode — black tick */
 body.dark-mode .patriodx-verification-badge .patriodx-badge-symbol {
-    stroke: #FFFFFF !important;
+    stroke: #000000 !important;
     stroke-width: 2.5 !important;
     stroke-linecap: round !important;
     stroke-linejoin: round !important;
