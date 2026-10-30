@@ -20595,3 +20595,35 @@ flex-basis: 18px !important;
     max-width: 18px !important;
     max-height: 18px !important;
 }
+/* =========================================
+   PATRIODX BADGES — LIGHT/DARK MODE
+========================================= */
+
+/* Keep the badge and tick perfectly centered */
+.patriodx-verification-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.patriodx-verification-badge > svg {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Light mode — dark tick for clear contrast */
+body:not(.dark-mode) .patriodx-verification-badge .patriodx-badge-symbol {
+    stroke: #172033 !important;
+    stroke-width: 2.5 !important;
+    stroke-linecap: round !important;
+    stroke-linejoin: round !important;
+}
+
+/* Dark mode — white tick */
+body.dark-mode .patriodx-verification-badge .patriodx-badge-symbol {
+    stroke: #FFFFFF !important;
+    stroke-width: 2.5 !important;
+    stroke-linecap: round !important;
+    stroke-linejoin: round !important;
+}
