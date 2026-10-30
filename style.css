@@ -20626,3 +20626,67 @@ body.dark-mode .patriodx-verification-badge .patriodx-badge-symbol {
     stroke-linecap: round !important;
     stroke-linejoin: round !important;
 }
+/* PATRIODX MOBILE SIDEBAR — DARK MODE FIX */
+@media (max-width: 768px) {
+
+    body.dark-mode #patriodxSidebar {
+        background: #111827 !important;
+        color: #f8fafc !important;
+        border-right-color: #374151 !important;
+    }
+
+    body.dark-mode #patriodxSidebar .sidebar-link {
+        background: transparent !important;
+        color: #cbd5e1 !important;
+    }
+
+    body.dark-mode #patriodxSidebar .sidebar-link:hover,
+    body.dark-mode #patriodxSidebar .sidebar-link.active {
+        background: #1e3a8a !important;
+        color: #ffffff !important;
+    }
+
+    body.dark-mode #patriodxSidebar h1,
+    body.dark-mode #patriodxSidebar h2,
+    body.dark-mode #patriodxSidebar h3,
+    body.dark-mode #patriodxSidebar p,
+    body.dark-mode #patriodxSidebar span {
+        color: #f8fafc;
+    }
+}
+/* =========================================
+   PATRIODX — IMMERSIVE MOBILE PROFILE
+========================================= */
+
+@media (max-width: 768px) {
+    body.mobile-public-profile-view .patriodx-header,
+    body.mobile-public-profile-view #mobileBottomNav {
+        display: none !important;
+    }
+
+    body.mobile-public-profile-view #publicProfileBackButton {
+        display: inline-flex !important;
+    }
+
+    body.mobile-public-profile-view #publicProfileCard {
+        margin-top: 0 !important;
+        border-radius: 0 !important;
+    }
+}
+
+#publicProfileBackButton {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 16px;
+    margin: 12px 0;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 12px;
+    background: var(--card-bg, #ffffff);
+    color: var(--text-color, #111827);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}

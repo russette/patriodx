@@ -16283,6 +16283,10 @@ if (typeof navigatePATRIODX === "function") {
     navigatePATRIODX("profile");
 }
 
+if (window.matchMedia("(max-width: 768px)").matches) {
+    document.body.classList.add("mobile-public-profile-view");
+}
+
 viewedProfileUserId = userId;
 
 
@@ -19755,6 +19759,10 @@ viewer.style.display = "flex";
 viewer.setAttribute("aria-hidden", "false");
 document.body.style.overflow = "hidden";
 
+// Hide normal navigation while viewing a post on mobile.
+if (window.matchMedia("(max-width: 768px)").matches) {
+    document.body.classList.add("mobile-public-profile-view");
+}
 refreshProfilePostViewer(postData.postId);
 if (window.lucide) {
     lucide.createIcons();
@@ -20633,3 +20641,61 @@ async function saveSocialPost(postId) {
 }
 
 window.saveSocialPost = saveSocialPost;
+// PATRIODX — Return from public profile
+document.getElementById("publicProfileBackButton")
+    ?.addEventListener("click", function () {
+
+        // Close the immersive mobile view
+        document.body.classList.remove("mobile-public-profile-view");
+
+        // Hide the public profile
+        const publicCard =
+            document.getElementById("publicProfileCard");
+
+        if (publicCard) {
+            publicCard.style.display = "none";
+        }
+
+        const publicPosts =
+            document.getElementById("publicProfilePostsContainer");
+
+        if (publicPosts) {
+            publicPosts.style.display = "none";
+        }
+
+        // Restore your own profile elements
+        const ownProfileElements = [
+            document.getElementById("profileCover"),
+            document.getElementById("profileAvatar")?.closest(".profile-header"),
+            document.getElementById("profilePostCount")?.closest(".profile-stats"),
+            document.getElementById("profileEditor"),
+            document.getElementById("profilePosts")?.closest(".profile-posts")
+        ];
+
+        ownProfileElements.forEach(element => {
+            if (element) element.style.display = "";
+        });
+
+        // Restore the Profile heading
+        const profileSection = document.getElementById("profile");
+
+        profileSection
+            ?.querySelectorAll(":scope > .section-heading")
+            .forEach(heading => {
+                heading.style.display = "";
+            });
+
+        // Restore Find People
+        const searchCard = document.getElementById("profileSearchForm")
+            ?.closest(".profile-search-card");
+
+        if (searchCard) {
+            searchCard.style.display = "";
+        }
+
+        viewedProfileUserId = null;
+
+        if (typeof navigatePATRIODX === "function") {
+            navigatePATRIODX("profile");
+        }
+    });

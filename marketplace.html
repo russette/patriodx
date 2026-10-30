@@ -849,12 +849,18 @@ function getPATRIODXBadge(profile) {
                        <h3 class="product-name">
     ${escapeHTML(product.name || "Unnamed product")}
 </h3>
-
 ${
     marketplaceSellerProfiles[product.business_id]
         ? `
             <div class="marketplace-seller">
-                <span>Seller</span>
+                <span>
+                    ${escapeHTML(
+                        marketplaceSellerProfiles[product.business_id].display_name ||
+                        (marketplaceSellerProfiles[product.business_id].username
+                            ? "@" + marketplaceSellerProfiles[product.business_id].username
+                            : "Seller")
+                    )}
+                </span>
                 ${getPATRIODXBadge(
                     marketplaceSellerProfiles[product.business_id]
                 )}
