@@ -362,10 +362,26 @@ const business = businesses?.[0] || null;
             return false;
         }
 
-        currentBusiness = business;
+       currentBusiness = business;
 
-        loadPlan();
+loadPlan();
 
+// Update Business & Subscription settings
+const accountBusinessName =
+    document.getElementById("accountBusinessName");
+
+const accountPlan =
+    document.getElementById("accountPlan");
+
+if (accountBusinessName) {
+    accountBusinessName.textContent =
+        currentBusiness.name || "—";
+}
+
+if (accountPlan) {
+    accountPlan.textContent =
+        currentPlan.toUpperCase();
+}
         return true;
 
     } catch (error) {
