@@ -21242,3 +21242,29 @@ body.dark-mode .mobile-sheet-close svg {
     }
 
 }
+/* PATRIODX FIX — Public profile button/statistics overlap */
+
+#publicProfileCard #publicProfileFollowButton {
+    grid-column: 1 !important;
+    grid-row: 6 !important;
+}
+
+#publicProfileCard #publicProfileMessageButton {
+    grid-column: 2 !important;
+    grid-row: 6 !important;
+}
+
+#publicProfileCard > .profile-stats {
+    grid-column: 1 / -1 !important;
+    grid-row: 7 !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    width: 100% !important;
+    margin-top: 14px !important;
+    position: relative !important;
+}
+
+#publicProfileCard > #publicProfileFollowList {
+    grid-column: 1 / -1 !important;
+    grid-row: 8 !important;
+}
