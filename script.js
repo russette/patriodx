@@ -11698,74 +11698,74 @@ function renderConversationUsers() {
     if (typeof lucide !== "undefined") lucide.createIcons();
 }
 
-async function createConversationWithUser(otherUserId) {
+async function createConversationWithUser(
+    otherUserId,
+    otherUserProfile = null
+) {
     if (!currentUser || !otherUserId) {
         return false;
     }
 
-    const { data: myMemberships, error: myMembershipError } =
-        await supabaseClient
-            .from("conversation_members")
-            .select("conversation_id")
-            .eq("user_id", currentUser.id);
+    const { data: memberships, error: membershipError } =
+    await supabaseClient
+        .from("conversation_members")
+        .select("conversation_id, user_id")
+        .in("user_id", [currentUser.id, otherUserId]);
 
-    if (myMembershipError) {
-        console.error("Could not load your conversations:", myMembershipError);
+if (membershipError) {
+    console.error(
+        "Could not check existing conversations:",
+        membershipError
+    );
 
-        showPATRIODXToast(
-            "Could not check existing conversations. " +
-            myMembershipError.message,
-            "error"
+    showPATRIODXToast(
+        "Could not check existing conversations. " +
+        membershipError.message,
+        "error"
+    );
+
+    return false;
+}
+
+const participantsByConversation = new Map();
+
+(memberships || []).forEach(member => {
+    if (!participantsByConversation.has(member.conversation_id)) {
+        participantsByConversation.set(
+            member.conversation_id,
+            new Set()
         );
-
-        return false;
     }
 
-    const myConversationIds =
-        (myMemberships || []).map(member => member.conversation_id);
+    participantsByConversation
+        .get(member.conversation_id)
+        .add(member.user_id);
+});
 
-    if (myConversationIds.length) {
-        const { data: otherMemberships, error: otherMembershipError } =
-            await supabaseClient
-                .from("conversation_members")
-                .select("conversation_id")
-                .eq("user_id", otherUserId)
-                .in("conversation_id", myConversationIds);
+const sharedConversationId = [
+    ...participantsByConversation.entries()
+].find(([, memberIds]) =>
+    memberIds.has(currentUser.id) &&
+    memberIds.has(otherUserId)
+)?.[0];
 
-        if (otherMembershipError) {
-            console.error(
-                "Could not check the selected user's conversations:",
-                otherMembershipError
-            );
-
-            showPATRIODXToast(
-                "Could not check existing conversations. " +
-                otherMembershipError.message,
-                "error"
-            );
-
-            return false;
-        }
-
-        const sharedConversation = (otherMemberships || [])[0];
-
-        if (sharedConversation) {
-            const existingConversationId =
-                sharedConversation.conversation_id;
-
-            if (newConversationModal) {
-                newConversationModal.style.display = "none";
-            }
-
-            if (conversationUserSearch) {
-                conversationUserSearch.value = "";
-            }
-
-         await openConversation(existingConversationId);
-            return true;
-        }
+if (sharedConversationId) {
+    if (newConversationModal) {
+        newConversationModal.style.display = "none";
     }
 
+    if (conversationUserSearch) {
+        conversationUserSearch.value = "";
+    }
+
+    await openConversation(
+        sharedConversationId,
+        otherUserProfile
+    );
+
+    return true;
+}
+ 
     const conversationId = crypto.randomUUID();
 
     const { error: conversationError } =
@@ -11785,46 +11785,34 @@ async function createConversationWithUser(otherUserId) {
         return false;
     }
 
-    const { error: currentMemberError } =
+      const { error: membersError } =
         await supabaseClient
             .from("conversation_members")
-            .insert({
-                conversation_id: conversationId,
-                user_id: currentUser.id
-            });
+            .insert([
+                {
+                    conversation_id: conversationId,
+                    user_id: currentUser.id
+                },
+                {
+                    conversation_id: conversationId,
+                    user_id: otherUserId
+                }
+            ]);
 
-    if (currentMemberError) {
-        console.error("Could not add current user:", currentMemberError);
+    if (membersError) {
+        console.error(
+            "Could not add conversation members:",
+            membersError
+        );
 
         showPATRIODXToast(
-            "Could not join the conversation. " +
-            currentMemberError.message,
+            "Could not add conversation members. " +
+            membersError.message,
             "error"
         );
 
         return false;
     }
-
-    const { error: otherMemberError } =
-        await supabaseClient
-            .from("conversation_members")
-            .insert({
-                conversation_id: conversationId,
-                user_id: otherUserId
-            });
-
-    if (otherMemberError) {
-        console.error("Could not add the selected user:", otherMemberError);
-
-        showPATRIODXToast(
-            "Could not add the selected user. " +
-            otherMemberError.message,
-            "error"
-        );
-
-        return false;
-    }
-
     if (newConversationModal) {
         newConversationModal.style.display = "none";
     }
@@ -11833,7 +11821,10 @@ async function createConversationWithUser(otherUserId) {
         conversationUserSearch.value = "";
     }
 
-   await openConversation(conversationId);
+  await openConversation(
+    conversationId,
+    otherUserProfile
+);
     return true;
 }
 
@@ -11899,33 +11890,32 @@ async function loadConversations() {
             return;
         }
 
-        /* GET CONVERSATIONS */
+       /* GET CONVERSATIONS AND MEMBERS IN PARALLEL */
 
-        const {
-            data: conversations,
-            error: conversationError
-        } = await supabaseClient
-            .from("conversations")
-            .select("*")
-            .in("id", conversationIds);
+const [
+    { data: conversations, error: conversationError },
+    { data: allMembers, error: allMembersError }
+] = await Promise.all([
 
-        if (conversationError) {
-            throw conversationError;
-        }
+    supabaseClient
+        .from("conversations")
+        .select("*")
+        .in("id", conversationIds),
 
-        /* GET CONVERSATION MEMBERS */
+    supabaseClient
+        .from("conversation_members")
+        .select("conversation_id, user_id")
+        .in("conversation_id", conversationIds)
 
-        const {
-            data: allMembers,
-            error: allMembersError
-        } = await supabaseClient
-            .from("conversation_members")
-            .select("conversation_id, user_id")
-            .in("conversation_id", conversationIds);
+]);
 
-        if (allMembersError) {
-            throw allMembersError;
-        }
+if (conversationError) {
+    throw conversationError;
+}
+
+if (allMembersError) {
+    throw allMembersError;
+}
 
         /* KEEP DIRECT CONVERSATIONS */
 
@@ -11975,60 +11965,64 @@ async function loadConversations() {
             )
         ];
 
-        /* LOAD PROFILES, INCLUDING AVATARS */
+/* LOAD PROFILES AND LATEST MESSAGES IN PARALLEL */
 
-        let profiles = [];
+const profileQuery = otherUserIds.length
+    ? supabaseClient
+        .from("profiles")
+        .select(
+            "id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at"
+        )
+        .in("id", otherUserIds)
+    : Promise.resolve({
+        data: [],
+        error: null
+    });
 
-        if (otherUserIds.length) {
+const [
+    { data: profileData, error: profileError },
+    {
+        data: recentMessages,
+        error: recentMessagesError
+    }
+] = await Promise.all([
 
-            const {
-                data: profileData,
-                error: profileError
-            } = await supabaseClient
-               .from("profiles")
-.select(
-    "id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at"
-)
-.in("id", otherUserIds);
+    profileQuery,
 
-            if (profileError) {
-                console.error(
-                    "Could not load conversation profiles:",
-                    profileError
-                );
-            } else {
-                profiles = profileData || [];
-            }
-        }
+    supabaseClient
+        .from("messages")
+        .select(
+            "conversation_id, sender_id, content, created_at"
+        )
+        .in("conversation_id", conversationIds)
+        .order("created_at", {
+            ascending: false
+        })
 
-        const profileMap = new Map(
-            profiles.map(
-                profile => [profile.id, profile]
-            )
-        );
+]);
 
-        /* GET LATEST MESSAGES */
+let profiles = profileData || [];
 
-        const {
-            data: recentMessages,
-            error: recentMessagesError
-        } = await supabaseClient
-            .from("messages")
-            .select(
-                "conversation_id, sender_id, content, created_at"
-            )
-            .in("conversation_id", conversationIds)
-            .order("created_at", {
-                ascending: false
-            });
+if (profileError) {
+    console.error(
+        "Could not load conversation profiles:",
+        profileError
+    );
+}
 
-        if (recentMessagesError) {
-            console.error(
-                "Could not load conversation previews:",
-                recentMessagesError
-            );
-        }
+if (recentMessagesError) {
+    console.error(
+        "Could not load conversation previews:",
+        recentMessagesError
+    );
+}
 
+const profileMap = new Map(
+    profiles.map(profile => [
+        profile.id,
+        profile
+    ])
+);
         /* STORE THE NEWEST MESSAGE FOR EACH CONVERSATION */
 
         const latestMessageMap = new Map();
@@ -12209,9 +12203,15 @@ async function loadConversations() {
 
                         <div class="conversation-info">
 
-                            <strong>
-                                ${safe(displayName)}
-                            </strong>
+                           <strong>
+    ${safe(displayName)}
+    ${
+        otherProfile &&
+        typeof getPATRIODXBadge === "function"
+            ? getPATRIODXBadge(otherProfile)
+            : ""
+    }
+</strong>
 
                             ${
                                 username
@@ -12282,8 +12282,10 @@ async function loadConversations() {
 /* =========================================================
 OPEN CONVERSATION
 ========================================================= */
-
-async function openConversation(conversationId) {
+async function openConversation(
+    conversationId,
+    otherUserProfile = null
+) {
 
 activeConversationId = conversationId;
 
@@ -12294,13 +12296,23 @@ loadConversations().catch(error => {
 
 messageInput.disabled = false;
 messageSendButton.disabled = false;
+const [
+    { data: conversation, error },
+    { data: members, error: membersError }
+] = await Promise.all([
 
-const { data: conversation, error } =
-    await supabaseClient
+    supabaseClient
         .from("conversations")
         .select("*")
         .eq("id", conversationId)
-        .single();
+        .single(),
+
+    supabaseClient
+        .from("conversation_members")
+        .select("user_id")
+        .eq("conversation_id", conversationId)
+
+]);
 
 if (error) {
     console.error("Could not open conversation:", error);
@@ -12308,47 +12320,46 @@ if (error) {
 }
 
 /* GET THE OTHER PARTICIPANT */
-
-const { data: members, error: membersError } =
-    await supabaseClient
-        .from("conversation_members")
-        .select("user_id")
-        .eq("conversation_id", conversationId);
-
 let otherUser = null;
 let otherUserId = null;
 
 if (!membersError) {
-
     const otherMember = (members || []).find(
         member => member.user_id !== currentUser.id
     );
 
     if (otherMember) {
-
         otherUserId = otherMember.user_id;
 
-        const { data: profile, error: profileError } =
-            await supabaseClient
-                .from("profiles")
-               .select(`
-    id,
-    username,
-    display_name,
-    avatar_url,
-    is_verified,
-    is_owner,
-    verification_expires_at
-`)
-                .eq("id", otherUserId)
-                .single();
+        // Reuse the profile already loaded from the public profile.
+        if (
+            otherUserProfile &&
+            otherUserProfile.id === otherUserId
+        ) {
+            otherUser = otherUserProfile;
+        } else {
+            // Normal fallback when opening a conversation from the inbox.
+            const { data: profile, error: profileError } =
+                await supabaseClient
+                    .from("profiles")
+                    .select(`
+                        id,
+                        username,
+                        display_name,
+                        avatar_url,
+                        is_verified,
+                        is_owner,
+                        verification_expires_at
+                    `)
+                    .eq("id", otherUserId)
+                    .single();
 
-        if (!profileError) {
-            otherUser = profile;
+            if (!profileError) {
+                otherUser = profile;
+            }
         }
     }
 }
-
 /* PREPARE THE HEADER */
 
 const title =
@@ -12444,30 +12455,25 @@ if (chatHeader) {
         lucide.createIcons();
     }
 }
+/* LOAD MESSAGES AND MARK AS READ IN PARALLEL */
 
-/* LOAD MESSAGES */
+const [messagesResult, readResult] = await Promise.all([
+    loadMessages(conversationId),
 
-await loadMessages(conversationId);
-
-/* MARK RECEIVED MESSAGES AS READ */
-
-const { error: readError } =
-    await supabaseClient.rpc(
+    supabaseClient.rpc(
         "mark_messages_read",
         {
             p_conversation_id: conversationId
         }
-    );
+    )
+]);
 
-if (readError) {
+if (readResult.error) {
     console.error(
         "Could not mark messages as read:",
-        readError
+        readResult.error
     );
-} else {
-    await loadMessages(conversationId);
 }
-
 /* KEEP REALTIME MESSAGING */
 
 subscribeToMessages(conversationId);
@@ -12718,22 +12724,27 @@ async function loadMessages(conversationId) {
         }
     }
 
-    // Run only four background tasks at once.
-    let nextTask = 0;
+  // Run background tasks without delaying conversation opening.
+let nextTask = 0;
 
-    async function runBackgroundWorker() {
-        while (nextTask < backgroundTasks.length) {
-            const task = backgroundTasks[nextTask++];
-            await task();
-        }
+async function runBackgroundWorker() {
+    while (nextTask < backgroundTasks.length) {
+        const task = backgroundTasks[nextTask++];
+        await task();
     }
+}
 
-    await Promise.all(
-        Array.from(
-            { length: Math.min(4, backgroundTasks.length) },
-            () => runBackgroundWorker()
-        )
+Promise.all(
+    Array.from(
+        { length: Math.min(4, backgroundTasks.length) },
+        () => runBackgroundWorker()
+    )
+).catch(error => {
+    console.error(
+        "Message background loading failed:",
+        error
     );
+});
 }
 
 
@@ -16695,7 +16706,10 @@ if (
                     messageButton.disabled = true;
 
                     try {
-                  const opened = await createConversationWithUser(userId);
+                 const opened = await createConversationWithUser(
+    userId,
+    profile
+);
 
 if (opened && typeof navigatePATRIODX === "function") {
     navigatePATRIODX("messaging");

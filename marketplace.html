@@ -1036,60 +1036,41 @@ const businessIds = [
 ];
 
 if (businessIds.length > 0) {
-    const { data: businesses, error: businessesError } =
+    const { data: sellers, error: sellersError } =
         await marketplaceDB
-            .from("businesses")
-            .select("id, owner_id")
-            .in("id", businessIds);
+            .from("marketplace_seller_profiles")
+            .select(`
+                business_id,
+                seller_id,
+                username,
+                display_name,
+                avatar_url,
+                is_verified,
+                is_owner,
+                verification_expires_at
+            `)
+            .in("business_id", businessIds);
 
-    if (businessesError) {
+    if (sellersError) {
         console.error(
             "Error loading marketplace sellers:",
-            businessesError
+            sellersError
         );
     } else {
-        const ownerIds = [
-            ...new Set(
-                (businesses || [])
-                    .map(business => business.owner_id)
-                    .filter(Boolean)
-            )
-        ];
-
-        if (ownerIds.length > 0) {
-            const { data: profiles, error: profilesError } =
-                await marketplaceDB
-                    .from("profiles")
-                    .select(
-                        "id, username, display_name, is_verified, is_owner, verification_expires_at"
-                    )
-                    .in("id", ownerIds);
-
-            if (profilesError) {
-                console.error(
-                    "Error loading seller verification badges:",
-                    profilesError
-                );
-            } else {
-                const profilesById = Object.fromEntries(
-                    (profiles || []).map(profile => [
-                        profile.id,
-                        profile
-                    ])
-                );
-
-                (businesses || []).forEach(business => {
-                    const profile = profilesById[business.owner_id];
-
-                    if (profile) {
-                        marketplaceSellerProfiles[business.id] = profile;
-                    }
-                });
-            }
-        }
+        (sellers || []).forEach(seller => {
+            marketplaceSellerProfiles[seller.business_id] = {
+                id: seller.seller_id,
+                username: seller.username,
+                display_name: seller.display_name,
+                avatar_url: seller.avatar_url,
+                is_verified: seller.is_verified,
+                is_owner: seller.is_owner,
+                verification_expires_at:
+                    seller.verification_expires_at
+            };
+        });
     }
 }
-
 renderCategories();
 renderProducts();
     }
