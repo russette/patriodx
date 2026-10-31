@@ -21160,3 +21160,85 @@ body.dark-mode .mobile-sheet-close svg {
         margin-top: 0 !important;
     }
 }
+/* PATRIODX — Public profile: proper mobile screen fit */
+
+@media (max-width: 768px) {
+
+    body.mobile-public-profile-view #profile {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+    }
+
+    body.mobile-public-profile-view #profile > .profile-page-card {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    body.mobile-public-profile-view #publicProfileCard {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        grid-template-columns: 84px minmax(0, 1fr) !important;
+        column-gap: 10px !important;
+        padding: 8px 12px 16px !important;
+        box-sizing: border-box !important;
+    }
+
+    #publicProfileCard * {
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    /* Give statistics the full available width */
+    #publicProfileCard > .profile-stats {
+        grid-column: 1 / -1 !important;
+        grid-row: 6 !important;
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        justify-content: stretch !important;
+        gap: 4px !important;
+        width: 100% !important;
+        padding: 14px 0 !important;
+        margin: 8px 0 0 !important;
+        text-align: center;
+    }
+
+    #publicProfileCard > .profile-stats > div,
+    #publicProfileCard > .profile-stats > button {
+        min-width: 0 !important;
+        padding: 6px 2px !important;
+        text-align: center !important;
+    }
+
+    #publicProfileCard > .profile-stats span {
+        font-size: 11px !important;
+        white-space: normal !important;
+    }
+
+    /* Keep both action buttons within the screen */
+    #publicProfileCard #publicProfileFollowButton,
+    #publicProfileCard #publicProfileMessageButton {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        padding: 9px 6px !important;
+        font-size: 12px !important;
+    }
+
+    /* Posts must use the same available width */
+    #publicProfilePostsContainer,
+    #publicProfilePosts {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+}
