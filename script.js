@@ -148,18 +148,40 @@ function formatDate(date) {
     return d.toLocaleDateString();
 }
 function formatMessageTime(date) {
+    return formatRelativeTime(date);
+}
+function formatRelativeTime(date) {
     if (!date) return "";
 
-    const parsed = new Date(date);
+    const timestamp = new Date(date).getTime();
 
-    if (Number.isNaN(parsed.getTime())) return "";
+    if (Number.isNaN(timestamp)) return "";
 
-    return parsed.toLocaleTimeString([], {
-        hour: "numeric",
-        minute: "2-digit"
-    });
+    const seconds = Math.max(
+        0,
+        Math.floor((Date.now() - timestamp) / 1000)
+    );
+
+    if (seconds < 60) return "Just now";
+
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+
+    const weeks = Math.floor(days / 7);
+    if (weeks < 5) return `${weeks}w ago`;
+
+    const months = Math.floor(days / 30);
+    if (months < 12) return `${months}mo ago`;
+
+    const years = Math.floor(days / 365);
+    return `${years}y ago`;
 }
-
 // =========================================================
 // PLAN CHECKING
 // =========================================================
@@ -8324,10 +8346,9 @@ const author =
                                     </div>
                                 ` : ""}
 
-                              <div class="social-post-date">
-    ${formatDate(post.created_at)}
+                           <div class="social-post-date">
+    ${formatRelativeTime(post.created_at)}
 </div>
-
 </div>
 
 <div class="social-post-menu-actions">
@@ -9265,9 +9286,9 @@ commentsList.innerHTML =
 
                         <p>${safe(comment.content)}</p>
 
-                        <small>
-                            ${formatDate(comment.created_at)}
-                        </small>
+                       <small>
+    ${formatRelativeTime(comment.created_at)}
+</small>
 
                     </div>
 
@@ -10936,7 +10957,7 @@ ${profile?.username ? `
     </div>
 ` : ""}
                             <div class="social-post-date">
-                                ${formatDate(post.created_at)}
+                              ${formatRelativeTime(post.created_at)}
                             </div>
                                                </div>
 
@@ -11299,10 +11320,9 @@ const commentProfileMap = new Map(
                 <p>
                     ${renderClickableMentions(comment.content || "")}
                 </p>
-
-                <small>
-                    ${formatDate(comment.created_at)}
-                </small>
+<small>
+    ${formatRelativeTime(comment.created_at)}
+</small>
             </div>
         </div>
     `;
@@ -14279,12 +14299,10 @@ function renderNotifications() {
             }
 
 
-            const createdAt =
-                notification.created_at
-                    ? new Date(
-                        notification.created_at
-                    ).toLocaleString()
-                    : "";
+          const createdAt =
+    notification.created_at
+        ? formatRelativeTime(notification.created_at)
+        : "";
 
 
             return `
@@ -16801,8 +16819,8 @@ const renderedPosts = (
     await Promise.all(
         posts.map(async post => {
             const date = post.created_at
-                ? new Date(post.created_at).toLocaleString()
-                : "";
+    ? formatRelativeTime(post.created_at)
+    : "";
 
             let media = "";
 
@@ -16931,10 +16949,18 @@ const renderedPosts = (
     )
 ).join("");
 
+if (
+    requestId !== publicProfileRequestId ||
+    userId !== viewedProfileUserId
+) {
+    return;
+}
+
+postsElement.innerHTML = renderedPosts;
+
 if (typeof lucide !== "undefined") {
     lucide.createIcons();
 }
-
 // Make public profile posts clickable
 postsElement
     .querySelectorAll(".social-post-card")
@@ -17055,7 +17081,7 @@ postsElement
                 author: profile.display_name || "PATRIODX User",
                 caption: post.content || "",
                 date: post.created_at
-                    ? new Date(post.created_at).toLocaleString()
+                    ? formatRelativeTime(post.created_at)
                     : ""
             });
         });
@@ -20214,8 +20240,7 @@ text.innerHTML = renderClickableMentions(
     comment.content || ""
 );
             const date = document.createElement("small");
-            date.textContent = formatDate(comment.created_at);
-
+           date.textContent = formatRelativeTime(comment.created_at);
             content.append(name, text, date);
 
             const actions = document.createElement("div");
