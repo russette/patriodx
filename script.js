@@ -7590,48 +7590,35 @@ async function loadHomeMarketplaceProducts() {
         let sellerMap = {};
 
         if (businessIds.length) {
-            const { data: businesses, error: businessError } =
+            const { data: sellers, error: sellerError } =
                 await supabaseClient
-                    .from("businesses")
-                    .select("id,owner_id")
-                    .in("id", businessIds);
+                    .from("marketplace_seller_profiles")
+                    .select(`
+                business_id,
+                seller_id,
+                username,
+                display_name,
+                avatar_url,
+                is_verified,
+                is_owner,
+                verification_expires_at
+                    `)
+                    .in("business_id", businessIds);
 
-            if (businessError) throw businessError;
+            if (sellerError) throw sellerError;
 
-            const ownerIds = [
-                ...new Set(
-                    (businesses || [])
-                        .map(b => b.owner_id)
-                        .filter(Boolean)
-                )
-            ];
-
-            if (ownerIds.length) {
-                const { data: profiles, error: profileError } =
-                    await supabaseClient
-                        .from("profiles")
-                        .select(
-                            "id,username,display_name,avatar_url,is_verified,is_owner,verification_expires_at"
-                        )
-                        .in("id", ownerIds);
-
-                if (profileError) throw profileError;
-
-                const profileMap = new Map(
-                    (profiles || []).map(profile => [
-                        profile.id,
-                        profile
-                    ])
-                );
-
-                (businesses || []).forEach(business => {
-                    const profile = profileMap.get(business.owner_id);
-
-                    if (profile) {
-                        sellerMap[business.id] = profile;
-                    }
-                });
-            }
+            (sellers || []).forEach(seller => {
+                sellerMap[seller.business_id] = {
+                    id: seller.seller_id,
+                    username: seller.username,
+                    display_name: seller.display_name,
+                    avatar_url: seller.avatar_url,
+                    is_verified: seller.is_verified,
+                    is_owner: seller.is_owner,
+                    verification_expires_at:
+                        seller.verification_expires_at
+                };
+            });
         }
 
         return items.map(product => ({
@@ -10188,10 +10175,9 @@ function toggleSocialPostMenu(postId, event) {
     event?.preventDefault();
     event?.stopPropagation();
 
-    const menu = document.getElementById(
-        `social-post-menu-${postId}`
-    );
-
+   const menu = event?.currentTarget
+    ?.closest(".social-post-menu-actions")
+    ?.querySelector(".social-post-dropdown");
     if (!menu) {
         console.error(
             "PATRIODX: Post menu not found:",
@@ -16518,7 +16504,6 @@ const ownProfileElements = [
     document.getElementById("profileCover"),
     document.getElementById("profileAvatar")?.closest(".profile-header"),
     document.getElementById("profilePostCount")?.closest(".profile-stats"),
-    document.getElementById("profileEditor"),
     document.getElementById("profilePosts")?.closest(".profile-posts")
 ];
 
@@ -20930,13 +20915,11 @@ document.getElementById("publicProfileBackButton")
 
         // Restore your own profile elements
         const ownProfileElements = [
-            document.getElementById("profileCover"),
-            document.getElementById("profileAvatar")?.closest(".profile-header"),
-            document.getElementById("profilePostCount")?.closest(".profile-stats"),
-            document.getElementById("profileEditor"),
-            document.getElementById("profilePosts")?.closest(".profile-posts")
-        ];
-
+    document.getElementById("profileCover"),
+    document.getElementById("profileAvatar")?.closest(".profile-header"),
+    document.getElementById("profilePostCount")?.closest(".profile-stats"),
+    document.getElementById("profilePosts")?.closest(".profile-posts")
+];
         ownProfileElements.forEach(element => {
             if (element) element.style.display = "";
         });
