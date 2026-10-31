@@ -16536,7 +16536,12 @@ if (profileSearchCard) {
         .select("*")
         .eq("id", userId)
         .maybeSingle();
-
+if (
+    requestId !== publicProfileRequestId ||
+    userId !== viewedProfileUserId
+) {
+    return;
+}
     if (error) {
         console.error("Profile loading error:", error);
         return;
@@ -16636,7 +16641,12 @@ if (badgeElement) {
 
             const following =
                 await isFollowingUser(userId);
-
+if (
+    requestId !== publicProfileRequestId ||
+    userId !== viewedProfileUserId
+) {
+    return;
+}
             followButton.textContent =
                 following ? "Following" : "Follow";
 
@@ -16669,7 +16679,12 @@ if (messageButton) {
     if (currentUser && userId !== currentUser.id) {
         try {
             const following = await isFollowingUser(userId);
-
+if (
+    requestId !== publicProfileRequestId ||
+    userId !== viewedProfileUserId
+) {
+    return;
+}
             if (following) {
                 messageButton.style.display = "inline-flex";
 
@@ -16708,7 +16723,12 @@ if (opened && typeof navigatePATRIODX === "function") {
 
     const counts =
         await getProfileFollowCounts(userId);
-
+if (
+    requestId !== publicProfileRequestId ||
+    userId !== viewedProfileUserId
+) {
+    return;
+}
     const followerCount =
         document.getElementById("publicProfileFollowerCount");
 
@@ -16736,7 +16756,12 @@ if (opened && typeof navigatePATRIODX === "function") {
             .order("created_at", {
                 ascending: false
             });
-
+if (
+    requestId !== publicProfileRequestId ||
+    userId !== viewedProfileUserId
+) {
+    return;
+}
     if (postsError) {
         console.error("Public profile posts error:", postsError);
         return;
@@ -16772,66 +16797,67 @@ if (opened && typeof navigatePATRIODX === "function") {
     }
 
 
-postsElement.innerHTML = (
-    await Promise.all(posts.map(async post => {
-        const date = post.created_at
-            ? new Date(post.created_at).toLocaleString()
-            : "";
+const renderedPosts = (
+    await Promise.all(
+        posts.map(async post => {
+            const date = post.created_at
+                ? new Date(post.created_at).toLocaleString()
+                : "";
 
-        let media = "";
+            let media = "";
 
-        if (post.image_url) {
-            media = `
-                <img
-                    src="${escapeHTML(post.image_url)}"
-                    class="social-post-image"
-                    alt="Post image"
-                    loading="lazy"
-                >
-            `;
-        }
+            if (post.image_url) {
+                media = `
+                    <img
+                        src="${escapeHTML(post.image_url)}"
+                        class="social-post-image"
+                        alt="Post image"
+                        loading="lazy"
+                    >
+                `;
+            }
 
-        if (post.video_url) {
-            media = `
-                <video
-                    class="social-post-image"
-                    controls
-                    preload="metadata"
-                >
-                    <source src="${escapeHTML(post.video_url)}">
-                </video>
-            `;
-        }
+            if (post.video_url) {
+                media = `
+                    <video
+                        class="social-post-image"
+                        controls
+                        preload="metadata"
+                    >
+                        <source src="${escapeHTML(post.video_url)}">
+                    </video>
+                `;
+            }
 
-        let stats = { likes: 0, comments: 0 };
-        let liked = false;
+            let stats = { likes: 0, comments: 0 };
+            let liked = false;
 
-        try {
-            [stats, liked] = await Promise.all([
-                getSocialCounts(post.id),
-                hasLikedSocialPost(post.id)
-            ]);
-        } catch (error) {
-            console.error(
-                "Could not load public profile post statistics:",
-                post.id,
-                error
-            );
-        }
+            try {
+                [stats, liked] = await Promise.all([
+                    getSocialCounts(post.id),
+                    hasLikedSocialPost(post.id)
+                ]);
+            } catch (error) {
+                console.error(
+                    "Could not load public profile post statistics:",
+                    post.id,
+                    error
+                );
+            }
 
-        return `
-            <article class="social-post-card">
+            return `
+                <article class="social-post-card">
 
-                <div class="social-post-header">
-                    <div class="social-post-avatar">
-                        ${
-                            profile.avatar_url
-                                ? `<img src="${escapeHTML(profile.avatar_url)}" alt="Profile picture">`
-                                : '<i data-lucide="user"></i>'
-                        }
-                    </div>
+                    <div class="social-post-header">
+                        <div class="social-post-avatar">
+                            ${
+                                profile.avatar_url
+                                    ? `<img src="${escapeHTML(profile.avatar_url)}" alt="Profile picture">`
+                                    : '<i data-lucide="user"></i>'
+                            }
+                        </div>
 
-                   <div class="social-post-author">
+                       <div class="social-post-author">
     <strong>
         ${escapeHTML(profile.display_name || "PATRIODX User")}
         ${
@@ -16850,58 +16876,59 @@ postsElement.innerHTML = (
     </span>
 </div>
 
-                    <div class="social-post-date">
-                        ${escapeHTML(date)}
+                        <div class="social-post-date">
+                            ${escapeHTML(date)}
+                        </div>
                     </div>
-                </div>
 
-                <div class="social-post-content">
-                    ${escapeHTML(post.content || "")}
-                </div>
+                    <div class="social-post-content">
+                        ${escapeHTML(post.content || "")}
+                    </div>
 
-                ${media}
+                    ${media}
 
-                <div
-                    class="public-profile-post-stats"
-                    id="public-profile-stats-${escapeHTML(post.id)}"
-                >
-                    <span>
-                        <i data-lucide="heart"></i>
-                        <span class="public-profile-like-count">${stats.likes}</span>
-                        <span>likes</span>
-                    </span>
-
-                    <span>
-                        <i data-lucide="message-circle"></i>
-                        ${stats.comments}
-                        <span>comments</span>
-                    </span>
-                </div>
-
-                <div class="public-profile-post-actions">
-                    <button
-                        type="button"
-                        class="social-like-button public-profile-like-button ${liked ? "liked" : ""}"
-                        data-post-id="${escapeHTML(post.id)}"
-                        aria-label="${liked ? "Unlike post" : "Like post"}"
-                        title="${liked ? "Unlike" : "Like"}"
+                    <div
+                        class="public-profile-post-stats"
+                        id="public-profile-stats-${escapeHTML(post.id)}"
                     >
-                        <i data-lucide="heart"></i>
-                        <span>${liked ? "Liked" : "Like"}</span>
-                    </button>
+                        <span>
+                            <i data-lucide="heart"></i>
+                            <span class="public-profile-like-count">${stats.likes}</span>
+                            <span>likes</span>
+                        </span>
 
-                    <button
-                        type="button"
-                        class="public-profile-comment-button"
-                        data-post-id="${escapeHTML(post.id)}"
-                    >
-                        <i data-lucide="message-circle"></i>
-                        Comment
-                    </button>
-                </div>
-            </article>
-        `;
-    }))
+                        <span>
+                            <i data-lucide="message-circle"></i>
+                            ${stats.comments}
+                            <span>comments</span>
+                        </span>
+                    </div>
+
+                    <div class="public-profile-post-actions">
+                        <button
+                            type="button"
+                            class="social-like-button public-profile-like-button ${liked ? "liked" : ""}"
+                            data-post-id="${escapeHTML(post.id)}"
+                            aria-label="${liked ? "Unlike post" : "Like post"}"
+                            title="${liked ? "Unlike" : "Like"}"
+                        >
+                            <i data-lucide="heart"></i>
+                            <span>${liked ? "Liked" : "Like"}</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="public-profile-comment-button"
+                            data-post-id="${escapeHTML(post.id)}"
+                        >
+                            <i data-lucide="message-circle"></i>
+                            Comment
+                        </button>
+                    </div>
+                </article>
+            `;
+        })
+    )
 ).join("");
 
 if (typeof lucide !== "undefined") {
