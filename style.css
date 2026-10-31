@@ -21140,3 +21140,23 @@ body.dark-mode .mobile-sheet-close svg {
     grid-column: 1 / -1;
     grid-row: 7;
 }
+/* PATRIODX FIX — Restore public profile page structure */
+
+@media (max-width: 768px) {
+
+    body.mobile-public-profile-view
+    #profile > .profile-page-card:not(.public-profile-card) {
+        display: block !important;
+        grid-template-columns: none !important;
+        column-gap: 0 !important;
+        row-gap: 0 !important;
+        padding: 0 !important;
+    }
+
+    body.mobile-public-profile-view #publicProfilePostsContainer {
+        display: block;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-top: 0 !important;
+    }
+}
