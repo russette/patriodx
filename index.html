@@ -1566,8 +1566,56 @@
     <i data-lucide="message-circle"></i>
     <span>Message</span>
 </button>
+<button
+    type="button"
+    id="publicProfileMoreButton"
+    class="public-profile-more-button"
+    aria-label="Profile options"
+    aria-haspopup="true"
+    aria-expanded="false"
+    title="More options"
+>
+    <i data-lucide="more-horizontal"></i>
+</button>
             </div>
+<!-- PUBLIC PROFILE OPTIONS MENU -->
+<div
+    id="publicProfileMenuBackdrop"
+    class="public-profile-menu-backdrop"
+    hidden
+>
+    <div
+        id="publicProfileMenu"
+        class="public-profile-menu"
+        role="menu"
+        aria-label="Profile options"
+    >
+        <button type="button" data-profile-action="share">
+            <i data-lucide="share-2"></i>
+            <span>Share Profile</span>
+        </button>
 
+        <button type="button" data-profile-action="copy">
+            <i data-lucide="link"></i>
+            <span>Copy Profile Link</span>
+        </button>
+
+        <button type="button" data-profile-action="save">
+            <i data-lucide="bookmark"></i>
+            <span id="savePublicProfileLabel">Save Profile</span>
+        </button>
+
+        <button type="button" data-profile-action="report">
+            <i data-lucide="flag"></i>
+            <span>Report Profile</span>
+        </button>
+
+        <button type="button" data-profile-action="block">
+            <i data-lucide="ban"></i>
+            <span>Block User</span>
+        </button>
+    </div>
+</div>
 
           <div class="profile-stats">
 
@@ -1683,23 +1731,37 @@
         </div>
 
 
-        <!-- PROFILE STATS -->
-
-        <div class="profile-stats">
+      <!-- PROFILE STATS -->
+<div class="profile-stats">
     <div>
         <strong id="profilePostCount">0</strong>
         <span data-i18n="posts">Posts</span>
     </div>
 
-    <div>
+    <button
+        type="button"
+        class="profile-stat-button"
+        id="profileFollowersButton"
+    >
         <strong id="profileFollowerCount">0</strong>
         <span data-i18n="followers">Followers</span>
-    </div>
+    </button>
 
-    <div>
+    <button
+        type="button"
+        class="profile-stat-button"
+        id="profileFollowingButton"
+    >
         <strong id="profileFollowingCount">0</strong>
         <span data-i18n="following">Following</span>
-    </div>
+    </button>
+</div>
+
+<div
+    id="myProfileFollowList"
+    class="profile-follow-list"
+    style="display:none;"
+></div>
 </div>
     </div>
 

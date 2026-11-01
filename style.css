@@ -21418,16 +21418,15 @@ body.dark-mode #globalSearchInput {
     }
 }
 /* =========================================
-   PATRIODX — EQUAL PUBLIC PROFILE ACTION BUTTONS
+   PATRIODX — EQUAL PUBLIC PROFILE BUTTONS
 ========================================= */
 
 #publicProfileCard #publicProfileFollowButton,
 #publicProfileCard #publicProfileMessageButton {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-
     width: 128px !important;
+    min-width: 128px !important;
+    max-width: 128px !important;
+
     height: 44px !important;
     min-height: 44px !important;
 
@@ -21435,19 +21434,215 @@ body.dark-mode #globalSearchInput {
     margin-top: 14px !important;
 
     box-sizing: border-box !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+
     font-size: 13px !important;
     font-weight: 650 !important;
-    white-space: nowrap !important;
+    line-height: 1 !important;
+}
+
+/* Message icon alignment */
+#publicProfileCard #publicProfileMessageButton svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
 }
 
 /* Mobile */
 @media (max-width: 768px) {
+
     #publicProfileCard #publicProfileFollowButton,
     #publicProfileCard #publicProfileMessageButton {
         width: 84px !important;
+        min-width: 84px !important;
+        max-width: 84px !important;
+
         height: 44px !important;
         min-height: 44px !important;
+
         padding: 0 5px !important;
         font-size: 12px !important;
+    }
+
+}
+/* PATRIODX — Equal-width mobile Follow and Message buttons */
+@media (max-width: 768px) {
+    body.mobile-public-profile-view #publicProfileCard {
+        grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    }
+
+    body.mobile-public-profile-view #publicProfileCard #publicProfileAvatar {
+        grid-column: 1 / 3 !important;
+    }
+
+    body.mobile-public-profile-view #publicProfileCard .profile-main-info h2,
+    body.mobile-public-profile-view #publicProfileCard #publicProfileUsername {
+        grid-column: 3 / 7 !important;
+    }
+
+    body.mobile-public-profile-view #publicProfileCard #publicProfileFollowButton {
+        grid-column: 1 / 4 !important;
+       grid-row: 6 !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        margin: 14px 0 0 !important;
+        justify-self: stretch !important;
+    }
+
+    body.mobile-public-profile-view #publicProfileCard #publicProfileMessageButton {
+        grid-column: 4 / 7 !important;
+       grid-row: 6 !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        margin: 14px 0 0 !important;
+        justify-self: stretch !important;
+    }
+}
+/* PATRIODX — Instagram-style profile post actions */
+@media (max-width: 700px) {
+    .profile-posts .social-post-actions,
+    .public-profile-posts .social-post-actions {
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        align-items: center !important;
+        gap: 2px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 8px 6px !important;
+        box-sizing: border-box !important;
+    }
+
+    .profile-posts .social-post-actions button,
+    .public-profile-posts .social-post-actions button {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 5px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        min-height: 42px !important;
+        padding: 7px 2px !important;
+        margin: 0 !important;
+        font-size: 12px !important;
+        white-space: nowrap !important;
+        box-sizing: border-box !important;
+    }
+
+    .profile-posts .social-post-actions button span,
+    .public-profile-posts .social-post-actions button span {
+        white-space: nowrap !important;
+    }
+}
+/* PATRIODX — Instagram-style mobile post statistics */
+@media (max-width: 700px) {
+    .profile-posts .social-post-stats,
+    .public-profile-posts .social-post-stats {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        padding: 10px 12px !important;
+        font-size: 12px !important;
+        box-sizing: border-box !important;
+    }
+
+    .profile-posts .social-post-stats > *,
+    .public-profile-posts .social-post-stats > * {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        min-width: 0 !important;
+        white-space: nowrap !important;
+    }
+}
+/* PATRIODX — Public profile options menu */
+.public-profile-menu-backdrop[hidden] {
+    display: none !important;
+}
+
+.public-profile-menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.48);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+.public-profile-menu {
+    width: 100%;
+    max-width: 340px;
+    overflow: hidden;
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    animation: patriodxProfileMenuIn 0.18s ease-out;
+}
+
+.public-profile-menu button {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    min-height: 54px;
+    padding: 0 20px;
+    border: 0;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    background: transparent;
+    color: var(--text-color, #1f2937);
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.public-profile-menu button:last-child {
+    border-bottom: 0;
+}
+
+.public-profile-menu button:active {
+    background: rgba(128, 128, 128, 0.12);
+}
+
+.public-profile-menu button i {
+    width: 19px;
+    height: 19px;
+}
+
+.public-profile-menu button[data-profile-action="report"],
+.public-profile-menu button[data-profile-action="block"] {
+    color: #dc2626;
+}
+
+.public-profile-more-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+@keyframes patriodxProfileMenuIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
 }

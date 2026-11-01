@@ -598,29 +598,28 @@ function setupHeaderSearch() {
             }
         }
     );
+closeButton.addEventListener(
+    "click",
+    function(event) {
 
-    closeButton.addEventListener(
-        "click",
-        function() {
+        event.preventDefault();
+        event.stopPropagation();
 
-            searchPanel.style.display =
-                "none";
+        searchPanel.style.display = "none";
 
-            searchInput.value = "";
+        searchInput.value = "";
 
-            const results =
-                document.getElementById(
-                    "globalSearchResults"
-                );
+        const results = document.getElementById(
+            "globalSearchResults"
+        );
 
-            if (results) {
-
-                results.style.display =
-                    "none";
-
-            }
+        if (results) {
+            results.style.display = "none";
+            results.innerHTML = "";
         }
-    );
+
+    }
+);
 
 }
 
@@ -5803,9 +5802,19 @@ if (addAccountButton) {
 
 await loadHomePosts();
 
+// Open a profile from a shared link.
+const sharedProfileId = new URLSearchParams(
+    window.location.search
+).get("profile");
+
+if (sharedProfileId) {
+    await loadPublicProfile(sharedProfileId);
+}
+
 console.log(
     "PATRIODX connected successfully."
 );
+
 }
 // =========================================================
 // LOGOUT
@@ -16421,7 +16430,183 @@ async function loadMyFollowCounts() {
     }
 }
 
+// =========================================================
+// PATRIODX — OWN PROFILE FOLLOWERS / FOLLOWING
+// =========================================================
 
+let myProfileFollowListRequestId = 0;
+
+async function loadMyProfileFollowList(type) {
+    if (!currentUser) return;
+
+    const list = document.getElementById("myProfileFollowList");
+    if (!list) return;
+
+    const requestId = ++myProfileFollowListRequestId;
+
+    const isFollowers = type === "followers";
+    const column = isFollowers ? "following_id" : "follower_id";
+    const userColumn = isFollowers ? "follower_id" : "following_id";
+
+    list.style.display = "block";
+
+    list.innerHTML = `
+        <div class="profile-follow-list-header">
+            <strong>${isFollowers ? "Followers" : "Following"}</strong>
+            <button type="button" id="closeMyProfileFollowList"
+                aria-label="Close list">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <div class="profile-follow-list-search">
+            <i data-lucide="search"></i>
+            <input
+                type="search"
+                id="myProfileFollowSearch"
+                placeholder="Search ${isFollowers ? "followers" : "following"}..."
+                autocomplete="off"
+            >
+        </div>
+
+        <div class="profile-follow-list-items">
+            <div class="social-empty-state">
+                <p>Loading...</p>
+            </div>
+        </div>
+    `;
+
+    if (typeof lucide !== "undefined") lucide.createIcons();
+
+    document.getElementById("closeMyProfileFollowList")
+        ?.addEventListener("click", () => {
+            myProfileFollowListRequestId++;
+            list.style.display = "none";
+            list.innerHTML = "";
+        });
+
+    const { data: followRows, error: followError } =
+        await supabaseClient
+            .from("profile_follows")
+            .select(userColumn)
+            .eq(column, currentUser.id);
+
+    if (
+        requestId !== myProfileFollowListRequestId ||
+        !list.isConnected
+    ) return;
+
+    if (followError) {
+        console.error("Own profile follow-list error:", followError);
+        list.querySelector(".profile-follow-list-items").innerHTML =
+            `<div class="social-empty-state"><p>Could not load this list.</p></div>`;
+        return;
+    }
+
+    const userIds = (followRows || [])
+        .map(row => row[userColumn])
+        .filter(Boolean);
+
+    if (!userIds.length) {
+        list.querySelector(".profile-follow-list-items").innerHTML =
+            `<div class="social-empty-state">
+                <p>${isFollowers ? "You don't have any followers yet." : "You're not following anyone yet."}</p>
+            </div>`;
+        return;
+    }
+
+    const { data: profiles, error: profileError } =
+        await supabaseClient
+            .from("profiles")
+            .select("id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at")
+            .in("id", userIds);
+
+    if (
+        requestId !== myProfileFollowListRequestId ||
+        !list.isConnected
+    ) return;
+
+    if (profileError) {
+        console.error("Own profile list profiles error:", profileError);
+        list.querySelector(".profile-follow-list-items").innerHTML =
+            `<div class="social-empty-state"><p>Could not load profiles.</p></div>`;
+        return;
+    }
+
+    const itemsContainer = list.querySelector(".profile-follow-list-items");
+
+    if (!profiles || !profiles.length) {
+        itemsContainer.innerHTML =
+            `<div class="social-empty-state"><p>No profiles found.</p></div>`;
+        return;
+    }
+
+    itemsContainer.innerHTML = profiles.map(profile => `
+        <button
+            type="button"
+            class="profile-follow-list-item"
+            data-user-id="${escapeHTML(profile.id)}"
+        >
+            <div class="profile-follow-list-avatar">
+                ${
+                    profile.avatar_url
+                        ? `<img src="${escapeHTML(profile.avatar_url)}" alt="">`
+                        : `<i data-lucide="user"></i>`
+                }
+            </div>
+
+            <div class="profile-follow-list-info">
+                <strong>
+                    ${escapeHTML(profile.display_name || "PATRIODX User")}
+                    ${getPATRIODXBadge(profile)}
+                </strong>
+                <span>@${escapeHTML(profile.username || "")}</span>
+            </div>
+        </button>
+    `).join("");
+
+    if (typeof lucide !== "undefined") lucide.createIcons();
+
+    document.getElementById("myProfileFollowSearch")
+        ?.addEventListener("input", function() {
+            const query = this.value.trim().toLowerCase();
+
+            itemsContainer.querySelectorAll(".profile-follow-list-item")
+                .forEach(item => {
+                    item.style.display =
+                        item.textContent.toLowerCase().includes(query)
+                            ? ""
+                            : "none";
+                });
+        });
+
+    itemsContainer.querySelectorAll(".profile-follow-list-item")
+        .forEach(item => {
+            item.addEventListener("click", () => {
+                const targetUserId = item.dataset.userId;
+
+                myProfileFollowListRequestId++;
+                list.style.display = "none";
+                list.innerHTML = "";
+
+                loadPublicProfile(targetUserId);
+            });
+        });
+}
+// Connect own-profile Followers and Following buttons.
+document.getElementById("profileFollowersButton")?.addEventListener(
+    "click",
+    function() {
+        loadMyProfileFollowList("followers");
+    }
+);
+
+document.getElementById("profileFollowingButton")?.addEventListener(
+    "click",
+    function() {
+        loadMyProfileFollowList("following");
+    }
+);
 // ------------------------------------------
 // CHECK IF FOLLOWING
 // ------------------------------------------
@@ -19620,44 +19805,48 @@ async function performGlobalSearch(query) {
     results.style.display = "block";
 }
 
+async function openGlobalSearchProfile(profileId) {
 
-function openGlobalSearchProfile(profileId) {
+    if (!profileId) return;
+
+    const searchPanel =
+        document.getElementById("globalSearchPanel");
 
     const results =
-        document.getElementById(
-            "globalSearchResults"
-        );
+        document.getElementById("globalSearchResults");
+
+    const input =
+        document.getElementById("globalSearchInput");
+
+    if (searchPanel) {
+        searchPanel.style.display = "none";
+    }
 
     if (results) {
         results.style.display = "none";
     }
 
-    const input =
-        document.getElementById(
-            "globalSearchInput"
-        );
-
     if (input) {
         input.value = "";
     }
 
-    navigatePATRIODX("profile");
+    try {
 
-    setTimeout(() => {
+        await loadPublicProfile(profileId);
 
-        const profileInput =
-            document.getElementById(
-                "profileSearchInput"
-            );
+    } catch (error) {
 
-        if (profileInput) {
-            profileInput.value = "";
-        }
+        console.error(
+            "Global search profile error:",
+            error
+        );
 
-    }, 100);
+        showPATRIODXToast(
+            "Could not open this profile. Please try again.",
+            "error"
+        );
+    }
 }
-
-
 setupGlobalSearch();
 async function submitPATRIODXStory(event) {
 
@@ -21112,7 +21301,18 @@ document.getElementById("publicProfileBackButton")
             searchCard.style.display = "";
         }
 
-        viewedProfileUserId = null;
+        // Clear the previous user's follow-list state.
+viewedProfileUserId = null;
+profileFollowListRequestId++;
+
+const followList = document.getElementById(
+    "publicProfileFollowList"
+);
+
+if (followList) {
+    followList.innerHTML = "";
+    followList.style.display = "none";
+}
 
     if (typeof navigatePATRIODX === "function") {
 
@@ -21249,3 +21449,366 @@ document.addEventListener("click", function(event) {
     });
 
 });
+// =========================================================
+// PATRIODX — SAVE / UNSAVE PUBLIC PROFILES
+// =========================================================
+
+async function savePublicProfile() {
+    if (!currentUser) {
+        showPATRIODXToast("Please sign in to save profiles.", "warning");
+        return;
+    }
+
+    const profileId = viewedProfileUserId;
+
+    if (!profileId || profileId === currentUser.id) {
+        return;
+    }
+
+    try {
+        const { data: existing, error: lookupError } =
+            await supabaseClient
+                .from("saved_profiles")
+                .select("profile_id")
+                .eq("user_id", currentUser.id)
+                .eq("profile_id", profileId)
+                .maybeSingle();
+
+        if (lookupError) throw lookupError;
+
+        if (existing) {
+            const { error } = await supabaseClient
+                .from("saved_profiles")
+                .delete()
+                .eq("user_id", currentUser.id)
+                .eq("profile_id", profileId);
+
+            if (error) throw error;
+
+            showPATRIODXToast(
+                "Profile removed from your saved profiles.",
+                "success"
+            );
+        } else {
+            const { error } = await supabaseClient
+                .from("saved_profiles")
+                .insert({
+                    user_id: currentUser.id,
+                    profile_id: profileId
+                });
+
+            if (error) throw error;
+
+            showPATRIODXToast(
+                "Profile saved privately.",
+                "success"
+            );
+        }
+
+        closePublicProfileMenu();
+
+    } catch (error) {
+        console.error("Save profile error:", error);
+
+        showPATRIODXToast(
+            error.message || "Could not save this profile.",
+            "error"
+        );
+    }
+}
+
+window.savePublicProfile = savePublicProfile;
+// =========================================================
+// PATRIODX — PUBLIC PROFILE OPTIONS MENU
+// =========================================================
+async function openPublicProfileMenu() {
+    const backdrop = document.getElementById(
+        "publicProfileMenuBackdrop"
+    );
+
+    const button = document.getElementById(
+        "publicProfileMoreButton"
+    );
+
+    const label = document.getElementById(
+        "savePublicProfileLabel"
+    );
+
+    if (!backdrop || !button || !viewedProfileUserId) return;
+
+    backdrop.hidden = false;
+    button.setAttribute("aria-expanded", "true");
+
+    if (!currentUser) {
+        if (label) label.textContent = "Save Profile";
+        return;
+    }
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+
+    try {
+        const { data, error } = await supabaseClient
+            .from("saved_profiles")
+            .select("profile_id")
+            .eq("user_id", currentUser.id)
+            .eq("profile_id", viewedProfileUserId)
+            .maybeSingle();
+
+        if (error) throw error;
+
+        if (label) {
+            label.textContent = data
+                ? "Remove Saved Profile"
+                : "Save Profile";
+        }
+    } catch (error) {
+        console.error("Saved profile status error:", error);
+    }
+}
+function closePublicProfileMenu() {
+    const backdrop = document.getElementById(
+        "publicProfileMenuBackdrop"
+    );
+
+    const button = document.getElementById(
+        "publicProfileMoreButton"
+    );
+
+    if (backdrop) backdrop.hidden = true;
+
+    if (button) {
+        button.setAttribute("aria-expanded", "false");
+    }
+}
+
+// Open menu.
+document.addEventListener("click", function(event) {
+    const button = event.target.closest(
+        "#publicProfileMoreButton"
+    );
+
+    if (!button) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const backdrop = document.getElementById(
+        "publicProfileMenuBackdrop"
+    );
+
+    if (backdrop && !backdrop.hidden) {
+        closePublicProfileMenu();
+    } else {
+        openPublicProfileMenu();
+    }
+});
+
+// Close when tapping the blank overlay.
+document.addEventListener("click", function(event) {
+    const backdrop = document.getElementById(
+        "publicProfileMenuBackdrop"
+    );
+
+    if (!backdrop || backdrop.hidden) return;
+
+    if (event.target === backdrop) {
+        closePublicProfileMenu();
+    }
+});
+
+// Tapping inside the menu must not close it.
+document.getElementById("publicProfileMenu")
+    ?.addEventListener("click", function(event) {
+        event.stopPropagation();
+    });
+
+// Close with Escape.
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") {
+        closePublicProfileMenu();
+    }
+});
+// PATRIODX — Public profile menu actions
+document.getElementById("publicProfileMenu")
+    ?.addEventListener("click", async function(event) {
+
+        const actionButton = event.target.closest(
+            "[data-profile-action]"
+        );
+
+        if (!actionButton) return;
+
+        event.preventDefault();
+
+        const action = actionButton.dataset.profileAction;
+        const profileId = viewedProfileUserId;
+
+        if (!profileId) return;
+
+        const profileUrl = new URL(window.location.href);
+        profileUrl.search = "";
+        profileUrl.hash = "";
+        profileUrl.searchParams.set("profile", profileId);
+
+        const shareData = {
+            title: "PATRIODX Profile",
+            text: "Check out this profile on PATRIODX.",
+            url: profileUrl.toString()
+        };
+
+        try {
+            if (action === "block") {
+    closePublicProfileMenu();
+    await blockPublicProfile();
+    return;
+}
+            if (action === "report") {
+    closePublicProfileMenu();
+    await reportPublicProfile();
+    return;
+}
+            if (action === "save") {
+                actionButton.disabled = true;
+                await savePublicProfile();
+                return;
+            }
+
+            if (action === "copy") {
+                await navigator.clipboard.writeText(shareData.url);
+
+                closePublicProfileMenu();
+
+                showPATRIODXToast(
+                    "Profile link copied!",
+                    "success"
+                );
+                return;
+            }
+
+            if (action === "share") {
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                } else {
+                    await navigator.clipboard.writeText(shareData.url);
+
+                    showPATRIODXToast(
+                        "Profile link copied!",
+                        "success"
+                    );
+                }
+
+                closePublicProfileMenu();
+            }
+
+        } catch (error) {
+            if (error.name !== "AbortError") {
+                console.error("Profile action error:", error);
+
+                showPATRIODXToast(
+                    "Could not complete this action.",
+                    "error"
+                );
+            }
+        } finally {
+            actionButton.disabled = false;
+        }
+    });
+    // =========================================================
+// PATRIODX — REPORT PUBLIC PROFILE
+// =========================================================
+async function reportPublicProfile() {
+    if (!currentUser) {
+        showPATRIODXToast(
+            "Please sign in to report profiles.",
+            "warning"
+        );
+        return;
+    }
+
+    const profileId = viewedProfileUserId;
+
+    if (!profileId || profileId === currentUser.id) return;
+
+    const reason = await showPATRIODXInput(
+        "Report Profile",
+        "Why are you reporting this profile? Please explain."
+    );
+
+    if (!reason || !reason.trim()) return;
+
+    try {
+        const { error } = await supabaseClient
+            .from("reports")
+            .insert({
+                reporter_id: currentUser.id,
+                reported_user_id: profileId,
+                category: "profile",
+                description: reason.trim(),
+                status: "pending"
+            });
+
+        if (error) throw error;
+
+        closePublicProfileMenu();
+
+        showPATRIODXToast(
+            "Your report has been submitted successfully.",
+            "success"
+        );
+
+    } catch (error) {
+        console.error("Profile report error:", error);
+
+        showPATRIODXToast(
+            "Could not submit your report.",
+            "error"
+        );
+    }
+}
+async function blockPublicProfile() {
+    if (!currentUser) {
+        showPATRIODXToast("Please sign in to block users.", "warning");
+        return;
+    }
+
+    const profileId = viewedProfileUserId;
+
+    if (!profileId || profileId === currentUser.id) return;
+
+    const confirmed = await showPATRIODXConfirm(
+        "Block User",
+        "Are you sure you want to block this user? You will no longer want to interact with this account."
+    );
+
+    if (!confirmed) return;
+
+    try {
+        const { error } = await supabaseClient
+            .from("blocked_users")
+            .insert({
+                blocker_id: currentUser.id,
+                blocked_user_id: profileId
+            });
+
+        if (error) throw error;
+
+        closePublicProfileMenu();
+
+        showPATRIODXToast(
+            "User blocked successfully.",
+            "success"
+        );
+
+        navigatePATRIODX("social");
+
+    } catch (error) {
+        console.error("Block user error:", error);
+
+        showPATRIODXToast(
+            "Could not block this user.",
+            "error"
+        );
+    }
+}
