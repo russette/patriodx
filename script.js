@@ -14409,6 +14409,7 @@ function updateNotificationUnreadBadge() {
 NOTIFICATION CLICK
 --------------------------------------------------------- */
 let mobileProfileReturnSection = "profile";
+let mobileProfileReturnScrollY = 0;
 let mobilePostViewerReturnSection = "profile";
 async function handleNotificationClick(notificationId) {
 
@@ -15706,10 +15707,46 @@ async function loadMyProfilePosts() {
         profilePostCount.textContent =
             posts.length;
     }
+/* LOAD POST LIKES, COMMENTS AND LIKE STATUS */
 
+const postsWithCounts = await Promise.all(
+    posts.map(async post => {
+
+        try {
+            const [counts, liked] = await Promise.all([
+                getSocialCounts(post.id),
+                hasLikedSocialPost(post.id)
+            ]);
+
+            return {
+                ...post,
+                likes: counts.likes,
+                comments: counts.comments,
+                liked: liked
+            };
+
+        } catch (error) {
+
+            console.error(
+                "Could not load own profile post statistics:",
+                post.id,
+                error
+            );
+
+            return {
+                ...post,
+                likes: 0,
+                comments: 0,
+                liked: false
+            };
+        }
+    })
+);
+
+    window.myProfilePosts = postsWithCounts;
 
     profilePosts.innerHTML =
-        posts
+        postsWithCounts
             .map(post => {
 
                 const image =
@@ -15829,12 +15866,60 @@ ${
                                 : ""
                         }
 
+${image}
 
-                        ${image}
+${video}
 
-                        ${video}
+<!-- OWN PROFILE POST STATISTICS -->
+<div
+    class="social-post-stats profile-own-post-stats"
+    data-profile-post-stats="${safe(post.id)}"
+>
+    <span class="social-like-stat">
+        <i data-lucide="heart"></i>
+        <strong>${Number(post.likes) || 0}</strong>
+        <span>Likes</span>
+    </span>
 
-                    </article>
+    <span class="social-comment-stat">
+        <i data-lucide="message-circle"></i>
+        <strong>${Number(post.comments) || 0}</strong>
+        <span>Comments</span>
+    </span>
+</div>
+
+<!-- POST ACTIONS -->
+<div class="social-post-actions-bar">
+    <button
+        type="button"
+        class="social-action-button social-like-button profile-own-like-button ${post.liked ? "liked" : ""}"
+        data-post-id="${safe(post.id)}"
+        aria-label="${post.liked ? "Unlike post" : "Like post"}"
+    >
+        <i data-lucide="heart"></i>
+        <span>${post.liked ? "Liked" : "Like"}</span>
+    </button>
+
+    <button
+        type="button"
+        class="social-action-button profile-own-comment-button"
+        data-post-id="${safe(post.id)}"
+    >
+        <i data-lucide="message-circle"></i>
+        <span>Comment</span>
+    </button>
+
+    <button
+        type="button"
+        class="social-action-button"
+        onclick="shareSocialPost('${safe(post.id)}')"
+    >
+        <i data-lucide="share-2"></i>
+        <span>Share</span>
+    </button>
+</div>
+
+</article>
 
                 `;
 
@@ -16498,6 +16583,15 @@ async function loadPublicProfile(userId) {
 
   if (!userId) return;
 const requestId = ++publicProfileRequestId;
+// Remember where the user opened this profile from.
+const currentSection = window.location.hash
+    .replace("#", "")
+    .trim();
+
+if (currentSection && currentSection !== "profile") {
+    mobileProfileReturnSection = currentSection;
+    mobileProfileReturnScrollY = window.scrollY;
+}
 // Make the Profile section visible before displaying the user.
 if (typeof navigatePATRIODX === "function") {
     navigatePATRIODX("profile");
@@ -16710,8 +16804,8 @@ if (
     userId,
     profile
 );
-
 if (opened && typeof navigatePATRIODX === "function") {
+    window.patriodxMessageReturnToPublicProfile = true;
     navigatePATRIODX("messaging");
 }
                     } catch (error) {
@@ -16834,17 +16928,19 @@ const renderedPosts = (
                 `;
             }
 
-            if (post.video_url) {
-                media = `
-                    <video
-                        class="social-post-image"
-                        controls
-                        preload="metadata"
-                    >
-                        <source src="${escapeHTML(post.video_url)}">
-                    </video>
-                `;
-            }
+          if (post.video_url) {
+    media = `
+        <video
+            class="social-post-image"
+            controls
+            muted
+            playsinline
+            preload="metadata"
+        >
+            <source src="${escapeHTML(post.video_url)}">
+        </video>
+    `;
+}
 
             let stats = { likes: 0, comments: 0 };
             let liked = false;
@@ -16959,6 +17055,49 @@ postsElement.innerHTML = renderedPosts;
 
 if (typeof lucide !== "undefined") {
     lucide.createIcons();
+}
+// Automatically play public profile videos when visible.
+window._patriodxPublicProfileVideoObserver?.disconnect();
+
+if ("IntersectionObserver" in window) {
+
+    window._patriodxPublicProfileVideoObserver =
+        new IntersectionObserver(entries => {
+
+            entries.forEach(entry => {
+
+                const video = entry.target;
+
+                if (entry.isIntersecting) {
+
+                    video.muted = true;
+                    video.playsInline = true;
+
+                    video.play().catch(error => {
+                        console.debug(
+                            "Public profile autoplay:",
+                            error
+                        );
+                    });
+
+                } else {
+
+                    video.pause();
+
+                }
+
+            });
+
+        }, {
+            threshold: 0.6
+        });
+
+    postsElement
+        .querySelectorAll("video.social-post-image")
+        .forEach(video => {
+            window._patriodxPublicProfileVideoObserver
+                .observe(video);
+        });
 }
 // Make public profile posts clickable
 postsElement
@@ -20771,7 +20910,7 @@ window.addEventListener("message", function (event) {
 
     marketplaceFrame.style.height = `${Math.ceil(height)}px`;
 });
-// Return to the conversation list on mobile
+// Return to the originating profile or conversation list.
 document.addEventListener("click", function (event) {
     const backButton = event.target.closest("#mobileChatBackButton");
 
@@ -20781,6 +20920,24 @@ document.addEventListener("click", function (event) {
 
     if (messagingSection) {
         messagingSection.classList.remove("mobile-chat-open");
+    }
+
+    if (window.patriodxMessageReturnToPublicProfile) {
+        window.patriodxMessageReturnToPublicProfile = false;
+
+        if (typeof navigatePATRIODX === "function") {
+            navigatePATRIODX("profile");
+        }
+
+        requestAnimationFrame(() => {
+            document.getElementById("publicProfileCard")
+                ?.scrollIntoView({
+                    behavior: "instant",
+                    block: "start"
+                });
+        });
+
+        return;
     }
 });
 // PATRIODX mobile messaging changes
@@ -20957,9 +21114,96 @@ document.getElementById("publicProfileBackButton")
 
         viewedProfileUserId = null;
 
-       if (typeof navigatePATRIODX === "function") {
-    navigatePATRIODX(mobileProfileReturnSection);
+    if (typeof navigatePATRIODX === "function") {
+
+    const returnSection =
+        mobileProfileReturnSection || "profile";
+
+    const returnScrollY =
+        mobileProfileReturnScrollY || 0;
+
+    navigatePATRIODX(returnSection);
 
     mobileProfileReturnSection = "profile";
+    mobileProfileReturnScrollY = 0;
+
+    requestAnimationFrame(() => {
+        window.scrollTo({
+            top: returnScrollY,
+            left: 0,
+            behavior: "instant"
+        });
+    });
 }
     });
+    // =========================================================
+// OWN PROFILE POST ACTIONS
+// =========================================================
+
+document.addEventListener("click", async function(event) {
+
+    const likeButton = event.target.closest(
+        ".profile-own-like-button"
+    );
+
+    if (!likeButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const postId = likeButton.dataset.postId;
+
+    if (!postId || likeButton.disabled) return;
+
+    likeButton.disabled = true;
+
+    try {
+
+        await likeSocialPost(postId);
+
+        const [stats, liked] = await Promise.all([
+            getSocialCounts(postId),
+            hasLikedSocialPost(postId)
+        ]);
+
+        const statsElement = document.querySelector(
+            `[data-profile-post-stats="${postId}"]`
+        );
+
+        if (statsElement) {
+            const likeCount = statsElement.querySelector(
+                ".social-like-stat strong"
+            );
+
+            if (likeCount) {
+                likeCount.textContent = stats.likes;
+            }
+        }
+
+        likeButton.classList.toggle("liked", liked);
+
+        likeButton.setAttribute(
+            "aria-label",
+            liked ? "Unlike post" : "Like post"
+        );
+
+        const label = likeButton.querySelector("span");
+
+        if (label) {
+            label.textContent = liked ? "Liked" : "Like";
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Own profile like error:",
+            error
+        );
+
+    } finally {
+
+        likeButton.disabled = false;
+
+    }
+
+});
