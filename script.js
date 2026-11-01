@@ -21207,3 +21207,45 @@ document.addEventListener("click", async function(event) {
     }
 
 });
+// =========================================================
+// OWN PROFILE POST COMMENT BUTTON
+// =========================================================
+
+document.addEventListener("click", function(event) {
+
+    const commentButton = event.target.closest(
+        ".profile-own-comment-button"
+    );
+
+    if (!commentButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const postId = commentButton.dataset.postId;
+
+    if (!postId) return;
+
+    const post = (window.myProfilePosts || []).find(
+        item => String(item.id) === String(postId)
+    );
+
+    if (!post) {
+        console.error("Own profile post not found:", postId);
+        return;
+    }
+
+    openProfilePostViewer({
+        postId: post.id,
+        imageUrl: post.image_url || "",
+        videoUrl: post.video_url || "",
+        author:
+            currentProfile?.display_name ||
+            "PATRIODX User",
+        caption: post.content || "",
+        date: post.created_at
+            ? formatDate(post.created_at)
+            : ""
+    });
+
+});
