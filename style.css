@@ -21117,101 +21117,89 @@ body.dark-mode .mobile-sheet-close svg {
     justify-self: start;
     margin: 4px 0 12px;
 }
+/* PATRIODX — Public profile layout */
+#publicProfileCard {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
 
-/* Flatten the existing header */
 #publicProfileCard > .profile-header {
-    display: contents !important;
+    display: grid !important;
+    grid-template-columns: 88px minmax(0, 1fr) !important;
+    grid-template-rows: auto auto auto !important;
+    gap: 12px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+#publicProfileCard #publicProfileAvatar {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: 88px !important;
+    height: 88px !important;
 }
 
 #publicProfileCard .profile-main-info {
-    display: contents !important;
-    padding: 0 !important;
+    display: block !important;
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    min-width: 0 !important;
+    width: 100% !important;
 }
 
-/* Profile picture */
-#publicProfileCard #publicProfileAvatar {
-    grid-column: 1;
-    grid-row: 2 / span 3;
-    width: 88px;
-    height: 88px;
-    min-width: 88px;
-    border-width: 3px;
-}
-
-/* Display name */
-#publicProfileCard .profile-main-info h2 {
-    grid-column: 2;
-    grid-row: 2;
-    align-self: end;
-    margin: 0;
-    font-size: 19px;
-}
-
-/* Username */
+#publicProfileCard .profile-main-info h2,
 #publicProfileCard #publicProfileUsername {
-    grid-column: 2;
-    grid-row: 3;
-    margin: 2px 0;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
 }
 
-/* Profile statistics */
-#publicProfileCard > .profile-stats {
-    grid-column: 2;
-    grid-row: 4;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    padding: 0;
-    border: 0;
-}
-
-/* Bio */
 #publicProfileCard #publicProfileBio {
-    grid-column: 1 / -1;
-    grid-row: 5;
-    margin-top: 14px;
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
 }
 
-/* Follow and Message buttons */
-#publicProfileCard #publicProfileFollowButton {
-    grid-column: 1;
-    grid-row: 6;
-    width: 100%;
-    margin-top: 14px;
+#publicProfileCard .profile-header > .public-profile-actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+    width: 100% !important;
+    gap: 8px !important;
 }
 
-#publicProfileCard #publicProfileMessageButton {
-    grid-column: 2;
-    grid-row: 6;
-    width: 100%;
-    margin-top: 14px;
+#publicProfileCard .public-profile-actions > button {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 44px !important;
+    margin: 0 !important;
 }
 
-/* Follow list */
-#publicProfileCard > #publicProfileFollowList {
-    grid-column: 1 / -1;
-    grid-row: 7;
+#publicProfileCard .public-profile-actions .public-profile-more-button {
+    width: 44px !important;
+    min-width: 44px !important;
 }
-/* PATRIODX FIX — Restore public profile page structure */
 
-@media (max-width: 768px) {
+#publicProfileCard > .profile-stats {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    width: 100% !important;
+    gap: 8px !important;
+}
 
-    body.mobile-public-profile-view
-    #profile > .profile-page-card:not(.public-profile-card) {
-        display: block !important;
-        grid-template-columns: none !important;
-        column-gap: 0 !important;
-        row-gap: 0 !important;
-        padding: 0 !important;
-    }
+#publicProfileCard > .profile-stats > * {
+    min-width: 0 !important;
+    text-align: center !important;
+}
 
-    body.mobile-public-profile-view #publicProfilePostsContainer {
-        display: block;
-        width: 100% !important;
-        max-width: 100% !important;
-        margin-top: 0 !important;
-    }
+#publicProfileCard > #publicProfileFollowList,
+#publicProfilePostsContainer {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
 }
 /* PATRIODX — Public profile: proper mobile screen fit */
 
