@@ -21466,39 +21466,7 @@ body.dark-mode #globalSearchInput {
     }
 
 }
-/* PATRIODX — Equal-width mobile Follow and Message buttons */
-@media (max-width: 768px) {
-    body.mobile-public-profile-view #publicProfileCard {
-        grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
-    }
 
-    body.mobile-public-profile-view #publicProfileCard #publicProfileAvatar {
-        grid-column: 1 / 3 !important;
-    }
-
-    body.mobile-public-profile-view #publicProfileCard .profile-main-info h2,
-    body.mobile-public-profile-view #publicProfileCard #publicProfileUsername {
-        grid-column: 3 / 7 !important;
-    }
-
-    body.mobile-public-profile-view #publicProfileCard #publicProfileFollowButton {
-        grid-column: 1 / 4 !important;
-       grid-row: 6 !important;
-        width: 100% !important;
-        min-width: 0 !important;
-        margin: 14px 0 0 !important;
-        justify-self: stretch !important;
-    }
-
-    body.mobile-public-profile-view #publicProfileCard #publicProfileMessageButton {
-        grid-column: 4 / 7 !important;
-       grid-row: 6 !important;
-        width: 100% !important;
-        min-width: 0 !important;
-        margin: 14px 0 0 !important;
-        justify-self: stretch !important;
-    }
-}
 /* PATRIODX — Instagram-style profile post actions */
 @media (max-width: 700px) {
     .profile-posts .social-post-actions,
@@ -22061,6 +22029,148 @@ body.dark-mode
     }
 
     #publicProfileCard > .profile-stats {
+        gap: 4px !important;
+    }
+}
+/* ==========================================
+   PATRIODX — PUBLIC PROFILE GRID REPAIR
+   Based on actual browser diagnostics
+========================================== */
+
+/* Restore the profile card to one full-width column */
+#publicProfileCard {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Restore the profile header as a real grid */
+#publicProfileCard > .profile-header {
+    display: grid !important;
+    grid-template-columns: 88px minmax(0, 1fr) !important;
+    grid-template-rows: auto auto auto !important;
+    grid-column: 1 !important;
+    grid-row: auto !important;
+    align-items: start !important;
+    gap: 12px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+/* Avatar */
+#publicProfileCard #publicProfileAvatar {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+}
+
+/* Restore name, username and bio container */
+#publicProfileCard .profile-main-info {
+    display: block !important;
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+/* Keep username readable */
+#publicProfileCard #publicProfileUsername {
+    display: block !important;
+    width: 100% !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: anywhere !important;
+}
+
+/* Statistics: three equal columns */
+#publicProfileCard .profile-header > .profile-stats {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    gap: 8px !important;
+    align-items: center !important;
+}
+
+#publicProfileCard .profile-stats > * {
+    min-width: 0 !important;
+    width: 100% !important;
+    text-align: center !important;
+}
+
+/* Follow + Message + three dots */
+#publicProfileCard .public-profile-actions {
+    display: flex !important;
+    grid-template-columns: none !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    align-items: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+}
+
+/* Reset old grid positions on all three buttons */
+#publicProfileCard .public-profile-actions > button {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    box-sizing: border-box !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+}
+
+/* Follow */
+#publicProfileCard #publicProfileFollowButton {
+    display: inline-flex !important;
+    flex: 1 1 0 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Message: preserve its hidden state on own profile */
+#publicProfileCard #publicProfileMessageButton:not([style*="display: none"]) {
+    display: inline-flex !important;
+    flex: 1 1 0 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Three dots */
+#publicProfileCard #publicProfileMoreButton {
+    display: inline-flex !important;
+    flex: 0 0 44px !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Follow list */
+#publicProfileCard #publicProfileFollowList {
+    grid-column: 1 / -1 !important;
+}
+
+/* Phone */
+@media (max-width: 768px) {
+    #publicProfileCard > .profile-header {
+        grid-template-columns: 80px minmax(0, 1fr) !important;
+        gap: 10px !important;
+    }
+
+    #publicProfileCard .public-profile-actions {
+        gap: 8px !important;
+    }
+
+    #publicProfileCard .profile-stats {
         gap: 4px !important;
     }
 }
