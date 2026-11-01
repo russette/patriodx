@@ -21560,7 +21560,11 @@ body.dark-mode #globalSearchInput {
         white-space: nowrap !important;
     }
 }
-/* PATRIODX — Public profile options menu */
+/* ==========================================
+   PATRIODX PROFILE MENU
+   Laptop + Mobile | Light + Dark
+========================================== */
+
 .public-profile-menu-backdrop[hidden] {
     display: none !important;
 }
@@ -21569,26 +21573,52 @@ body.dark-mode #globalSearchInput {
     position: fixed;
     inset: 0;
     z-index: 100000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.48);
+    display: block;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.42);
     backdrop-filter: blur(3px);
     -webkit-backdrop-filter: blur(3px);
 }
 
+/* Menu — laptop dropdown */
 .public-profile-menu {
-    width: 100%;
-    max-width: 340px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    max-width: calc(100vw - 24px);
     overflow: hidden;
-    background: var(--card-bg, #fff);
-    border: 1px solid var(--border-color, #e5e7eb);
-    border-radius: 18px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    border-radius: 14px;
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.22);
     animation: patriodxProfileMenuIn 0.18s ease-out;
+    box-sizing: border-box;
 }
 
+/* LIGHT MODE */
+body:not(.dark-mode) .public-profile-menu {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    color: #1f2937;
+}
+
+body:not(.dark-mode) .public-profile-menu button {
+    color: #1f2937;
+    border-bottom: 1px solid #eeeeee;
+}
+
+/* DARK MODE */
+body.dark-mode .public-profile-menu {
+    background: #202124;
+    border: 1px solid #3d4148;
+    color: #f9fafb;
+}
+
+body.dark-mode .public-profile-menu button {
+    color: #f9fafb !important;
+    border-bottom: 1px solid #383b40;
+}
+
+/* Menu actions */
 .public-profile-menu button {
     display: flex;
     align-items: center;
@@ -21596,53 +21626,231 @@ body.dark-mode #globalSearchInput {
     width: 100%;
     min-height: 54px;
     padding: 0 20px;
-    border: 0;
-    border-bottom: 1px solid var(--border-color, #e5e7eb);
     background: transparent;
-    color: var(--text-color, #1f2937);
     font-size: 14px;
+    font-weight: 500;
     text-align: left;
     cursor: pointer;
+    box-sizing: border-box;
 }
 
 .public-profile-menu button:last-child {
     border-bottom: 0;
 }
 
+.public-profile-menu button:hover {
+    background: rgba(128, 128, 128, 0.10);
+}
+
 .public-profile-menu button:active {
-    background: rgba(128, 128, 128, 0.12);
+    background: rgba(128, 128, 128, 0.16);
 }
 
 .public-profile-menu button i {
     width: 19px;
     height: 19px;
+    flex-shrink: 0;
 }
 
 .public-profile-menu button[data-profile-action="report"],
 .public-profile-menu button[data-profile-action="block"] {
-    color: #dc2626;
+    color: #dc2626 !important;
 }
 
+body.dark-mode .public-profile-menu button[data-profile-action="report"],
+body.dark-mode .public-profile-menu button[data-profile-action="block"] {
+    color: #ff7777 !important;
+}
+
+/* Three-dot button */
 .public-profile-more-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 42px;
-    height: 42px;
-    border: 1px solid var(--border-color, #e5e7eb);
-    border-radius: 50%;
-    background: transparent;
-    color: inherit;
+    width: 44px;
+    height: 44px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #1f2937;
     cursor: pointer;
+}
+
+body.dark-mode .public-profile-more-button {
+    background: #242424;
+    color: #f9fafb !important;
+    border-color: #444444;
+}
+
+/* PHONE — bottom sheet */
+@media (max-width: 768px) {
+    .public-profile-menu-backdrop {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 0;
+    }
+
+    .public-profile-menu {
+        position: relative;
+        top: auto;
+        left: auto;
+        width: 100%;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+        border-radius: 20px 20px 0 0;
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+        animation: patriodxProfileSheetIn 0.22s ease-out;
+    }
 }
 
 @keyframes patriodxProfileMenuIn {
     from {
         opacity: 0;
-        transform: translateY(8px) scale(0.97);
+        transform: translateY(-6px) scale(0.98);
     }
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
     }
+}
+
+@keyframes patriodxProfileSheetIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+/* =========================================
+   PATRIODX — PUBLIC PROFILE ACTION GROUP
+   Laptop + mobile | Light + dark mode
+========================================= */
+
+#publicProfileCard .public-profile-actions {
+    grid-column: 1 / -1 !important;
+    grid-row: 6 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px;
+
+    width: 100%;
+    min-width: 0;
+    margin-top: 14px;
+}
+
+/* Follow and Message */
+#publicProfileCard .public-profile-actions
+#publicProfileFollowButton,
+#publicProfileCard .public-profile-actions
+#publicProfileMessageButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 1 1 0;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+
+    height: 44px;
+    min-height: 44px;
+    margin: 0 !important;
+    padding: 0 12px !important;
+
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* Three-dot button */
+#publicProfileCard .public-profile-more-button {
+    flex: 0 0 44px;
+    width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 !important;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #1f2937;
+    box-shadow: none;
+}
+
+/* Light mode */
+body:not(.dark-mode)
+#publicProfileCard .public-profile-more-button {
+    background: #ffffff;
+    color: #1f2937;
+    border-color: #d1d5db;
+}
+
+/* Dark mode */
+body.dark-mode
+#publicProfileCard .public-profile-more-button {
+    background: #242424;
+    color: #f9fafb !important;
+    border-color: #444444;
+}
+
+body.dark-mode
+#publicProfileCard .public-profile-actions
+#publicProfileFollowButton,
+body.dark-mode
+#publicProfileCard .public-profile-actions
+#publicProfileMessageButton {
+    color: #ffffff;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    #publicProfileCard .public-profile-actions {
+        grid-row: 6 !important;
+        gap: 8px;
+    }
+
+    #publicProfileCard .public-profile-more-button {
+        flex-basis: 44px;
+    }
+}
+/* PATRIODX — Equal profile action spacing */
+#publicProfileCard .public-profile-actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+#publicProfileCard .public-profile-actions > button {
+    box-sizing: border-box;
+    min-width: 0 !important;
+    margin: 0 !important;
+}
+
+#publicProfileCard .public-profile-actions
+#publicProfileFollowButton,
+#publicProfileCard .public-profile-actions
+#publicProfileMessageButton {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 44px !important;
+}
+
+#publicProfileCard .public-profile-actions
+.public-profile-more-button {
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 44px !important;
 }

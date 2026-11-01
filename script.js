@@ -21530,22 +21530,72 @@ async function openPublicProfileMenu() {
         "publicProfileMoreButton"
     );
 
+    const menu = document.getElementById(
+        "publicProfileMenu"
+    );
+
     const label = document.getElementById(
         "savePublicProfileLabel"
     );
 
-    if (!backdrop || !button || !viewedProfileUserId) return;
+    if (!backdrop || !button || !menu || !viewedProfileUserId) {
+        return;
+    }
 
     backdrop.hidden = false;
     button.setAttribute("aria-expanded", "true");
 
+    // Position the menu after it becomes visible.
+    requestAnimationFrame(() => {
+        if (window.matchMedia("(max-width: 768px)").matches) {
+            // Phone: bottom sheet positioning.
+            menu.style.position = "relative";
+            menu.style.top = "auto";
+            menu.style.left = "auto";
+            menu.style.width = "100%";
+            menu.style.maxWidth = "600px";
+        } else {
+            // Laptop: dropdown beside the three-dot button.
+            menu.style.position = "fixed";
+            menu.style.width = "280px";
+            menu.style.maxWidth = "calc(100vw - 24px)";
+
+            const buttonRect = button.getBoundingClientRect();
+            const menuRect = menu.getBoundingClientRect();
+
+            const gap = 8;
+            const edge = 12;
+
+            let left = buttonRect.right - menuRect.width;
+
+            left = Math.max(
+                edge,
+                Math.min(
+                    left,
+                    window.innerWidth - menuRect.width - edge
+                )
+            );
+
+            let top = buttonRect.bottom + gap;
+
+            if (top + menuRect.height > window.innerHeight - edge) {
+                top = buttonRect.top - menuRect.height - gap;
+            }
+
+            top = Math.max(edge, top);
+
+            menu.style.left = `${left}px`;
+            menu.style.top = `${top}px`;
+        }
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+    });
+
     if (!currentUser) {
         if (label) label.textContent = "Save Profile";
         return;
-    }
-
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
     }
 
     try {
