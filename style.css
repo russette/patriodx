@@ -22185,12 +22185,12 @@ body.dark-mode
     width: 42px !important;
     height: 42px !important;
 }
-
 #publicProfilePostsContainer .social-post-author {
     display: flex !important;
-    flex: 1 1 auto !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 6px !important;
     min-width: 0 !important;
     width: auto !important;
     overflow: visible !important;
@@ -22198,19 +22198,18 @@ body.dark-mode
 
 #publicProfilePostsContainer .social-post-author strong,
 #publicProfilePostsContainer .social-post-author span {
-    display: block !important;
+    display: inline !important;
     width: auto !important;
     max-width: 100% !important;
     white-space: normal !important;
-    overflow-wrap: anywhere !important;
+    overflow-wrap: normal !important;
     word-break: normal !important;
 }
 
 #publicProfilePostsContainer .social-post-date {
     flex: 0 0 auto !important;
     white-space: nowrap !important;
-    margin-left: auto !important;
-    font-size: 12px !important;
+    margin-left: 0 !important;
 }
 /* =========================================
    PATRIODX PUBLIC PROFILE — LAYOUT FIX
@@ -22388,4 +22387,65 @@ body.dark-mode
     display: block !important;
     width: auto !important;
     white-space: nowrap !important;
+}
+/* PATRIODX — PUBLIC PROFILE ACTIONS
+   Follow | Message | More
+   Responsive laptop and mobile layout
+*/
+
+#publicProfileCard .public-profile-actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 46px !important;
+    align-items: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#publicProfileCard .public-profile-actions > button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+}
+
+#publicProfileCard #publicProfileMoreButton {
+    width: 46px !important;
+    min-width: 46px !important;
+    max-width: 46px !important;
+    padding: 0 !important;
+}
+
+#publicProfileCard #publicProfileMoreButton svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Smaller phones */
+@media (max-width: 380px) {
+    #publicProfileCard .public-profile-actions {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 42px !important;
+        gap: 7px !important;
+    }
+
+    #publicProfileCard #publicProfileMoreButton {
+        width: 42px !important;
+        min-width: 42px !important;
+        max-width: 42px !important;
+    }
+
+    #publicProfileCard .public-profile-actions > button {
+        font-size: 12px !important;
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+    }
 }
