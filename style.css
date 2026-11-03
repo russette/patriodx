@@ -22311,3 +22311,41 @@ body.dark-mode
 #publicProfilePostsContainer video {
     max-width: 100% !important;
 }
+/* PATRIODX — FIX PUBLIC PROFILE VERTICAL POST LAYOUT */
+
+#publicProfilePostsContainer {
+    display: block !important;
+    width: 100% !important;
+    max-width: 1100px !important;
+    min-width: 0 !important;
+    grid-column: 1 / -1 !important;
+}
+
+#publicProfilePosts {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    gap: 18px !important;
+}
+
+#publicProfilePosts > .social-post-card {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    grid-column: 1 / -1 !important;
+}
+
+#publicProfilePosts .social-post-content {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    white-space: pre-wrap !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+}
