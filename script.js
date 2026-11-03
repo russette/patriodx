@@ -16787,13 +16787,19 @@ if (window.matchMedia("(max-width: 768px)").matches) {
 }
 
 viewedProfileUserId = userId;
+// Hide your own profile while viewing another user.
+const ownProfileElements = [
+    document.getElementById("profileCover"),
+    document.getElementById("profileAvatar")?.closest(".profile-header"),
+    document.getElementById("profilePostCount")?.closest(".profile-stats"),
+    document.getElementById("profilePosts")?.closest(".profile-posts")
+];
 
-// Hide your entire own-profile content while viewing another user.
-const ownProfileContent = document.getElementById("ownProfileContent");
-
-if (ownProfileContent) {
-    ownProfileContent.style.display = "none";
-}
+ownProfileElements.forEach(element => {
+    if (element) {
+        element.style.display = "none";
+    }
+});
 
 // Hide the "Your Profile" heading.
 const profileSection = document.getElementById("profile");
@@ -21265,12 +21271,29 @@ document.getElementById("publicProfileBackButton")
             publicPosts.style.display = "none";
         }
 
-        // Restore your complete own profile.
-        const ownProfileContent = document.getElementById("ownProfileContent");
+       // Restore your own profile elements.
+const ownProfileElements = [
+    document.getElementById("profileCover"),
+    document.getElementById("profileAvatar")?.closest(".profile-header"),
+    document.getElementById("profilePostCount")?.closest(".profile-stats"),
+    document.getElementById("profilePosts")?.closest(".profile-posts")
+];
 
-        if (ownProfileContent) {
-            ownProfileContent.style.display = "";
-        }
+ownProfileElements.forEach(element => {
+    if (element) {
+        element.style.display = "";
+    }
+});
+
+// Restore the Your Profile heading.
+const profileSection = document.getElementById("profile");
+
+if (profileSection) {
+    profileSection.querySelectorAll(":scope > .section-heading")
+        .forEach(heading => {
+            heading.style.display = "";
+        });
+}
 
         // Restore Find People
         const searchCard = document.getElementById("profileSearchForm")
