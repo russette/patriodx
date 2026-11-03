@@ -22349,3 +22349,43 @@ body.dark-mode
     word-break: normal !important;
     overflow-wrap: break-word !important;
 }
+/* FIX PUBLIC PROFILE POST AUTHOR HEADER */
+
+#publicProfilePosts .social-post-header {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+#publicProfilePosts .social-post-author-area {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+}
+
+#publicProfilePosts .social-post-author {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    width: 100% !important;
+    white-space: normal !important;
+}
+
+#publicProfilePosts .social-post-username {
+    display: inline-block !important;
+    width: auto !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+}
+
+#publicProfilePosts .social-post-date {
+    display: block !important;
+    width: auto !important;
+    white-space: nowrap !important;
+}
