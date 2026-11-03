@@ -19744,11 +19744,9 @@ margin-right: 0;
     margin-left: auto;
     margin-right: auto;
 }
-
 #profile .profile-posts:has(.social-post-card) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
 }
-
 
 }
 /* PATRIODX — Keep post options visible on screen */

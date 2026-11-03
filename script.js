@@ -18088,7 +18088,40 @@ function navigatePATRIODX(page) {
     if (!PATRIODX_PAGES.includes(page)) {
         page = "home";
     }
+// Reset public-profile view when returning to your own Profile page.
+if (page === "profile") {
+    const publicCard = document.getElementById("publicProfileCard");
+    const publicPosts = document.getElementById("publicProfilePostsContainer");
 
+    if (publicCard) {
+        publicCard.style.setProperty("display", "none", "important");
+    }
+
+    if (publicPosts) {
+        publicPosts.style.setProperty("display", "none", "important");
+    }
+
+    const ownProfileElements = [
+        document.getElementById("profileCover"),
+        document.getElementById("profileAvatar")?.closest(".profile-header"),
+        document.getElementById("profilePostCount")?.closest(".profile-stats"),
+        document.getElementById("profilePosts")?.closest(".profile-posts")
+    ];
+
+    ownProfileElements.forEach(element => {
+        if (element) {
+            element.style.removeProperty("display");
+        }
+    });
+
+    document.querySelectorAll("#profile > .section-heading").forEach(heading => {
+        heading.style.removeProperty("display");
+    });
+
+    document.querySelector("#profileSearchForm")
+        ?.closest(".profile-search-card")
+        ?.style.removeProperty("display");
+}
 
     /* =====================================================
        HIDE EVERY MAIN APP PAGE
