@@ -22269,3 +22269,47 @@ body.dark-mode
         padding-right: 0;
     }
 }
+/* PATRIODX — ACTUAL PUBLIC PROFILE POSTS FIX */
+
+#publicProfilePostsContainer {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    grid-column: 1 / -1 !important;
+    box-sizing: border-box !important;
+}
+
+#publicProfilePostsContainer > *,
+#publicProfilePostsContainer .social-post-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#publicProfilePostsContainer .social-post-content {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    white-space: pre-wrap !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+}
+
+#publicProfilePostsContainer .social-post-card {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+#publicProfilePostsContainer .social-post-header,
+#publicProfilePostsContainer .social-post-actions {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#publicProfilePostsContainer img,
+#publicProfilePostsContainer video {
+    max-width: 100% !important;
+}
