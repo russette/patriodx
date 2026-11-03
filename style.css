@@ -22702,3 +22702,53 @@ body.dark-mode
     position: static !important;
     transform: none !important;
 }
+/* PATRIODX — PUBLIC PROFILE BUTTON ROW CORRECTION */
+
+#publicProfileCard .public-profile-actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px !important;
+    grid-template-rows: 44px !important;
+    grid-auto-flow: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    height: 44px !important;
+    min-height: 44px !important;
+}
+
+/* Follow — first column */
+#publicProfileCard #publicProfileFollowButton {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    height: 44px !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+}
+
+/* Message — second column */
+#publicProfileCard #publicProfileMessageButton {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    height: 44px !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+}
+
+/* Three dots — third column */
+#publicProfileCard #publicProfileMoreButton {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    height: 44px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: static !important;
+    transform: none !important;
+}
