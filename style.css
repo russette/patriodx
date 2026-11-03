@@ -22670,3 +22670,35 @@ body.dark-mode
         font-size: 12px !important;
     }
 }
+/* FIX: KEEP ALL PUBLIC PROFILE ACTIONS ON ONE ROW */
+
+#publicProfileCard .public-profile-actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px !important;
+    grid-template-rows: 44px !important;
+    grid-auto-flow: row !important;
+    align-items: center !important;
+    justify-items: stretch !important;
+    gap: 8px !important;
+    height: auto !important;
+    min-height: 44px !important;
+}
+
+#publicProfileCard #publicProfileFollowButton {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+}
+
+#publicProfileCard #publicProfileMessageButton {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+}
+
+#publicProfileCard #publicProfileMoreButton {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    justify-self: stretch !important;
+    align-self: center !important;
+    position: static !important;
+    transform: none !important;
+}
