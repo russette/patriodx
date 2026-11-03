@@ -19589,7 +19589,7 @@ html[data-theme="dark"] #messaging {
 .profile-posts:has(.social-post-card),
 .public-profile-posts:has(.social-post-card) {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+   grid-template-columns: minmax(0, 1fr);
     gap: 18px;
     width: 100%;
     max-width: 100%;
@@ -22213,4 +22213,59 @@ body.dark-mode
     white-space: nowrap !important;
     margin-left: auto !important;
     font-size: 12px !important;
+}
+/* =========================================
+   PATRIODX PUBLIC PROFILE — LAYOUT FIX
+   Override conflicting previous grid rules
+========================================= */
+
+.public-profile-posts {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    gap: 18px !important;
+    align-items: start !important;
+    overflow: visible !important;
+}
+
+.public-profile-posts > *,
+.public-profile-posts .social-post-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    grid-column: 1 / -1 !important;
+    box-sizing: border-box !important;
+}
+
+.public-profile-posts .social-post-card {
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+}
+
+.public-profile-posts .social-post-content,
+.public-profile-posts .social-post-text {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-break: normal !important;
+}
+
+.public-profile-posts .social-post-card img,
+.public-profile-posts .social-post-card video {
+    max-width: 100%;
+}
+
+/* Mobile public profile */
+@media (max-width: 700px) {
+    .public-profile-posts {
+        grid-template-columns: minmax(0, 1fr) !important;
+        width: 100% !important;
+        padding-left: 0;
+        padding-right: 0;
+    }
 }
