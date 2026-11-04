@@ -139,11 +139,11 @@ function createReference() {
 }
 
 function formatDate(date) {
-    if (!date) return "—";
+    if (!date) return "â€”";
 
     const d = new Date(date);
 
-    if (Number.isNaN(d.getTime())) return "—";
+    if (Number.isNaN(d.getTime())) return "â€”";
 
     return d.toLocaleDateString();
 }
@@ -370,7 +370,7 @@ const accountPlan =
 
 if (accountBusinessName) {
     accountBusinessName.textContent =
-        currentBusiness.name || "—";
+        currentBusiness.name || "â€”";
 }
 
 if (accountPlan) {
@@ -1039,7 +1039,7 @@ list.innerHTML = alerts.map(product => {
 
             <div class="business-inventory-alert-details">
                 <strong>${safe(product.name || "Unnamed product")}</strong>
-                <span>${outOfStock ? "Out of stock — restocking needed" : `${product.availableStock} unit${product.availableStock === 1 ? "" : "s"} remaining`}</span>
+                <span>${outOfStock ? "Out of stock â€” restocking needed" : `${product.availableStock} unit${product.availableStock === 1 ? "" : "s"} remaining`}</span>
             </div>
 
             <span class="business-inventory-alert-status ${outOfStock ? "critical" : "warning"}">
@@ -1442,7 +1442,7 @@ function previewProductImage(input) {
     container.style.display = "block";
 }
 // =========================================================
-// SAVE PRODUCT — ADD AND EDIT
+// SAVE PRODUCT â€” ADD AND EDIT
 // =========================================================
 
 async function saveProduct(event) {
@@ -1615,7 +1615,7 @@ if (imageFile) {
 }
 
 // =========================================================
-// SAVE PRODUCT — EXISTING DATABASE STRUCTURE
+// SAVE PRODUCT â€” EXISTING DATABASE STRUCTURE
 // =========================================================
 
 const productData = {
@@ -1938,9 +1938,9 @@ function openSaleModal() {
         select.innerHTML += `
             <option value="${product.id}">
                 ${safe(product.name)}
-                —
+                â€”
                 ${money(product.price)}
-                —
+                â€”
                 Stock: ${product.stock}
             </option>
         `;
@@ -2153,7 +2153,7 @@ if (quantity > product.stock) {
 
 
 // =========================================================
-// SALES DISPLAY — PATRIODX ORDER MANAGEMENT
+// SALES DISPLAY â€” PATRIODX ORDER MANAGEMENT
 // =========================================================
 
 function renderSales() {
@@ -2393,7 +2393,7 @@ function openInvoiceModal() {
         productSelect.innerHTML += `
             <option value="${product.id}">
                 ${safe(product.name)}
-                —
+                â€”
                 ${money(product.price)}
             </option>
         `;
@@ -2664,7 +2664,7 @@ async function saveInvoice(event) {
 }
 
 // =========================================================
-// PATRIODX — INVOICE FINANCIAL OVERVIEW
+// PATRIODX â€” INVOICE FINANCIAL OVERVIEW
 // =========================================================
 
 function renderInvoiceSummary() {
@@ -2741,7 +2741,7 @@ function renderInvoiceSummary() {
         `${totals.overdueCount} overdue invoice${totals.overdueCount === 1 ? "" : "s"}`;
 }
 // =========================================================
-// PATRIODX — INVOICE MANAGEMENT DISPLAY
+// PATRIODX â€” INVOICE MANAGEMENT DISPLAY
 // =========================================================
 
 function renderInvoices() {
@@ -2887,7 +2887,7 @@ renderInvoiceSummary();
                         <p class="business-invoice-product">
                             <i data-lucide="package"></i>
                             ${productName}
-                            <span>·</span>
+                            <span>Â·</span>
                             Qty: ${Math.max(
                                 0,
                                 Number(invoice.quantity) || 0
@@ -3357,14 +3357,14 @@ function renderAnalytics() {
             );
     });
 
-    let bestSeller = "—";
+    let bestSeller = "â€”";
 
     Object.keys(
         productSales
     ).forEach(name => {
 
         if (
-            bestSeller === "—" ||
+            bestSeller === "â€”" ||
             productSales[name] >
             productSales[bestSeller]
         ) {
@@ -3471,7 +3471,7 @@ function renderAnalytics() {
 
 
    // =====================================================
-// REVENUE TREND — DAILY SALES ANALYTICS
+// REVENUE TREND â€” DAILY SALES ANALYTICS
 // =====================================================
 
 const chart = document.getElementById("revenueChart");
@@ -3596,7 +3596,7 @@ const chartBars = chartValues.map(item => {
                 <div
                     class="business-revenue-bar"
                     style="height: ${height}%"
-                    title="${safe(label)} · ${money(item.revenue)}"
+                    title="${safe(label)} Â· ${money(item.revenue)}"
                     aria-label="${safe(label)} revenue: ${money(item.revenue)}"
                 ></div>
             </div>
@@ -3637,7 +3637,7 @@ if (typeof lucide !== "undefined") {
 }
 }
 // =====================================================
-// RECENT ACTIVITY — BUSINESS DASHBOARD
+// RECENT ACTIVITY â€” BUSINESS DASHBOARD
 // =====================================================
 
 function renderRecentActivity() {
@@ -5061,7 +5061,7 @@ document
     ?.addEventListener("click", async () => {
 
         const inviteText =
-            "Join me on PATRIODX — Run your business smarter.";
+            "Join me on PATRIODX â€” Run your business smarter.";
 
         if (
             navigator.share &&
@@ -5859,7 +5859,7 @@ async function logoutUser() {
         "auth.html";
 }
 // =========================================================
-// PRODUCT MODAL — RESTORE MISSING FUNCTIONS
+// PRODUCT MODAL â€” RESTORE MISSING FUNCTIONS
 // =========================================================
 function openProductModal(productIdToEdit = null) {
     const modal = document.getElementById("productModal");
@@ -7568,7 +7568,7 @@ if (storyContent && storyContent.dataset.pauseReady !== "true") {
     );
 }
 // =========================================================
-// PATRIODX HOME — MARKETPLACE PRODUCTS
+// PATRIODX HOME â€” MARKETPLACE PRODUCTS
 // =========================================================
 
 async function loadHomeMarketplaceProducts() {
@@ -7664,7 +7664,7 @@ function renderHomeMarketplaceProducts(products) {
                >`
             : `<div class="home-marketplace-product-image"
                     style="display:grid;place-items:center;font-size:36px">
-                    🛍️
+                    ðŸ›ï¸
                </div>`;
 
         const badge =
@@ -9781,7 +9781,7 @@ function insertSocialComposerText(text) {
     composer.setSelectionRange(cursorPosition, cursorPosition);
 }
 /* =========================================================
-   PATRIODX SOCIAL USER PICKER — NO BROWSER POPUPS
+   PATRIODX SOCIAL USER PICKER â€” NO BROWSER POPUPS
 ========================================================= */
 
 function showPATRIODXUserPicker() {
@@ -9860,7 +9860,7 @@ function showPATRIODXUserPicker() {
                             color:var(--text-color,#0f172a);
                             font-size:23px;
                         "
-                    >×</button>
+                    >Ã—</button>
                 </header>
 
                 <div style="padding:18px 20px 10px;">
@@ -10731,7 +10731,7 @@ window.editSocialPost = editSocialPost;
 function getPATRIODXBadge(profile) {
     if (!profile) return "";
 
-    // Gold founder badge — preserve the existing design.
+    // Gold founder badge â€” preserve the existing design.
     if (profile.is_owner) {
         return `
             <span
@@ -11983,7 +11983,7 @@ if (sharedConversationId) {
 
 
 /* =========================================================
-   LOAD CONVERSATIONS — PATRIODX
+   LOAD CONVERSATIONS â€” PATRIODX
 ========================================================= */
 async function loadConversations() {
 
@@ -12665,7 +12665,7 @@ startPATRIODXBlockMonitor(conversationId);
 }
 
 /* =========================================================
-   LOAD MESSAGES — OPTIMIZED
+   LOAD MESSAGES â€” OPTIMIZED
 ========================================================= */
 const patriodxReactionCache = window.patriodxReactionCache ||
     (window.patriodxReactionCache = new Map());
@@ -12785,19 +12785,19 @@ async function loadMessages(conversationId) {
                             class="patriodx-message-action"
                             data-react-heart="${safe(message.id)}"
                             aria-label="React with heart"
-                            title="React with heart">❤️</button>
+                            title="React with heart">â¤ï¸</button>
 
                     <button type="button"
                             class="patriodx-message-action"
                             data-react-laugh="${safe(message.id)}"
                             aria-label="React with laughter"
-                            title="React with laughter">😂</button>
+                            title="React with laughter">ðŸ˜‚</button>
 
                     <button type="button"
                             class="patriodx-message-action"
                             data-react-like="${safe(message.id)}"
                             aria-label="React with thumbs up"
-                            title="React with thumbs up">👍</button>
+                            title="React with thumbs up">ðŸ‘</button>
 
                     ${
                         mine
@@ -12982,7 +12982,7 @@ async function toggleMessageReaction(messageId, reaction) {
         return;
     }
 
-    const allowedReactions = ["❤️", "😂", "😮", "😢", "🔥", "👍"];
+    const allowedReactions = ["â¤ï¸", "ðŸ˜‚", "ðŸ˜®", "ðŸ˜¢", "ðŸ”¥", "ðŸ‘"];
 
     if (!messageId || !allowedReactions.includes(reaction)) {
         console.error("Invalid message reaction:", { messageId, reaction });
@@ -13236,7 +13236,7 @@ if (messageList && !messageList.dataset.reactionsReady) {
         const row = event.target.closest("[data-message-id]");
 
         if (row) {
-            toggleMessageReaction(row.dataset.messageId, "❤️");
+            toggleMessageReaction(row.dataset.messageId, "â¤ï¸");
         }
     });
 
@@ -13252,7 +13252,7 @@ if (messageList && !messageList.dataset.reactionsReady) {
             messageId === lastTapMessage &&
             now - lastTapTime < 350
         ) {
-            toggleMessageReaction(messageId, "❤️");
+            toggleMessageReaction(messageId, "â¤ï¸");
             lastTapTime = 0;
             lastTapMessage = null;
         } else {
@@ -13269,11 +13269,11 @@ if (messageList && !messageList.dataset.reactionsReady) {
         const deleteButton = event.target.closest("[data-delete-message]");
 
         if (heart) {
-            toggleMessageReaction(heart.dataset.reactHeart, "❤️");
+            toggleMessageReaction(heart.dataset.reactHeart, "â¤ï¸");
         } else if (laugh) {
-            toggleMessageReaction(laugh.dataset.reactLaugh, "😂");
+            toggleMessageReaction(laugh.dataset.reactLaugh, "ðŸ˜‚");
         } else if (like) {
-            toggleMessageReaction(like.dataset.reactLike, "👍");
+            toggleMessageReaction(like.dataset.reactLike, "ðŸ‘");
         } else if (existing) {
             toggleMessageReaction(
                 existing.dataset.reactionMessage,
@@ -13399,7 +13399,7 @@ if (messageList && !messageList.dataset.reactionsReady) {
     const attachButton = document.createElement("button");
     attachButton.type = "button";
     attachButton.id = "patriodxAttachButton";
-    attachButton.textContent = "📎";
+    attachButton.textContent = "ðŸ“Ž";
     attachButton.title = "Attach image";
 
     const fileLabel = document.createElement("span");
@@ -13567,7 +13567,7 @@ if (messageList && !messageList.dataset.reactionsReady) {
             font-size: 12px;
         }
 
-        /* Typing indicator — light mode */
+        /* Typing indicator â€” light mode */
 .patriodx-typing-indicator {
     display: block;
     min-height: 18px;
@@ -13587,11 +13587,11 @@ if (messageList && !messageList.dataset.reactionsReady) {
     display: block;
 }
 
-/* Typing indicator — dark mode */
+/* Typing indicator â€” dark mode */
 body.dark-mode .patriodx-typing-indicator {
     color: #cbd5e1 !important;
 }
-/* Reaction controls — light mode */
+/* Reaction controls â€” light mode */
 .patriodx-message-actions,
 .patriodx-reaction {
     background: var(--card-bg, #ffffff);
@@ -13609,7 +13609,7 @@ body.dark-mode .patriodx-typing-indicator {
     border-color: var(--primary-color, #7c3aed);
 }
 
-/* Reaction controls — dark mode */
+/* Reaction controls â€” dark mode */
 body.dark-mode .patriodx-message-actions,
 body.dark-mode .patriodx-reaction {
     background: #111827;
@@ -13693,7 +13693,7 @@ body.dark-mode .patriodx-reaction:hover {
 })();
 
 /* =========================================================
-SEND MESSAGE — INSTANT TEXT UI + BACKGROUND SAVE
+SEND MESSAGE â€” INSTANT TEXT UI + BACKGROUND SAVE
 ========================================================= */
 
 if (messageForm && !messageForm.dataset.sendHandlerReady) {
@@ -13757,7 +13757,7 @@ if (messageForm && !messageForm.dataset.sendHandlerReady) {
                     : ""}
                 <span class="message-time">${safe(formatMessageTime(createdAt))}</span>
             </div>
-            <div class="message-send-status" aria-live="polite">Sending…</div>
+            <div class="message-send-status" aria-live="polite">Sendingâ€¦</div>
         `;
 
         if (!attachmentFile && messageList &&
@@ -13771,7 +13771,7 @@ if (messageForm && !messageForm.dataset.sendHandlerReady) {
 
         try {
             if (attachmentFile) {
-                showPATRIODXToast("Uploading image…", "info");
+                showPATRIODXToast("Uploading imageâ€¦", "info");
                 attachmentPath =
                     await uploadMessageAttachment(attachmentFile);
 
@@ -13872,7 +13872,7 @@ optimisticRow.remove();
 
 
 /* =========================================================
-   REALTIME MESSAGES — OPTIMIZED
+   REALTIME MESSAGES â€” OPTIMIZED
 ========================================================= */
 function subscribeToMessages(conversationId) {
     if (messagingRealtimeChannel) {
@@ -13972,15 +13972,15 @@ function subscribeToMessages(conversationId) {
                         <button type="button"
                             class="patriodx-message-action"
                             data-react-heart="${safe(message.id)}"
-                            aria-label="React with heart">❤️</button>
+                            aria-label="React with heart">â¤ï¸</button>
                         <button type="button"
                             class="patriodx-message-action"
                             data-react-laugh="${safe(message.id)}"
-                            aria-label="React with laughter">😂</button>
+                            aria-label="React with laughter">ðŸ˜‚</button>
                         <button type="button"
                             class="patriodx-message-action"
                             data-react-like="${safe(message.id)}"
-                            aria-label="React with thumbs up">👍</button>
+                            aria-label="React with thumbs up">ðŸ‘</button>
                         ${
                             mine
                                 ? `<button type="button"
@@ -14101,7 +14101,7 @@ function subscribeToMessages(conversationId) {
 
             if (activeConversationId !== conversationId) return;
 
-            indicator.textContent = `${senderName || "Someone"} is typing…`;
+            indicator.textContent = `${senderName || "Someone"} is typingâ€¦`;
             indicator.classList.add("is-typing");
 
             window.patriodxTypingTimer = setTimeout(() => {
@@ -14152,7 +14152,7 @@ function subscribeToMessages(conversationId) {
     }
 }
 /* =========================================================
-   NEW CONVERSATION — OPEN USER PICKER
+   NEW CONVERSATION â€” OPEN USER PICKER
 ========================================================= */
 
 if (newConversationButton) {
@@ -14617,7 +14617,7 @@ const type =
     (notification.type || "").toLowerCase();
 
 /* -----------------------------------------------------
-LIKE / COMMENT — OPEN THE POST IN THE EXISTING VIEWER
+LIKE / COMMENT â€” OPEN THE POST IN THE EXISTING VIEWER
 ----------------------------------------------------- */
 
 if (
@@ -14718,7 +14718,7 @@ if (type === "message") {
 }
 
 /* -----------------------------------------------------
-   FOLLOW — OPEN THE FOLLOWER'S PUBLIC PROFILE
+   FOLLOW â€” OPEN THE FOLLOWER'S PUBLIC PROFILE
 ----------------------------------------------------- */
 
 if (type === "follow") {
@@ -15630,7 +15630,7 @@ window.savePATRIODXProfile = async function(event) {
     ) {
 
         showPATRIODXToast(
-            "Username must be 3–30 characters and can only contain letters, numbers, underscores, and periods.",
+            "Username must be 3â€“30 characters and can only contain letters, numbers, underscores, and periods.",
             "warning"
         );
 
@@ -16605,7 +16605,7 @@ async function loadMyFollowCounts() {
 }
 
 // =========================================================
-// PATRIODX — OWN PROFILE FOLLOWERS / FOLLOWING
+// PATRIODX â€” OWN PROFILE FOLLOWERS / FOLLOWING
 // =========================================================
 
 let myProfileFollowListRequestId = 0;
@@ -17143,7 +17143,7 @@ if (badgeElement) {
 
         } else {
 
-            avatarElement.textContent = "👤";
+            avatarElement.textContent = "ðŸ‘¤";
         }
     }
 
@@ -18993,7 +18993,7 @@ grow: "GROW",
 growWithPatriodx: "Grow with PATRIODX",
 unlockTools: "Unlock more business tools.",
 viewPlans: "View Plans",
-        controlCenter: "PATRIODX • CONTROL CENTER",
+        controlCenter: "PATRIODX â€¢ CONTROL CENTER",
 runBusinessSmarter: "Run your business smarter.",
 dashboardDescription: "Manage your products, customers, sales and invoices from one powerful business dashboard.",
 manageProducts: "Manage Products",
@@ -19051,7 +19051,7 @@ yourPosts: "Your Posts",
         profile: "Profil",
         notifications: "Notifications",
         messages: "Messages",
-        logout: "Déconnexion",
+        logout: "DÃ©connexion",
 
         home: "Accueil",
         dashboard: "Tableau de bord",
@@ -19068,8 +19068,8 @@ yourPosts: "Your Posts",
         language: "Langue",
 
         welcome: "Bienvenue sur PATRIODX",
-        runBusiness: "Gérez votre entreprise. Faites fructifier votre argent.",
-        connect: "Connectez-vous. Partagez. Développez-vous.",
+        runBusiness: "GÃ©rez votre entreprise. Faites fructifier votre argent.",
+        connect: "Connectez-vous. Partagez. DÃ©veloppez-vous.",
 
         notificationsTitle: "Notifications",
         messagesTitle: "Messages",
@@ -19081,31 +19081,31 @@ yourPosts: "Your Posts",
         contactTitle: "Contact",
         quickLinks: "Liens rapides",
 
-        privacy: "Politique de confidentialité",
+        privacy: "Politique de confidentialitÃ©",
         terms: "Conditions d'utilisation",
-connect: "Connectez-vous. Partagez. Développez-vous.",
-socialDescription: "Connectez-vous avec des clients et des entreprises, partagez des actualités et faites la promotion de vos activités.",
-createPost: "Créer une publication",
+connect: "Connectez-vous. Partagez. DÃ©veloppez-vous.",
+socialDescription: "Connectez-vous avec des clients et des entreprises, partagez des actualitÃ©s et faites la promotion de vos activitÃ©s.",
+createPost: "CrÃ©er une publication",
 photo: "Photo",
-video: "Vidéo",
+video: "VidÃ©o",
 post: "Publier",
-latestPosts: "Dernières publications",
+latestPosts: "DerniÃ¨res publications",
         main: "PRINCIPAL",
 business: "ENTREPRISE",
-grow: "DÉVELOPPEMENT",
-growWithPatriodx: "Développez-vous avec PATRIODX",
-unlockTools: "Débloquez plus d'outils professionnels.",
+grow: "DÃ‰VELOPPEMENT",
+growWithPatriodx: "DÃ©veloppez-vous avec PATRIODX",
+unlockTools: "DÃ©bloquez plus d'outils professionnels.",
 viewPlans: "Voir les offres",
-        controlCenter: "PATRIODX • CENTRE DE CONTRÔLE",
-runBusinessSmarter: "Gérez votre entreprise plus intelligemment.",
-dashboardDescription: "Gérez vos produits, clients, ventes et factures depuis un puissant tableau de bord.",
-manageProducts: "Gérer les produits",
+        controlCenter: "PATRIODX â€¢ CENTRE DE CONTRÃ”LE",
+runBusinessSmarter: "GÃ©rez votre entreprise plus intelligemment.",
+dashboardDescription: "GÃ©rez vos produits, clients, ventes et factures depuis un puissant tableau de bord.",
+manageProducts: "GÃ©rer les produits",
 viewAnalytics: "Voir les analyses",
 quickActions: "ACTIONS RAPIDES",
-getThingsDoneFaster: "Accomplissez vos tâches plus rapidement.",
+getThingsDoneFaster: "Accomplissez vos tÃ¢ches plus rapidement.",
 
 addProduct: "Ajouter un produit",
-addInventoryItem: "Ajoutez un élément à votre inventaire",
+addInventoryItem: "Ajoutez un Ã©lÃ©ment Ã  votre inventaire",
 
 addCustomer: "Ajouter un client",
 addNewCustomer: "Ajouter un nouveau client",
@@ -19113,30 +19113,30 @@ addNewCustomer: "Ajouter un nouveau client",
 recordSale: "Enregistrer une vente",
 recordTransaction: "Enregistrer une nouvelle transaction",
 
-createInvoice: "Créer une facture",
+createInvoice: "CrÃ©er une facture",
 sendInvoice: "Envoyer une facture professionnelle",
 findPeople: '<i data-lucide="search"></i> Trouver des personnes',
 searchUsername: "Rechercher un nom d'utilisateur...",
 patriodxProfile: '<i data-lucide="user"></i> PROFIL PATRIODX',
 yourProfile: "Votre profil",
-buildYourIdentity: "Construisez votre identité sur PATRIODX.",
+buildYourIdentity: "Construisez votre identitÃ© sur PATRIODX.",
 
 follow: "Suivre",
 posts: "Publications",
-followers: "Abonnés",
+followers: "AbonnÃ©s",
 following: "Abonnements",
 
 tellPeopleAboutYourself: "Parlez de vous aux autres.",
 editProfile: '<i data-lucide="pencil"></i> Modifier le profil',
 
 editYourProfile: "Modifier votre profil",
-customizeProfile: "Personnalisez la façon dont les autres vous voient sur PATRIODX.",
+customizeProfile: "Personnalisez la faÃ§on dont les autres vous voient sur PATRIODX.",
 
 username: "Nom d'utilisateur",
 usernamePlaceholder: "nom d'utilisateur",
 uniqueUsername: "Votre nom d'utilisateur PATRIODX unique.",
 
-displayName: "Nom affiché",
+displayName: "Nom affichÃ©",
 yourName: "Votre nom",
 
 bio: "Biographie",
@@ -19147,7 +19147,7 @@ saveProfile: "Enregistrer le profil",
 cancel: "Annuler",
 
 yourPosts: "Vos publications",
-        allRights: "Tous droits réservés."
+        allRights: "Tous droits rÃ©servÃ©s."
     },
 
     es: {
@@ -19155,12 +19155,12 @@ yourPosts: "Vos publications",
         profile: "Perfil",
         notifications: "Notificaciones",
         messages: "Mensajes",
-        logout: "Cerrar sesión",
+        logout: "Cerrar sesiÃ³n",
 
         home: "Inicio",
         dashboard: "Panel",
         social: "Social",
-        analytics: "Analítica",
+        analytics: "AnalÃ­tica",
         products: "Productos",
         customers: "Clientes",
         sales: "Ventas",
@@ -19179,43 +19179,43 @@ yourPosts: "Vos publications",
         messagesTitle: "Mensajes",
         profileTitle: "Perfil",
 
-        noNotifications: "Aún no hay notificaciones",
-        noPosts: "Aún no hay publicaciones",
+        noNotifications: "AÃºn no hay notificaciones",
+        noPosts: "AÃºn no hay publicaciones",
 
         contactTitle: "Contacto",
-        quickLinks: "Enlaces rápidos",
+        quickLinks: "Enlaces rÃ¡pidos",
 
-        privacy: "Política de privacidad",
-        terms: "Términos de servicio",
+        privacy: "PolÃ­tica de privacidad",
+        terms: "TÃ©rminos de servicio",
 connect: "Conecta. Comparte. Crece.",
 socialDescription: "Conecta con clientes y empresas, comparte novedades y promociona lo que haces.",
-createPost: "Crear una publicación",
+createPost: "Crear una publicaciÃ³n",
 photo: "Foto",
-video: "Vídeo",
+video: "VÃ­deo",
 post: "Publicar",
-latestPosts: "Últimas publicaciones",
+latestPosts: "Ãšltimas publicaciones",
         main: "PRINCIPAL",
 business: "NEGOCIO",
 grow: "CRECER",
 growWithPatriodx: "Crece con PATRIODX",
-unlockTools: "Desbloquea más herramientas empresariales.",
+unlockTools: "Desbloquea mÃ¡s herramientas empresariales.",
 viewPlans: "Ver planes",
-        controlCenter: "PATRIODX • CENTRO DE CONTROL",
-runBusinessSmarter: "Gestiona tu negocio de forma más inteligente.",
+        controlCenter: "PATRIODX â€¢ CENTRO DE CONTROL",
+runBusinessSmarter: "Gestiona tu negocio de forma mÃ¡s inteligente.",
 dashboardDescription: "Gestiona tus productos, clientes, ventas y facturas desde un potente panel de control.",
 manageProducts: "Gestionar productos",
-viewAnalytics: "Ver analíticas",
-quickActions: "ACCIONES RÁPIDAS",
-getThingsDoneFaster: "Haz las cosas más rápido.",
+viewAnalytics: "Ver analÃ­ticas",
+quickActions: "ACCIONES RÃPIDAS",
+getThingsDoneFaster: "Haz las cosas mÃ¡s rÃ¡pido.",
 
-addProduct: "Añadir producto",
-addInventoryItem: "Añade algo a tu inventario",
+addProduct: "AÃ±adir producto",
+addInventoryItem: "AÃ±ade algo a tu inventario",
 
-addCustomer: "Añadir cliente",
-addNewCustomer: "Añadir un nuevo cliente",
+addCustomer: "AÃ±adir cliente",
+addNewCustomer: "AÃ±adir un nuevo cliente",
 
 recordSale: "Registrar venta",
-recordTransaction: "Registrar una nueva transacción",
+recordTransaction: "Registrar una nueva transacciÃ³n",
 
 createInvoice: "Crear factura",
 sendInvoice: "Enviar una factura profesional",
@@ -19231,21 +19231,21 @@ posts: "Publicaciones",
 followers: "Seguidores",
 following: "Siguiendo",
 
-tellPeopleAboutYourself: "Cuéntale a la gente sobre ti.",
+tellPeopleAboutYourself: "CuÃ©ntale a la gente sobre ti.",
 editProfile: '<i data-lucide="pencil"></i> Editar perfil',
 
 editYourProfile: "Editar tu perfil",
-customizeProfile: "Personaliza cómo te ven las personas en PATRIODX.",
+customizeProfile: "Personaliza cÃ³mo te ven las personas en PATRIODX.",
 
 username: "Nombre de usuario",
 usernamePlaceholder: "nombre de usuario",
-uniqueUsername: "Tu nombre de usuario único de PATRIODX.",
+uniqueUsername: "Tu nombre de usuario Ãºnico de PATRIODX.",
 
 displayName: "Nombre para mostrar",
 yourName: "Tu nombre",
 
-bio: "Biografía",
-bioPlaceholder: "Cuéntale a la gente sobre ti...",
+bio: "BiografÃ­a",
+bioPlaceholder: "CuÃ©ntale a la gente sobre ti...",
 
 profilePicture: "Foto de perfil",
 saveProfile: "Guardar perfil",
@@ -20007,7 +20007,7 @@ if (recent.length) {
                     class="global-search-remove-recent"
                     data-remove-recent="${profile.id}"
                     aria-label="Remove recent search"
-                >×</button>
+                >Ã—</button>
             </button>
         `).join("")}
     `;
@@ -20411,7 +20411,7 @@ if (file.size > 50 * 1024 * 1024) {
     }
 }
 /* =========================================================
-MOBILE CREATE SHEET — RELIABLE INITIALIZATION
+MOBILE CREATE SHEET â€” RELIABLE INITIALIZATION
 ========================================================= */
 
 function openMobileCreateSheet() {
@@ -20513,7 +20513,7 @@ document.getElementById("mobileCreateLive")?.addEventListener("click", () => {
 }
 
 /* =========================================================
-MOBILE MORE BUTTON — OPEN EXISTING SIDEBAR
+MOBILE MORE BUTTON â€” OPEN EXISTING SIDEBAR
 ========================================================= */
 
 function setupMobileMoreButton() {
@@ -20687,7 +20687,7 @@ if (openProfileButton) {
     );
 }
 /* =========================================================
-PATRIODX — PUBLIC PROFILE POST VIEWER
+PATRIODX â€” PUBLIC PROFILE POST VIEWER
 ========================================================= */
 
 function openProfilePostViewer(postData) {
@@ -20792,7 +20792,7 @@ closeProfilePostViewer();
 }
 });
 /* =========================================================
-   PATRIODX — PROFILE VIEWER INTERACTIONS
+   PATRIODX â€” PROFILE VIEWER INTERACTIONS
 ========================================================= */
 
 async function refreshProfilePostViewer(postId) {
@@ -20973,7 +20973,7 @@ text.innerHTML = renderClickableMentions(
             commentLikeButton.className = "profile-comment-like-button";
             commentLikeButton.dataset.commentId = comment.id;
             commentLikeButton.textContent =
-                `${userLiked ? "♥" : "♡"} ${likesForComment.length}`;
+                `${userLiked ? "â™¥" : "â™¡"} ${likesForComment.length}`;
             commentLikeButton.setAttribute(
                 "aria-label",
                 userLiked ? "Unlike comment" : "Like comment"
@@ -21266,7 +21266,7 @@ if (!confirmed) {
     }
 });
 /* =========================================================
-   PATRIODX — COMMENT LIKE, REPLY AND EDIT HANDLERS
+   PATRIODX â€” COMMENT LIKE, REPLY AND EDIT HANDLERS
 ========================================================= */
 
 /* Handle comment likes, reply forms, and edit forms. */
@@ -21463,7 +21463,7 @@ document.addEventListener("submit", async function (event) {
     }
 });
 // =========================================================
-// PATRIODX — MARKETPLACE FRAME INTEGRATION
+// PATRIODX â€” MARKETPLACE FRAME INTEGRATION
 // =========================================================
 
 window.addEventListener("message", function (event) {
@@ -21526,7 +21526,7 @@ activeConversationId = null;
     }
 });
 // PATRIODX mobile messaging changes
-/* PATRIODX — Refresh inbox when Messages becomes visible */
+/* PATRIODX â€” Refresh inbox when Messages becomes visible */
 (() => {
     let lastRefresh = 0;
 
@@ -21647,7 +21647,7 @@ async function saveSocialPost(postId) {
 }
 
 window.saveSocialPost = saveSocialPost;
-// PATRIODX — Return from public profile
+// PATRIODX â€” Return from public profile
 document.getElementById("publicProfileBackButton")
     ?.addEventListener("click", function () {
 
@@ -21850,7 +21850,7 @@ document.addEventListener("click", function(event) {
 
 });
 // =========================================================
-// PATRIODX — SAVE / UNSAVE PUBLIC PROFILES
+// PATRIODX â€” SAVE / UNSAVE PUBLIC PROFILES
 // =========================================================
 
 async function savePublicProfile() {
@@ -21919,7 +21919,7 @@ async function savePublicProfile() {
 
 window.savePublicProfile = savePublicProfile;
 // =========================================================
-// PATRIODX — PUBLIC PROFILE OPTIONS MENU
+// PATRIODX â€” PUBLIC PROFILE OPTIONS MENU
 // =========================================================
 async function openPublicProfileMenu() {
     const backdrop = document.getElementById(
@@ -22087,7 +22087,7 @@ document.addEventListener("keydown", function(event) {
         closePublicProfileMenu();
     }
 });
-// PATRIODX — Public profile menu actions
+// PATRIODX â€” Public profile menu actions
 document.getElementById("publicProfileMenu")
     ?.addEventListener("click", async function(event) {
 
@@ -22173,7 +22173,7 @@ document.getElementById("publicProfileMenu")
         }
     });
     // =========================================================
-// PATRIODX — REPORT PUBLIC PROFILE
+// PATRIODX â€” REPORT PUBLIC PROFILE
 // =========================================================
 async function reportPublicProfile() {
     if (!currentUser) {
@@ -22294,7 +22294,7 @@ navigatePATRIODX("social");
     }
 }
 // =========================================================
-// PATRIODX — BLOCKED USERS MANAGER
+// PATRIODX â€” BLOCKED USERS MANAGER
 // =========================================================
 
 async function openBlockedUsersManager() {
@@ -22445,9 +22445,8 @@ async function openBlockedUsersManager() {
     }
 }
 // =========================================================
-// PATRIODX — UNBLOCK USER
+// PATRIODX â€” UNBLOCK USER
 // =========================================================
-
 async function unblockPATRIODXUser(userId, button) {
     if (!currentUser || !userId) return;
 
@@ -22465,20 +22464,30 @@ async function unblockPATRIODXUser(userId, button) {
     }
 
     try {
-        const { error } = await supabaseClient
+        const { data: deletedRecords, error } = await supabaseClient
             .from("blocked_users")
             .delete()
             .eq("blocker_id", currentUser.id)
-            .eq("blocked_user_id", userId);
+            .eq("blocked_user_id", userId)
+            .select("blocker_id, blocked_user_id");
 
         if (error) throw error;
+
+        if (!deletedRecords || deletedRecords.length === 0) {
+            showPATRIODXToast(
+                "No matching block record was found. Your list will be refreshed.",
+                "info"
+            );
+
+            await openBlockedUsersManager();
+            return;
+        }
 
         showPATRIODXToast(
             "User unblocked successfully.",
             "success"
         );
 
-        // Refresh the list from Supabase.
         await openBlockedUsersManager();
 
     } catch (error) {
