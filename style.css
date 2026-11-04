@@ -21180,3 +21180,119 @@ body.dark-mode .mobile-sheet-close svg {
         min-width: 0 !important;
     }
 }
+/* PATRIODX — Instagram-style laptop public profile */
+@media (min-width: 769px) {
+
+    #publicProfileCard {
+        display: block !important;
+        width: 100% !important;
+        max-width: 935px !important;
+        margin: 24px auto 32px !important;
+        padding: 0 24px 24px !important;
+        box-sizing: border-box !important;
+    }
+
+    #publicProfileCard .profile-header {
+        display: grid !important;
+        grid-template-columns: 180px minmax(0, 1fr) !important;
+        grid-template-areas:
+            "avatar info"
+            "avatar actions"
+            "avatar stats"
+            "avatar followlist" !important;
+        align-items: start !important;
+        column-gap: 64px !important;
+        row-gap: 20px !important;
+        width: 100% !important;
+        padding: 36px 24px 28px !important;
+        box-sizing: border-box !important;
+    }
+
+    #publicProfileCard #publicProfileAvatar {
+        grid-area: avatar !important;
+        width: 150px !important;
+        height: 150px !important;
+        min-width: 150px !important;
+        margin: 8px auto 0 !important;
+    }
+
+    #publicProfileCard .profile-main-info {
+        grid-area: info !important;
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    #publicProfileCard .profile-main-info h2 {
+        font-size: 26px !important;
+        line-height: 1.3 !important;
+        margin-bottom: 8px !important;
+    }
+
+    #publicProfileCard #publicProfileUsername {
+        font-size: 15px !important;
+        margin-bottom: 10px !important;
+    }
+
+    #publicProfileCard #publicProfileBio {
+        font-size: 14px !important;
+        line-height: 1.6 !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    #publicProfileCard .public-profile-actions {
+        grid-area: actions !important;
+        display: flex !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+    }
+
+    #publicProfileCard .public-profile-actions > button {
+        width: auto !important;
+        min-width: 110px !important;
+        height: 36px !important;
+        min-height: 36px !important;
+        padding: 0 20px !important;
+        margin: 0 !important;
+        font-size: 14px !important;
+    }
+
+    #publicProfileCard #publicProfileMoreButton {
+        min-width: 40px !important;
+        width: 40px !important;
+        padding: 0 !important;
+    }
+
+    #publicProfileCard .profile-header > .profile-stats {
+        grid-area: stats !important;
+        display: grid !important;
+        grid-template-columns: repeat(3, max-content) !important;
+        justify-content: start !important;
+        gap: 40px !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 4px 0 !important;
+    }
+
+    #publicProfileCard .profile-stats > * {
+        text-align: left !important;
+        padding: 0 !important;
+    }
+
+    #publicProfileCard .profile-header > #publicProfileFollowList {
+        grid-area: followlist !important;
+        width: 100% !important;
+    }
+
+    #publicProfilePostsContainer {
+        width: 100% !important;
+        max-width: 935px !important;
+        margin: 0 auto !important;
+    }
+}
