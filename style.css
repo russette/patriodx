@@ -21721,3 +21721,7 @@ body.dark-mode .blocked-user-unblock {
         border-radius: 22px 22px 0 0;
     }
 }
+/* Keep confirmation dialogs above the Blocked Users manager */
+.patriodx-confirm-overlay {
+    z-index: 300000 !important;
+}

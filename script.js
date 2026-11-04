@@ -11451,6 +11451,124 @@ const newConversationButton =
 let activeConversationId = null;
 
 let messagingRealtimeChannel = null;
+let patriodxBlockMonitorTimer = null;
+let patriodxBlockMonitorChecking = false;
+let patriodxBlockMonitorRunId = 0;
+function stopPATRIODXBlockMonitor() {
+    patriodxBlockMonitorRunId++;
+
+    if (patriodxBlockMonitorTimer) {
+        clearInterval(patriodxBlockMonitorTimer);
+        patriodxBlockMonitorTimer = null;
+    }
+
+    patriodxBlockMonitorChecking = false;
+}
+function clearBlockedConversation(conversationId) {
+if (activeConversationId !== conversationId) return;
+
+
+stopPATRIODXBlockMonitor();
+
+activeConversationId = null;
+
+window.patriodxMessageLoadToken =
+    (window.patriodxMessageLoadToken || 0) + 1;
+
+if (messagingRealtimeChannel) {
+    supabaseClient.removeChannel(messagingRealtimeChannel);
+    messagingRealtimeChannel = null;
+}
+
+const chatHeader = document.getElementById("chatHeader");
+const messagingSection = document.getElementById("messaging");
+
+if (chatHeader) chatHeader.innerHTML = "";
+
+if (messageList) {
+    messageList.innerHTML = `
+        <div class="messaging-empty-state">
+            <h3>Conversation unavailable</h3>
+            <p>This conversation is no longer available.</p>
+        </div>
+    `;
+}
+
+if (messageInput) {
+    messageInput.value = "";
+    messageInput.disabled = true;
+}
+
+if (messageSendButton) {
+    messageSendButton.disabled = true;
+}
+
+messagingSection?.classList.remove("mobile-chat-open");
+
+showPATRIODXToast(
+    "This conversation is no longer available.",
+    "info"
+);
+
+
+}
+function startPATRIODXBlockMonitor(conversationId) {
+    stopPATRIODXBlockMonitor();
+
+    if (!conversationId) return;
+
+    const monitorRunId = patriodxBlockMonitorRunId;
+    let checking = false;
+
+    patriodxBlockMonitorTimer = setInterval(async () => {
+        if (
+            checking ||
+            monitorRunId !== patriodxBlockMonitorRunId ||
+            activeConversationId !== conversationId
+        ) {
+            return;
+        }
+
+        checking = true;
+
+        try {
+            const { data, error } = await supabaseClient.rpc(
+                "conversation_has_blocked_member",
+                {
+                    target_conversation_id: conversationId
+                }
+            );
+
+            // Ignore responses belonging to an older conversation.
+            if (
+                monitorRunId !== patriodxBlockMonitorRunId ||
+                activeConversationId !== conversationId
+            ) {
+                return;
+            }
+
+            if (error) {
+                console.error(
+                    "Conversation block check failed:",
+                    error
+                );
+                return;
+            }
+
+            if (data === true) {
+                clearBlockedConversation(conversationId);
+            }
+
+        } catch (error) {
+            console.error(
+                "Conversation block monitor failed:",
+                error
+            );
+        } finally {
+            checking = false;
+        }
+    }, 5000);
+}
 // =========================================================
 // NEW CONVERSATION USER PICKER
 // =========================================================
@@ -11709,7 +11827,38 @@ async function createConversationWithUser(
     if (!currentUser || !otherUserId) {
         return false;
     }
+    if (otherUserId === currentUser.id) {
+        return false;
+    }
 
+    const { data: isBlocked, error: blockCheckError } =
+        await supabaseClient.rpc(
+            "is_blocked_from_current_user",
+            { other_user_id: otherUserId }
+        );
+
+    if (blockCheckError) {
+        console.error(
+            "Conversation block check error:",
+            blockCheckError
+        );
+
+        showPATRIODXToast(
+            "Could not verify whether this conversation is available.",
+            "error"
+        );
+
+        return false;
+    }
+
+    if (isBlocked) {
+        showPATRIODXToast(
+            "This conversation is unavailable.",
+            "info"
+        );
+
+        return false;
+    }
     const { data: memberships, error: membershipError } =
     await supabaseClient
         .from("conversation_members")
@@ -12291,8 +12440,38 @@ async function openConversation(
     otherUserProfile = null
 ) {
 
-activeConversationId = conversationId;
+    if (!currentUser || !conversationId) return;
 
+    const { data: hasBlockedMember, error: blockCheckError } =
+        await supabaseClient.rpc(
+            "conversation_has_blocked_member",
+            { target_conversation_id: conversationId }
+        );
+
+    if (blockCheckError) {
+        console.error("Conversation block check error:", blockCheckError);
+        showPATRIODXToast(
+            "Could not verify conversation access.",
+            "error"
+        );
+        return;
+    }
+
+    if (hasBlockedMember) {
+        activeConversationId = null;
+
+        if (messageList) messageList.innerHTML = "";
+        if (chatHeader) chatHeader.innerHTML = "";
+
+        showPATRIODXToast(
+            "This conversation is unavailable.",
+            "info"
+        );
+
+        return;
+    }
+
+    activeConversationId = conversationId;
 // Refresh the inbox in the background without blocking chat opening.
 loadConversations().catch(error => {
     console.error("Background conversation refresh failed:", error);
@@ -12481,7 +12660,7 @@ if (readResult.error) {
 /* KEEP REALTIME MESSAGING */
 
 subscribeToMessages(conversationId);
-
+startPATRIODXBlockMonitor(conversationId);
 
 }
 
@@ -16647,7 +16826,22 @@ async function followUser(userId) {
     if (userId === currentUser.id) {
         return;
     }
+const { data: isBlocked, error: blockCheckError } =
+    await supabaseClient.rpc(
+        "is_blocked_from_current_user",
+        { other_user_id: userId }
+    );
 
+if (blockCheckError) {
+    console.error("Follow block check error:", blockCheckError);
+    showPATRIODXToast("Could not verify this account.", "error");
+    return;
+}
+
+if (isBlocked) {
+    showPATRIODXToast("You cannot follow this account.", "info");
+    return;
+}
     const button =
         document.getElementById("publicProfileFollowButton");
 
@@ -16703,7 +16897,22 @@ async function unfollowUser(userId) {
     if (!currentUser) {
         return;
     }
+const { data: isBlocked, error: blockCheckError } =
+    await supabaseClient.rpc(
+        "is_blocked_from_current_user",
+        { other_user_id: userId }
+    );
 
+if (blockCheckError) {
+    console.error("Unfollow block check error:", blockCheckError);
+    showPATRIODXToast("Could not verify this account.", "error");
+    return;
+}
+
+if (isBlocked) {
+    showPATRIODXToast("This account is unavailable.", "info");
+    return;
+}
     const button =
         document.getElementById(
             "publicProfileFollowButton"
@@ -16761,8 +16970,39 @@ await loadMyFollowCounts();
 let publicProfileRequestId = 0;
 async function loadPublicProfile(userId) {
 
-  if (!userId) return;
-const requestId = ++publicProfileRequestId;
+    if (!userId) return;
+
+    if (!currentUser) {
+        showPATRIODXToast("Please sign in first.", "warning");
+        return;
+    }
+
+    if (userId !== currentUser.id) {
+        const { data: isBlocked, error: blockCheckError } =
+            await supabaseClient.rpc(
+                "is_blocked_from_current_user",
+                { other_user_id: userId }
+            );
+
+        if (blockCheckError) {
+            console.error("Profile block check error:", blockCheckError);
+            showPATRIODXToast(
+                "Could not verify access to this profile.",
+                "error"
+            );
+            return;
+        }
+
+        if (isBlocked) {
+            showPATRIODXToast(
+                "This profile is unavailable.",
+                "info"
+            );
+            return;
+        }
+    }
+
+    const requestId = ++publicProfileRequestId;
 // Remember where the user opened this profile from.
 const currentSection = window.location.hash
     .replace("#", "")
@@ -18075,7 +18315,12 @@ function patriodxHide(element) {
 
 
 function navigatePATRIODX(page) {
-
+if (
+    page !== "messaging" &&
+    typeof stopPATRIODXBlockMonitor === "function"
+) {
+    stopPATRIODXBlockMonitor();
+}
     if (page === "ai") {
         page = "patriodxAI";
     }
@@ -19678,11 +19923,39 @@ function savePATRIODXRecentSearch(profile) {
     );
 }
 
-function renderPATRIODXRecentSearches() {
+async function renderPATRIODXRecentSearches() {
     const results = document.getElementById("globalSearchResults");
     if (!results) return;
+let recent = getPATRIODXRecentSearches();
 
-    const recent = getPATRIODXRecentSearches();
+if (recent.length) {
+    const profileIds = recent
+        .map(profile => profile.id)
+        .filter(Boolean);
+
+    const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("id, username, display_name, avatar_url")
+        .in("id", profileIds);
+
+    if (error) {
+        console.error("Recent profile verification failed:", error);
+
+        results.innerHTML = `
+            <div class="global-search-empty">
+                Recent searches could not be loaded.
+            </div>
+        `;
+        return;
+    }
+
+    recent = data || [];
+
+    localStorage.setItem(
+        "patriodxRecentSearches",
+        JSON.stringify(recent)
+    );
+}
 
     results.style.display = "block";
 
@@ -21232,7 +21505,8 @@ document.addEventListener("click", function (event) {
     if (messagingSection) {
         messagingSection.classList.remove("mobile-chat-open");
     }
-
+stopPATRIODXBlockMonitor();
+activeConversationId = null;
     if (window.patriodxMessageReturnToPublicProfile) {
         window.patriodxMessageReturnToPublicProfile = false;
 
@@ -21977,14 +22251,38 @@ async function blockPublicProfile() {
 
         if (error) throw error;
 
-        closePublicProfileMenu();
+       closePublicProfileMenu();
 
-        showPATRIODXToast(
-            "User blocked successfully.",
-            "success"
-        );
+// Immediately remove the blocked user's profile.
+document.body.classList.remove("mobile-public-profile-view");
 
-        navigatePATRIODX("social");
+const publicCard = document.getElementById("publicProfileCard");
+const publicPosts = document.getElementById("publicProfilePostsContainer");
+const followList = document.getElementById("publicProfileFollowList");
+
+if (publicCard) {
+    publicCard.style.display = "none";
+}
+
+if (publicPosts) {
+    publicPosts.style.display = "none";
+    publicPosts.innerHTML = "";
+}
+
+if (followList) {
+    followList.innerHTML = "";
+    followList.style.display = "none";
+}
+
+viewedProfileUserId = null;
+profileFollowListRequestId++;
+
+showPATRIODXToast(
+    "User blocked successfully.",
+    "success"
+);
+
+navigatePATRIODX("social");
 
     } catch (error) {
         console.error("Block user error:", error);
