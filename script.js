@@ -1221,7 +1221,7 @@ renderProductPerformance();
         lucide.createIcons();
     }
 }
-function showPATRIODXConfirm(title, message) {
+function showPATRIODXConfirm(title, message, confirmText = "Delete") {
     return new Promise((resolve) => {
         const overlay = document.createElement("div");
 
@@ -1249,12 +1249,12 @@ function showPATRIODXConfirm(title, message) {
                     </button>
 
                     <button
-                        type="button"
-                        class="danger-btn"
-                        id="patriodxConfirmDelete"
-                    >
-                        Delete
-                    </button>
+    type="button"
+    class="danger-btn"
+    id="patriodxConfirmDelete"
+>
+    ${safe(confirmText)}
+</button>
                 </div>
             </div>
         `;
@@ -5052,12 +5052,7 @@ if (!choice) {
 document
     .getElementById("blockedUsersButton")
     ?.addEventListener("click", () => {
-
-        showPATRIODXToast(
-            "Blocked account management will be added here.",
-            "info"
-        );
-
+        openBlockedUsersManager();
     });
 
 
@@ -21965,11 +21960,11 @@ async function blockPublicProfile() {
 
     if (!profileId || profileId === currentUser.id) return;
 
-    const confirmed = await showPATRIODXConfirm(
-        "Block User",
-        "Are you sure you want to block this user? You will no longer want to interact with this account."
-    );
-
+   const confirmed = await showPATRIODXConfirm(
+    "Block User",
+    "Are you sure you want to block this user? They won't be able to interact with you, and you won't see their content.",
+    "Block"
+);
     if (!confirmed) return;
 
     try {
@@ -21998,5 +21993,207 @@ async function blockPublicProfile() {
             "Could not block this user.",
             "error"
         );
+    }
+}
+// =========================================================
+// PATRIODX — BLOCKED USERS MANAGER
+// =========================================================
+
+async function openBlockedUsersManager() {
+    if (!currentUser) {
+        showPATRIODXToast("Please sign in first.", "warning");
+        return;
+    }
+
+    let modal = document.getElementById("blockedUsersManager");
+
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "blockedUsersManager";
+        modal.className = "patriodx-modal-overlay";
+
+        modal.innerHTML = `
+            <div class="patriodx-modal blocked-users-modal">
+                <div class="blocked-users-header">
+                    <div>
+                        <h2>Blocked Users</h2>
+                        <p>Manage accounts you've blocked.</p>
+                    </div>
+
+                    <button type="button"
+                        id="closeBlockedUsersManager"
+                        aria-label="Close">
+                        &times;
+                    </button>
+                </div>
+
+                <div id="blockedUsersList">
+                    <div class="blocked-users-loading">
+                        <i data-lucide="loader-circle"></i>
+                        <p>Loading blocked accounts...</p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        modal.addEventListener("click", event => {
+            if (
+                event.target === modal ||
+                event.target.closest("#closeBlockedUsersManager")
+            ) {
+                modal.remove();
+            }
+        });
+    }
+
+    modal.style.display = "flex";
+
+    const list = document.getElementById("blockedUsersList");
+
+    try {
+        const { data: blockedRecords, error } = await supabaseClient
+            .from("blocked_users")
+            .select("blocked_user_id")
+            .eq("blocker_id", currentUser.id);
+
+        if (error) throw error;
+
+        const blockedIds = [
+            ...new Set(
+                (blockedRecords || [])
+                    .map(record => record.blocked_user_id)
+                    .filter(Boolean)
+            )
+        ];
+
+        if (!blockedIds.length) {
+            list.innerHTML = `
+                <div class="blocked-users-empty">
+                    <i data-lucide="shield-check"></i>
+                    <h3>No blocked accounts</h3>
+                    <p>Accounts you block will appear here.</p>
+                </div>
+            `;
+
+            if (typeof lucide !== "undefined") lucide.createIcons();
+            return;
+        }
+
+        const { data: profiles, error: profileError } =
+            await supabaseClient
+                .from("profiles")
+                .select("id, username, display_name, avatar_url")
+                .in("id", blockedIds);
+
+        if (profileError) throw profileError;
+
+        if (!profiles?.length) {
+            list.innerHTML = `
+                <div class="blocked-users-empty">
+                    <p>Blocked accounts could not be found.</p>
+                </div>
+            `;
+            return;
+        }
+
+        list.innerHTML = profiles.map(profile => `
+            <div class="blocked-user-row">
+                <div class="blocked-user-avatar">
+                    ${profile.avatar_url
+                        ? `<img src="${safe(profile.avatar_url)}" alt="">`
+                        : `<span>${safe(
+                            (profile.display_name || profile.username || "U")
+                                .charAt(0).toUpperCase()
+                        )}</span>`
+                    }
+                </div>
+
+                <div class="blocked-user-info">
+                    <strong>${safe(profile.display_name || profile.username || "PATRIODX User")}</strong>
+                    <span>@${safe(profile.username || "user")}</span>
+                </div>
+
+                <button
+                    type="button"
+                    class="blocked-user-unblock"
+                    data-unblock-user="${safe(profile.id)}">
+                    Unblock
+                </button>
+            </div>
+        `).join("");
+
+        list.querySelectorAll("[data-unblock-user]").forEach(button => {
+            button.addEventListener("click", async () => {
+                await unblockPATRIODXUser(button.dataset.unblockUser, button);
+            });
+        });
+
+        if (typeof lucide !== "undefined") lucide.createIcons();
+
+    } catch (error) {
+        console.error("Blocked users loading error:", error);
+
+        list.innerHTML = `
+            <div class="blocked-users-empty">
+                <i data-lucide="alert-circle"></i>
+                <h3>Couldn't load blocked accounts</h3>
+                <p>Please try again.</p>
+            </div>
+        `;
+
+        if (typeof lucide !== "undefined") lucide.createIcons();
+    }
+}
+// =========================================================
+// PATRIODX — UNBLOCK USER
+// =========================================================
+
+async function unblockPATRIODXUser(userId, button) {
+    if (!currentUser || !userId) return;
+
+    const confirmed = await showPATRIODXConfirm(
+        "Unblock User",
+        "Are you sure you want to unblock this account? They may be able to interact with you again.",
+        "Unblock"
+    );
+
+    if (!confirmed) return;
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Unblocking...";
+    }
+
+    try {
+        const { error } = await supabaseClient
+            .from("blocked_users")
+            .delete()
+            .eq("blocker_id", currentUser.id)
+            .eq("blocked_user_id", userId);
+
+        if (error) throw error;
+
+        showPATRIODXToast(
+            "User unblocked successfully.",
+            "success"
+        );
+
+        // Refresh the list from Supabase.
+        await openBlockedUsersManager();
+
+    } catch (error) {
+        console.error("Unblock user error:", error);
+
+        showPATRIODXToast(
+            "Could not unblock this user. Please try again.",
+            "error"
+        );
+
+        if (button) {
+            button.disabled = false;
+            button.textContent = "Unblock";
+        }
     }
 }
