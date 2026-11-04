@@ -22449,228 +22449,7 @@ body.dark-mode
         padding-right: 5px !important;
     }
 }
-/* PATRIODX — FINAL PUBLIC PROFILE HEADER ALIGNMENT */
-
-/* Profile header */
-#publicProfileCard > .profile-header {
-    display: grid !important;
-    grid-template-columns: 88px minmax(0, 1fr) !important;
-    grid-template-rows: auto auto !important;
-    align-items: start !important;
-    gap: 12px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-}
-
-/* Avatar */
-#publicProfileCard #publicProfileAvatar {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-}
-
-/* Name, username and bio */
-#publicProfileCard .profile-main-info {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-    display: block !important;
-    width: 100% !important;
-    min-width: 0 !important;
-}
-
-#publicProfileCard #publicProfileDisplayName,
-#publicProfileCard #publicProfileUsername {
-    max-width: 100% !important;
-    word-break: normal !important;
-    overflow-wrap: break-word !important;
-}
-
-/* Follow, Message and three dots */
-#publicProfileCard .profile-header > .public-profile-actions {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px !important;
-    grid-column: 1 / -1 !important;
-    grid-row: 2 !important;
-    align-items: center !important;
-    gap: 8px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    margin: 12px 0 0 !important;
-}
-
-#publicProfileCard .public-profile-actions > button {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    height: 44px !important;
-    margin: 0 !important;
-    white-space: nowrap !important;
-    box-sizing: border-box !important;
-}
-
-#publicProfileCard #publicProfileMoreButton {
-    width: 44px !important;
-    min-width: 44px !important;
-    max-width: 44px !important;
-    padding: 0 !important;
-}
-
-/* Phone */
-@media (max-width: 768px) {
-    #publicProfileCard > .profile-header {
-        grid-template-columns: 72px minmax(0, 1fr) !important;
-        gap: 10px !important;
-    }
-
-    #publicProfileCard #publicProfileAvatar {
-        width: 72px !important;
-        height: 72px !important;
-        min-width: 72px !important;
-    }
-
-    #publicProfileCard .profile-main-info h2 {
-        font-size: 18px !important;
-    }
-
-    #publicProfileCard .public-profile-actions {
-        gap: 6px !important;
-    }
-
-    #publicProfileCard .public-profile-actions > button {
-        font-size: 12px !important;
-        padding: 0 5px !important;
-    }
-}
-/* PATRIODX — FINAL RESPONSIVE PUBLIC PROFILE LAYOUT */
-
-#publicProfileCard > .profile-header {
-    display: grid !important;
-    grid-template-columns: 80px minmax(0, 1fr) !important;
-    grid-template-areas:
-        "avatar info"
-        "actions actions"
-        "stats stats"
-        "followlist followlist" !important;
-    grid-template-rows: auto !important;
-    align-items: start !important;
-    gap: 14px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-}
-
-/* Avatar */
-#publicProfileCard #publicProfileAvatar {
-    grid-area: avatar !important;
-    width: 80px !important;
-    height: 80px !important;
-    min-width: 80px !important;
-}
-
-/* Name, username and bio */
-#publicProfileCard .profile-main-info {
-    grid-area: info !important;
-    display: block !important;
-    min-width: 0 !important;
-    width: 100% !important;
-}
-
-#publicProfileCard .profile-main-info h2 {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-    gap: 5px !important;
-    word-break: normal !important;
-}
-
-#publicProfileCard #publicProfileUsername,
-#publicProfileCard #publicProfileBio {
-    width: 100% !important;
-    word-break: normal !important;
-    overflow-wrap: anywhere !important;
-}
-
-/* Follow, Message and three dots */
-#publicProfileCard .public-profile-actions {
-    grid-area: actions !important;
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px !important;
-    align-items: center !important;
-    gap: 8px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    margin: 8px 0 !important;
-}
-
-#publicProfileCard .public-profile-actions > button {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    height: 44px !important;
-    min-height: 44px !important;
-    margin: 0 !important;
-    padding: 0 6px !important;
-    white-space: nowrap !important;
-    box-sizing: border-box !important;
-}
-
-#publicProfileCard #publicProfileMoreButton {
-    width: 44px !important;
-    min-width: 44px !important;
-    max-width: 44px !important;
-    padding: 0 !important;
-}
-
-/* Profile statistics */
-#publicProfileCard > .profile-header > .profile-stats {
-    grid-area: stats !important;
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    gap: 6px !important;
-}
-
-/* Follow list */
-#publicProfileCard #publicProfileFollowList {
-    grid-area: followlist !important;
-    width: 100% !important;
-    min-width: 0 !important;
-}
-
-/* Keep hidden menu out of the layout */
-#publicProfileCard #publicProfileMenuBackdrop[hidden] {
-    display: none !important;
-}
-
-/* Phone */
-@media (max-width: 480px) {
-    #publicProfileCard > .profile-header {
-        grid-template-columns: 68px minmax(0, 1fr) !important;
-        gap: 12px 10px !important;
-    }
-
-    #publicProfileCard #publicProfileAvatar {
-        width: 68px !important;
-        height: 68px !important;
-        min-width: 68px !important;
-    }
-
-    #publicProfileCard .profile-main-info h2 {
-        font-size: 17px !important;
-    }
-
-    #publicProfileCard .public-profile-actions {
-        gap: 6px !important;
-    }
-
-    #publicProfileCard .public-profile-actions > button {
-        font-size: 12px !important;
-    }
-}
-/* PATRIODX — MOBILE OTHER-USER PROFILE RESET */
+/* PATRIODX — MOBILE OTHER-USER PROFILE LAYOUT */
 @media (max-width: 768px) {
 
     #publicProfileCard .profile-header {
@@ -22681,6 +22460,7 @@ body.dark-mode
             "actions actions"
             "stats stats"
             "followlist followlist" !important;
+        grid-auto-flow: row !important;
         align-items: start !important;
         gap: 12px 10px !important;
         width: 100% !important;
@@ -22696,9 +22476,8 @@ body.dark-mode
 
     #publicProfileCard .profile-main-info {
         grid-area: info !important;
-        display: block !important;
-        min-width: 0 !important;
         width: 100% !important;
+        min-width: 0 !important;
     }
 
     #publicProfileCard .public-profile-actions {
@@ -22706,22 +22485,23 @@ body.dark-mode
         display: grid !important;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px !important;
         grid-template-rows: 44px !important;
-        grid-auto-flow: row !important;
         gap: 8px !important;
         width: 100% !important;
-        height: 44px !important;
         min-width: 0 !important;
         margin: 0 !important;
     }
 
     #publicProfileCard .public-profile-actions > button {
-        position: static !important;
+        display: inline-flex !important;
         grid-row: 1 !important;
-        height: 44px !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
         min-width: 0 !important;
         max-width: 100% !important;
-        width: 100% !important;
+        height: 44px !important;
         margin: 0 !important;
+        position: static !important;
         transform: none !important;
         box-sizing: border-box !important;
     }
@@ -22753,10 +22533,15 @@ body.dark-mode
     #publicProfileCard #publicProfileFollowList {
         grid-area: followlist !important;
         width: 100% !important;
-        min-width: 0 !important;
     }
 
-    #publicProfileCard #publicProfileMenuBackdrop {
+    #publicProfileCard #publicProfileMenuBackdrop[hidden] {
+        display: none !important;
+    }
+
+    #publicProfileCard #publicProfileMenuBackdrop:not([hidden]) {
         position: fixed !important;
+        inset: 0 !important;
+        z-index: 100000 !important;
     }
 }
