@@ -22449,35 +22449,40 @@ body.dark-mode
         padding-right: 5px !important;
     }
 }
-/* PATRIODX — MOBILE OTHER-USER PROFILE LAYOUT */
+/* PATRIODX — MOBILE OTHER-USER PROFILE LAYOUT RESET */
 @media (max-width: 768px) {
 
     #publicProfileCard .profile-header {
         display: grid !important;
-        grid-template-columns: 68px minmax(0, 1fr) !important;
+        grid-template-columns: 72px minmax(0, 1fr) !important;
         grid-template-areas:
             "avatar info"
             "actions actions"
             "stats stats"
             "followlist followlist" !important;
+        grid-template-rows: auto !important;
         grid-auto-flow: row !important;
         align-items: start !important;
         gap: 12px 10px !important;
         width: 100% !important;
         min-width: 0 !important;
+        height: auto !important;
     }
 
     #publicProfileCard #publicProfileAvatar {
         grid-area: avatar !important;
-        width: 68px !important;
-        height: 68px !important;
-        min-width: 68px !important;
+        width: 72px !important;
+        height: 72px !important;
+        min-width: 72px !important;
+        margin: 0 !important;
     }
 
     #publicProfileCard .profile-main-info {
         grid-area: info !important;
+        display: block !important;
         width: 100% !important;
         min-width: 0 !important;
+        margin: 0 !important;
     }
 
     #publicProfileCard .public-profile-actions {
@@ -22485,24 +22490,27 @@ body.dark-mode
         display: grid !important;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px !important;
         grid-template-rows: 44px !important;
+        grid-auto-rows: 44px !important;
         gap: 8px !important;
         width: 100% !important;
+        height: 44px !important;
         min-width: 0 !important;
-        margin: 0 !important;
+        margin: 4px 0 !important;
     }
 
     #publicProfileCard .public-profile-actions > button {
         display: inline-flex !important;
-        grid-row: 1 !important;
         align-items: center !important;
         justify-content: center !important;
-        width: 100% !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
-        height: 44px !important;
-        margin: 0 !important;
         position: static !important;
         transform: none !important;
+        grid-row: 1 !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        min-width: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
         box-sizing: border-box !important;
     }
 
@@ -22528,11 +22536,13 @@ body.dark-mode
         grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
         width: 100% !important;
         min-width: 0 !important;
+        margin: 4px 0 !important;
     }
 
     #publicProfileCard #publicProfileFollowList {
         grid-area: followlist !important;
         width: 100% !important;
+        min-width: 0 !important;
     }
 
     #publicProfileCard #publicProfileMenuBackdrop[hidden] {
