@@ -19653,71 +19653,167 @@ document.addEventListener("DOMContentLoaded", () => {
 ========================================================= */
 
 let globalSearchTimer = null;
+function getPATRIODXRecentSearches() {
+    try {
+        return JSON.parse(
+            localStorage.getItem("patriodxRecentSearches") || "[]"
+        );
+    } catch {
+        return [];
+    }
+}
 
-function setupGlobalSearch() {
+function savePATRIODXRecentSearch(profile) {
+    if (!profile?.id) return;
 
-    const input =
-        document.getElementById("globalSearchInput");
+    let recent = getPATRIODXRecentSearches();
 
-    const results =
-        document.getElementById("globalSearchResults");
+    recent = recent.filter(item => item.id !== profile.id);
 
-    if (!input || !results) {
+    recent.unshift({
+        id: profile.id,
+        username: profile.username || "",
+        display_name: profile.display_name || "",
+        avatar_url: profile.avatar_url || ""
+    });
+
+    localStorage.setItem(
+        "patriodxRecentSearches",
+        JSON.stringify(recent.slice(0, 10))
+    );
+}
+
+function renderPATRIODXRecentSearches() {
+    const results = document.getElementById("globalSearchResults");
+    if (!results) return;
+
+    const recent = getPATRIODXRecentSearches();
+
+    results.style.display = "block";
+
+    if (!recent.length) {
+        results.innerHTML = `
+            <div class="global-search-empty">
+                <strong>Recent</strong>
+                <p>Your recent searches will appear here.</p>
+            </div>
+        `;
         return;
     }
 
-    if (input.dataset.ready === "true") {
+    results.innerHTML = `
+        <div class="global-search-recent-heading">
+            <strong>Recent</strong>
+            <button type="button" id="clearPATRIODXRecentSearches">
+                Clear all
+            </button>
+        </div>
+
+        ${recent.map(profile => `
+            <button
+                type="button"
+                class="global-search-result"
+                onclick="openGlobalSearchProfile('${profile.id}')"
+            >
+                <span class="global-search-result-avatar">
+                    ${profile.avatar_url
+                        ? `<img src="${escapeHTML(profile.avatar_url)}" alt="">`
+                        : `<span>${escapeHTML(
+                            (profile.display_name || profile.username || "U")
+                                .charAt(0).toUpperCase()
+                        )}</span>`
+                    }
+                </span>
+
+                <span class="global-search-result-content">
+                    <span class="global-search-result-name">
+                        ${escapeHTML(profile.display_name || profile.username)}
+                    </span>
+                    <span class="global-search-result-username">
+                        @${escapeHTML(profile.username)}
+                    </span>
+                </span>
+
+                <button
+                    type="button"
+                    class="global-search-remove-recent"
+                    data-remove-recent="${profile.id}"
+                    aria-label="Remove recent search"
+                >×</button>
+            </button>
+        `).join("")}
+    `;
+
+    document.getElementById("clearPATRIODXRecentSearches")
+        ?.addEventListener("click", () => {
+            localStorage.removeItem("patriodxRecentSearches");
+            renderPATRIODXRecentSearches();
+        });
+
+    results.querySelectorAll("[data-remove-recent]").forEach(button => {
+        button.addEventListener("click", event => {
+            event.stopPropagation();
+
+            const id = button.dataset.removeRecent;
+
+            const updated = getPATRIODXRecentSearches()
+                .filter(profile => profile.id !== id);
+
+            localStorage.setItem(
+                "patriodxRecentSearches",
+                JSON.stringify(updated)
+            );
+
+            renderPATRIODXRecentSearches();
+        });
+    });
+}
+
+function setupGlobalSearch() {
+    const input = document.getElementById("globalSearchInput");
+    const results = document.getElementById("globalSearchResults");
+    const panel = document.getElementById("globalSearchPanel");
+
+    if (!input || !results || !panel || input.dataset.ready === "true") {
         return;
     }
 
     input.dataset.ready = "true";
 
-    input.addEventListener("input", function () {
+    input.addEventListener("focus", () => {
+        if (input.value.trim().length < 2) {
+            renderPATRIODXRecentSearches();
+        }
+    });
 
-        const query =
-            input.value.trim();
+    input.addEventListener("input", () => {
+        const query = input.value.trim();
 
         clearTimeout(globalSearchTimer);
 
         if (query.length < 2) {
-            results.style.display = "none";
-            results.innerHTML = "";
+            renderPATRIODXRecentSearches();
             return;
         }
 
         results.style.display = "block";
-
         results.innerHTML = `
-            <div class="global-search-empty">
-                Searching...
-            </div>
+            <div class="global-search-empty">Searching...</div>
         `;
 
-        globalSearchTimer =
-            setTimeout(
-                () => performGlobalSearch(query),
-                300
-            );
+        globalSearchTimer = setTimeout(
+            () => performGlobalSearch(query),
+            300
+        );
     });
 
-
-    document.addEventListener(
-        "click",
-        function (event) {
-
-            if (
-                !event.target.closest(
-                    ".patriodx-global-search"
-                )
-            ) {
-                results.style.display = "none";
-            }
-
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && panel.style.display !== "none") {
+            panel.style.display = "none";
+            input.blur();
         }
-    );
+    });
 }
-
-
 async function performGlobalSearch(query) {
 
     const results =
@@ -21580,16 +21676,23 @@ async function openPublicProfileMenu() {
     backdrop.hidden = false;
     button.setAttribute("aria-expanded", "true");
 
-    // Position the menu after it becomes visible.
-    requestAnimationFrame(() => {
-        if (window.matchMedia("(max-width: 768px)").matches) {
-            // Phone: bottom sheet positioning.
-            menu.style.position = "relative";
-            menu.style.top = "auto";
-            menu.style.left = "auto";
-            menu.style.width = "100%";
-            menu.style.maxWidth = "600px";
-        } else {
+   // Position the menu after it becomes visible.
+requestAnimationFrame(() => {
+
+    if (window.matchMedia("(max-width: 768px)").matches) {
+
+        // Phone: Instagram-style bottom sheet.
+        menu.style.position = "fixed";
+        menu.style.top = "auto";
+        menu.style.left = "0";
+        menu.style.right = "0";
+        menu.style.bottom = "0";
+        menu.style.width = "100%";
+        menu.style.maxWidth = "100%";
+        menu.style.margin = "0";
+        menu.style.transform = "none";
+
+    } else {
             // Laptop: dropdown beside the three-dot button.
             menu.style.position = "fixed";
             menu.style.width = "280px";
