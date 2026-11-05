@@ -6615,7 +6615,22 @@ async function openPATRIODXComments(postId) {
     );
 
     if (!sheet || !list) return;
+// Display the signed-in user's actual profile picture.
+const commentAvatar = document.getElementById(
+    "patriodxCommentAvatar"
+);
 
+const sourceAvatar = document.getElementById(
+    "socialCreateAvatar"
+);
+
+if (commentAvatar && sourceAvatar) {
+    commentAvatar.innerHTML = sourceAvatar.innerHTML;
+}
+
+if (typeof lucide !== "undefined") {
+    lucide.createIcons();
+}
     patriodxActiveCommentPostId = postId;
     window.currentProfileViewerPostId = postId;
 
@@ -6632,7 +6647,9 @@ document.body.classList.add("patriodx-comments-active");
 
     try {
 
-        await refreshProfilePostViewer(postId);
+       await refreshProfilePostViewer(postId, {
+    commentsOnly: true
+});
 
         if (patriodxActiveCommentPostId !== postId) {
             return;
@@ -6756,15 +6773,7 @@ patriodxCommentsForm?.addEventListener("submit", async event => {
     button.disabled = true;
 
     try {
-        const { error } = await supabaseClient
-            .from("comments")
-            .insert({
-                post_id: postId,
-                user_id: currentUser.id,
-                content
-            });
-
-        if (error) throw error;
+        await createPATRIODXComment(postId, content);
 
         patriodxCommentInput.value = "";
 
@@ -9568,7 +9577,88 @@ commentsList
     );
 }
 
+// ==========================================
+// PATRIODX SHARED COMMENT SUBMISSION
+// ==========================================
 
+async function createPATRIODXComment(postId, content) {
+
+    if (!currentUser) {
+        throw new Error("Please log in before commenting.");
+    }
+
+    if (!postId || !content) {
+        throw new Error("A post and comment are required.");
+    }
+
+    // Save the comment.
+    const { error } = await supabaseClient
+        .from("comments")
+        .insert({
+            post_id: postId,
+            user_id: currentUser.id,
+            content: content
+        });
+
+    if (error) throw error;
+
+    // Find the post owner.
+    const { data: postData, error: postError } =
+        await supabaseClient
+            .from("posts")
+            .select("user_id")
+            .eq("id", postId)
+            .single();
+
+    if (postError) {
+        console.error("Could not find post owner:", postError);
+        return;
+    }
+
+    // Do not notify someone about their own comment.
+    if (
+        !postData?.user_id ||
+        postData.user_id === currentUser.id
+    ) {
+        return;
+    }
+
+    // Get the commenter's display name.
+    const { data: commenterProfile, error: profileError } =
+        await supabaseClient
+            .from("profiles")
+            .select("display_name, username")
+            .eq("id", currentUser.id)
+            .single();
+
+    if (profileError) {
+        console.error("Could not load commenter profile:", profileError);
+    }
+
+    const commenterName =
+        commenterProfile?.display_name ||
+        commenterProfile?.username ||
+        "PATRIODX User";
+
+    // Notify the post owner.
+    const { error: notificationError } =
+        await supabaseClient
+            .from("notifications")
+            .insert({
+                user_id: postData.user_id,
+                sender_id: currentUser.id,
+                type: "comment",
+                title: `${commenterName} commented on your post`,
+                message: content
+            });
+
+    if (notificationError) {
+        console.error(
+            "Comment notification error:",
+            notificationError
+        );
+    }
+}
 /* =========================================================
    SUBMIT COMMENT
 ========================================================= */
@@ -9623,21 +9713,20 @@ async function submitSocialComment(
         "Sending...";
 
 
-    const { error } =
-        await supabaseClient
-            .from("comments")
-            .insert({
+   try {
+    await createPATRIODXComment(postId, content);
+} catch (error) {
+    console.error("Comment submission error:", error);
 
-                post_id:
-                    postId,
+    showPATRIODXToast(
+        "Could not add comment. " + error.message,
+        "error"
+    );
 
-                user_id:
-                    currentUser.id,
-
-                content:
-                    content
-
-            });
+    button.disabled = false;
+    button.textContent = "Send";
+    return;
+}
 
 
     if (error) {
@@ -9660,65 +9749,6 @@ showPATRIODXToast(
         return;
     }
 
-/* =========================================================
-   COMMENT NOTIFICATION
-========================================================= */
-
-const { data: postData, error: postError } =
-    await supabaseClient
-        .from("posts")
-        .select("user_id")
-        .eq("id", postId)
-        .single();
-
-if (postError) {
-
-    console.error(
-        "Could not find post owner:",
-        postError
-    );
-
-} else if (
-    postData?.user_id &&
-    postData.user_id !== currentUser.id
-) {
-
-    const { data: commenterProfile } =
-        await supabaseClient
-            .from("profiles")
-            .select(
-                "display_name, username"
-            )
-            .eq(
-                "id",
-                currentUser.id
-            )
-            .single();
-
-    const commenterName =
-        commenterProfile?.display_name ||
-        commenterProfile?.username ||
-        "PATRIODX User";
-
-    const { error: notificationError } =
-        await supabaseClient
-            .from("notifications")
-           .insert({
-    user_id: postData.user_id,
-    sender_id: currentUser.id,
-    type: "comment",
-    title: `${commenterName} commented on your post`,
-    message: content
-});
-    if (notificationError) {
-
-        console.error(
-            "Comment notification error:",
-            notificationError
-        );
-
-    }
-}
     input.value = "";
 
     button.disabled = false;
@@ -11412,7 +11442,10 @@ window.refreshHomePostStats = refreshHomePostStats;
 ========================================================= */
 
 async function toggleHomeComments(postId) {
-
+    if (window.matchMedia("(max-width: 768px)").matches) {
+        openPATRIODXComments(postId);
+        return;
+    }
     const existing =
         document.getElementById(
             `home-comments-${postId}`
@@ -21166,7 +21199,7 @@ closeProfilePostViewer();
    PATRIODX — PROFILE VIEWER INTERACTIONS
 ========================================================= */
 
-async function refreshProfilePostViewer(postId) {
+async function refreshProfilePostViewer(postId, options = {}) {
     const likeCount = document.getElementById("profilePostViewerLikeCount");
     const likeButton = document.getElementById("profilePostViewerLike");
     const commentsContainer = document.getElementById("profilePostViewerComments");
@@ -21182,27 +21215,36 @@ async function refreshProfilePostViewer(postId) {
         return;
     }
 
+   commentsContainer.textContent = "Loading comments...";
+
+if (!options.commentsOnly) {
+
     likeCount.textContent = "Loading likes...";
-    commentsContainer.textContent = "Loading comments...";
 
     try {
-        const stats = await getSocialCounts(postId);
+        const [stats, liked] = await Promise.all([
+            getSocialCounts(postId),
+            hasLikedSocialPost(postId)
+        ]);
 
         likeCount.textContent =
             `${stats.likes} ${stats.likes === 1 ? "like" : "likes"}`;
 
-        const liked = await hasLikedSocialPost(postId);
-
         likeButton.classList.toggle("liked", liked);
-        likeButton.setAttribute("aria-label", liked ? "Unlike post" : "Like post");
+        likeButton.setAttribute(
+            "aria-label",
+            liked ? "Unlike post" : "Like post"
+        );
         likeButton.title = liked ? "Unlike post" : "Like post";
         likeButton.innerHTML = '<i data-lucide="heart"></i>';
 
         if (window.lucide) lucide.createIcons();
+
     } catch (error) {
         console.error("PATRIODX: Could not load post likes:", error);
         likeCount.textContent = "Likes could not be loaded.";
     }
+}
 
     try {
         const { data: comments, error } = await supabaseClient
@@ -21524,18 +21566,7 @@ document.addEventListener("submit", async function (event) {
     button.textContent = "Sending...";
 
     try {
-        const { error } = await supabaseClient
-            .from("comments")
-            .insert({
-                post_id: postId,
-                user_id: currentUser.id,
-                content: content
-            });
-
-        if (error) {
-            throw error;
-        }
-
+       await createPATRIODXComment(postId, content);
         input.value = "";
 
         await refreshProfilePostViewer(postId);
