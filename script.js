@@ -16893,7 +16893,43 @@ if (button) {
         unfollowUser(userId);
     };
 }
+// Immediately show the Message button after a successful follow.
+const messageButton = document.getElementById(
+    "publicProfileMessageButton"
+);
 
+if (messageButton) {
+    messageButton.style.display = "inline-flex";
+    messageButton.disabled = false;
+
+    messageButton.onclick = async function () {
+
+        messageButton.disabled = true;
+
+        try {
+            const opened = await createConversationWithUser(userId);
+
+            if (
+                opened &&
+                typeof navigatePATRIODX === "function"
+            ) {
+                window.patriodxMessageReturnToPublicProfile = true;
+                navigatePATRIODX("messaging");
+            }
+
+        } catch (error) {
+            console.error("Could not start conversation:", error);
+
+            showPATRIODXToast(
+                "Could not open this conversation. Please try again.",
+                "error"
+            );
+
+        } finally {
+            messageButton.disabled = false;
+        }
+    };
+}
 // Refresh your own follow totals in the background.
 loadMyFollowCounts().catch(error => {
     console.error("Follow count refresh failed:", error);
