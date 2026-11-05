@@ -9524,16 +9524,14 @@ commentsList.innerHTML =
             const commentProfile =
                 commentProfileMap.get(comment.user_id);
 
-            const isOwnComment =
-                comment.user_id === currentUser?.id;
+           const author =
+    commentProfile?.display_name ||
+    commentProfile?.username ||
+    "PATRIODX User";
 
-            const author = isOwnComment
-                ? "You"
-                : (
-                    commentProfile?.display_name ||
-                    commentProfile?.username ||
-                    "PATRIODX User"
-                );
+const username = commentProfile?.username
+    ? `@${safe(commentProfile.username)}`
+    : "";
 
             const profileButton = commentProfile?.id
                 ? `
@@ -9574,11 +9572,20 @@ commentsList.innerHTML =
 
                     <div class="social-comment-content">
 
-                        <strong
-                            ${profileButton}
-                        >
-                            ${safe(author)}
-                        </strong>
+                      <strong
+    ${profileButton}
+    class="social-comment-author-name"
+>
+    ${safe(author)}
+    ${username
+        ? `<span class="social-comment-username">${username}</span>`
+        : ""
+    }
+    ${commentProfile && typeof getPATRIODXBadge === "function"
+        ? getPATRIODXBadge(commentProfile)
+        : ""
+    }
+</strong>
 
                         <p>${safe(comment.content)}</p>
 
@@ -11524,7 +11531,15 @@ if (commentUserIds.length) {
     const { data: profiles, error: profileError } =
         await supabaseClient
             .from("profiles")
-            .select("id, username, display_name, avatar_url")
+   .select(`
+    id,
+    username,
+    display_name,
+    avatar_url,
+    is_verified,
+    is_owner,
+    verification_expires_at
+`)
             .in("id", commentUserIds);
 
     if (profileError) {
@@ -11576,12 +11591,17 @@ const commentProfileMap = new Map(
             </div>
 
             <div class="social-comment-body">
-                <strong>${safe(displayName)}</strong>
-
-                ${username
-                    ? `<span class="social-comment-username">${username}</span>`
-                    : ""
-                }
+               <strong class="social-comment-author-name">
+    ${safe(displayName)}
+    ${username
+        ? `<span class="social-comment-username">${username}</span>`
+        : ""
+    }
+    ${profile && typeof getPATRIODXBadge === "function"
+        ? getPATRIODXBadge(profile)
+        : ""
+    }
+</strong>
 
                 <p>
                     ${renderClickableMentions(comment.content || "")}
@@ -20319,7 +20339,15 @@ if (recent.length) {
 
     const { data, error } = await supabaseClient
         .from("profiles")
-        .select("id, username, display_name, avatar_url")
+       .select(`
+    id,
+    username,
+    display_name,
+    avatar_url,
+    is_verified,
+    is_owner,
+    verification_expires_at
+`)
         .in("id", profileIds);
 
     if (error) {
@@ -21252,7 +21280,15 @@ if (!options.commentsOnly) {
             userIds.length
                 ? supabaseClient
                     .from("profiles")
-                    .select("id, username, display_name, avatar_url")
+                   .select(`
+    id,
+    username,
+    display_name,
+    avatar_url,
+    is_verified,
+    is_owner,
+    verification_expires_at
+`)
                     .in("id", userIds)
                 : Promise.resolve({ data: [], error: null }),
 
@@ -21295,13 +21331,21 @@ if (!options.commentsOnly) {
                 currentUser && comment.user_id === currentUser.id
             );
 
-            const author = isOwner
-                ? "You"
-                : (
-                    profile?.display_name ||
-                    profile?.username ||
-                    "PATRIODX User"
-                );
+          const author =
+    profile?.display_name ||
+    (isOwner
+        ? currentUser?.user_metadata?.full_name ||
+          currentUser?.user_metadata?.name
+        : null) ||
+    profile?.username ||
+    "PATRIODX User";
+
+const username =
+    profile?.username ||
+    (isOwner
+        ? currentUser?.user_metadata?.user_name
+        : null) ||
+    "";
 
             const likesForComment = commentLikes.filter(
                 item => item.comment_id === comment.id
@@ -21320,30 +21364,42 @@ if (!options.commentsOnly) {
             row.dataset.commentId = comment.id;
 
             const avatar = document.createElement("div");
-            avatar.className = "social-comment-avatar";
+avatar.className = "social-comment-avatar";
 
-            if (profile?.avatar_url) {
-                const image = document.createElement("img");
-                image.src = profile.avatar_url;
-                image.alt = author;
-                image.loading = "lazy";
-                avatar.appendChild(image);
-            } else {
-                const initial = document.createElement("span");
-                initial.textContent = author.charAt(0).toUpperCase();
-                avatar.appendChild(initial);
-            }
+const avatarUrl =
+    profile?.avatar_url ||
+    (isOwner
+        ? currentUser?.user_metadata?.avatar_url ||
+          currentUser?.user_metadata?.picture
+        : null);
 
-            const content = document.createElement("div");
-            content.className = "social-comment-content";
+if (avatarUrl) {
+    const image = document.createElement("img");
+    image.src = avatarUrl;
+    image.alt = author;
+    image.loading = "lazy";
+    avatar.appendChild(image);
+} else {
+    const initial = document.createElement("span");
+    initial.textContent = author.charAt(0).toUpperCase();
+    avatar.appendChild(initial);
+}
 
-           const name = document.createElement("strong");
+const content = document.createElement("div");
+content.className = "social-comment-content";
+
+const name = document.createElement("strong");
+name.className = "social-comment-author-name";
 name.textContent = author;
 
-if (
-    profile &&
-    typeof getPATRIODXBadge === "function"
-) {
+if (username) {
+    const usernameElement = document.createElement("span");
+    usernameElement.className = "social-comment-username";
+    usernameElement.textContent = ` @${username}`;
+    name.appendChild(usernameElement);
+}
+
+if (profile && typeof getPATRIODXBadge === "function") {
     name.insertAdjacentHTML(
         "beforeend",
         getPATRIODXBadge(profile)
@@ -22771,7 +22827,15 @@ async function openBlockedUsersManager() {
         const { data: profiles, error: profileError } =
             await supabaseClient
                 .from("profiles")
-                .select("id, username, display_name, avatar_url")
+               .select(`
+    id,
+    username,
+    display_name,
+    avatar_url,
+    is_verified,
+    is_owner,
+    verification_expires_at
+`)
                 .in("id", blockedIds);
 
         if (profileError) throw profileError;
