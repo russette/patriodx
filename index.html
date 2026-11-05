@@ -5923,7 +5923,66 @@ if ("serviceWorker" in navigator) {
 
 
 </div>
+<!-- PATRIODX INSTAGRAM-STYLE COMMENTS SHEET -->
+<div id="patriodxCommentsSheet" class="patriodx-comments-sheet" aria-hidden="true">
 
+    <div class="patriodx-comments-backdrop" data-comments-close></div>
+
+    <section
+        class="patriodx-comments-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Comments"
+    >
+
+        <div class="patriodx-comments-handle-area">
+            <div class="patriodx-comments-handle"></div>
+        </div>
+
+        <header class="patriodx-comments-header">
+            <h2>Comments</h2>
+
+            <button
+                type="button"
+                data-comments-close
+                aria-label="Close comments"
+            >
+                <i data-lucide="x"></i>
+            </button>
+        </header>
+
+        <div
+            id="patriodxCommentsList"
+            class="patriodx-comments-list"
+        >
+            <p class="patriodx-comments-loading">
+                Loading comments...
+            </p>
+        </div>
+
+        <form id="patriodxCommentsForm" class="patriodx-comments-composer">
+
+            <div id="patriodxCommentAvatar" class="patriodx-comment-avatar">
+                <i data-lucide="user"></i>
+            </div>
+
+            <input
+                type="text"
+                id="patriodxCommentInput"
+                placeholder="Add a comment..."
+                maxlength="2000"
+                autocomplete="off"
+                required
+            >
+
+            <button type="submit" aria-label="Send comment">
+                <i data-lucide="send"></i>
+            </button>
+
+        </form>
+
+    </section>
+</div>
 </body>
 </html>
 

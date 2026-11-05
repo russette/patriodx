@@ -6597,8 +6597,245 @@ async function uploadSocialMedia(file) {
 
     return data.publicUrl;
 }
+// ==========================================
+// PATRIODX SHARED COMMENTS SHEET
+// ==========================================
 
+let patriodxActiveCommentPostId = null;
+async function openPATRIODXComments(postId) {
 
+    if (!postId) return;
+
+    const sheet = document.getElementById(
+        "patriodxCommentsSheet"
+    );
+
+    const list = document.getElementById(
+        "patriodxCommentsList"
+    );
+
+    if (!sheet || !list) return;
+
+    patriodxActiveCommentPostId = postId;
+    window.currentProfileViewerPostId = postId;
+
+    sheet.classList.add("is-open");
+    sheet.setAttribute("aria-hidden", "false");
+
+    document.body.style.overflow = "hidden";
+
+    list.innerHTML = `
+        <p class="patriodx-comments-loading">
+            Loading comments...
+        </p>
+    `;
+
+    try {
+
+        await refreshProfilePostViewer(postId);
+
+        if (patriodxActiveCommentPostId !== postId) {
+            return;
+        }
+
+        const existingComments = document.getElementById(
+            "profilePostViewerComments"
+        );
+
+        if (!existingComments) {
+            throw new Error("Existing comment renderer is unavailable.");
+        }
+
+        list.replaceChildren(
+            ...Array.from(existingComments.childNodes)
+        );
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Shared comments loading failed:",
+            error
+        );
+
+        list.textContent = "Could not load comments. Please try again.";
+
+    }
+}
+function closePATRIODXComments() {
+
+    const sheet = document.getElementById(
+        "patriodxCommentsSheet"
+    );
+
+    if (!sheet) return;
+
+    sheet.classList.remove(
+        "is-open",
+        "keyboard-open"
+    );
+
+    sheet.setAttribute("aria-hidden", "true");
+
+    patriodxActiveCommentPostId = null;
+
+    document.body.style.overflow = "";
+}
+// ==========================================
+// COMMENTS SHEET INTERACTIONS
+// ==========================================
+
+const patriodxCommentsSheet = document.getElementById(
+    "patriodxCommentsSheet"
+);
+
+const patriodxCommentInput = document.getElementById(
+    "patriodxCommentInput"
+);
+
+const patriodxCommentsForm = document.getElementById(
+    "patriodxCommentsForm"
+);
+
+// Close using backdrop or close button.
+patriodxCommentsSheet?.querySelectorAll("[data-comments-close]")
+    .forEach(button => {
+        button.addEventListener("click", closePATRIODXComments);
+    });
+
+// Expand when the user taps the composer.
+patriodxCommentInput?.addEventListener("focus", () => {
+    patriodxCommentsSheet?.classList.add("keyboard-open");
+});
+
+// Collapse back to half-height when keyboard closes.
+patriodxCommentInput?.addEventListener("blur", () => {
+    patriodxCommentsSheet?.classList.remove("keyboard-open");
+});
+
+// Keep the sheet expanded while the mobile keyboard is visible.
+if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", () => {
+        if (!patriodxCommentsSheet?.classList.contains("is-open")) {
+            return;
+        }
+
+        const keyboardVisible =
+            window.visualViewport.height < window.innerHeight * 0.75;
+
+        patriodxCommentsSheet.classList.toggle(
+            "keyboard-open",
+            keyboardVisible
+        );
+    });
+}
+
+// Submit comments through the shared composer.
+patriodxCommentsForm?.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const postId = patriodxActiveCommentPostId;
+    const content = patriodxCommentInput.value.trim();
+    const button = patriodxCommentsForm.querySelector(
+        'button[type="submit"]'
+    );
+
+    if (!currentUser) {
+        showPATRIODXToast("Please sign in before commenting.", "warning");
+        return;
+    }
+
+    if (!postId || !content || !button) return;
+
+    button.disabled = true;
+
+    try {
+        const { error } = await supabaseClient
+            .from("comments")
+            .insert({
+                post_id: postId,
+                user_id: currentUser.id,
+                content
+            });
+
+        if (error) throw error;
+
+        patriodxCommentInput.value = "";
+
+        await openPATRIODXComments(postId);
+
+        await refreshSocialPostStats(postId);
+        await refreshHomePostStats(postId);
+
+        patriodxCommentInput.focus();
+
+    } catch (error) {
+        console.error("Comment submission failed:", error);
+
+        showPATRIODXToast(
+            "Could not add your comment. Please try again.",
+            "error"
+        );
+    } finally {
+        button.disabled = false;
+    }
+});
+
+// Swipe down to dismiss the comments sheet.
+(function setupCommentsSwipe() {
+
+    const panel = patriodxCommentsSheet?.querySelector(
+        ".patriodx-comments-panel"
+    );
+
+    if (!panel) return;
+
+    let startY = 0;
+    let currentY = 0;
+    let dragging = false;
+
+    panel.addEventListener("touchstart", event => {
+        const list = document.getElementById(
+            "patriodxCommentsList"
+        );
+
+        if (
+            !event.touches.length ||
+            (list && list.scrollTop > 0)
+        ) {
+            dragging = false;
+            return;
+        }
+
+        startY = event.touches[0].clientY;
+        currentY = startY;
+        dragging = true;
+
+    }, { passive: true });
+
+    panel.addEventListener("touchmove", event => {
+        if (!dragging || !event.touches.length) return;
+
+        currentY = event.touches[0].clientY;
+
+    }, { passive: true });
+
+    panel.addEventListener("touchend", () => {
+        if (!dragging) return;
+
+        const distance = currentY - startY;
+
+        if (distance > 100) {
+            closePATRIODXComments();
+        }
+
+        dragging = false;
+    });
+
+})();
 /* =========================================================
 GET POST COUNTS
 ========================================================= */
@@ -9074,35 +9311,12 @@ try {
 /* =========================================================
    TOGGLE COMMENTS
 ========================================================= */
-
 async function toggleComments(postId) {
 
-    const commentsBox =
-        document.getElementById(
-            `comments-${postId}`
-        );
+    if (!postId) return;
 
+    openPATRIODXComments(postId);
 
-    if (!commentsBox) return;
-
-
-    if (
-        commentsBox.style.display === "none" ||
-        commentsBox.style.display === ""
-    ) {
-
-        commentsBox.style.display =
-            "block";
-
-        await loadSocialComments(
-            postId
-        );
-
-    } else {
-
-        commentsBox.style.display =
-            "none";
-    }
 }
 
 
@@ -21239,10 +21453,17 @@ document.getElementById("profilePostViewerLike")?.addEventListener("click", asyn
 
 
 /* Scroll to the comments when the comment button is clicked. */
-document.getElementById("profilePostViewerCommentFocus")?.addEventListener("click", function () {
-    document.getElementById("profilePostViewerCommentInput")?.focus();
-});
+document.getElementById("profilePostViewerCommentFocus")?.addEventListener("click", function (event) {
 
+    event.preventDefault();
+
+    const postId = window.currentProfileViewerPostId;
+
+    if (postId) {
+        openPATRIODXComments(postId);
+    }
+
+});
 
 /* Submit a comment from the viewer. */
 document.addEventListener("submit", async function (event) {
