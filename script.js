@@ -6662,11 +6662,11 @@ document.body.classList.add("patriodx-comments-active");
         if (!existingComments) {
             throw new Error("Existing comment renderer is unavailable.");
         }
-
-        list.replaceChildren(
-            ...Array.from(existingComments.childNodes)
-        );
-
+list.replaceChildren(
+    ...Array.from(existingComments.childNodes).map(node =>
+        node.cloneNode(true)
+    )
+);
         if (typeof lucide !== "undefined") {
             lucide.createIcons();
         }
@@ -6702,154 +6702,211 @@ function closePATRIODXComments() {
     document.body.style.overflow = "";
     document.body.classList.remove("patriodx-comments-active");
 }
+// Keep the mobile comments sheet synchronized with
+// the profile viewer's refreshed comment renderer.
+async function refreshPATRIODXCommentsSurface(postId) {
+    await refreshProfilePostViewer(postId);
+
+    if (
+        String(patriodxActiveCommentPostId) !==
+        String(postId)
+    ) {
+        return;
+    }
+
+    const source = document.getElementById(
+        "profilePostViewerComments"
+    );
+
+    const target = document.getElementById(
+        "patriodxCommentsList"
+    );
+
+    if (!source || !target) return;
+
+    target.replaceChildren(
+        ...Array.from(source.childNodes).map(node =>
+            node.cloneNode(true)
+        )
+    );
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+}
 // ==========================================
 // COMMENTS SHEET INTERACTIONS
 // ==========================================
 
-const patriodxCommentsSheet = document.getElementById(
-    "patriodxCommentsSheet"
-);
+function setupPATRIODXCommentsSheet() {
+    const sheet = document.getElementById("patriodxCommentsSheet");
+    const input = document.getElementById("patriodxCommentInput");
+    const form = document.getElementById("patriodxCommentsForm");
 
-const patriodxCommentInput = document.getElementById(
-    "patriodxCommentInput"
-);
-
-const patriodxCommentsForm = document.getElementById(
-    "patriodxCommentsForm"
-);
-// Close using backdrop or close button.
-patriodxCommentsSheet?.addEventListener("click", function (event) {
-
-    if (event.target.closest("[data-comments-close]")) {
-        closePATRIODXComments();
-    }
-
-});
-
-// Expand when the user taps the composer.
-patriodxCommentInput?.addEventListener("focus", () => {
-    patriodxCommentsSheet?.classList.add("keyboard-open");
-});
-
-// Collapse back to half-height when keyboard closes.
-patriodxCommentInput?.addEventListener("blur", () => {
-    patriodxCommentsSheet?.classList.remove("keyboard-open");
-});
-
-// Keep the sheet expanded while the mobile keyboard is visible.
-if (window.visualViewport) {
-    window.visualViewport.addEventListener("resize", () => {
-        if (!patriodxCommentsSheet?.classList.contains("is-open")) {
-            return;
-        }
-
-        const keyboardVisible =
-            window.visualViewport.height < window.innerHeight * 0.75;
-
-        patriodxCommentsSheet.classList.toggle(
-            "keyboard-open",
-            keyboardVisible
-        );
-    });
-}
-
-// Submit comments through the shared composer.
-patriodxCommentsForm?.addEventListener("submit", async event => {
-    event.preventDefault();
-
-    const postId = patriodxActiveCommentPostId;
-    const content = patriodxCommentInput.value.trim();
-    const button = patriodxCommentsForm.querySelector(
-        'button[type="submit"]'
-    );
-
-    if (!currentUser) {
-        showPATRIODXToast("Please sign in before commenting.", "warning");
+    if (!sheet || !input || !form) {
+        console.error("PATRIODX comments sheet elements are missing.");
         return;
     }
 
-    if (!postId || !content || !button) return;
+    // Prevent duplicate event listeners.
+    if (sheet.dataset.initialized === "true") return;
+    sheet.dataset.initialized = "true";
 
-    button.disabled = true;
+    // Close button and backdrop.
+    sheet.addEventListener("click", function(event) {
+        const target = event.target;
 
-    try {
-        await createPATRIODXComment(postId, content);
+        if (
+            target instanceof Element &&
+            target.closest("[data-comments-close]")
+        ) {
+            event.preventDefault();
+            closePATRIODXComments();
+        }
+    });
 
-        patriodxCommentInput.value = "";
+   // Keep the comments panel inside the visible mobile viewport.
+const panel = sheet.querySelector(
+    ".patriodx-comments-panel"
+);
 
-        await openPATRIODXComments(postId);
+function syncCommentsKeyboardLayout() {
+    if (!sheet.classList.contains("is-open")) return;
 
-        await refreshSocialPostStats(postId);
-        await refreshHomePostStats(postId);
+    const viewport = window.visualViewport;
 
-        patriodxCommentInput.focus();
+    const keyboardVisible = viewport
+        ? viewport.height < window.innerHeight * 0.85
+        : document.activeElement === input;
 
-    } catch (error) {
-        console.error("Comment submission failed:", error);
-
-        showPATRIODXToast(
-            "Could not add your comment. Please try again.",
-            "error"
-        );
-    } finally {
-        button.disabled = false;
-    }
-});
-
-// Swipe down to dismiss the comments sheet.
-(function setupCommentsSwipe() {
-
-    const panel = patriodxCommentsSheet?.querySelector(
-        ".patriodx-comments-panel"
+    sheet.classList.toggle(
+        "keyboard-open",
+        keyboardVisible
     );
 
-    const handleArea = patriodxCommentsSheet?.querySelector(
+    if (keyboardVisible && viewport && panel) {
+        panel.style.height = `${viewport.height}px`;
+        panel.style.top = `${viewport.offsetTop}px`;
+        panel.style.bottom = "auto";
+    } else if (panel) {
+        panel.style.removeProperty("height");
+        panel.style.removeProperty("top");
+        panel.style.removeProperty("bottom");
+    }
+}
+
+input.addEventListener("focus", function() {
+    sheet.classList.add("keyboard-open");
+
+    requestAnimationFrame(syncCommentsKeyboardLayout);
+});
+
+input.addEventListener("blur", function() {
+    setTimeout(syncCommentsKeyboardLayout, 150);
+});
+
+if (window.visualViewport) {
+    window.visualViewport.addEventListener(
+        "resize",
+        syncCommentsKeyboardLayout
+    );
+
+    window.visualViewport.addEventListener(
+        "scroll",
+        syncCommentsKeyboardLayout
+    );
+}
+
+    // Shared comment submission.
+    form.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const postId = patriodxActiveCommentPostId;
+        const content = input.value.trim();
+        const button = form.querySelector('button[type="submit"]');
+
+        if (!currentUser) {
+            showPATRIODXToast(
+                "Please sign in before commenting.",
+                "warning"
+            );
+            return;
+        }
+
+        if (!postId || !content || !button) return;
+
+        button.disabled = true;
+
+        try {
+            await createPATRIODXComment(postId, content);
+            input.value = "";
+
+            await openPATRIODXComments(postId);
+            await refreshSocialPostStats(postId);
+            await refreshHomePostStats(postId);
+
+            input.focus();
+
+        } catch (error) {
+            console.error("Comment submission failed:", error);
+
+            showPATRIODXToast(
+                "Could not add your comment. Please try again.",
+                "error"
+            );
+        } finally {
+            button.disabled = false;
+        }
+    });
+
+    // Swipe down from the handle to dismiss.
+    const handle = sheet.querySelector(
         ".patriodx-comments-handle-area"
     );
 
-    if (!panel || !handleArea) return;
+    if (handle) {
+        let startY = null;
 
-    let startY = 0;
-    let currentY = 0;
-    let dragging = false;
+       handle.addEventListener("pointerdown", function(event) {
+    startY = event.clientY;
 
-    handleArea.addEventListener("touchstart", function (event) {
+    try {
+        handle.setPointerCapture(event.pointerId);
+    } catch (error) {
+        console.warn("Could not capture comments-sheet pointer:", error);
+    }
+});
 
-        if (!event.touches.length) return;
+        handle.addEventListener("pointerup", function(event) {
+            if (startY === null) return;
 
-        startY = event.touches[0].clientY;
-        currentY = startY;
-        dragging = true;
+            const distance = event.clientY - startY;
 
-    }, { passive: true });
+            if (distance > 80) {
+                closePATRIODXComments();
+            }
 
-    handleArea.addEventListener("touchmove", function (event) {
+            startY = null;
+        });
 
-        if (!dragging || !event.touches.length) return;
+        handle.addEventListener("pointercancel", function() {
+            startY = null;
+        });
+    }
 
-        currentY = event.touches[0].clientY;
+    console.log("PATRIODX comments sheet initialized.");
+}
 
-    }, { passive: true });
-
-    handleArea.addEventListener("touchend", function () {
-
-        if (!dragging) return;
-
-        const distance = currentY - startY;
-
-        if (distance > 80) {
-            closePATRIODXComments();
-        }
-
-        dragging = false;
-
-    });
-
-    handleArea.addEventListener("touchcancel", function () {
-        dragging = false;
-    });
-
-})();
+// Wait until index.html has created the comments sheet.
+if (document.readyState === "loading") {
+    document.addEventListener(
+        "DOMContentLoaded",
+        setupPATRIODXCommentsSheet,
+        { once: true }
+    );
+} else {
+    setupPATRIODXCommentsSheet();
+}
 /* =========================================================
 GET POST COUNTS
 ========================================================= */
@@ -9662,107 +9719,54 @@ async function createPATRIODXComment(postId, content) {
 /* =========================================================
    SUBMIT COMMENT
 ========================================================= */
-
-async function submitSocialComment(
-    event,
-    postId
-) {
-
+async function submitSocialComment(event, postId) {
     event.preventDefault();
 
-
- if (!currentUser) {
-
-    showPATRIODXToast(
-        "Please log in before commenting.",
-        "warning"
-    );
-
-    return;
-}
-
-    const input =
-        document.getElementById(
-            `comment-input-${postId}`
+    if (!currentUser) {
+        showPATRIODXToast(
+            "Please log in before commenting.",
+            "warning"
         );
-
-
-    if (!input) return;
-
-
-    const content =
-        input.value.trim();
-
-
-    if (!content) return;
-
-
-    const form =
-        event.target;
-
-
-    const button =
-        form.querySelector(
-            "button[type='submit']"
-        );
-
-
-    button.disabled = true;
-
-    button.textContent =
-        "Sending...";
-
-
-   try {
-    await createPATRIODXComment(postId, content);
-} catch (error) {
-    console.error("Comment submission error:", error);
-
-    showPATRIODXToast(
-        "Could not add comment. " + error.message,
-        "error"
-    );
-
-    button.disabled = false;
-    button.textContent = "Send";
-    return;
-}
-
-
-    if (error) {
-
-        console.error(
-            "Comment error:",
-            error
-        );
-showPATRIODXToast(
-    "Could not add comment. " +
-    error.message,
-    "error"
-);
-
-        button.disabled = false;
-
-        button.textContent =
-            "Send";
-
         return;
     }
 
-    input.value = "";
-
-    button.disabled = false;
-
-    button.textContent =
-        "Send";
-
-
-    await loadSocialComments(
-        postId
+    const input = document.getElementById(
+        `comment-input-${postId}`
     );
+
+    const button = event.target.querySelector(
+        'button[type="submit"]'
+    );
+
+    if (!postId || !input || !button) return;
+
+    const content = input.value.trim();
+    if (!content) return;
+
+    button.disabled = true;
+    button.textContent = "Sending...";
+
+    try {
+        await createPATRIODXComment(postId, content);
+
+        input.value = "";
+
+        await loadSocialComments(postId);
+        await refreshSocialPostStats(postId);
+
+    } catch (error) {
+        console.error("Social comment submission failed:", error);
+
+        showPATRIODXToast(
+            "Could not add comment. " +
+            (error.message || "Please try again."),
+            "error"
+        );
+    } finally {
+        button.disabled = false;
+        button.textContent = "Send";
+    }
 }
-
-
 /* =========================================================
    DELETE OWN POST
 ========================================================= */
@@ -11616,83 +11620,59 @@ const commentProfileMap = new Map(
         </form>
     `;
 }
-
 async function submitHomeComment(event, postId) {
-
     event.preventDefault();
 
-   if (!currentUser) {
-
-    showPATRIODXToast(
-        "Please sign in first.",
-        "warning"
-    );
-
-    return;
-}
-
-    const input =
-        document.getElementById(
-            `home-comment-input-${postId}`
+    if (!currentUser) {
+        showPATRIODXToast(
+            "Please sign in before commenting.",
+            "warning"
         );
+        return;
+    }
 
-    if (!input) return;
+    const form = event.target;
+    const input = document.getElementById(
+        `home-comment-input-${postId}`
+    );
+    const button = event.submitter ||
+        form.querySelector('button[type="submit"]');
 
-    const content =
-        input.value.trim();
+    if (!postId || !input || !button) return;
 
+    const content = input.value.trim();
     if (!content) return;
 
-    const button =
-        event.submitter;
-
-    if (button) {
-        button.disabled = true;
-        button.textContent = "Sending...";
-    }
+    button.disabled = true;
+    button.textContent = "Sending...";
 
     try {
+        await createPATRIODXComment(postId, content);
 
-        const {
-            error
-        } = await supabaseClient
-            .from("comments")
-            .insert({
-                post_id: postId,
-                user_id: currentUser.id,
-                content: content
-            });
-
-        if (error) {
-            throw error;
-        }
-
-        await toggleHomeComments(postId);
-
-        await refreshHomePostStats(postId);
-
-        await toggleHomeComments(postId);
-
-    } catch (error) {
-
-        console.error(
-            "Could not submit Home comment:",
-            error
+        const commentsBox = document.getElementById(
+            `home-comments-${postId}`
         );
 
-     showPATRIODXToast(
-    "Could not post comment: " +
-    error.message,
-    "error"
-);
-
-        if (button) {
-            button.disabled = false;
-            button.textContent = "Send";
+        if (commentsBox) {
+            commentsBox.remove();
         }
+
+        await toggleHomeComments(postId);
+        await refreshHomePostStats(postId);
+
+    } catch (error) {
+        console.error("Home comment submission failed:", error);
+
+        showPATRIODXToast(
+            "Could not post comment: " +
+            (error.message || "Please try again."),
+            "error"
+        );
+
+        button.disabled = false;
+        button.textContent = "Send";
     }
 }
-
 window.toggleHomeComments =
     toggleHomeComments;
 
@@ -21512,7 +21492,7 @@ document.getElementById("profilePostViewerLike")?.addEventListener("click", asyn
 
     try {
         await likeSocialPost(postId);
-        await refreshProfilePostViewer(postId);
+      await refreshPATRIODXCommentsSurface(postId);
     } finally {
         this.disabled = false;
     }
@@ -21569,7 +21549,7 @@ document.addEventListener("submit", async function (event) {
        await createPATRIODXComment(postId, content);
         input.value = "";
 
-        await refreshProfilePostViewer(postId);
+       await refreshPATRIODXCommentsSurface(postId);
         await refreshSocialPostStats(postId);
         await refreshHomePostStats(postId);
 
@@ -21656,7 +21636,7 @@ if (!confirmed) {
             );
         }
 
-        await refreshProfilePostViewer(postId);
+        await refreshPATRIODXCommentsSurface(postId);
         await refreshSocialPostStats(postId);
         await refreshHomePostStats(postId);
 
@@ -21765,7 +21745,7 @@ document.addEventListener("click", async function (event) {
             if (error) throw error;
         }
 
-        await refreshProfilePostViewer(postId);
+       await refreshPATRIODXCommentsSurface(postId);
 
     } catch (error) {
         console.error("PATRIODX: Could not update comment like:", error);
@@ -21855,7 +21835,7 @@ document.addEventListener("submit", async function (event) {
             showPATRIODXToast("Comment updated.", "success");
         }
 
-        await refreshProfilePostViewer(postId);
+      await refreshPATRIODXCommentsSurface(postId);
         await refreshSocialPostStats(postId);
         await refreshHomePostStats(postId);
 
