@@ -1685,7 +1685,7 @@ footer a:hover {
 
 
 /* =========================================================
-   THEME TOGGLE â€” FINAL FIX
+   THEME TOGGLE — FINAL FIX
 ========================================================= */
 
 .theme-toggle {
@@ -3432,7 +3432,7 @@ textarea:focus-visible {
 }
 
 /* =========================================================
-PATRIODX â€” INSTAGRAM-INSPIRED MESSAGING
+PATRIODX — INSTAGRAM-INSPIRED MESSAGING
 Visual improvements only; preserves existing class names.
 ========================================================= */
 
@@ -4615,7 +4615,7 @@ animation: none;
     opacity: 0.9;
 }
 /* =========================================================
-   PATRIODX BUSINESS WORKSPACE â€” SIDEBAR
+   PATRIODX BUSINESS WORKSPACE — SIDEBAR
 ========================================================= */
 
 .patriodx-sidebar {
@@ -5074,7 +5074,7 @@ body {
 
 }
 /* =========================================================
-PATRIODX VERIFICATION BADGES â€” LIGHT AND DARK MODE
+PATRIODX VERIFICATION BADGES — LIGHT AND DARK MODE
 ========================================================= */
 
 .patriodx-verification-badge {
@@ -5259,7 +5259,7 @@ opacity: 1 !important;
     }
 }
 /* =========================================================
-   MOBILE MENU ICON â€” LIGHT MODE
+   MOBILE MENU ICON — LIGHT MODE
 ========================================================= */
 
 @media (max-width: 768px) {
@@ -5278,7 +5278,7 @@ opacity: 1 !important;
 
 }
 /* =========================================================
-   MOBILE MENU BUTTON â€” LIGHT MODE
+   MOBILE MENU BUTTON — LIGHT MODE
 ========================================================= */
 
 @media (max-width: 768px) {
@@ -5292,7 +5292,7 @@ opacity: 1 !important;
 
 }
 /* =========================================================
-   PATRIODX â€” COMPLETE DARK MODE READABILITY FIX
+   PATRIODX — COMPLETE DARK MODE READABILITY FIX
 ========================================================= */
 
 body.dark-mode {
@@ -5593,7 +5593,7 @@ body.dark-mode button:disabled {
 
 
 /* =========================================================
-   MOBILE MENU â€” KEEP READABLE
+   MOBILE MENU — KEEP READABLE
 ========================================================= */
 
 @media (max-width: 768px) {
@@ -5720,7 +5720,7 @@ body.dark-mode #themeToggle svg {
     stroke: #f8fafc !important;
 }
 /* =========================================================
-   PATRIODX â€” PHONE & TABLET RESPONSIVE FIX
+   PATRIODX — PHONE & TABLET RESPONSIVE FIX
    ========================================================= */
 
 /* Prevent horizontal overflow everywhere */
@@ -6586,7 +6586,7 @@ label {
     }
 }
 /* =========================================================
-   PATRIODX MOBILE â€” FINAL VIEWPORT / TOUCH BASE
+   PATRIODX MOBILE — FINAL VIEWPORT / TOUCH BASE
    ========================================================= */
 
 @media (max-width: 768px) {
@@ -6879,7 +6879,7 @@ label {
     }
 }
 /* =========================================================
-   PATRIODX SOCIAL â€” NEW LAYOUT
+   PATRIODX SOCIAL — NEW LAYOUT
 ========================================================= */
 
 .social-page-heading {
@@ -6914,7 +6914,7 @@ label {
 
 
 /* =========================================================
-STORIES â€” INSTAGRAM-INSPIRED DESIGN
+STORIES — INSTAGRAM-INSPIRED DESIGN
 ========================================================= */
 
 .social-stories-card {
@@ -8940,7 +8940,7 @@ body.dark-mode .mobile-action-item-icon {
     color: #60a5fa;
 }
 /* =========================================================
-   PATRIODX â€” INSTAGRAM-STYLE HEADER
+   PATRIODX — INSTAGRAM-STYLE HEADER
 ========================================================= */
 
 .patriodx-header {
@@ -8965,7 +8965,7 @@ body.dark-mode .mobile-action-item-icon {
     z-index: 1000 !important;
 }
 
-/* LEFT â€” hamburger */
+/* LEFT — hamburger */
 .patriodx-header-left {
     grid-column: 1 !important;
     justify-self: start !important;
@@ -8974,7 +8974,7 @@ body.dark-mode .mobile-action-item-icon {
     align-items: center !important;
 }
 
-/* CENTER â€” PATRIODX */
+/* CENTER — PATRIODX */
 .patriodx-centered-logo {
     grid-column: 2 !important;
     justify-self: center !important;
@@ -9016,7 +9016,7 @@ body.dark-mode .mobile-action-item-icon {
     border-radius: 8px !important;
 }
 
-/* RIGHT â€” search */
+/* RIGHT — search */
 .patriodx-header-right {
     grid-column: 3 !important;
     justify-self: end !important;
@@ -9065,7 +9065,7 @@ body.dark-mode .mobile-action-item-icon {
     height: calc(100vh - 58px) !important;
 }
 /* =========================================================
-   PATRIODX â€” FORCE HEADER TO THE VERY TOP
+   PATRIODX — FORCE HEADER TO THE VERY TOP
 ========================================================= */
 
 html,
@@ -9112,7 +9112,7 @@ main.container {
     margin-top: 0 !important;
 }
 /* =========================================================
-   SETTINGS & ACTIVITY â€” APPEARANCE
+   SETTINGS & ACTIVITY — APPEARANCE
 ========================================================= */
 
 .settings-section {
@@ -9220,7 +9220,7 @@ main.container {
     transform: translateX(20px);
 }
 /* =========================================================
-   PATRIODX â€” GLOBAL DARK MODE
+   PATRIODX — GLOBAL DARK MODE
 ========================================================= */
 
 body.dark-mode {
@@ -9347,7 +9347,7 @@ body.dark-mode .mobile-bottom-nav {
     background: rgba(220, 38, 38, 0.08);
 }
 /* =========================================================
-   FIX â€” BUSINESS SUBSCRIPTION TEXT
+   FIX — BUSINESS SUBSCRIPTION TEXT
 ========================================================= */
 
 #accountPlan,
@@ -9359,7 +9359,7 @@ body.dark-mode .mobile-bottom-nav {
     width: auto !important;
 }
 /* =========================================================
-   PATRIODX â€” VERIFICATION PLAN MODAL
+   PATRIODX — VERIFICATION PLAN MODAL
 ========================================================= */
 
 .patriodx-confirm-overlay {
@@ -9491,7 +9491,7 @@ body.dark-mode .verification-plan-option.selected {
     border-color: #2563eb !important;
 }
 /* =========================================================
-   PATRIODX MOBILE MENU â€” FINAL
+   PATRIODX MOBILE MENU — FINAL
 ========================================================= */
 
 @media (max-width: 768px) {
@@ -9725,7 +9725,7 @@ body.dark-mode .verification-plan-option.selected {
 }
 
 /* =========================================================
-   NEW CONVERSATION MODAL â€” DARK MODE
+   NEW CONVERSATION MODAL — DARK MODE
 ========================================================= */
 
 body.dark-mode .messaging-modal-content {
@@ -10304,7 +10304,7 @@ body.dark-mode .profile-stat-button:hover span {
     }
 }
 /* =========================================================
-   PATRIODX SOCIAL â€” INSTAGRAM-INSPIRED FEED POLISH
+   PATRIODX SOCIAL — INSTAGRAM-INSPIRED FEED POLISH
    Visual changes only; preserve existing functionality.
 ========================================================= */
 
@@ -10465,7 +10465,7 @@ body.dark-mode .social-post-card {
     }
 }
 /* =========================================================
-PATRIODX â€” INSTAGRAM-INSPIRED PROFILE ENHANCEMENTS
+PATRIODX — INSTAGRAM-INSPIRED PROFILE ENHANCEMENTS
 Visual improvements only. Preserve existing functionality.
 ========================================================= */
 
@@ -10741,7 +10741,7 @@ padding-left: 12px;
 }
 }
 /* =========================================================
-PATRIODX â€” INSTAGRAM-INSPIRED PROFILE POST GRID
+PATRIODX — INSTAGRAM-INSPIRED PROFILE POST GRID
 ========================================================= */
 
 /* Profile posts become a responsive photo grid */
@@ -10803,7 +10803,7 @@ gap: 2px;
 display: block;
 }
 /* =========================================================
-PATRIODX â€” INSTAGRAM-INSPIRED POST VIEWER
+PATRIODX — INSTAGRAM-INSPIRED POST VIEWER
 ========================================================= */
 
 .profile-post-viewer {
@@ -11013,7 +11013,7 @@ padding: 0;
 
 }
 /* =========================================================
-   PATRIODX â€” INSTAGRAM-STYLE VIEWER INTERACTIONS
+   PATRIODX — INSTAGRAM-STYLE VIEWER INTERACTIONS
 ========================================================= */
 
 .profile-post-viewer-actions {
@@ -11220,7 +11220,7 @@ body.dark-mode .profile-post-viewer-comments .social-comment-avatar {
     }
 }
 /* =========================================================
-PATRIODX â€” COMMENT INTERACTION CONTROLS
+PATRIODX — COMMENT INTERACTION CONTROLS
 ========================================================= */
 
 .social-comment {
@@ -11322,7 +11322,7 @@ margin-left: 12px;
 
 }
 /* =========================================================
-PATRIODX â€” CONVERSATION LIST POLISH
+PATRIODX — CONVERSATION LIST POLISH
 ========================================================= */
 
 .conversation-item {
@@ -11431,7 +11431,7 @@ padding: 12px 10px;
 
 }
 /* =========================================================
-PATRIODX â€” CHAT HEADER PROFILE
+PATRIODX — CHAT HEADER PROFILE
 ========================================================= */
 
 #chatHeader {
@@ -11585,7 +11585,7 @@ color: #777777;
 color: #22c55e;
 }
 /* ==========================================
-PATRIODX â€” VISUAL POLISH
+PATRIODX — VISUAL POLISH
 Add to the bottom of style.css
 ========================================== */
 
@@ -11681,7 +11681,7 @@ transition-duration: 0.01ms !important;
 }
 }
 /* ================================================
-PATRIODX â€” PREMIUM VISUAL REDESIGN
+PATRIODX — PREMIUM VISUAL REDESIGN
 Append to the bottom of style.css
 ================================================ */
 
@@ -11826,7 +11826,7 @@ transition-duration: 0.01ms !important;
 }
 }
 /* ==================================================
-PATRIODX â€” DASHBOARD CONTROL CENTER
+PATRIODX — DASHBOARD CONTROL CENTER
 ================================================== */
 
 /* Dashboard content rhythm */
@@ -12014,7 +12014,7 @@ letter-spacing: -0.8px;
 
 }
 /* ==========================================
-PATRIODX â€” DASHBOARD STATISTICS
+PATRIODX — DASHBOARD STATISTICS
 ========================================== */
 
 #home .stat-card,
@@ -12059,7 +12059,7 @@ transition: none;
 }
 }
 /* ==========================================
-   PATRIODX â€” HEADER & NAVIGATION POLISH
+   PATRIODX — HEADER & NAVIGATION POLISH
    ========================================== */
 
 /* HEADER */
@@ -12217,7 +12217,7 @@ transition: none;
     }
 }
 /* ==========================================
-   PATRIODX â€” PREMIUM SIDEBAR
+   PATRIODX — PREMIUM SIDEBAR
    ========================================== */
 
 #patriodxSidebar.patriodx-sidebar {
@@ -12286,7 +12286,7 @@ body.dark-mode #patriodxSidebar a:hover {
     }
 }
 /* ==========================================
-   PATRIODX â€” PREMIUM PRODUCT CARDS
+   PATRIODX — PREMIUM PRODUCT CARDS
    ========================================== */
 
 #products .product-card,
@@ -12343,7 +12343,7 @@ body.dark-mode #products .card {
     }
 }
 /* ==========================================
-   PATRIODX â€” PREMIUM BUTTONS
+   PATRIODX — PREMIUM BUTTONS
    ========================================== */
 
 button,
@@ -12404,7 +12404,7 @@ button:disabled,
     }
 }
 /* ==========================================
-   PATRIODX â€” PREMIUM FORMS
+   PATRIODX — PREMIUM FORMS
    ========================================== */
 
 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
@@ -12446,7 +12446,7 @@ textarea {
     }
 }
 /* ==========================================
-   PATRIODX â€” LAYOUT & SPACING POLISH
+   PATRIODX — LAYOUT & SPACING POLISH
    ========================================== */
 
 /* Consistent spacing between sections */
@@ -12508,7 +12508,7 @@ main {
     }
 }
 /* ==========================================
-   PATRIODX â€” DARK MODE CONSISTENCY
+   PATRIODX — DARK MODE CONSISTENCY
    ========================================== */
 
 body.dark-mode .patriodx-header,
@@ -12644,7 +12644,7 @@ body.dark-mode textarea::placeholder {
     }
 }
 /* =========================================
-   PATRIODX â€” MOBILE SOCIAL COMMENTS
+   PATRIODX — MOBILE SOCIAL COMMENTS
 ========================================= */
 
 .social-comments {
@@ -12770,7 +12770,7 @@ body.dark-mode textarea::placeholder {
         font-size: 14px;
     }
 }
-/* PATRIODX profile search â€” mobile layout */
+/* PATRIODX profile search — mobile layout */
 
 #profile .profile-search-card {
     width: 100%;
@@ -12844,7 +12844,7 @@ body.dark-mode textarea::placeholder {
 
 
 /* ========================================
-   PATRIODX â€” MOBILE EXPERIENCE IMPROVEMENTS
+   PATRIODX — MOBILE EXPERIENCE IMPROVEMENTS
    ======================================== */
 
 @media screen and (max-width: 768px) {
@@ -13045,7 +13045,7 @@ body.dark-mode textarea::placeholder {
         padding: 8px;
     }
 }
-/* PATRIODX â€” MOBILE POST AND COMMENTS VISIBILITY FIX */
+/* PATRIODX — MOBILE POST AND COMMENTS VISIBILITY FIX */
 @media screen and (max-width: 768px) {
 
     .social-post-card {
@@ -13120,7 +13120,7 @@ body.dark-mode textarea::placeholder {
     }
 }
 /* ==========================================
-   PATRIODX â€” MOBILE COMMENTS PANEL
+   PATRIODX — MOBILE COMMENTS PANEL
    ========================================== */
 
 @media screen and (max-width: 768px) {
@@ -13244,7 +13244,7 @@ body.dark-mode textarea::placeholder {
     }
 }
 /* =========================================
-   PATRIODX â€” MOBILE COMMENT EXPERIENCE
+   PATRIODX — MOBILE COMMENT EXPERIENCE
 ========================================= */
 
 @media (max-width: 768px) {
@@ -13568,7 +13568,7 @@ transition: outline-color 0.3s ease;
         padding: 15px;
     }
 }
-/* PATRIODX HOME FEED â€” TARGETED FIX */
+/* PATRIODX HOME FEED — TARGETED FIX */
 
 .home-feed-post {
     width: 100%;
@@ -13670,7 +13670,7 @@ transition: outline-color 0.3s ease;
         overflow-wrap: anywhere;
     }
 }
-/* PATRIODX â€” HOME FEED PROFILE POLISH */
+/* PATRIODX — HOME FEED PROFILE POLISH */
 
 .home-feed-post .social-post-header {
     display: flex;
@@ -13736,8 +13736,8 @@ body.dark-mode .home-feed-post .social-post-author:hover {
     color: #93b4ff;
 }
 /* =========================================================
-   PATRIODX â€” BUSINESS EXPERIENCE REDESIGN
-   Dashboard â€¢ Products â€¢ Customers â€¢ Sales â€¢ Invoices â€¢ Analytics
+   PATRIODX — BUSINESS EXPERIENCE REDESIGN
+   Dashboard • Products • Customers • Sales • Invoices • Analytics
    Safe visual overrides; existing JavaScript and data preserved.
 ========================================================= */
 
@@ -14788,7 +14788,7 @@ body.dark-mode .activity-item {
         height: 38px;
     }
 }
-/* PATRIODX â€” AMAZON-INSPIRED INVENTORY CARDS */
+/* PATRIODX — AMAZON-INSPIRED INVENTORY CARDS */
 
 #products .business-product-card {
     display: flex;
@@ -14994,7 +14994,7 @@ body.dark-mode #products .business-product-metrics {
         font-size: 11px;
     }
 }
-/* PATRIODX â€” AMAZON-INSPIRED CUSTOMER DIRECTORY */
+/* PATRIODX — AMAZON-INSPIRED CUSTOMER DIRECTORY */
 
 #customers .business-customer-card {
     display: flex;
@@ -15211,7 +15211,7 @@ body.dark-mode #customers .business-customer-footer {
     }
 }
 /* =========================================================
-   PATRIODX â€” AMAZON-INSPIRED SALES MANAGEMENT
+   PATRIODX — AMAZON-INSPIRED SALES MANAGEMENT
 ========================================================= */
 
 #sales .business-sale-card {
@@ -15433,7 +15433,7 @@ body.dark-mode #sales .business-sale-total > span {
     }
 }
 /* =========================================================
-   PATRIODX â€” AMAZON-INSPIRED INVOICE MANAGEMENT
+   PATRIODX — AMAZON-INSPIRED INVOICE MANAGEMENT
 ========================================================= */
 
 #invoices .business-invoice-card {
@@ -15723,7 +15723,7 @@ body.dark-mode #invoices .business-invoice-actions .business-invoice-toggle {
 }
 /*
     // =====================================================
-    // REVENUE TREND â€” BUSINESS INTELLIGENCE CHART
+    // REVENUE TREND — BUSINESS INTELLIGENCE CHART
     // =====================================================
 
     const chart = document.getElementById("revenueChart");
@@ -15782,7 +15782,7 @@ body.dark-mode #invoices .business-invoice-actions .business-invoice-toggle {
         const date = new Date(sale.created_at);
 
         const dateLabel = Number.isNaN(date.getTime())
-            ? "â€”"
+            ? "—"
             : date.toLocaleDateString(undefined, {
                 month: "short",
                 day: "numeric"
@@ -15799,7 +15799,7 @@ body.dark-mode #invoices .business-invoice-actions .business-invoice-toggle {
                     <div
                         class="business-revenue-bar"
                         style="height: ${height}%"
-                        title="${safe(dateLabel)} Â· ${money(amount)}"
+                        title="${safe(dateLabel)} · ${money(amount)}"
                         aria-label="Revenue ${money(amount)} on ${safe(dateLabel)}"
                     ></div>
                 </div>
@@ -15846,7 +15846,7 @@ body.dark-mode #invoices .business-invoice-actions .business-invoice-toggle {
 }
 */
 /* =========================================================
-   PATRIODX â€” BUSINESS DASHBOARD FINISHING TOUCH
+   PATRIODX — BUSINESS DASHBOARD FINISHING TOUCH
    Amazon Seller Central-inspired layout
 ========================================================= */
 
@@ -16151,7 +16151,7 @@ body.dark-mode .activity-item {
         gap: 12px;
     }
 }
-/* PATRIODX â€” INVENTORY FILTER TOOLBAR */
+/* PATRIODX — INVENTORY FILTER TOOLBAR */
 
 .business-inventory-toolbar {
     display: flex;
@@ -16201,7 +16201,7 @@ body.dark-mode .business-stock-filter {
         min-width: 0;
     }
 }
-/* PATRIODX â€” INVENTORY SUMMARY */
+/* PATRIODX — INVENTORY SUMMARY */
 
 .business-inventory-summary {
 display: grid;
@@ -16322,7 +16322,7 @@ gap: 10px;
 
 
 }
-/* PATRIODX â€” INVENTORY HEALTH ALERTS */
+/* PATRIODX — INVENTORY HEALTH ALERTS */
 
 .business-inventory-alerts {
 margin: 24px 0;
@@ -16514,7 +16514,7 @@ padding: 17px;
 
 }
 
-/* PATRIODX â€” PRODUCT PERFORMANCE */
+/* PATRIODX — PRODUCT PERFORMANCE */
 
 .business-product-performance {
 margin: 26px 0;
@@ -16805,7 +16805,7 @@ padding: 17px;
 
 
 }
-/* PATRIODX â€” ANALYTICS PERIOD FILTER */
+/* PATRIODX — ANALYTICS PERIOD FILTER */
 
 .business-analytics-toolbar {
     display: flex;
@@ -16863,7 +16863,7 @@ body.dark-mode .business-analytics-toolbar select {
         min-width: 0;
     }
 }
-/* PATRIODX â€” BUSINESS ACTIVITY */
+/* PATRIODX — BUSINESS ACTIVITY */
 
 .business-activity-item {
     display: flex;
@@ -16963,7 +16963,7 @@ body.dark-mode .business-activity-icon.invoice {
     }
 }
 /* =========================================================
-   PATRIODX â€” INVOICE FINANCIAL OVERVIEW
+   PATRIODX — INVOICE FINANCIAL OVERVIEW
 ========================================================= */
 
 .business-invoice-overview {
@@ -17104,7 +17104,7 @@ body.dark-mode .business-invoice-metric.overdue .business-invoice-metric-icon {
     line-height: 1.5;
 }
 /* =========================================================
-   PATRIODX â€” INTEGRATED MARKETPLACE
+   PATRIODX — INTEGRATED MARKETPLACE
 ========================================================= */
 
 .patriodx-marketplace-page {
@@ -17139,7 +17139,7 @@ body.dark-mode .business-invoice-metric.overdue .business-invoice-metric-icon {
     }
 }
 /* =========================================================
-PATRIODX MOBILE REFRESH â€” HEADER & BOTTOM NAVIGATION
+PATRIODX MOBILE REFRESH — HEADER & BOTTOM NAVIGATION
 Safe overrides: preserves existing HTML and JavaScript
 ========================================================= */
 
@@ -17392,7 +17392,7 @@ color: #60a5fa;
 background: rgba(96, 165, 250, 0.12);
 }
 /* =========================================================
-PATRIODX MOBILE SIDEBAR â€” SOLID DRAWER & BACKDROP
+PATRIODX MOBILE SIDEBAR — SOLID DRAWER & BACKDROP
 ========================================================= */
 
 @media (max-width: 768px) {
@@ -17879,7 +17879,7 @@ color: #b91c1c !important;
     }
 }
 /* ==========================================
-PATRIODX â€” MOBILE SOCIAL FEED REPAIR
+PATRIODX — MOBILE SOCIAL FEED REPAIR
 ========================================== */
 
 @media screen and (max-width: 600px) {
@@ -17989,7 +17989,7 @@ PATRIODX â€” MOBILE SOCIAL FEED REPAIR
 
 
 }
-/* PATRIODX SOCIAL FEED â€” DESKTOP AND MOBILE FIX */
+/* PATRIODX SOCIAL FEED — DESKTOP AND MOBILE FIX */
 
 .social-post-card {
     box-sizing: border-box !important;
@@ -18071,7 +18071,7 @@ PATRIODX â€” MOBILE SOCIAL FEED REPAIR
         font-size: 12px !important;
     }
 }
-/* PATRIODX SOCIAL ACTION BAR â€” DESKTOP AND MOBILE */
+/* PATRIODX SOCIAL ACTION BAR — DESKTOP AND MOBILE */
 .social-post-actions-bar {
     display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
@@ -18119,7 +18119,7 @@ PATRIODX â€” MOBILE SOCIAL FEED REPAIR
         font-size: 12px !important;
     }
 }
-/* PATRIODX â€” Dark Mode for the Three-Dot Post Menu */
+/* PATRIODX — Dark Mode for the Three-Dot Post Menu */
 body.dark-mode .social-post-dropdown {
 background: #1e293b !important;
 color: #f1f5f9 !important;
@@ -18148,7 +18148,7 @@ body.dark-mode .social-post-dropdown .social-post-menu-item span {
 color: inherit !important;
 }
 /* =========================================================
-   PATRIODX â€” INSTAGRAM-STYLE MOBILE MESSAGING
+   PATRIODX — INSTAGRAM-STYLE MOBILE MESSAGING
 ========================================================= */
 
 .patriodx-chat-title {
@@ -18320,7 +18320,7 @@ color: inherit !important;
         height: 22px;
     }
 }
-/* PATRIODX â€” Messaging layout repair */
+/* PATRIODX — Messaging layout repair */
 #messaging .message-list {
     display: flex;
     flex-direction: column;
@@ -18417,7 +18417,7 @@ color: inherit !important;
         font-size: 14px;
     }
 }
-/* PATRIODX â€” Desktop inbox and chat layout */
+/* PATRIODX — Desktop inbox and chat layout */
 @media (min-width: 769px) {
     #messaging .messaging-layout {
         display: grid !important;
@@ -18464,7 +18464,7 @@ color: inherit !important;
     }
 }
 
-/* PATRIODX â€” Compact Instagram-style mobile message composer */
+/* PATRIODX — Compact Instagram-style mobile message composer */
 @media (max-width: 768px) {
     #messaging #messageForm {
         display: flex !important;
@@ -18575,7 +18575,7 @@ color: inherit !important;
         color: #9ca3af;
     }
 }
-/* PATRIODX â€” Full-screen mobile conversation */
+/* PATRIODX — Full-screen mobile conversation */
 @media (max-width: 768px) {
     body:has(#messaging.mobile-chat-open) {
         overflow: hidden;
@@ -18659,7 +18659,7 @@ color: inherit !important;
     }
 }
 
-/* PATRIODX â€” Hide outer navigation during full-screen mobile chat */
+/* PATRIODX — Hide outer navigation during full-screen mobile chat */
 @media (max-width: 768px) {
     body:has(#messaging.mobile-chat-open) .patriodx-header,
     body:has(#messaging.mobile-chat-open) #mobileBottomNav,
@@ -18702,7 +18702,7 @@ color: inherit !important;
     }
 }
 
-/* PATRIODX â€” Larger mobile chat back button */
+/* PATRIODX — Larger mobile chat back button */
 @media (max-width: 768px) {
     #messaging.mobile-chat-open .mobile-chat-back {
         display: inline-flex !important;
@@ -18766,7 +18766,7 @@ color: inherit !important;
 }
 
 /* =========================================
-   PATRIODX PEOPLE SEARCH â€” LIGHT MODE
+   PATRIODX PEOPLE SEARCH — LIGHT MODE
 ========================================= */
 
 .messaging-people-search {
@@ -18848,7 +18848,7 @@ html.dark .messaging-people-search:focus-within {
     box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
 }
 /* =========================================
-   PATRIODX MESSAGING â€” POLISHED USER PICKER
+   PATRIODX MESSAGING — POLISHED USER PICKER
 ========================================= */
 
 .conversation-user-item {
@@ -18971,7 +18971,7 @@ body.dark-mode .conversation-user-info span {
         height: 44px;
     }
 }
-/* PATRIODX MESSAGING â€” USER PICKER */
+/* PATRIODX MESSAGING — USER PICKER */
 #newConversationModal .conversation-user-item {
     display: flex;
     align-items: center;
@@ -19078,7 +19078,7 @@ html[data-theme="dark"] #newConversationModal .conversation-user-info span {
     }
 }
 /* ==========================================
-   PATRIODX MESSAGING â€” COMPLETE THEME
+   PATRIODX MESSAGING — COMPLETE THEME
 ========================================== */
 
 #messaging {
@@ -19221,7 +19221,7 @@ html[data-theme="dark"] #messaging {
         min-height: 44px;
     }
 }
-/* PATRIODX story viewer â€” larger, touch-friendly controls */
+/* PATRIODX story viewer — larger, touch-friendly controls */
 
 #storyViewerClose {
     width: 52px !important;
@@ -19293,7 +19293,7 @@ html[data-theme="dark"] #messaging {
 }
 
 /* =========================================
-   PATRIODX â€” SOCIAL FEED IMPROVEMENTS
+   PATRIODX — SOCIAL FEED IMPROVEMENTS
 ========================================= */
 
 .social-post-card {
@@ -19327,7 +19327,7 @@ html[data-theme="dark"] #messaging {
 }
 
 /* =========================================
-   PATRIODX â€” PROFILE IMPROVEMENTS
+   PATRIODX — PROFILE IMPROVEMENTS
 ========================================= */
 
 .profile-posts:has(.social-post-card),
@@ -19470,7 +19470,7 @@ html[data-theme="dark"] #messaging {
     }
 }
 
-/* PATRIODX â€” mobile profile and post layout */
+/* PATRIODX — mobile profile and post layout */
 @media (max-width: 600px) {
     .public-profile-card,
     .public-profile-posts,
@@ -19582,7 +19582,7 @@ html[data-theme="dark"] #messaging {
 }
 
 /* =========================================
-   PATRIODX â€” IMPROVED PROFILE POST CARDS
+   PATRIODX — IMPROVED PROFILE POST CARDS
    Responsive styling for phones and laptops
 ========================================= */
 
@@ -19726,7 +19726,7 @@ body.dark-mode .public-profile-posts .social-post-actions button:hover {
         max-height: 460px;
     }
 }
-/* PATRIODX â€” Desktop profile alignment correction */
+/* PATRIODX — Desktop profile alignment correction */
 @media screen and (min-width: 701px) {
 #profile {
 width: 100%;
@@ -19749,7 +19749,7 @@ margin-right: 0;
 }
 
 }
-/* PATRIODX â€” Keep post options visible on screen */
+/* PATRIODX — Keep post options visible on screen */
 
 .social-post-menu-actions {
     position: relative !important;
@@ -19794,7 +19794,7 @@ margin-right: 0;
     }
 }
 /* =========================================================
-PATRIODX HOME â€” SOCIAL COMMERCE FEED
+PATRIODX HOME — SOCIAL COMMERCE FEED
 ========================================================= */
 
 .home-marketplace-insert {
@@ -19961,7 +19961,7 @@ border-radius: 14px;
     box-shadow: none;
     transform: none;
 }
-/* PATRIODX â€” Clear, accessible New Conversation close button */
+/* PATRIODX — Clear, accessible New Conversation close button */
 
 #newConversationModal .messaging-modal-close {
     width: 48px !important;
@@ -20016,7 +20016,7 @@ body.dark-mode #newConversationModal .messaging-modal-close:hover {
     border-color: #60a5fa !important;
     color: #ffffff !important;
 }
-/* PATRIODX â€” Custom verification identity */
+/* PATRIODX — Custom verification identity */
 
 .patriodx-verification-badge {
     display: inline-flex !important;
@@ -20073,7 +20073,7 @@ body.dark-mode #newConversationModal .messaging-modal-close:hover {
     display: none;
 }
 /* =========================================
-PATRIODX VERIFIED BADGES â€” DESKTOP + MOBILE
+PATRIODX VERIFIED BADGES — DESKTOP + MOBILE
 ========================================= */
 
 .patriodx-verification-badge {
@@ -20140,7 +20140,7 @@ margin-left: 4px;
 
 
 }
-/* PATRIODX â€” Larger verification badges on every screen */
+/* PATRIODX — Larger verification badges on every screen */
 .patriodx-verification-badge,
 .patriodx-chat-title .patriodx-verification-badge {
 display: inline-flex !important;
@@ -20174,7 +20174,7 @@ max-width: none !important;
 flex-shrink: 0 !important;
 }
 
-/* Gold founder badge â€” only your owner account */
+/* Gold founder badge — only your owner account */
 .patriodx-verification-badge.owner-badge {
 width: 32px !important;
 height: 32px !important;
@@ -20228,7 +20228,7 @@ flex-basis: 28px !important;
 
 
 }
-/* PATRIODX â€” Professional social media verification badge */
+/* PATRIODX — Professional social media verification badge */
 
 .patriodx-verification-badge {
     display: inline-flex !important;
@@ -20272,7 +20272,7 @@ flex-basis: 28px !important;
     max-width: 17px !important;
     max-height: 17px !important;
 }
-/* PATRIODX â€” Fix conflicting legacy badge styles */
+/* PATRIODX — Fix conflicting legacy badge styles */
 .patriodx-verification-badge {
 display: inline-flex !important;
 position: relative !important;
@@ -20364,7 +20364,7 @@ flex-basis: 18px !important;
 
 
 }
-/* PATRIODX â€” Clean social-media verification badge */
+/* PATRIODX — Clean social-media verification badge */
 
 .patriodx-verification-badge {
     display: inline-flex !important;
@@ -20435,7 +20435,7 @@ flex-basis: 18px !important;
         max-height: 18px !important;
     }
 }
-/* PATRIODX verification badge â€” consistent social-media sizing */
+/* PATRIODX verification badge — consistent social-media sizing */
 .patriodx-verification-badge {
     display: inline-flex !important;
     position: relative !important;
@@ -20482,7 +20482,7 @@ flex-basis: 18px !important;
     min-width: 19px !important;
     flex-basis: 19px !important;
 }
-/* PATRIODX â€” FIX VERIFIED BADGE SHAPE */
+/* PATRIODX — FIX VERIFIED BADGE SHAPE */
 .patriodx-verification-badge {
     display: inline-flex !important;
     position: relative !important;
@@ -20575,7 +20575,7 @@ flex-basis: 18px !important;
     color: inherit !important;
     box-shadow: none !important;
 }
-/* Fix BLUE verified badge size only â€” preserve gold founder badge */
+/* Fix BLUE verified badge size only — preserve gold founder badge */
 .patriodx-verification-badge.verified-badge {
     width: 18px !important;
     height: 18px !important;
@@ -20594,7 +20594,7 @@ flex-basis: 18px !important;
     max-height: 18px !important;
 }
 /* =========================================
-   PATRIODX BADGES â€” LIGHT/DARK MODE
+   PATRIODX BADGES — LIGHT/DARK MODE
 ========================================= */
 
 /* Keep the badge and tick perfectly centered */
@@ -20609,7 +20609,7 @@ flex-basis: 18px !important;
     width: 100% !important;
     height: 100% !important;
 }
-/* Light mode â€” white tick */
+/* Light mode — white tick */
 body:not(.dark-mode) .patriodx-verification-badge .patriodx-badge-symbol {
     stroke: #FFFFFF !important;
     stroke-width: 2.5 !important;
@@ -20617,14 +20617,14 @@ body:not(.dark-mode) .patriodx-verification-badge .patriodx-badge-symbol {
     stroke-linejoin: round !important;
 }
 
-/* Dark mode â€” black tick */
+/* Dark mode — black tick */
 body.dark-mode .patriodx-verification-badge .patriodx-badge-symbol {
     stroke: #000000 !important;
     stroke-width: 2.5 !important;
     stroke-linecap: round !important;
     stroke-linejoin: round !important;
 }
-/* PATRIODX MOBILE SIDEBAR â€” DARK MODE FIX */
+/* PATRIODX MOBILE SIDEBAR — DARK MODE FIX */
 @media (max-width: 768px) {
 
     body.dark-mode #patriodxSidebar {
@@ -20653,7 +20653,7 @@ body.dark-mode .patriodx-verification-badge .patriodx-badge-symbol {
     }
 }
 /* =========================================
-   PATRIODX â€” IMMERSIVE MOBILE PROFILE
+   PATRIODX — IMMERSIVE MOBILE PROFILE
 ========================================= */
 
 @media (max-width: 768px) {
@@ -20722,7 +20722,7 @@ body.dark-mode .patriodx-verification-badge .patriodx-badge-symbol {
         box-sizing: border-box !important;
     }
 }
-/* PATRIODX â€” FULL-WIDTH PUBLIC PROFILE ON PHONES */
+/* PATRIODX — FULL-WIDTH PUBLIC PROFILE ON PHONES */
 @media (max-width: 768px) {
 
     body.mobile-public-profile-view #profile {
@@ -20765,7 +20765,7 @@ body.dark-mode .patriodx-verification-badge .patriodx-badge-symbol {
     }
 }
 /* =========================================
-   PATRIODX â€” CREATE & ADD STORY CLOSE BUTTONS
+   PATRIODX — CREATE & ADD STORY CLOSE BUTTONS
 ========================================= */
 
 /* Mobile Create sheet */
@@ -20826,7 +20826,7 @@ body.dark-mode .mobile-sheet-close svg {
     }
 }
 /* =========================================
-   PATRIODX â€” HOME FEED LAYOUT CORRECTION
+   PATRIODX — HOME FEED LAYOUT CORRECTION
 ========================================= */
 
 #home .social-feed-container,
@@ -20921,7 +20921,7 @@ body.dark-mode .mobile-sheet-close svg {
     word-break: normal;
     overflow-wrap: normal;
 }
-/* PATRIODX â€” Stable post author layout */
+/* PATRIODX — Stable post author layout */
 
 .social-post-card .social-post-author-area {
     display: block !important;
@@ -20957,7 +20957,7 @@ body.dark-mode .mobile-sheet-close svg {
     width: 100% !important;
     margin-top: 2px !important;
 }
-/* PATRIODX â€” Remove profile cover banners */
+/* PATRIODX — Remove profile cover banners */
 
 #profileCover,
 #publicProfileCover {
@@ -20969,7 +20969,7 @@ body.dark-mode .mobile-sheet-close svg {
 #publicProfileCard .profile-header {
     margin-top: 0 !important;
 }
-/* PATRIODX â€” Clean profile alignment */
+/* PATRIODX — Clean profile alignment */
 
 #profile .profile-page-card > .profile-header,
 #publicProfileCard > .profile-header {
@@ -20982,7 +20982,7 @@ body.dark-mode .mobile-sheet-close svg {
 #publicProfileCard > .profile-header .profile-main-info {
     padding-top: 0 !important;
 }
-/* PATRIODX â€” Correct own profile layout */
+/* PATRIODX — Correct own profile layout */
 
 #profile > .profile-page-card:not(.public-profile-card) {
     display: block !important;
@@ -21046,7 +21046,7 @@ body.dark-mode .mobile-sheet-close svg {
 #profile > .profile-page-card:not(.public-profile-card) > .profile-stats span {
     display: block;
 }
-/* PATRIODX â€” INSTAGRAM-STYLE OTHER USER PROFILE */
+/* PATRIODX — INSTAGRAM-STYLE OTHER USER PROFILE */
 @media (max-width: 768px) {
 
     #publicProfileCard {
@@ -21180,7 +21180,7 @@ body.dark-mode .mobile-sheet-close svg {
         min-width: 0 !important;
     }
 }
-/* PATRIODX â€” Instagram-style laptop public profile */
+/* PATRIODX — Instagram-style laptop public profile */
 @media (min-width: 769px) {
 
     #publicProfileCard {
@@ -21296,7 +21296,7 @@ body.dark-mode .mobile-sheet-close svg {
         margin: 0 auto !important;
     }
 }
-/* PATRIODX â€” PUBLIC PROFILE OPTIONS MENU */
+/* PATRIODX — PUBLIC PROFILE OPTIONS MENU */
 #publicProfileCard .public-profile-menu-backdrop {
     position: fixed !important;
     inset: 0 !important;
@@ -21361,7 +21361,7 @@ body.dark-mode .mobile-sheet-close svg {
         margin: 0 auto;
     }
 }
-/* PATRIODX â€” Instagram-style mobile profile menu */
+/* PATRIODX — Instagram-style mobile profile menu */
 @media (max-width: 768px) {
     #publicProfileCard .public-profile-menu-backdrop:not([hidden]) {
         position: fixed !important;
@@ -21406,7 +21406,7 @@ body.dark-mode .mobile-sheet-close svg {
     from { transform: translateY(100%); }
     to { transform: translateY(0); }
 }
-/* PATRIODX â€” INSTAGRAM-STYLE GLOBAL SEARCH */
+/* PATRIODX — INSTAGRAM-STYLE GLOBAL SEARCH */
 
 #globalSearchPanel {
     display: none;
@@ -21518,7 +21518,7 @@ body.dark-mode .global-search-panel-inner {
         margin-top: 16px;
     }
 }
-/* PATRIODX â€” Confirmation modal button spacing */
+/* PATRIODX — Confirmation modal button spacing */
 .patriodx-confirm-actions {
     display: flex !important;
     justify-content: flex-end !important;
@@ -21532,7 +21532,7 @@ body.dark-mode .global-search-panel-inner {
     margin: 0 !important;
 }
 /* =========================================
-   PATRIODX â€” BLOCKED USERS MANAGER
+   PATRIODX — BLOCKED USERS MANAGER
 ========================================= */
 
 #blockedUsersManager {
