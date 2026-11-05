@@ -6623,7 +6623,7 @@ async function openPATRIODXComments(postId) {
     sheet.setAttribute("aria-hidden", "false");
 
     document.body.style.overflow = "hidden";
-
+document.body.classList.add("patriodx-comments-active");
     list.innerHTML = `
         <p class="patriodx-comments-loading">
             Loading comments...
@@ -6683,6 +6683,7 @@ function closePATRIODXComments() {
     patriodxActiveCommentPostId = null;
 
     document.body.style.overflow = "";
+    document.body.classList.remove("patriodx-comments-active");
 }
 // ==========================================
 // COMMENTS SHEET INTERACTIONS
@@ -6699,12 +6700,14 @@ const patriodxCommentInput = document.getElementById(
 const patriodxCommentsForm = document.getElementById(
     "patriodxCommentsForm"
 );
-
 // Close using backdrop or close button.
-patriodxCommentsSheet?.querySelectorAll("[data-comments-close]")
-    .forEach(button => {
-        button.addEventListener("click", closePATRIODXComments);
-    });
+patriodxCommentsSheet?.addEventListener("click", function (event) {
+
+    if (event.target.closest("[data-comments-close]")) {
+        closePATRIODXComments();
+    }
+
+});
 
 // Expand when the user taps the composer.
 patriodxCommentInput?.addEventListener("focus", () => {
@@ -6791,24 +6794,19 @@ patriodxCommentsForm?.addEventListener("submit", async event => {
         ".patriodx-comments-panel"
     );
 
-    if (!panel) return;
+    const handleArea = patriodxCommentsSheet?.querySelector(
+        ".patriodx-comments-handle-area"
+    );
+
+    if (!panel || !handleArea) return;
 
     let startY = 0;
     let currentY = 0;
     let dragging = false;
 
-    panel.addEventListener("touchstart", event => {
-        const list = document.getElementById(
-            "patriodxCommentsList"
-        );
+    handleArea.addEventListener("touchstart", function (event) {
 
-        if (
-            !event.touches.length ||
-            (list && list.scrollTop > 0)
-        ) {
-            dragging = false;
-            return;
-        }
+        if (!event.touches.length) return;
 
         startY = event.touches[0].clientY;
         currentY = startY;
@@ -6816,22 +6814,29 @@ patriodxCommentsForm?.addEventListener("submit", async event => {
 
     }, { passive: true });
 
-    panel.addEventListener("touchmove", event => {
+    handleArea.addEventListener("touchmove", function (event) {
+
         if (!dragging || !event.touches.length) return;
 
         currentY = event.touches[0].clientY;
 
     }, { passive: true });
 
-    panel.addEventListener("touchend", () => {
+    handleArea.addEventListener("touchend", function () {
+
         if (!dragging) return;
 
         const distance = currentY - startY;
 
-        if (distance > 100) {
+        if (distance > 80) {
             closePATRIODXComments();
         }
 
+        dragging = false;
+
+    });
+
+    handleArea.addEventListener("touchcancel", function () {
         dragging = false;
     });
 
@@ -9315,8 +9320,28 @@ async function toggleComments(postId) {
 
     if (!postId) return;
 
-    openPATRIODXComments(postId);
+    // Phones use the shared Instagram-style comments sheet.
+    if (window.matchMedia("(max-width: 768px)").matches) {
+        openPATRIODXComments(postId);
+        return;
+    }
 
+    // Desktop keeps the original inline comments feature.
+    const commentsBox = document.getElementById(
+        `comments-${postId}`
+    );
+
+    if (!commentsBox) return;
+
+    if (
+        commentsBox.style.display === "none" ||
+        commentsBox.style.display === ""
+    ) {
+        commentsBox.style.display = "block";
+        await loadSocialComments(postId);
+    } else {
+        commentsBox.style.display = "none";
+    }
 }
 
 

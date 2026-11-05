@@ -21881,3 +21881,10 @@ body.dark-mode .blocked-user-unblock {
         border-radius: 0;
     }
 }
+
+
+@media (max-width: 768px) {
+    body.patriodx-comments-active #mobileBottomNav {
+        display: none !important;
+    }
+}
