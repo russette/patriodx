@@ -139,11 +139,11 @@ function createReference() {
 }
 
 function formatDate(date) {
-    if (!date) return "â€”";
+    if (!date) return "—";
 
     const d = new Date(date);
 
-    if (Number.isNaN(d.getTime())) return "â€”";
+    if (Number.isNaN(d.getTime())) return "—";
 
     return d.toLocaleDateString();
 }
@@ -370,7 +370,7 @@ const accountPlan =
 
 if (accountBusinessName) {
     accountBusinessName.textContent =
-        currentBusiness.name || "â€”";
+        currentBusiness.name || "—";
 }
 
 if (accountPlan) {
@@ -1039,7 +1039,7 @@ list.innerHTML = alerts.map(product => {
 
             <div class="business-inventory-alert-details">
                 <strong>${safe(product.name || "Unnamed product")}</strong>
-                <span>${outOfStock ? "Out of stock â€” restocking needed" : `${product.availableStock} unit${product.availableStock === 1 ? "" : "s"} remaining`}</span>
+                <span>${outOfStock ? "Out of stock — restocking needed" : `${product.availableStock} unit${product.availableStock === 1 ? "" : "s"} remaining`}</span>
             </div>
 
             <span class="business-inventory-alert-status ${outOfStock ? "critical" : "warning"}">
@@ -1442,7 +1442,7 @@ function previewProductImage(input) {
     container.style.display = "block";
 }
 // =========================================================
-// SAVE PRODUCT â€” ADD AND EDIT
+// SAVE PRODUCT — ADD AND EDIT
 // =========================================================
 
 async function saveProduct(event) {
@@ -1615,7 +1615,7 @@ if (imageFile) {
 }
 
 // =========================================================
-// SAVE PRODUCT â€” EXISTING DATABASE STRUCTURE
+// SAVE PRODUCT — EXISTING DATABASE STRUCTURE
 // =========================================================
 
 const productData = {
@@ -1938,9 +1938,9 @@ function openSaleModal() {
         select.innerHTML += `
             <option value="${product.id}">
                 ${safe(product.name)}
-                â€”
+                —
                 ${money(product.price)}
-                â€”
+                —
                 Stock: ${product.stock}
             </option>
         `;
@@ -2153,7 +2153,7 @@ if (quantity > product.stock) {
 
 
 // =========================================================
-// SALES DISPLAY â€” PATRIODX ORDER MANAGEMENT
+// SALES DISPLAY — PATRIODX ORDER MANAGEMENT
 // =========================================================
 
 function renderSales() {
@@ -2393,7 +2393,7 @@ function openInvoiceModal() {
         productSelect.innerHTML += `
             <option value="${product.id}">
                 ${safe(product.name)}
-                â€”
+                —
                 ${money(product.price)}
             </option>
         `;
@@ -2664,7 +2664,7 @@ async function saveInvoice(event) {
 }
 
 // =========================================================
-// PATRIODX â€” INVOICE FINANCIAL OVERVIEW
+// PATRIODX — INVOICE FINANCIAL OVERVIEW
 // =========================================================
 
 function renderInvoiceSummary() {
@@ -2741,7 +2741,7 @@ function renderInvoiceSummary() {
         `${totals.overdueCount} overdue invoice${totals.overdueCount === 1 ? "" : "s"}`;
 }
 // =========================================================
-// PATRIODX â€” INVOICE MANAGEMENT DISPLAY
+// PATRIODX — INVOICE MANAGEMENT DISPLAY
 // =========================================================
 
 function renderInvoices() {
@@ -2887,7 +2887,7 @@ renderInvoiceSummary();
                         <p class="business-invoice-product">
                             <i data-lucide="package"></i>
                             ${productName}
-                            <span>Â·</span>
+                            <span>·</span>
                             Qty: ${Math.max(
                                 0,
                                 Number(invoice.quantity) || 0
@@ -3357,14 +3357,14 @@ function renderAnalytics() {
             );
     });
 
-    let bestSeller = "â€”";
+    let bestSeller = "—";
 
     Object.keys(
         productSales
     ).forEach(name => {
 
         if (
-            bestSeller === "â€”" ||
+            bestSeller === "—" ||
             productSales[name] >
             productSales[bestSeller]
         ) {
@@ -3471,7 +3471,7 @@ function renderAnalytics() {
 
 
    // =====================================================
-// REVENUE TREND â€” DAILY SALES ANALYTICS
+// REVENUE TREND — DAILY SALES ANALYTICS
 // =====================================================
 
 const chart = document.getElementById("revenueChart");
@@ -3596,7 +3596,7 @@ const chartBars = chartValues.map(item => {
                 <div
                     class="business-revenue-bar"
                     style="height: ${height}%"
-                    title="${safe(label)} Â· ${money(item.revenue)}"
+                    title="${safe(label)} · ${money(item.revenue)}"
                     aria-label="${safe(label)} revenue: ${money(item.revenue)}"
                 ></div>
             </div>
@@ -3637,7 +3637,7 @@ if (typeof lucide !== "undefined") {
 }
 }
 // =====================================================
-// RECENT ACTIVITY â€” BUSINESS DASHBOARD
+// RECENT ACTIVITY — BUSINESS DASHBOARD
 // =====================================================
 
 function renderRecentActivity() {
@@ -5061,7 +5061,7 @@ document
     ?.addEventListener("click", async () => {
 
         const inviteText =
-            "Join me on PATRIODX â€” Run your business smarter.";
+            "Join me on PATRIODX — Run your business smarter.";
 
         if (
             navigator.share &&
@@ -5859,7 +5859,7 @@ async function logoutUser() {
         "auth.html";
 }
 // =========================================================
-// PRODUCT MODAL â€” RESTORE MISSING FUNCTIONS
+// PRODUCT MODAL — RESTORE MISSING FUNCTIONS
 // =========================================================
 function openProductModal(productIdToEdit = null) {
     const modal = document.getElementById("productModal");
@@ -7568,7 +7568,7 @@ if (storyContent && storyContent.dataset.pauseReady !== "true") {
     );
 }
 // =========================================================
-// PATRIODX HOME â€” MARKETPLACE PRODUCTS
+// PATRIODX HOME — MARKETPLACE PRODUCTS
 // =========================================================
 
 async function loadHomeMarketplaceProducts() {
@@ -7664,7 +7664,7 @@ function renderHomeMarketplaceProducts(products) {
                >`
             : `<div class="home-marketplace-product-image"
                     style="display:grid;place-items:center;font-size:36px">
-                    ðŸ›ï¸
+                    🛍️
                </div>`;
 
         const badge =
@@ -9781,7 +9781,7 @@ function insertSocialComposerText(text) {
     composer.setSelectionRange(cursorPosition, cursorPosition);
 }
 /* =========================================================
-   PATRIODX SOCIAL USER PICKER â€” NO BROWSER POPUPS
+   PATRIODX SOCIAL USER PICKER — NO BROWSER POPUPS
 ========================================================= */
 
 function showPATRIODXUserPicker() {
@@ -9860,7 +9860,7 @@ function showPATRIODXUserPicker() {
                             color:var(--text-color,#0f172a);
                             font-size:23px;
                         "
-                    >Ã—</button>
+                    >×</button>
                 </header>
 
                 <div style="padding:18px 20px 10px;">
@@ -10731,7 +10731,7 @@ window.editSocialPost = editSocialPost;
 function getPATRIODXBadge(profile) {
     if (!profile) return "";
 
-    // Gold founder badge â€” preserve the existing design.
+    // Gold founder badge — preserve the existing design.
     if (profile.is_owner) {
         return `
             <span
@@ -11983,7 +11983,7 @@ if (sharedConversationId) {
 
 
 /* =========================================================
-   LOAD CONVERSATIONS â€” PATRIODX
+   LOAD CONVERSATIONS — PATRIODX
 ========================================================= */
 async function loadConversations() {
 
@@ -12665,7 +12665,7 @@ startPATRIODXBlockMonitor(conversationId);
 }
 
 /* =========================================================
-   LOAD MESSAGES â€” OPTIMIZED
+   LOAD MESSAGES — OPTIMIZED
 ========================================================= */
 const patriodxReactionCache = window.patriodxReactionCache ||
     (window.patriodxReactionCache = new Map());
@@ -12785,19 +12785,19 @@ async function loadMessages(conversationId) {
                             class="patriodx-message-action"
                             data-react-heart="${safe(message.id)}"
                             aria-label="React with heart"
-                            title="React with heart">â¤ï¸</button>
+                            title="React with heart">❤️</button>
 
                     <button type="button"
                             class="patriodx-message-action"
                             data-react-laugh="${safe(message.id)}"
                             aria-label="React with laughter"
-                            title="React with laughter">ðŸ˜‚</button>
+                            title="React with laughter">😂</button>
 
                     <button type="button"
                             class="patriodx-message-action"
                             data-react-like="${safe(message.id)}"
                             aria-label="React with thumbs up"
-                            title="React with thumbs up">ðŸ‘</button>
+                            title="React with thumbs up">👍</button>
 
                     ${
                         mine
@@ -12982,7 +12982,7 @@ async function toggleMessageReaction(messageId, reaction) {
         return;
     }
 
-    const allowedReactions = ["â¤ï¸", "ðŸ˜‚", "ðŸ˜®", "ðŸ˜¢", "ðŸ”¥", "ðŸ‘"];
+    const allowedReactions = ["❤️", "😂", "😮", "😢", "🔥", "👍"];
 
     if (!messageId || !allowedReactions.includes(reaction)) {
         console.error("Invalid message reaction:", { messageId, reaction });
@@ -13236,7 +13236,7 @@ if (messageList && !messageList.dataset.reactionsReady) {
         const row = event.target.closest("[data-message-id]");
 
         if (row) {
-            toggleMessageReaction(row.dataset.messageId, "â¤ï¸");
+            toggleMessageReaction(row.dataset.messageId, "❤️");
         }
     });
 
@@ -13252,7 +13252,7 @@ if (messageList && !messageList.dataset.reactionsReady) {
             messageId === lastTapMessage &&
             now - lastTapTime < 350
         ) {
-            toggleMessageReaction(messageId, "â¤ï¸");
+            toggleMessageReaction(messageId, "❤️");
             lastTapTime = 0;
             lastTapMessage = null;
         } else {
@@ -13269,11 +13269,11 @@ if (messageList && !messageList.dataset.reactionsReady) {
         const deleteButton = event.target.closest("[data-delete-message]");
 
         if (heart) {
-            toggleMessageReaction(heart.dataset.reactHeart, "â¤ï¸");
+            toggleMessageReaction(heart.dataset.reactHeart, "❤️");
         } else if (laugh) {
-            toggleMessageReaction(laugh.dataset.reactLaugh, "ðŸ˜‚");
+            toggleMessageReaction(laugh.dataset.reactLaugh, "😂");
         } else if (like) {
-            toggleMessageReaction(like.dataset.reactLike, "ðŸ‘");
+            toggleMessageReaction(like.dataset.reactLike, "👍");
         } else if (existing) {
             toggleMessageReaction(
                 existing.dataset.reactionMessage,
@@ -13399,7 +13399,7 @@ if (messageList && !messageList.dataset.reactionsReady) {
     const attachButton = document.createElement("button");
     attachButton.type = "button";
     attachButton.id = "patriodxAttachButton";
-    attachButton.textContent = "ðŸ“Ž";
+    attachButton.textContent = "📎";
     attachButton.title = "Attach image";
 
     const fileLabel = document.createElement("span");
@@ -13567,7 +13567,7 @@ if (messageList && !messageList.dataset.reactionsReady) {
             font-size: 12px;
         }
 
-        /* Typing indicator â€” light mode */
+        /* Typing indicator — light mode */
 .patriodx-typing-indicator {
     display: block;
     min-height: 18px;
@@ -13587,11 +13587,11 @@ if (messageList && !messageList.dataset.reactionsReady) {
     display: block;
 }
 
-/* Typing indicator â€” dark mode */
+/* Typing indicator — dark mode */
 body.dark-mode .patriodx-typing-indicator {
     color: #cbd5e1 !important;
 }
-/* Reaction controls â€” light mode */
+/* Reaction controls — light mode */
 .patriodx-message-actions,
 .patriodx-reaction {
     background: var(--card-bg, #ffffff);
@@ -13609,7 +13609,7 @@ body.dark-mode .patriodx-typing-indicator {
     border-color: var(--primary-color, #7c3aed);
 }
 
-/* Reaction controls â€” dark mode */
+/* Reaction controls — dark mode */
 body.dark-mode .patriodx-message-actions,
 body.dark-mode .patriodx-reaction {
     background: #111827;
@@ -13693,7 +13693,7 @@ body.dark-mode .patriodx-reaction:hover {
 })();
 
 /* =========================================================
-SEND MESSAGE â€” INSTANT TEXT UI + BACKGROUND SAVE
+SEND MESSAGE — INSTANT TEXT UI + BACKGROUND SAVE
 ========================================================= */
 
 if (messageForm && !messageForm.dataset.sendHandlerReady) {
@@ -13757,7 +13757,7 @@ if (messageForm && !messageForm.dataset.sendHandlerReady) {
                     : ""}
                 <span class="message-time">${safe(formatMessageTime(createdAt))}</span>
             </div>
-            <div class="message-send-status" aria-live="polite">Sendingâ€¦</div>
+            <div class="message-send-status" aria-live="polite">Sending…</div>
         `;
 
         if (!attachmentFile && messageList &&
@@ -13771,7 +13771,7 @@ if (messageForm && !messageForm.dataset.sendHandlerReady) {
 
         try {
             if (attachmentFile) {
-                showPATRIODXToast("Uploading imageâ€¦", "info");
+                showPATRIODXToast("Uploading image…", "info");
                 attachmentPath =
                     await uploadMessageAttachment(attachmentFile);
 
@@ -13872,7 +13872,7 @@ optimisticRow.remove();
 
 
 /* =========================================================
-   REALTIME MESSAGES â€” OPTIMIZED
+   REALTIME MESSAGES — OPTIMIZED
 ========================================================= */
 function subscribeToMessages(conversationId) {
     if (messagingRealtimeChannel) {
@@ -13972,15 +13972,15 @@ function subscribeToMessages(conversationId) {
                         <button type="button"
                             class="patriodx-message-action"
                             data-react-heart="${safe(message.id)}"
-                            aria-label="React with heart">â¤ï¸</button>
+                            aria-label="React with heart">❤️</button>
                         <button type="button"
                             class="patriodx-message-action"
                             data-react-laugh="${safe(message.id)}"
-                            aria-label="React with laughter">ðŸ˜‚</button>
+                            aria-label="React with laughter">😂</button>
                         <button type="button"
                             class="patriodx-message-action"
                             data-react-like="${safe(message.id)}"
-                            aria-label="React with thumbs up">ðŸ‘</button>
+                            aria-label="React with thumbs up">👍</button>
                         ${
                             mine
                                 ? `<button type="button"
@@ -14101,7 +14101,7 @@ function subscribeToMessages(conversationId) {
 
             if (activeConversationId !== conversationId) return;
 
-            indicator.textContent = `${senderName || "Someone"} is typingâ€¦`;
+            indicator.textContent = `${senderName || "Someone"} is typing…`;
             indicator.classList.add("is-typing");
 
             window.patriodxTypingTimer = setTimeout(() => {
@@ -14152,7 +14152,7 @@ function subscribeToMessages(conversationId) {
     }
 }
 /* =========================================================
-   NEW CONVERSATION â€” OPEN USER PICKER
+   NEW CONVERSATION — OPEN USER PICKER
 ========================================================= */
 
 if (newConversationButton) {
@@ -14617,7 +14617,7 @@ const type =
     (notification.type || "").toLowerCase();
 
 /* -----------------------------------------------------
-LIKE / COMMENT â€” OPEN THE POST IN THE EXISTING VIEWER
+LIKE / COMMENT — OPEN THE POST IN THE EXISTING VIEWER
 ----------------------------------------------------- */
 
 if (
@@ -14718,7 +14718,7 @@ if (type === "message") {
 }
 
 /* -----------------------------------------------------
-   FOLLOW â€” OPEN THE FOLLOWER'S PUBLIC PROFILE
+   FOLLOW — OPEN THE FOLLOWER'S PUBLIC PROFILE
 ----------------------------------------------------- */
 
 if (type === "follow") {
@@ -15630,7 +15630,7 @@ window.savePATRIODXProfile = async function(event) {
     ) {
 
         showPATRIODXToast(
-            "Username must be 3â€“30 characters and can only contain letters, numbers, underscores, and periods.",
+            "Username must be 3–30 characters and can only contain letters, numbers, underscores, and periods.",
             "warning"
         );
 
@@ -16605,7 +16605,7 @@ async function loadMyFollowCounts() {
 }
 
 // =========================================================
-// PATRIODX â€” OWN PROFILE FOLLOWERS / FOLLOWING
+// PATRIODX — OWN PROFILE FOLLOWERS / FOLLOWING
 // =========================================================
 
 let myProfileFollowListRequestId = 0;
@@ -16884,8 +16884,20 @@ if (isBlocked) {
         return;
     }
 
-   await loadPublicProfile(userId);
-await loadMyFollowCounts();
+  // Update the Follow button immediately without reloading the profile.
+if (button) {
+    button.textContent = "Following";
+    button.disabled = false;
+
+    button.onclick = function () {
+        unfollowUser(userId);
+    };
+}
+
+// Refresh your own follow totals in the background.
+loadMyFollowCounts().catch(error => {
+    console.error("Follow count refresh failed:", error);
+});
 }
 
 // ------------------------------------------
@@ -17083,7 +17095,24 @@ if (
     return;
 }
 
+// Start independent profile requests together.
+const profileFollowStatusPromise =
+    userId !== currentUser.id
+        ? isFollowingUser(userId)
+        : Promise.resolve(false);
 
+const profileFollowCountsPromise =
+    getProfileFollowCounts(userId);
+
+const profilePostsPromise =
+    supabaseClient
+        .from("posts")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", {
+            ascending: false
+        });
+        const following = await profileFollowStatusPromise;
     const card =
         document.getElementById("publicProfileCard");
 
@@ -17143,52 +17172,51 @@ if (badgeElement) {
 
         } else {
 
-            avatarElement.textContent = "ðŸ‘¤";
+            avatarElement.textContent = "👤";
         }
     }
 
-
+let isFollowingProfile = false;
     // --------------------------------------
-    // FOLLOW BUTTON
-    // --------------------------------------
+// FOLLOW BUTTON
+// --------------------------------------
 
-    const followButton =
-        document.getElementById("publicProfileFollowButton");
+const followButton =
+    document.getElementById("publicProfileFollowButton");
 
-    if (followButton) {
+if (followButton) {
 
-        if (currentUser && userId === currentUser.id) {
+    if (currentUser && userId === currentUser.id) {
 
-            followButton.style.display = "none";
+        followButton.style.display = "none";
 
-        } else {
+    } else {
 
-            followButton.style.display = "inline-block";
+        followButton.style.display = "inline-block";
 
-            const following =
-                await isFollowingUser(userId);
-if (
-    requestId !== publicProfileRequestId ||
-    userId !== viewedProfileUserId
-) {
-    return;
+        if (
+            requestId !== publicProfileRequestId ||
+            userId !== viewedProfileUserId
+        ) {
+            return;
+        }
+
+        followButton.textContent =
+            following ? "Following" : "Follow";
+
+        followButton.disabled = false;
+
+        followButton.onclick = function () {
+
+            if (following) {
+                unfollowUser(userId);
+            } else {
+                followUser(userId);
+            }
+
+        };
+    }
 }
-            followButton.textContent =
-                following ? "Following" : "Follow";
-
-            followButton.disabled = false;
-
-            followButton.onclick = function () {
-
-                if (following) {
-                    unfollowUser(userId);
-                } else {
-                    followUser(userId);
-                }
-
-            };
-        }
-    }
 
 // --------------------------------------
 // MESSAGE BUTTON
@@ -17203,88 +17231,86 @@ if (messageButton) {
     messageButton.onclick = null;
 
     if (currentUser && userId !== currentUser.id) {
-        try {
-            const following = await isFollowingUser(userId);
-if (
-    requestId !== publicProfileRequestId ||
-    userId !== viewedProfileUserId
-) {
-    return;
-}
-            if (following) {
-                messageButton.style.display = "inline-flex";
 
-                messageButton.onclick = async function () {
-                    messageButton.disabled = true;
+        if (
+            requestId !== publicProfileRequestId ||
+            userId !== viewedProfileUserId
+        ) {
+            return;
+        }
 
-                    try {
-                 const opened = await createConversationWithUser(
-    userId,
-    profile
-);
-if (opened && typeof navigatePATRIODX === "function") {
-    window.patriodxMessageReturnToPublicProfile = true;
-    navigatePATRIODX("messaging");
-}
-                    } catch (error) {
-                        console.error(
-                            "Could not start conversation:",
-                            error
-                        );
+        if (following) {
+            messageButton.style.display = "inline-flex";
 
-                        showPATRIODXToast(
-                            "Could not open this conversation. Please try again.",
-                            "error"
-                        );
-                    } finally {
-                        messageButton.disabled = false;
+            messageButton.onclick = async function () {
+                messageButton.disabled = true;
+
+                try {
+                    const opened = await createConversationWithUser(
+                        userId,
+                        profile
+                    );
+
+                    if (opened && typeof navigatePATRIODX === "function") {
+                        window.patriodxMessageReturnToPublicProfile = true;
+                        navigatePATRIODX("messaging");
                     }
-                };
-            }
-        } catch (error) {
-            console.error("Could not check follow status:", error);
+
+                } catch (error) {
+                    console.error(
+                        "Could not start conversation:",
+                        error
+                    );
+
+                    showPATRIODXToast(
+                        "Could not open this conversation. Please try again.",
+                        "error"
+                    );
+
+                } finally {
+                    messageButton.disabled = false;
+                }
+            };
         }
     }
 }
-    // --------------------------------------
-    // FOLLOW COUNTS
-    // --------------------------------------
+// --------------------------------------
+// FOLLOW COUNTS — BACKGROUND LOADING
+// --------------------------------------
 
-    const counts =
-        await getProfileFollowCounts(userId);
-if (
-    requestId !== publicProfileRequestId ||
-    userId !== viewedProfileUserId
-) {
-    return;
-}
-    const followerCount =
-        document.getElementById("publicProfileFollowerCount");
+profileFollowCountsPromise
+    .then(counts => {
 
-    const followingCount =
-        document.getElementById("publicProfileFollowingCount");
+        if (
+            requestId !== publicProfileRequestId ||
+            userId !== viewedProfileUserId
+        ) {
+            return;
+        }
 
-    if (followerCount) {
-        followerCount.textContent = counts.followers;
-    }
+        const followerCount =
+            document.getElementById("publicProfileFollowerCount");
 
-    if (followingCount) {
-        followingCount.textContent = counts.following;
-    }
+        const followingCount =
+            document.getElementById("publicProfileFollowingCount");
 
+        if (followerCount) {
+            followerCount.textContent = counts.followers;
+        }
 
+        if (followingCount) {
+            followingCount.textContent = counts.following;
+        }
+
+    })
+    .catch(error => {
+        console.error("Profile follow counts failed:", error);
+    });
     // --------------------------------------
     // LOAD USER POSTS
     // --------------------------------------
-
-    const { data: posts, error: postsError } =
-        await supabaseClient
-            .from("posts")
-            .select("*")
-            .eq("user_id", userId)
-            .order("created_at", {
-                ascending: false
-            });
+const { data: posts, error: postsError } =
+    await profilePostsPromise;
 if (
     requestId !== publicProfileRequestId ||
     userId !== viewedProfileUserId
@@ -17359,22 +17385,10 @@ const renderedPosts = (
         </video>
     `;
 }
-
-            let stats = { likes: 0, comments: 0 };
-            let liked = false;
-
-            try {
-                [stats, liked] = await Promise.all([
-                    getSocialCounts(post.id),
-                    hasLikedSocialPost(post.id)
-                ]);
-            } catch (error) {
-                console.error(
-                    "Could not load public profile post statistics:",
-                    post.id,
-                    error
-                );
-            }
+// Render the post immediately.
+// Real statistics and like status load after rendering.
+let stats = { likes: 0, comments: 0 };
+let liked = false;
 
             return `
                 <article class="social-post-card">
@@ -17429,10 +17443,10 @@ const renderedPosts = (
                         </span>
 
                         <span>
-                            <i data-lucide="message-circle"></i>
-                            ${stats.comments}
-                            <span>comments</span>
-                        </span>
+    <i data-lucide="message-circle"></i>
+    <span class="public-profile-comment-count">${stats.comments}</span>
+    <span>comments</span>
+</span>
                     </div>
 
                     <div class="public-profile-post-actions">
@@ -17470,7 +17484,89 @@ if (
 }
 
 postsElement.innerHTML = renderedPosts;
+// Load all profile post statistics in ONE database request.
+supabaseClient
+    .rpc("get_profile_post_stats", {
+        p_post_ids: posts.map(post => post.id)
+    })
+    .then(({ data, error }) => {
 
+        if (error) {
+            console.error(
+                "Public profile statistics error:",
+                error
+            );
+            return;
+        }
+
+        if (
+            requestId !== publicProfileRequestId ||
+            userId !== viewedProfileUserId
+        ) {
+            return;
+        }
+
+        (data || []).forEach(stats => {
+
+            const statsElement = document.getElementById(
+                `public-profile-stats-${stats.post_id}`
+            );
+
+            if (!statsElement) return;
+
+            const likesElement = statsElement.querySelector(
+                ".public-profile-like-count"
+            );
+
+            const commentsElement = statsElement.querySelector(
+                ".public-profile-comment-count"
+            );
+
+            if (likesElement) {
+                likesElement.textContent = stats.likes;
+            }
+
+            if (commentsElement) {
+                commentsElement.textContent = stats.comments;
+            }
+
+            const likeButton = postsElement.querySelector(
+                `.public-profile-like-button[data-post-id="${stats.post_id}"]`
+            );
+
+            if (likeButton) {
+
+                likeButton.classList.toggle(
+                    "liked",
+                    stats.liked
+                );
+
+                likeButton.setAttribute(
+                    "aria-label",
+                    stats.liked ? "Unlike post" : "Like post"
+                );
+
+                likeButton.title = stats.liked
+                    ? "Unlike"
+                    : "Like";
+
+                const label = likeButton.querySelector("span");
+
+                if (label) {
+                    label.textContent = stats.liked
+                        ? "Liked"
+                        : "Like";
+                }
+            }
+        });
+
+    })
+    .catch(error => {
+        console.error(
+            "Background profile statistics failed:",
+            error
+        );
+    });
 if (typeof lucide !== "undefined") {
     lucide.createIcons();
 }
@@ -18993,7 +19089,7 @@ grow: "GROW",
 growWithPatriodx: "Grow with PATRIODX",
 unlockTools: "Unlock more business tools.",
 viewPlans: "View Plans",
-        controlCenter: "PATRIODX â€¢ CONTROL CENTER",
+        controlCenter: "PATRIODX • CONTROL CENTER",
 runBusinessSmarter: "Run your business smarter.",
 dashboardDescription: "Manage your products, customers, sales and invoices from one powerful business dashboard.",
 manageProducts: "Manage Products",
@@ -19051,7 +19147,7 @@ yourPosts: "Your Posts",
         profile: "Profil",
         notifications: "Notifications",
         messages: "Messages",
-        logout: "DÃ©connexion",
+        logout: "Déconnexion",
 
         home: "Accueil",
         dashboard: "Tableau de bord",
@@ -19068,8 +19164,8 @@ yourPosts: "Your Posts",
         language: "Langue",
 
         welcome: "Bienvenue sur PATRIODX",
-        runBusiness: "GÃ©rez votre entreprise. Faites fructifier votre argent.",
-        connect: "Connectez-vous. Partagez. DÃ©veloppez-vous.",
+        runBusiness: "Gérez votre entreprise. Faites fructifier votre argent.",
+        connect: "Connectez-vous. Partagez. Développez-vous.",
 
         notificationsTitle: "Notifications",
         messagesTitle: "Messages",
@@ -19081,31 +19177,31 @@ yourPosts: "Your Posts",
         contactTitle: "Contact",
         quickLinks: "Liens rapides",
 
-        privacy: "Politique de confidentialitÃ©",
+        privacy: "Politique de confidentialité",
         terms: "Conditions d'utilisation",
-connect: "Connectez-vous. Partagez. DÃ©veloppez-vous.",
-socialDescription: "Connectez-vous avec des clients et des entreprises, partagez des actualitÃ©s et faites la promotion de vos activitÃ©s.",
-createPost: "CrÃ©er une publication",
+connect: "Connectez-vous. Partagez. Développez-vous.",
+socialDescription: "Connectez-vous avec des clients et des entreprises, partagez des actualités et faites la promotion de vos activités.",
+createPost: "Créer une publication",
 photo: "Photo",
-video: "VidÃ©o",
+video: "Vidéo",
 post: "Publier",
-latestPosts: "DerniÃ¨res publications",
+latestPosts: "Dernières publications",
         main: "PRINCIPAL",
 business: "ENTREPRISE",
-grow: "DÃ‰VELOPPEMENT",
-growWithPatriodx: "DÃ©veloppez-vous avec PATRIODX",
-unlockTools: "DÃ©bloquez plus d'outils professionnels.",
+grow: "DÉVELOPPEMENT",
+growWithPatriodx: "Développez-vous avec PATRIODX",
+unlockTools: "Débloquez plus d'outils professionnels.",
 viewPlans: "Voir les offres",
-        controlCenter: "PATRIODX â€¢ CENTRE DE CONTRÃ”LE",
-runBusinessSmarter: "GÃ©rez votre entreprise plus intelligemment.",
-dashboardDescription: "GÃ©rez vos produits, clients, ventes et factures depuis un puissant tableau de bord.",
-manageProducts: "GÃ©rer les produits",
+        controlCenter: "PATRIODX • CENTRE DE CONTRÔLE",
+runBusinessSmarter: "Gérez votre entreprise plus intelligemment.",
+dashboardDescription: "Gérez vos produits, clients, ventes et factures depuis un puissant tableau de bord.",
+manageProducts: "Gérer les produits",
 viewAnalytics: "Voir les analyses",
 quickActions: "ACTIONS RAPIDES",
-getThingsDoneFaster: "Accomplissez vos tÃ¢ches plus rapidement.",
+getThingsDoneFaster: "Accomplissez vos tâches plus rapidement.",
 
 addProduct: "Ajouter un produit",
-addInventoryItem: "Ajoutez un Ã©lÃ©ment Ã  votre inventaire",
+addInventoryItem: "Ajoutez un élément à votre inventaire",
 
 addCustomer: "Ajouter un client",
 addNewCustomer: "Ajouter un nouveau client",
@@ -19113,30 +19209,30 @@ addNewCustomer: "Ajouter un nouveau client",
 recordSale: "Enregistrer une vente",
 recordTransaction: "Enregistrer une nouvelle transaction",
 
-createInvoice: "CrÃ©er une facture",
+createInvoice: "Créer une facture",
 sendInvoice: "Envoyer une facture professionnelle",
 findPeople: '<i data-lucide="search"></i> Trouver des personnes',
 searchUsername: "Rechercher un nom d'utilisateur...",
 patriodxProfile: '<i data-lucide="user"></i> PROFIL PATRIODX',
 yourProfile: "Votre profil",
-buildYourIdentity: "Construisez votre identitÃ© sur PATRIODX.",
+buildYourIdentity: "Construisez votre identité sur PATRIODX.",
 
 follow: "Suivre",
 posts: "Publications",
-followers: "AbonnÃ©s",
+followers: "Abonnés",
 following: "Abonnements",
 
 tellPeopleAboutYourself: "Parlez de vous aux autres.",
 editProfile: '<i data-lucide="pencil"></i> Modifier le profil',
 
 editYourProfile: "Modifier votre profil",
-customizeProfile: "Personnalisez la faÃ§on dont les autres vous voient sur PATRIODX.",
+customizeProfile: "Personnalisez la façon dont les autres vous voient sur PATRIODX.",
 
 username: "Nom d'utilisateur",
 usernamePlaceholder: "nom d'utilisateur",
 uniqueUsername: "Votre nom d'utilisateur PATRIODX unique.",
 
-displayName: "Nom affichÃ©",
+displayName: "Nom affiché",
 yourName: "Votre nom",
 
 bio: "Biographie",
@@ -19147,7 +19243,7 @@ saveProfile: "Enregistrer le profil",
 cancel: "Annuler",
 
 yourPosts: "Vos publications",
-        allRights: "Tous droits rÃ©servÃ©s."
+        allRights: "Tous droits réservés."
     },
 
     es: {
@@ -19155,12 +19251,12 @@ yourPosts: "Vos publications",
         profile: "Perfil",
         notifications: "Notificaciones",
         messages: "Mensajes",
-        logout: "Cerrar sesiÃ³n",
+        logout: "Cerrar sesión",
 
         home: "Inicio",
         dashboard: "Panel",
         social: "Social",
-        analytics: "AnalÃ­tica",
+        analytics: "Analítica",
         products: "Productos",
         customers: "Clientes",
         sales: "Ventas",
@@ -19179,43 +19275,43 @@ yourPosts: "Vos publications",
         messagesTitle: "Mensajes",
         profileTitle: "Perfil",
 
-        noNotifications: "AÃºn no hay notificaciones",
-        noPosts: "AÃºn no hay publicaciones",
+        noNotifications: "Aún no hay notificaciones",
+        noPosts: "Aún no hay publicaciones",
 
         contactTitle: "Contacto",
-        quickLinks: "Enlaces rÃ¡pidos",
+        quickLinks: "Enlaces rápidos",
 
-        privacy: "PolÃ­tica de privacidad",
-        terms: "TÃ©rminos de servicio",
+        privacy: "Política de privacidad",
+        terms: "Términos de servicio",
 connect: "Conecta. Comparte. Crece.",
 socialDescription: "Conecta con clientes y empresas, comparte novedades y promociona lo que haces.",
-createPost: "Crear una publicaciÃ³n",
+createPost: "Crear una publicación",
 photo: "Foto",
-video: "VÃ­deo",
+video: "Vídeo",
 post: "Publicar",
-latestPosts: "Ãšltimas publicaciones",
+latestPosts: "Últimas publicaciones",
         main: "PRINCIPAL",
 business: "NEGOCIO",
 grow: "CRECER",
 growWithPatriodx: "Crece con PATRIODX",
-unlockTools: "Desbloquea mÃ¡s herramientas empresariales.",
+unlockTools: "Desbloquea más herramientas empresariales.",
 viewPlans: "Ver planes",
-        controlCenter: "PATRIODX â€¢ CENTRO DE CONTROL",
-runBusinessSmarter: "Gestiona tu negocio de forma mÃ¡s inteligente.",
+        controlCenter: "PATRIODX • CENTRO DE CONTROL",
+runBusinessSmarter: "Gestiona tu negocio de forma más inteligente.",
 dashboardDescription: "Gestiona tus productos, clientes, ventas y facturas desde un potente panel de control.",
 manageProducts: "Gestionar productos",
-viewAnalytics: "Ver analÃ­ticas",
-quickActions: "ACCIONES RÃPIDAS",
-getThingsDoneFaster: "Haz las cosas mÃ¡s rÃ¡pido.",
+viewAnalytics: "Ver analíticas",
+quickActions: "ACCIONES RÁPIDAS",
+getThingsDoneFaster: "Haz las cosas más rápido.",
 
-addProduct: "AÃ±adir producto",
-addInventoryItem: "AÃ±ade algo a tu inventario",
+addProduct: "Añadir producto",
+addInventoryItem: "Añade algo a tu inventario",
 
-addCustomer: "AÃ±adir cliente",
-addNewCustomer: "AÃ±adir un nuevo cliente",
+addCustomer: "Añadir cliente",
+addNewCustomer: "Añadir un nuevo cliente",
 
 recordSale: "Registrar venta",
-recordTransaction: "Registrar una nueva transacciÃ³n",
+recordTransaction: "Registrar una nueva transacción",
 
 createInvoice: "Crear factura",
 sendInvoice: "Enviar una factura profesional",
@@ -19231,21 +19327,21 @@ posts: "Publicaciones",
 followers: "Seguidores",
 following: "Siguiendo",
 
-tellPeopleAboutYourself: "CuÃ©ntale a la gente sobre ti.",
+tellPeopleAboutYourself: "Cuéntale a la gente sobre ti.",
 editProfile: '<i data-lucide="pencil"></i> Editar perfil',
 
 editYourProfile: "Editar tu perfil",
-customizeProfile: "Personaliza cÃ³mo te ven las personas en PATRIODX.",
+customizeProfile: "Personaliza cómo te ven las personas en PATRIODX.",
 
 username: "Nombre de usuario",
 usernamePlaceholder: "nombre de usuario",
-uniqueUsername: "Tu nombre de usuario Ãºnico de PATRIODX.",
+uniqueUsername: "Tu nombre de usuario único de PATRIODX.",
 
 displayName: "Nombre para mostrar",
 yourName: "Tu nombre",
 
-bio: "BiografÃ­a",
-bioPlaceholder: "CuÃ©ntale a la gente sobre ti...",
+bio: "Biografía",
+bioPlaceholder: "Cuéntale a la gente sobre ti...",
 
 profilePicture: "Foto de perfil",
 saveProfile: "Guardar perfil",
@@ -20007,7 +20103,7 @@ if (recent.length) {
                     class="global-search-remove-recent"
                     data-remove-recent="${profile.id}"
                     aria-label="Remove recent search"
-                >Ã—</button>
+                >×</button>
             </button>
         `).join("")}
     `;
@@ -20411,7 +20507,7 @@ if (file.size > 50 * 1024 * 1024) {
     }
 }
 /* =========================================================
-MOBILE CREATE SHEET â€” RELIABLE INITIALIZATION
+MOBILE CREATE SHEET — RELIABLE INITIALIZATION
 ========================================================= */
 
 function openMobileCreateSheet() {
@@ -20513,7 +20609,7 @@ document.getElementById("mobileCreateLive")?.addEventListener("click", () => {
 }
 
 /* =========================================================
-MOBILE MORE BUTTON â€” OPEN EXISTING SIDEBAR
+MOBILE MORE BUTTON — OPEN EXISTING SIDEBAR
 ========================================================= */
 
 function setupMobileMoreButton() {
@@ -20687,7 +20783,7 @@ if (openProfileButton) {
     );
 }
 /* =========================================================
-PATRIODX â€” PUBLIC PROFILE POST VIEWER
+PATRIODX — PUBLIC PROFILE POST VIEWER
 ========================================================= */
 
 function openProfilePostViewer(postData) {
@@ -20792,7 +20888,7 @@ closeProfilePostViewer();
 }
 });
 /* =========================================================
-   PATRIODX â€” PROFILE VIEWER INTERACTIONS
+   PATRIODX — PROFILE VIEWER INTERACTIONS
 ========================================================= */
 
 async function refreshProfilePostViewer(postId) {
@@ -20973,7 +21069,7 @@ text.innerHTML = renderClickableMentions(
             commentLikeButton.className = "profile-comment-like-button";
             commentLikeButton.dataset.commentId = comment.id;
             commentLikeButton.textContent =
-                `${userLiked ? "â™¥" : "â™¡"} ${likesForComment.length}`;
+                `${userLiked ? "♥" : "♡"} ${likesForComment.length}`;
             commentLikeButton.setAttribute(
                 "aria-label",
                 userLiked ? "Unlike comment" : "Like comment"
@@ -21266,7 +21362,7 @@ if (!confirmed) {
     }
 });
 /* =========================================================
-   PATRIODX â€” COMMENT LIKE, REPLY AND EDIT HANDLERS
+   PATRIODX — COMMENT LIKE, REPLY AND EDIT HANDLERS
 ========================================================= */
 
 /* Handle comment likes, reply forms, and edit forms. */
@@ -21463,7 +21559,7 @@ document.addEventListener("submit", async function (event) {
     }
 });
 // =========================================================
-// PATRIODX â€” MARKETPLACE FRAME INTEGRATION
+// PATRIODX — MARKETPLACE FRAME INTEGRATION
 // =========================================================
 
 window.addEventListener("message", function (event) {
@@ -21526,7 +21622,7 @@ activeConversationId = null;
     }
 });
 // PATRIODX mobile messaging changes
-/* PATRIODX â€” Refresh inbox when Messages becomes visible */
+/* PATRIODX — Refresh inbox when Messages becomes visible */
 (() => {
     let lastRefresh = 0;
 
@@ -21647,7 +21743,7 @@ async function saveSocialPost(postId) {
 }
 
 window.saveSocialPost = saveSocialPost;
-// PATRIODX â€” Return from public profile
+// PATRIODX — Return from public profile
 document.getElementById("publicProfileBackButton")
     ?.addEventListener("click", function () {
 
@@ -21850,7 +21946,7 @@ document.addEventListener("click", function(event) {
 
 });
 // =========================================================
-// PATRIODX â€” SAVE / UNSAVE PUBLIC PROFILES
+// PATRIODX — SAVE / UNSAVE PUBLIC PROFILES
 // =========================================================
 
 async function savePublicProfile() {
@@ -21919,7 +22015,7 @@ async function savePublicProfile() {
 
 window.savePublicProfile = savePublicProfile;
 // =========================================================
-// PATRIODX â€” PUBLIC PROFILE OPTIONS MENU
+// PATRIODX — PUBLIC PROFILE OPTIONS MENU
 // =========================================================
 async function openPublicProfileMenu() {
     const backdrop = document.getElementById(
@@ -22087,7 +22183,7 @@ document.addEventListener("keydown", function(event) {
         closePublicProfileMenu();
     }
 });
-// PATRIODX â€” Public profile menu actions
+// PATRIODX — Public profile menu actions
 document.getElementById("publicProfileMenu")
     ?.addEventListener("click", async function(event) {
 
@@ -22173,7 +22269,7 @@ document.getElementById("publicProfileMenu")
         }
     });
     // =========================================================
-// PATRIODX â€” REPORT PUBLIC PROFILE
+// PATRIODX — REPORT PUBLIC PROFILE
 // =========================================================
 async function reportPublicProfile() {
     if (!currentUser) {
@@ -22294,7 +22390,7 @@ navigatePATRIODX("social");
     }
 }
 // =========================================================
-// PATRIODX â€” BLOCKED USERS MANAGER
+// PATRIODX — BLOCKED USERS MANAGER
 // =========================================================
 
 async function openBlockedUsersManager() {
@@ -22445,7 +22541,7 @@ async function openBlockedUsersManager() {
     }
 }
 // =========================================================
-// PATRIODX â€” UNBLOCK USER
+// PATRIODX — UNBLOCK USER
 // =========================================================
 async function unblockPATRIODXUser(userId, button) {
     if (!currentUser || !userId) return;
