@@ -21888,3 +21888,45 @@ body.dark-mode .blocked-user-unblock {
         display: none !important;
     }
 }
+/* =========================================================
+   PATRIODX — MOBILE SCROLL-AWARE HEADER
+   ========================================================= */
+
+@media (max-width: 768px) {
+    .patriodx-header.patriodx-clean-header {
+        transition: transform 0.25s ease-in-out !important;
+        will-change: transform;
+    }
+
+    .patriodx-header.patriodx-clean-header.patriodx-scroll-header-hidden {
+        transform: translateY(-110%) !important;
+        pointer-events: none !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .patriodx-header.patriodx-clean-header {
+        transform: none !important;
+    }
+}
+/* PATRIODX — Marketplace image fallback */
+.home-marketplace-product-image-placeholder {
+    display: grid !important;
+    place-items: center;
+    width: 100%;
+    height: 150px;
+    padding: 12px;
+    box-sizing: border-box;
+    background: var(--input-bg, #f1f5f9);
+    color: var(--muted-text, #64748b);
+    font-size: 13px !important;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .home-marketplace-product-image-placeholder {
+        height: 125px;
+    }
+}

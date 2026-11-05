@@ -1,4 +1,4 @@
-const PAYSTACK_PUBLIC_KEY =
+﻿const PAYSTACK_PUBLIC_KEY =
     "pk_live_e1462983063e834b226acdca9492e980762a6ddd";
 const SUPABASE_URL = "https://saerujjsfzyxkyacbvgr.supabase.co";
 const SUPABASE_KEY = "sb_publishable_l50YIYtYLXkjWE1iQSTyoA_GkrIKWn7";
@@ -624,6 +624,66 @@ closeButton.addEventListener(
 }
 
 setupHeaderSearch();
+// =========================================================
+// PATRIODX - MOBILE SCROLL-AWARE HEADER
+// =========================================================
+function setupPATRIODXMobileHeaderScroll() {
+    const header = document.querySelector(
+        ".patriodx-header.patriodx-clean-header"
+    );
+
+    if (!header) return;
+
+    const mobileQuery = window.matchMedia("(max-width: 768px)");
+
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    function updateHeader() {
+        const currentScrollY = Math.max(0, window.scrollY);
+
+        if (!mobileQuery.matches) {
+            header.classList.remove(
+                "patriodx-scroll-header-hidden"
+            );
+            lastScrollY = currentScrollY;
+            ticking = false;
+            return;
+        }
+
+        const difference = currentScrollY - lastScrollY;
+
+        if (currentScrollY <= 12) {
+            header.classList.remove(
+                "patriodx-scroll-header-hidden"
+            );
+        } else if (difference > 6) {
+            header.classList.add(
+                "patriodx-scroll-header-hidden"
+            );
+        } else if (difference < -6) {
+            header.classList.remove(
+                "patriodx-scroll-header-hidden"
+            );
+        }
+
+        lastScrollY = currentScrollY;
+        ticking = false;
+    }
+
+    window.addEventListener("scroll", function () {
+        if (ticking) return;
+
+        ticking = true;
+        window.requestAnimationFrame(updateHeader);
+    }, { passive: true });
+
+    window.addEventListener("resize", updateHeader);
+
+    updateHeader();
+}
+
+setupPATRIODXMobileHeaderScroll();
 // =========================================================
 // DARK MODE
 // =========================================================
@@ -7968,12 +8028,9 @@ function renderHomeMarketplaceProducts(products) {
                     src="${safe(product.image_url)}"
                     alt="${safe(product.name || "Product")}"
                     loading="lazy"
-                    onerror="this.style.display='none'"
+                    onerror="this.replaceWith(Object.assign(document.createElement('div'), {className:'home-marketplace-product-image home-marketplace-product-image-placeholder', textContent:'No image'}))"
                >`
-            : `<div class="home-marketplace-product-image"
-                    style="display:grid;place-items:center;font-size:36px">
-                    🛍️
-               </div>`;
+            : `<div class="home-marketplace-product-image home-marketplace-product-image-placeholder">No image</div>`;
 
         const badge =
             seller && typeof getPATRIODXBadge === "function"
@@ -13671,7 +13728,8 @@ if (messageList && !messageList.dataset.reactionsReady) {
     const attachButton = document.createElement("button");
     attachButton.type = "button";
     attachButton.id = "patriodxAttachButton";
-    attachButton.textContent = "📎";
+    attachButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.82-2.83l8.49-8.48"/></svg>';
+    attachButton.setAttribute("aria-label", "Attach image");
     attachButton.title = "Attach image";
 
     const fileLabel = document.createElement("span");
