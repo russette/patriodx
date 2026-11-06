@@ -5809,15 +5809,15 @@ if ("serviceWorker" in navigator) {
     aria-modal="true"
     aria-label="View profile post"
 >
-    <button
-        type="button"
-        class="profile-post-viewer-close"
-        onclick="closeProfilePostViewer()"
-        aria-label="Close post"
-    >
-        <i data-lucide="x"></i>
-    </button>
-
+   <button
+    type="button"
+    class="profile-post-viewer-close"
+    onclick="closeProfilePostViewer()"
+    aria-label="Back to posts"
+    title="Back"
+>
+    <i data-lucide="arrow-left"></i>
+</button>
     <div
         id="profilePostViewerMedia"
         class="profile-post-viewer-media"

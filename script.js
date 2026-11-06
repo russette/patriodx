@@ -9026,7 +9026,40 @@ const author =
         })
         .join("");
 observePATRIODXFeedVideos(socialFeed);
+// Open Social feed posts in the full post-details viewer.
+socialFeed.querySelectorAll(".social-post-card").forEach((card, index) => {
+    const post = posts[index];
+    if (!post) return;
 
+    card.addEventListener("click", function (event) {
+        // Keep existing buttons, menus, profile links and video controls working.
+        if (
+            event.target.closest(
+                'button, a, input, textarea, select, video, [data-profile-user-id], .social-post-menu-actions, .social-comments'
+            )
+        ) {
+            return;
+        }
+
+        const authorProfile = postProfileMap.get(post.user_id);
+
+        const author =
+            authorProfile?.display_name ||
+            authorProfile?.username ||
+            "PATRIODX User";
+
+        openProfilePostViewer({
+            postId: post.id,
+            imageUrl: post.image_url || "",
+            videoUrl: post.video_url || "",
+            author: author,
+            caption: post.content || "",
+            date: post.created_at
+                ? formatRelativeTime(post.created_at)
+                : ""
+        });
+    });
+});
 // Open a user's public profile from their post name or avatar.
 socialFeed
     .querySelectorAll("[data-profile-user-id]")
@@ -11471,6 +11504,33 @@ data-post-id="${post.id}"
             `;
         }).join("");
         observePATRIODXFeedVideos(homeFeed);
+        // Open Home feed posts in the full post-details viewer.
+homeFeed.querySelectorAll(".home-feed-post").forEach((card, index) => {
+    const post = posts[index];
+    if (!post) return;
+
+    card.addEventListener("click", function (event) {
+        // Preserve existing post controls and profile navigation.
+        if (
+            event.target.closest(
+                'button, a, input, textarea, select, video, [data-profile-user-id], .social-post-menu-actions'
+            )
+        ) {
+            return;
+        }
+
+        openProfilePostViewer({
+            postId: post.id,
+            imageUrl: post.image_url || "",
+            videoUrl: post.video_url || "",
+            author: post.author_name || post.display_name || "PATRIODX User",
+            caption: post.content || "",
+            date: post.created_at
+                ? formatRelativeTime(post.created_at)
+                : ""
+        });
+    });
+});
 // Open the author's public profile from Home posts.
 homeFeed.querySelectorAll("[data-profile-user-id]").forEach(element => {
     element.style.cursor = "pointer";
@@ -17928,18 +17988,18 @@ let liked = false;
         }
     </strong>
 
-    <span>
+       <span>
         ${
             profile.username
                 ? "@" + escapeHTML(profile.username.replace(/^@/, ""))
                 : ""
         }
     </span>
-</div>
 
-                        <div class="social-post-date">
-                            ${escapeHTML(date)}
-                        </div>
+    <div class="social-post-date">
+        ${escapeHTML(date)}
+    </div>
+</div>
                         <div class="social-post-menu-actions">
 
     <button
