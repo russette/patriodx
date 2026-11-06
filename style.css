@@ -22272,3 +22272,254 @@ body.dark-mode #messaging .conversation-item.unread .conversation-preview {
         max-height: none !important;
     }
 }
+/* =========================================================
+   PATRIODX — X-STYLE POST DETAILS MOBILE REFINEMENT
+========================================================= */
+
+.profile-post-viewer {
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: center !important;
+    background: var(--background-color, #fff);
+}
+
+.profile-post-viewer-dialog {
+    width: min(680px, 100%) !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    border-radius: 0 !important;
+    background: var(--card-bg, #fff) !important;
+    color: var(--text-color, #171717) !important;
+}
+
+.profile-post-viewer-close {
+    position: sticky !important;
+    inset: 0 auto auto 0 !important;
+    z-index: 30 !important;
+    flex: 0 0 56px !important;
+    width: 100% !important;
+    height: 56px !important;
+    min-height: 56px !important;
+    justify-content: flex-start !important;
+    padding: 0 18px !important;
+    background: var(--card-bg, #fff) !important;
+    color: var(--text-color, #171717) !important;
+    border-bottom: 1px solid var(--border-color, #eee) !important;
+    border-radius: 0 !important;
+}
+
+.profile-post-viewer-close::after {
+    content: "Post";
+    margin-left: 22px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.profile-post-viewer-media {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    max-height: 480px !important;
+    background: transparent !important;
+}
+
+.profile-post-viewer-media:empty {
+    display: none !important;
+}
+
+.profile-post-viewer-media img,
+.profile-post-viewer-media video {
+    display: block !important;
+    width: 100% !important;
+    max-height: 480px !important;
+    object-fit: contain !important;
+}
+
+.profile-post-viewer-details {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    background: var(--card-bg, #fff) !important;
+    color: var(--text-color, #171717) !important;
+}
+
+.profile-post-viewer-author {
+    min-height: 54px !important;
+    padding: 12px 16px !important;
+    overflow-wrap: normal !important;
+}
+
+.profile-post-viewer-caption {
+    padding: 12px 16px 18px !important;
+    font-size: 16px !important;
+    line-height: 1.55 !important;
+    overflow-wrap: break-word !important;
+}
+
+.profile-post-viewer-actions {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    background: var(--card-bg, #fff) !important;
+    color: var(--text-color, #171717) !important;
+}
+
+.profile-post-viewer-comments-section {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+}
+
+.profile-post-viewer-comments {
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 14px 16px !important;
+}
+
+/* Proper comment alignment */
+.profile-post-viewer-comments .social-comment {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 0 18px !important;
+    box-sizing: border-box !important;
+}
+
+.profile-post-viewer-comments .social-comment-avatar {
+    flex: 0 0 38px !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    border-radius: 50% !important;
+}
+
+.profile-post-viewer-comments .social-comment-content {
+    flex: 1 1 0 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+}
+
+.profile-post-viewer-comments .social-comment-content strong {
+    display: inline !important;
+    font-size: 14px !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+}
+
+.profile-post-viewer-comments .social-comment-content p {
+    display: block !important;
+    margin: 4px 0 !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    white-space: pre-wrap !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+}
+
+.profile-post-viewer-comments .social-comment-content small {
+    display: block !important;
+    margin-top: 5px !important;
+    font-size: 11px !important;
+}
+
+/* Nested replies span the available width beneath their parent */
+.profile-post-viewer-comments .social-comment-replies {
+    flex: 0 0 calc(100% - 42px) !important;
+    width: calc(100% - 42px) !important;
+    min-width: 0 !important;
+    margin: 10px 0 0 42px !important;
+    padding-left: 12px !important;
+    border-left: 2px solid var(--border-color, #ddd) !important;
+    box-sizing: border-box !important;
+}
+
+.profile-post-viewer-comments .social-comment-replies .social-comment {
+    width: 100% !important;
+    margin-left: 0 !important;
+}
+
+/* Comment composer */
+.profile-post-viewer-comment-form {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 20 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-height: 60px !important;
+    padding: 10px 16px max(10px, env(safe-area-inset-bottom)) !important;
+    background: var(--card-bg, #fff) !important;
+    border-top: 1px solid var(--border-color, #eee) !important;
+    box-sizing: border-box !important;
+}
+
+.profile-post-viewer-comment-form input {
+    flex: 1 1 auto !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    font-size: 15px !important;
+}
+
+.profile-post-viewer-comment-form button {
+    flex: 0 0 auto !important;
+    padding: 10px !important;
+    font-weight: 700 !important;
+}
+
+/* Dark theme */
+body.dark-mode .profile-post-viewer-dialog,
+body.dark-mode .profile-post-viewer-details,
+body.dark-mode .profile-post-viewer-actions,
+body.dark-mode .profile-post-viewer-close,
+body.dark-mode .profile-post-viewer-comment-form {
+    background: #121212 !important;
+    color: #f5f5f5 !important;
+}
+
+body.dark-mode .profile-post-viewer-author,
+body.dark-mode .profile-post-viewer-comments-section,
+body.dark-mode .profile-post-viewer-comment-form {
+    border-color: #303030 !important;
+}
+
+/* Mobile sizing */
+@media (max-width: 760px) {
+    .profile-post-viewer-dialog {
+        width: 100% !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        border-radius: 0 !important;
+    }
+
+    .profile-post-viewer-media,
+    .profile-post-viewer-media img,
+    .profile-post-viewer-media video {
+        max-height: 42vh !important;
+    }
+
+    .profile-post-viewer-comments {
+        padding: 14px !important;
+    }
+}

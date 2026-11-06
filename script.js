@@ -21445,10 +21445,8 @@ if (postData.imageUrl) {
     video.playsInline = true;
     mediaContainer.appendChild(video);
 } else {
-    const emptyMedia = document.createElement("div");
-    emptyMedia.className = "profile-post-viewer-text-only";
-    emptyMedia.textContent = "Text post";
-    mediaContainer.appendChild(emptyMedia);
+    mediaContainer.replaceChildren();
+    mediaContainer.style.display = "none";
 }
 
 authorContainer.textContent = postData.author || "PATRIODX User";
