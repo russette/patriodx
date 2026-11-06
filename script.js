@@ -11821,6 +11821,8 @@ const newConversationButton =
 let activeConversationId = null;
 
 let messagingRealtimeChannel = null;
+let messagingInboxRealtimeChannel = null;
+let messagingInboxRefreshTimer = null;
 let patriodxBlockMonitorTimer = null;
 let patriodxBlockMonitorChecking = false;
 let patriodxBlockMonitorRunId = 0;
@@ -12355,23 +12357,24 @@ if (sharedConversationId) {
 /* =========================================================
    LOAD CONVERSATIONS — PATRIODX
 ========================================================= */
-async function loadConversations() {
+async function loadConversations({ silent = false } = {}) {
 
     if (!currentUser || !conversationList) {
         return;
     }
 
-    conversationList.innerHTML = `
-        <div class="messaging-empty-state">
-            <div><i data-lucide="loader-circle"></i></div>
-            <p>Loading conversations...</p>
-        </div>
-    `;
+       if (!silent) {
+        conversationList.innerHTML = `
+            <div class="messaging-empty-state">
+                <div><i data-lucide="loader-circle"></i></div>
+                <p>Loading conversations...</p>
+            </div>
+        `;
 
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
     }
-
     try {
 
         /* GET CONVERSATION MEMBERSHIPS */
@@ -14592,6 +14595,74 @@ if (newConversationButton) {
     });
 }
 /* =========================================================
+   REALTIME INBOX UPDATES — PATRIODX
+========================================================= */
+
+function subscribeToMessagingInbox() {
+
+    if (!currentUser) return;
+
+    // Avoid duplicate inbox subscriptions.
+    if (messagingInboxRealtimeChannel) {
+        supabaseClient.removeChannel(
+            messagingInboxRealtimeChannel
+        );
+
+        messagingInboxRealtimeChannel = null;
+    }
+
+    messagingInboxRealtimeChannel = supabaseClient
+        .channel(`messaging-inbox-${currentUser.id}`)
+        .on(
+            "postgres_changes",
+            {
+                event: "INSERT",
+                schema: "public",
+                table: "messages"
+            },
+            payload => {
+
+                const message = payload.new;
+
+                if (!message?.conversation_id) return;
+
+                // Debounce rapid incoming messages.
+                if (messagingInboxRefreshTimer) {
+                    clearTimeout(messagingInboxRefreshTimer);
+                }
+
+                messagingInboxRefreshTimer = setTimeout(() => {
+
+                    messagingInboxRefreshTimer = null;
+
+                    if (!currentUser) return;
+
+                    loadConversations({ silent: true }).catch(error => {
+                        console.error(
+                            "Realtime inbox refresh failed:",
+                            error
+                        );
+                    });
+
+                }, 250);
+
+            }
+        )
+        .subscribe(status => {
+
+            if (
+                status === "CHANNEL_ERROR" ||
+                status === "TIMED_OUT"
+            ) {
+                console.error(
+                    "Messaging inbox Realtime status:",
+                    status
+                );
+            }
+
+        });
+}
+/* =========================================================
    START MESSAGING
 ========================================================= */
 
@@ -14599,7 +14670,7 @@ if (
     conversationList &&
     currentUser
 ) {
-
+    subscribeToMessagingInbox();
     loadConversations();
 
 }
