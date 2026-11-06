@@ -17940,6 +17940,45 @@ let liked = false;
                         <div class="social-post-date">
                             ${escapeHTML(date)}
                         </div>
+                        <div class="social-post-menu-actions">
+
+    <button
+        type="button"
+        class="social-post-icon-button social-post-menu-toggle"
+        onclick="toggleSocialPostMenu('${escapeHTML(post.id)}', event)"
+        title="Post options"
+        aria-label="Post options"
+        aria-expanded="false"
+        aria-controls="social-post-menu-${escapeHTML(post.id)}"
+    >
+        <i data-lucide="more-horizontal"></i>
+    </button>
+
+    <div
+        class="social-post-dropdown"
+        id="social-post-menu-${escapeHTML(post.id)}"
+        hidden
+    >
+        <button
+            type="button"
+            class="social-post-menu-item"
+            onclick="saveSocialPost('${escapeHTML(post.id)}')"
+        >
+            <i data-lucide="bookmark"></i>
+            <span>Save post</span>
+        </button>
+
+        <button
+            type="button"
+            class="social-post-menu-item"
+            onclick="reportSocialPost('${escapeHTML(post.id)}')"
+        >
+            <i data-lucide="flag"></i>
+            <span>Report post</span>
+        </button>
+
+    </div>
+</div>
                     </div>
 
                     <div class="social-post-content">
@@ -17965,27 +18004,42 @@ let liked = false;
 </span>
                     </div>
 
-                    <div class="public-profile-post-actions">
-                        <button
-                            type="button"
-                            class="social-like-button public-profile-like-button ${liked ? "liked" : ""}"
-                            data-post-id="${escapeHTML(post.id)}"
-                            aria-label="${liked ? "Unlike post" : "Like post"}"
-                            title="${liked ? "Unlike" : "Like"}"
-                        >
-                            <i data-lucide="heart"></i>
-                            <span>${liked ? "Liked" : "Like"}</span>
-                        </button>
+                   <div class="social-post-actions-bar public-profile-post-actions">
 
-                        <button
-                            type="button"
-                            class="public-profile-comment-button"
-                            data-post-id="${escapeHTML(post.id)}"
-                        >
-                            <i data-lucide="message-circle"></i>
-                            Comment
-                        </button>
-                    </div>
+    <button
+        type="button"
+        class="social-action-button social-like-button public-profile-like-button ${liked ? "liked" : ""}"
+        data-post-id="${escapeHTML(post.id)}"
+        aria-label="${liked ? "Unlike post" : "Like post"}"
+        title="${liked ? "Unlike" : "Like"}"
+    >
+        <i data-lucide="heart"></i>
+        <span>${liked ? "Liked" : "Like"}</span>
+    </button>
+
+    <button
+        type="button"
+        class="social-action-button public-profile-comment-button"
+        data-post-id="${escapeHTML(post.id)}"
+        aria-label="View comments"
+        title="Comment"
+    >
+        <i data-lucide="message-circle"></i>
+        <span>Comment</span>
+    </button>
+
+    <button
+        type="button"
+        class="social-action-button"
+        onclick="shareSocialPost('${escapeHTML(post.id)}')"
+        aria-label="Share post"
+        title="Share"
+    >
+        <i data-lucide="share-2"></i>
+        <span>Share</span>
+    </button>
+
+</div>
                 </article>
             `;
         })
@@ -18228,33 +18282,20 @@ postsElement
             }
         });
     });
-
-// Open the post viewer when Comment is clicked
+// Open the shared PATRIODX comments interface
 postsElement
     .querySelectorAll(".public-profile-comment-button")
     .forEach(button => {
         button.addEventListener("click", function (event) {
             event.stopPropagation();
 
-            const post = posts.find(
-                item => String(item.id) === String(this.dataset.postId)
-            );
+            const postId = this.dataset.postId;
 
-            if (!post) return;
+            if (!postId) return;
 
-            openProfilePostViewer({
-                postId: post.id,
-                imageUrl: post.image_url || "",
-                videoUrl: post.video_url || "",
-                author: profile.display_name || "PATRIODX User",
-                caption: post.content || "",
-                date: post.created_at
-                    ? formatRelativeTime(post.created_at)
-                    : ""
-            });
+            openPATRIODXComments(postId);
         });
     });
-
 
 }
 function escapeHTML(value) {
