@@ -12698,6 +12698,8 @@ const unreadMessageCountMap = new Map();
 
                 const timestamp =
                     formatConversationTime(lastActivity);
+                    const isActive =
+    activeConversationId === conversation.id;
 const unreadCount =
     unreadMessageCountMap.get(conversation.id) || 0;
 
