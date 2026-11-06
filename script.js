@@ -6918,42 +6918,83 @@ if (window.visualViewport) {
             button.disabled = false;
         }
     });
+// Instagram-style mobile comments sheet dragging.
+const handle = sheet.querySelector(
+    ".patriodx-comments-handle-area"
+);
 
-    // Swipe down from the handle to dismiss.
-    const handle = sheet.querySelector(
-        ".patriodx-comments-handle-area"
-    );
+if (handle && panel) {
+    let startY = null;
+    let currentY = null;
+    let dragging = false;
 
-    if (handle) {
-        let startY = null;
+    handle.addEventListener("pointerdown", function(event) {
+        if (
+            !window.matchMedia("(max-width: 768px)").matches ||
+            sheet.classList.contains("keyboard-open") ||
+            !event.isPrimary
+        ) {
+            return;
+        }
 
-       handle.addEventListener("pointerdown", function(event) {
-    startY = event.clientY;
+        startY = event.clientY;
+        currentY = event.clientY;
+        dragging = true;
 
-    try {
-        handle.setPointerCapture(event.pointerId);
-    } catch (error) {
-        console.warn("Could not capture comments-sheet pointer:", error);
-    }
-});
+        panel.style.transition = "none";
 
-        handle.addEventListener("pointerup", function(event) {
-            if (startY === null) return;
+        try {
+            handle.setPointerCapture(event.pointerId);
+        } catch (error) {
+            console.warn("Comments drag capture failed:", error);
+        }
+    });
 
-            const distance = event.clientY - startY;
+    handle.addEventListener("pointermove", function(event) {
+        if (!dragging || startY === null) return;
 
-            if (distance > 80) {
+        currentY = event.clientY;
+
+        const distance = currentY - startY;
+
+        if (distance > 0 && !sheet.classList.contains("is-expanded")) {
+            panel.style.transform =
+                `translateY(${Math.min(distance, 300)}px)`;
+        } else if (distance > 0) {
+            panel.style.transform =
+                `translateY(${Math.min(distance, 300)}px)`;
+        } else {
+            panel.style.transform =
+                `translateY(${Math.max(distance, -300)}px)`;
+        }
+    });
+
+    function finishCommentsDrag() {
+        if (!dragging || startY === null) return;
+
+        const distance = currentY - startY;
+
+        dragging = false;
+        startY = null;
+        currentY = null;
+
+        panel.style.transition = "transform 0.25s ease, height 0.25s ease";
+        panel.style.transform = "";
+
+        if (distance < -70) {
+            sheet.classList.add("is-expanded");
+        } else if (distance > 70) {
+            if (sheet.classList.contains("is-expanded")) {
+                sheet.classList.remove("is-expanded");
+            } else {
                 closePATRIODXComments();
             }
-
-            startY = null;
-        });
-
-        handle.addEventListener("pointercancel", function() {
-            startY = null;
-        });
+        }
     }
 
+    handle.addEventListener("pointerup", finishCommentsDrag);
+    handle.addEventListener("pointercancel", finishCommentsDrag);
+}
     console.log("PATRIODX comments sheet initialized.");
 }
 
@@ -12473,9 +12514,9 @@ const [
 
     supabaseClient
         .from("messages")
-        .select(
-            "conversation_id, sender_id, content, created_at"
-        )
+.select(
+    "conversation_id, sender_id, content, created_at, is_read"
+)
         .in("conversation_id", conversationIds)
         .order("created_at", {
             ascending: false
@@ -12505,24 +12546,39 @@ const profileMap = new Map(
         profile
     ])
 );
-        /* STORE THE NEWEST MESSAGE FOR EACH CONVERSATION */
+/* STORE LATEST MESSAGES AND COUNT UNREAD MESSAGES */
 
-        const latestMessageMap = new Map();
+const latestMessageMap = new Map();
+const unreadMessageCountMap = new Map();
 
-        (recentMessages || []).forEach(message => {
+(recentMessages || []).forEach(message => {
 
-            if (
-                !latestMessageMap.has(
-                    message.conversation_id
-                )
-            ) {
-                latestMessageMap.set(
-                    message.conversation_id,
-                    message
-                );
-            }
-        });
+    // Messages are ordered newest first.
+    if (
+        !latestMessageMap.has(
+            message.conversation_id
+        )
+    ) {
+        latestMessageMap.set(
+            message.conversation_id,
+            message
+        );
+    }
 
+    // Count only unread messages received from other users.
+    if (
+        message.sender_id !== currentUser.id &&
+        message.is_read === false
+    ) {
+        const currentCount =
+            unreadMessageCountMap.get(message.conversation_id) || 0;
+
+        unreadMessageCountMap.set(
+            message.conversation_id,
+            currentCount + 1
+        );
+    }
+});
         /* SORT BY MOST RECENT ACTIVITY */
 
         visibleConversations.sort((a, b) => {
@@ -12642,9 +12698,10 @@ const profileMap = new Map(
 
                 const timestamp =
                     formatConversationTime(lastActivity);
+const unreadCount =
+    unreadMessageCountMap.get(conversation.id) || 0;
 
-                const isActive =
-                    activeConversationId === conversation.id;
+const isUnread = unreadCount > 0;
 
                 const avatar = otherProfile?.avatar_url
                     ? `
@@ -12673,9 +12730,11 @@ const profileMap = new Map(
                 return `
                     <button
                         type="button"
-                        class="conversation-item ${
-                            isActive ? "active" : ""
-                        }"
+                       class="conversation-item ${
+    isActive ? "active" : ""
+} ${
+    isUnread ? "unread" : ""
+}"
                         data-conversation-id="${safe(conversation.id)}"
                     >
 
@@ -12711,9 +12770,19 @@ const profileMap = new Map(
 
                         </div>
 
-                        <span class="conversation-time">
-                            ${safe(timestamp)}
-                        </span>
+                      <span class="conversation-time">
+    ${safe(timestamp)}
+</span>
+
+${
+    isUnread
+        ? `
+            <span class="conversation-unread-indicator">
+                ${unreadCount > 1 ? unreadCount : ""}
+            </span>
+        `
+        : ""
+}
 
                     </button>
                 `;
@@ -12985,6 +13054,10 @@ if (readResult.error) {
         "Could not mark messages as read:",
         readResult.error
     );
+}
+// Refresh unread indicators after marking this conversation read.
+if (!readResult.error) {
+    await loadConversations();
 }
 /* KEEP REALTIME MESSAGING */
 
@@ -21495,26 +21568,47 @@ text.innerHTML = renderClickableMentions(
                 replyButton.type = "button";
                 replyButton.className = "profile-comment-reply-button";
                 replyButton.dataset.commentId = comment.id;
-                replyButton.textContent = "Reply";
+               replyButton.innerHTML = '<i data-lucide="reply"></i><span>Reply</span>';
+replyButton.setAttribute("aria-label", "Reply");
+replyButton.title = "Reply";
                 actions.appendChild(replyButton);
             }
+const commentAge =
+    Date.now() - new Date(comment.created_at).getTime();
 
-            if (isOwner) {
-                const editButton = document.createElement("button");
-                editButton.type = "button";
-                editButton.className = "profile-comment-edit-button";
-                editButton.dataset.commentId = comment.id;
-                editButton.textContent = "Edit";
-                actions.appendChild(editButton);
+const canEditComment =
+    isOwner &&
+    Number.isFinite(commentAge) &&
+    commentAge >= 0 &&
+    commentAge <= 15 * 60 * 1000;
 
-                const deleteButton = document.createElement("button");
-                deleteButton.type = "button";
-                deleteButton.className = "profile-comment-delete-button";
-                deleteButton.dataset.commentId = comment.id;
-                deleteButton.textContent = "Delete";
-                actions.appendChild(deleteButton);
-            }
+// Edit: only within 15 minutes.
+if (canEditComment) {
+    const editButton = document.createElement("button");
+    editButton.type = "button";
+    editButton.className = "profile-comment-edit-button";
+    editButton.dataset.commentId = comment.id;
+    editButton.innerHTML =
+        '<i data-lucide="pencil"></i><span>Edit</span>';
+    editButton.setAttribute("aria-label", "Edit comment");
+    editButton.title = "Edit";
 
+    actions.appendChild(editButton);
+}
+
+// Delete: always available to the owner.
+if (isOwner) {
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "profile-comment-delete-button";
+    deleteButton.dataset.commentId = comment.id;
+    deleteButton.innerHTML =
+        '<i data-lucide="trash-2"></i><span>Delete</span>';
+    deleteButton.setAttribute("aria-label", "Delete comment");
+    deleteButton.title = "Delete";
+
+    actions.appendChild(deleteButton);
+}
             content.appendChild(actions);
             row.append(avatar, content);
 
@@ -21566,19 +21660,24 @@ text.innerHTML = renderClickableMentions(
             return row;
         }
 
-        function appendCommentTree(comment, isReply = false) {
-            const row = renderComment(comment, isReply);
-            commentsContainer.appendChild(row);
+     function appendCommentTree(comment, parentContainer = commentsContainer, isReply = false) {
+    const row = renderComment(comment, isReply);
+    parentContainer.appendChild(row);
 
-            if (!isReply) {
-                const replies = commentsByParent.get(comment.id) || [];
+    if (!isReply) {
+        const replies = commentsByParent.get(comment.id) || [];
 
-                replies.forEach(reply => {
-                    appendCommentTree(reply, true);
-                });
-            }
+        if (replies.length) {
+            const repliesContainer = document.createElement("div");
+            repliesContainer.className = "social-comment-replies";
+            row.appendChild(repliesContainer);
+
+            replies.forEach(reply => {
+                appendCommentTree(reply, repliesContainer, true);
+            });
         }
-
+    }
+}
         const topLevelComments = commentsByParent.get(null) || [];
 
         if (topLevelComments.length === 0) {
@@ -21922,32 +22021,63 @@ document.addEventListener("submit", async function (event) {
             if (error) throw error;
 
             showPATRIODXToast("Reply added.", "success");
-        } else {
-            const commentId = form.dataset.commentId;
+      } else {
+    const commentId = form.dataset.commentId;
 
-            if (!commentId) {
-                throw new Error("The comment could not be found.");
-            }
+    if (!commentId) {
+        throw new Error("The comment could not be found.");
+    }
 
-            const { data, error } = await supabaseClient
-                .from("comments")
-                .update({
-                    content: content,
-                    updated_at: new Date().toISOString()
-                })
-                .eq("id", commentId)
-                .eq("user_id", currentUser.id)
-                .eq("post_id", postId)
-                .select("id");
+    // Verify ownership and original creation time before allowing an edit.
+    const { data: existingComment, error: fetchError } = await supabaseClient
+        .from("comments")
+        .select("id, created_at")
+        .eq("id", commentId)
+        .eq("user_id", currentUser.id)
+        .eq("post_id", postId)
+        .maybeSingle();
 
-            if (error) throw error;
+    if (fetchError) throw fetchError;
 
-            if (!data || data.length === 0) {
-                throw new Error("The comment was not updated. Check ownership and permissions.");
-            }
+    if (!existingComment) {
+        throw new Error("Comment not found or you do not have permission to edit it.");
+    }
 
-            showPATRIODXToast("Comment updated.", "success");
-        }
+    const commentAge =
+        Date.now() - new Date(existingComment.created_at).getTime();
+
+    if (
+        !Number.isFinite(commentAge) ||
+        commentAge < 0 ||
+        commentAge > 15 * 60 * 1000
+    ) {
+        form.hidden = true;
+        showPATRIODXToast(
+            "Comments can only be edited within 15 minutes of posting.",
+            "warning"
+        );
+        return;
+    }
+
+    const { data, error } = await supabaseClient
+        .from("comments")
+        .update({
+            content: content,
+            updated_at: new Date().toISOString()
+        })
+        .eq("id", commentId)
+        .eq("user_id", currentUser.id)
+        .eq("post_id", postId)
+        .select("id");
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+        throw new Error("The comment was not updated. Check ownership and permissions.");
+    }
+
+    showPATRIODXToast("Comment updated.", "success");
+}
 
       await refreshPATRIODXCommentsSurface(postId);
         await refreshSocialPostStats(postId);

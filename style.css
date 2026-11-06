@@ -21930,3 +21930,124 @@ body.dark-mode .blocked-user-unblock {
         height: 125px;
     }
 }
+/* PATRIODX — MOBILE COMMENTS POLISH */
+@media (max-width: 768px) {
+
+    /* Show compact icons instead of action labels */
+    .social-comment-actions .profile-comment-reply-button,
+    .social-comment-actions .profile-comment-edit-button,
+    .social-comment-actions .profile-comment-delete-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        padding: 6px;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: inherit;
+    }
+
+    .social-comment-actions .profile-comment-reply-button span,
+    .social-comment-actions .profile-comment-edit-button span,
+    .social-comment-actions .profile-comment-delete-button span {
+        display: none;
+    }
+
+    .social-comment-actions button svg {
+        width: 17px;
+        height: 17px;
+        stroke-width: 1.8;
+    }
+
+    /* Keep nested replies visually beneath their parent */
+    .social-comment-replies {
+        margin: 10px 0 0 14px;
+        padding-left: 12px;
+        border-left: 2px solid var(--border-color, rgba(128, 128, 128, 0.25));
+        min-width: 0;
+    }
+
+    .social-comment-replies .social-comment {
+        margin-left: 0;
+        min-width: 0;
+    }
+
+    /* Keep scrolling inside the comments sheet */
+    #patriodxCommentsSheet {
+        overscroll-behavior: contain;
+        touch-action: pan-y;
+    }
+
+    #patriodxCommentsSheet .patriodx-comments-panel {
+        overscroll-behavior: contain;
+    }
+
+    #patriodxCommentsSheet .patriodx-comments-list {
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
+        min-height: 0;
+    }
+
+    #patriodxCommentsSheet .patriodx-comments-handle-area {
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+}
+@media (max-width: 768px) {
+    #patriodxCommentsSheet.is-expanded .patriodx-comments-panel {
+        height: 100%;
+        border-radius: 0;
+    }
+}
+/* =========================================================
+   PATRIODX — UNREAD CONVERSATION INDICATORS
+========================================================= */
+
+#messaging .conversation-item.unread .conversation-info strong {
+    font-weight: 800;
+}
+
+#messaging .conversation-item.unread .conversation-preview {
+    font-weight: 700;
+    opacity: 1;
+}
+
+#messaging .conversation-unread-indicator {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    min-width: 9px;
+    width: 9px;
+    height: 9px;
+    margin-left: 5px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+#messaging .conversation-unread-indicator:not(:empty) {
+    width: auto;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+}
+
+/* Keep unread styling visible in dark mode */
+body.dark-mode #messaging .conversation-item.unread .conversation-info strong {
+    color: #ffffff;
+}
+
+body.dark-mode #messaging .conversation-item.unread .conversation-preview {
+    color: #e2e8f0;
+    opacity: 1;
+}
