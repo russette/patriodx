@@ -22051,3 +22051,10 @@ body.dark-mode #messaging .conversation-item.unread .conversation-preview {
     color: #e2e8f0;
     opacity: 1;
 }
+    /* Put Reply beneath the comment actions, like Instagram */
+    .social-comment-actions .profile-comment-reply-button {
+        flex: 0 0 100%;
+        width: 34px;
+        justify-content: flex-start;
+        justify-self: start;
+    }

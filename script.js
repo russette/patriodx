@@ -12513,14 +12513,7 @@ const [
     profileQuery,
 
     supabaseClient
-        .from("messages")
-.select(
-    "conversation_id, sender_id, content, created_at, is_read"
-)
-        .in("conversation_id", conversationIds)
-        .order("created_at", {
-            ascending: false
-        })
+        .rpc("get_conversation_summaries")
 
 ]);
 
@@ -12546,38 +12539,25 @@ const profileMap = new Map(
         profile
     ])
 );
-/* STORE LATEST MESSAGES AND COUNT UNREAD MESSAGES */
+// Reuse inbox profiles when opening conversations.
+window.patriodxConversationProfileCache = profileMap;
+/* STORE LATEST MESSAGES AND UNREAD COUNTS */
 
 const latestMessageMap = new Map();
 const unreadMessageCountMap = new Map();
 
 (recentMessages || []).forEach(message => {
 
-    // Messages are ordered newest first.
-    if (
-        !latestMessageMap.has(
-            message.conversation_id
-        )
-    ) {
-        latestMessageMap.set(
-            message.conversation_id,
-            message
-        );
-    }
+    latestMessageMap.set(
+        message.conversation_id,
+        message
+    );
 
-    // Count only unread messages received from other users.
-    if (
-        message.sender_id !== currentUser.id &&
-        message.is_read === false
-    ) {
-        const currentCount =
-            unreadMessageCountMap.get(message.conversation_id) || 0;
+    unreadMessageCountMap.set(
+        message.conversation_id,
+        Number(message.unread_count) || 0
+    );
 
-        unreadMessageCountMap.set(
-            message.conversation_id,
-            currentCount + 1
-        );
-    }
 });
         /* SORT BY MOST RECENT ACTIVITY */
 
@@ -12698,11 +12678,9 @@ const unreadMessageCountMap = new Map();
 
                 const timestamp =
                     formatConversationTime(lastActivity);
-                    const isActive =
-    activeConversationId === conversation.id;
 const unreadCount =
     unreadMessageCountMap.get(conversation.id) || 0;
-
+const isActive = conversation.id === activeConversationId;
 const isUnread = unreadCount > 0;
 
                 const avatar = otherProfile?.avatar_url
@@ -12840,49 +12818,20 @@ async function openConversation(
     otherUserProfile = null
 ) {
 
-    if (!currentUser || !conversationId) return;
+   if (!currentUser || !conversationId) return;
 
-    const { data: hasBlockedMember, error: blockCheckError } =
-        await supabaseClient.rpc(
-            "conversation_has_blocked_member",
-            { target_conversation_id: conversationId }
-        );
+/* LOAD ACCESS CHECK AND CONVERSATION DATA IN PARALLEL */
 
-    if (blockCheckError) {
-        console.error("Conversation block check error:", blockCheckError);
-        showPATRIODXToast(
-            "Could not verify conversation access.",
-            "error"
-        );
-        return;
-    }
-
-    if (hasBlockedMember) {
-        activeConversationId = null;
-
-        if (messageList) messageList.innerHTML = "";
-        if (chatHeader) chatHeader.innerHTML = "";
-
-        showPATRIODXToast(
-            "This conversation is unavailable.",
-            "info"
-        );
-
-        return;
-    }
-
-    activeConversationId = conversationId;
-// Refresh the inbox in the background without blocking chat opening.
-loadConversations().catch(error => {
-    console.error("Background conversation refresh failed:", error);
-});
-
-messageInput.disabled = false;
-messageSendButton.disabled = false;
 const [
+    { data: hasBlockedMember, error: blockCheckError },
     { data: conversation, error },
     { data: members, error: membersError }
 ] = await Promise.all([
+
+    supabaseClient.rpc(
+        "conversation_has_blocked_member",
+        { target_conversation_id: conversationId }
+    ),
 
     supabaseClient
         .from("conversations")
@@ -12897,10 +12846,47 @@ const [
 
 ]);
 
+/* NEVER OPEN A CHAT WITHOUT A SUCCESSFUL BLOCK CHECK */
+
+if (blockCheckError) {
+    console.error("Conversation block check error:", blockCheckError);
+
+    showPATRIODXToast(
+        "Could not verify conversation access.",
+        "error"
+    );
+
+    return;
+}
+
+if (hasBlockedMember) {
+    activeConversationId = null;
+
+    if (messageList) messageList.innerHTML = "";
+    if (chatHeader) chatHeader.innerHTML = "";
+
+    showPATRIODXToast(
+        "This conversation is unavailable.",
+        "info"
+    );
+
+    return;
+}
+
 if (error) {
     console.error("Could not open conversation:", error);
     return;
 }
+
+if (membersError) {
+    console.error("Could not load conversation members:", membersError);
+    return;
+}
+
+activeConversationId = conversationId;
+
+messageInput.disabled = false;
+messageSendButton.disabled = false;
 
 /* GET THE OTHER PARTICIPANT */
 let otherUser = null;
@@ -12914,35 +12900,51 @@ if (!membersError) {
     if (otherMember) {
         otherUserId = otherMember.user_id;
 
-        // Reuse the profile already loaded from the public profile.
-        if (
-            otherUserProfile &&
-            otherUserProfile.id === otherUserId
-        ) {
-            otherUser = otherUserProfile;
-        } else {
-            // Normal fallback when opening a conversation from the inbox.
-            const { data: profile, error: profileError } =
-                await supabaseClient
-                    .from("profiles")
-                    .select(`
-                        id,
-                        username,
-                        display_name,
-                        avatar_url,
-                        is_verified,
-                        is_owner,
-                        verification_expires_at
-                    `)
-                    .eq("id", otherUserId)
-                    .single();
+     // Reuse an already-loaded profile whenever possible.
+const cachedProfile =
+    window.patriodxConversationProfileCache?.get(otherUserId);
 
-            if (!profileError) {
-                otherUser = profile;
+if (
+    otherUserProfile &&
+    otherUserProfile.id === otherUserId
+) {
+    otherUser = otherUserProfile;
+} else if (cachedProfile) {
+    otherUser = cachedProfile;
+} else {
+    const { data: profile, error: profileError } =
+        await supabaseClient
+            .from("profiles")
+            .select(`
+                id,
+                username,
+                display_name,
+                avatar_url,
+                is_verified,
+                is_owner,
+                verification_expires_at
+            `)
+            .eq("id", otherUserId)
+            .single();
+
+    if (!profileError) {
+        otherUser = profile;
+
+        if (profile) {
+            if (!window.patriodxConversationProfileCache) {
+                window.patriodxConversationProfileCache = new Map();
             }
+
+                       window.patriodxConversationProfileCache.set(
+                otherUserId,
+                profile
+            );
         }
     }
 }
+}
+}
+
 /* PREPARE THE HEADER */
 
 const title =
@@ -13057,9 +13059,11 @@ if (readResult.error) {
         readResult.error
     );
 }
-// Refresh unread indicators after marking this conversation read.
+// Refresh unread indicators without delaying the chat.
 if (!readResult.error) {
-    await loadConversations();
+    loadConversations().catch(error => {
+        console.error("Unread indicator refresh failed:", error);
+    });
 }
 /* KEEP REALTIME MESSAGING */
 
