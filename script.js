@@ -5796,7 +5796,7 @@ async function startPATRIODX() {
 
     await loadData();
     updatePlanUsage();
-    await loadMyProfile();
+   await window.loadMyProfile();
 
     // Load stories after restoring the signed-in user.
     await loadPATRIODXStories();
