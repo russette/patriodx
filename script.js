@@ -21539,6 +21539,7 @@ if (viewer.style.display !== "flex") {
 // Display the viewer immediately.
 viewer.style.display = "flex";
 viewer.setAttribute("aria-hidden", "false");
+window.profileViewerSavedScrollY = window.scrollY;
 document.body.style.overflow = "hidden";
 
 // Start every newly opened post at the top.
@@ -21707,7 +21708,13 @@ window.currentProfileViewerPostId = null;
 
     document.body.style.overflow =
         window.profileViewerPreviousOverflow || "";
-
+requestAnimationFrame(() => {
+    window.scrollTo({
+        top: window.profileViewerSavedScrollY || 0,
+        left: 0,
+        behavior: "instant"
+    });
+});
     // Move the author back into the details section.
     const details = viewer.querySelector(".profile-post-viewer-details");
 
@@ -21849,7 +21856,15 @@ if (!options.commentsOnly) {
 
         const profiles = profileResult.data || [];
         const commentLikes = commentLikeResult.data || [];
+const commentLikesById = new Map();
 
+commentLikes.forEach(item => {
+    if (!commentLikesById.has(item.comment_id)) {
+        commentLikesById.set(item.comment_id, []);
+    }
+
+    commentLikesById.get(item.comment_id).push(item);
+});
         const profileMap = new Map(
             profiles.map(profile => [profile.id, profile])
         );
@@ -21888,9 +21903,8 @@ const username =
         : null) ||
     "";
 
-            const likesForComment = commentLikes.filter(
-                item => item.comment_id === comment.id
-            );
+          const likesForComment =
+    commentLikesById.get(comment.id) || [];
 
             const userLiked = Boolean(
                 currentUser &&
@@ -22217,10 +22231,13 @@ document.addEventListener("submit", async function (event) {
         input.value = "";
 
        await refreshPATRIODXCommentsSurface(postId);
-        await refreshSocialPostStats(postId);
-        await refreshHomePostStats(postId);
 
-        showPATRIODXToast("Comment added.", "success");
+void Promise.allSettled([
+    refreshSocialPostStats(postId),
+    refreshHomePostStats(postId)
+]);
+
+showPATRIODXToast("Comment added.", "success");
     } catch (error) {
         console.error("Viewer comment submission error:", error);
 
