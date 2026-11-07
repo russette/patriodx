@@ -5737,12 +5737,6 @@ function setupForms() {
         );
 }
 
-    document
-        .getElementById("addStoryForm")
-        ?.addEventListener(
-            "submit",
-            submitPATRIODXStory
-        );
 /* =========================================================
    SOCIAL COMMENTS REALTIME
 ========================================================= */
@@ -21152,6 +21146,21 @@ if (file.size > 50 * 1024 * 1024) {
             lucide.createIcons();
         }
     }
+}
+// Register PATRIODX story submission.
+const patriodxStoryForm =
+    document.getElementById("addStoryForm");
+
+if (
+    patriodxStoryForm &&
+    patriodxStoryForm.dataset.storySubmitReady !== "true"
+) {
+    patriodxStoryForm.dataset.storySubmitReady = "true";
+
+    patriodxStoryForm.addEventListener(
+        "submit",
+        submitPATRIODXStory
+    );
 }
 /* =========================================================
 MOBILE CREATE SHEET — RELIABLE INITIALIZATION
