@@ -22928,3 +22928,227 @@ body.dark-mode .profile-post-viewer-author-avatar {
         border-left-color: #374151 !important;
     }
 }
+/* =========================================
+   PATRIODX COMMENT THREAD LAYOUT
+========================================= */
+
+.social-comment-thread {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.social-comment-replies {
+    display: block;
+    width: auto;
+    min-width: 0;
+    margin: 10px 0 12px 42px;
+    padding-left: 14px;
+    border-left: 2px solid var(--border-color, #dedede);
+}
+
+.social-comment-replies > .social-comment {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    margin: 10px 0;
+}
+
+.social-comment-reply {
+    width: 100%;
+    min-width: 0;
+}
+
+body.dark-mode .social-comment-replies {
+    border-left-color: #383838;
+}
+
+@media (max-width: 768px) {
+    .social-comment-replies {
+        margin-left: 28px;
+        padding-left: 10px;
+    }
+}
+/* =========================================================
+   PATRIODX � X-STYLE FULL POST VIEWER SCROLL FIX
+   The complete post detail page scrolls as one surface.
+========================================================= */
+
+.profile-post-viewer {
+    position: fixed !important;
+    inset: 0 !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+}
+
+.profile-post-viewer-dialog {
+    display: flex !important;
+    flex-direction: column !important;
+    width: min(680px, 100%) !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    scrollbar-width: thin;
+}
+
+.profile-post-viewer-close {
+    position: sticky !important;
+    top: 0 !important;
+    flex: 0 0 56px !important;
+    z-index: 50 !important;
+}
+
+.profile-post-viewer-media {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+.profile-post-viewer-media img,
+.profile-post-viewer-media video {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: min(70dvh, 650px) !important;
+    object-fit: contain !important;
+}
+
+.profile-post-viewer-details {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: column !important;
+    min-height: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+}
+
+.profile-post-viewer-actions {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+}
+
+.profile-post-viewer-comments-section {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+}
+
+.profile-post-viewer-comments {
+    flex: 0 0 auto !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    overscroll-behavior: auto !important;
+}
+
+.profile-post-viewer-comment-form {
+    position: sticky !important;
+    bottom: 0 !important;
+    flex: 0 0 auto !important;
+    z-index: 30 !important;
+}
+
+.profile-post-viewer-date {
+    flex: 0 0 auto !important;
+}
+
+/* Mobile: scroll the complete post, not just its comments. */
+@media (max-width: 768px) {
+    .profile-post-viewer-dialog {
+        width: 100% !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        overscroll-behavior-y: contain !important;
+        touch-action: pan-y !important;
+    }
+
+    .profile-post-viewer-media img,
+    .profile-post-viewer-media video {
+        max-height: 65dvh !important;
+    }
+
+    .profile-post-viewer-details,
+    .profile-post-viewer-actions,
+    .profile-post-viewer-comments-section {
+        flex: 0 0 auto !important;
+        min-height: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    .profile-post-viewer-comments {
+        flex: 0 0 auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+}
+
+/* Preserve dark mode. */
+body.dark-mode .profile-post-viewer-dialog {
+    background: #121212 !important;
+    color: #f5f5f5 !important;
+}
+
+/* PATRIODX — Final unified post viewer scrolling behavior */
+
+.profile-post-viewer-dialog {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+}
+
+.profile-post-viewer-details,
+.profile-post-viewer-actions,
+.profile-post-viewer-comments-section,
+.profile-post-viewer-comments {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+.profile-post-viewer-comment-form {
+    position: static !important;
+    bottom: auto !important;
+}
+
+@media (max-width: 768px) {
+    .profile-post-viewer-dialog {
+        width: 100% !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+    }
+
+    .profile-post-viewer-media img,
+    .profile-post-viewer-media video {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 65dvh !important;
+        object-fit: contain !important;
+    }
+}
+
+body.dark-mode .profile-post-viewer-dialog,
+body.dark-mode .profile-post-viewer-details,
+body.dark-mode .profile-post-viewer-actions,
+body.dark-mode .profile-post-viewer-comment-form {
+    background: #121212 !important;
+    color: #f5f5f5 !important;
+}
