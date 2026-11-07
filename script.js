@@ -15781,7 +15781,8 @@ async function loadMyProfile() {
 await loadMyFollowCounts();
     await loadMyProfilePosts();
 }
-
+// Make the profile loader available immediately.
+window.loadMyProfile = loadMyProfile;
 /* =========================================================
    PROFILE EDITOR
 ========================================================= */
@@ -16755,7 +16756,6 @@ async function initializePATRIODXProfile() {
 
     await loadMyProfile();
 }
-
 
 /* =========================================================
    MAKE PROFILE FUNCTIONS AVAILABLE
