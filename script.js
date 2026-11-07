@@ -7013,6 +7013,7 @@ panel.style.transform =
     handle.addEventListener("pointerup", finishCommentsDrag);
     handle.addEventListener("pointercancel", finishCommentsDrag);
 }
+}
 
 // Wait until index.html has created the comments sheet.
 if (document.readyState === "loading") {
@@ -23511,4 +23512,4 @@ async function unblockPATRIODXUser(userId, button) {
         }
     }
 }
-}
+
