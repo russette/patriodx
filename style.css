@@ -21755,12 +21755,17 @@ body.dark-mode .blocked-user-unblock {
 ========================================= */
 
 @media (max-width: 768px) {
-
     #patriodxCommentsSheet {
         position: fixed;
         inset: 0;
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
         z-index: 100000;
         display: none;
+        overflow: hidden;
+        overscroll-behavior: none;
+        isolation: isolate;
     }
 
     #patriodxCommentsSheet.is-open {
@@ -21770,85 +21775,131 @@ body.dark-mode .blocked-user-unblock {
     .patriodx-comments-backdrop {
         position: absolute;
         inset: 0;
-        background: rgba(0, 0, 0, 0.55);
+        background: rgba(0, 0, 0, 0.48);
+        touch-action: none;
     }
 
     .patriodx-comments-panel {
         position: absolute;
         left: 0;
         right: 0;
+        top: auto;
         bottom: 0;
-        height: 55%;
+        width: 100%;
+        height: 55vh;
+        height: 55dvh;
+        max-height: 100%;
+        box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        background: #181b1e;
-        color: #fff;
-        border-radius: 26px 26px 0 0;
         overflow: hidden;
-        transition: height 0.25s ease;
+        background: #ffffff;
+        color: #111827;
+        border: 1px solid #e5e7eb;
+        border-bottom: 0;
+        border-radius: 24px 24px 0 0;
         padding-bottom: env(safe-area-inset-bottom);
+        transform: translateY(0);
+        transition:
+            height 0.25s ease,
+            top 0.25s ease,
+            border-radius 0.25s ease,
+            transform 0.25s ease;
+        overscroll-behavior: none;
+    }
+
+    #patriodxCommentsSheet.is-expanded .patriodx-comments-panel {
+        top: 0;
+        bottom: 0;
+        height: auto;
+        max-height: none;
+        border-radius: 0;
     }
 
     .patriodx-comments-handle-area {
-        flex-shrink: 0;
+        flex: 0 0 auto;
         display: flex;
         justify-content: center;
-        padding: 12px;
+        align-items: center;
+        min-height: 30px;
+        padding: 10px 12px;
+        cursor: grab;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
     }
 
     .patriodx-comments-handle {
         width: 42px;
         height: 4px;
         border-radius: 10px;
-        background: #a8a8a8;
+        background: #a1a1aa;
     }
 
     .patriodx-comments-header {
-        flex-shrink: 0;
+        position: relative;
+        flex: 0 0 auto;
         display: flex;
         align-items: center;
         justify-content: center;
         min-height: 48px;
-        border-bottom: 1px solid rgba(255,255,255,.08);
+        border-bottom: 1px solid #e5e7eb;
     }
 
     .patriodx-comments-header h2 {
-        font-size: 17px;
         margin: 0;
+        color: inherit;
+        font-size: 17px;
+        font-weight: 700;
     }
 
     .patriodx-comments-header button {
         position: absolute;
-        right: 16px;
-        background: none;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        background: transparent;
         border: 0;
-        color: white;
+        color: inherit;
     }
 
     .patriodx-comments-list {
-        flex: 1;
+        flex: 1 1 auto;
         min-height: 0;
+        overflow-x: hidden;
         overflow-y: auto;
-        overscroll-behavior: contain;
         padding: 14px;
+        color: inherit;
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
     }
 
     .patriodx-comments-composer {
-        flex-shrink: 0;
+        position: relative;
+        flex: 0 0 auto;
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 12px 14px;
-        border-top: 1px solid rgba(255,255,255,.08);
-        background: #181b1e;
+        min-height: 62px;
+        box-sizing: border-box;
+        padding: 10px 14px;
+        padding-bottom: max(10px, env(safe-area-inset-bottom));
+        border-top: 1px solid #e5e7eb;
+        background: #ffffff;
     }
 
     .patriodx-comment-avatar {
         width: 38px;
         height: 38px;
-        flex-shrink: 0;
-        border-radius: 50%;
+        flex: 0 0 38px;
         overflow: hidden;
+        border-radius: 50%;
     }
 
     .patriodx-comment-avatar img {
@@ -21858,34 +21909,138 @@ body.dark-mode .blocked-user-unblock {
     }
 
     #patriodxCommentInput {
-        flex: 1;
+        flex: 1 1 auto;
         min-width: 0;
         height: 44px;
-        border-radius: 24px;
+        box-sizing: border-box;
         padding: 0 15px;
-        color: white;
-        background: #22262a;
-        border: 1px solid #343a40;
+        border: 1px solid #d1d5db;
+        border-radius: 24px;
         outline: none;
+        background: #f3f4f6;
+        color: #111827;
+    }
+
+    #patriodxCommentInput::placeholder {
+        color: #6b7280;
+    }
+
+    #patriodxCommentInput:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.12);
     }
 
     .patriodx-comments-composer button {
-        border: 0;
-        background: none;
-        color: #579bff;
+        flex: 0 0 auto;
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
         padding: 8px;
+        border: 0;
+        background: transparent;
+        color: #4f46e5;
     }
 
     #patriodxCommentsSheet.keyboard-open .patriodx-comments-panel {
-        height: 100%;
+        top: 0;
+        bottom: 0;
+        height: auto;
+        max-height: none;
         border-radius: 0;
+    }
+
+    #patriodxCommentsSheet.keyboard-open .patriodx-comments-list {
+        scroll-behavior: auto;
+    }
+
+    #patriodxCommentsSheet .social-comment,
+    #patriodxCommentsSheet .social-comment * {
+        overflow-wrap: anywhere;
+    }
+
+    #patriodxCommentsSheet .social-comment-replies {
+        margin: 10px 0 0 14px;
+        padding-left: 12px;
+        border-left: 2px solid #e5e7eb;
+        min-width: 0;
+    }
+
+    #patriodxCommentsSheet .social-comment-replies .social-comment {
+        margin-left: 0;
+        min-width: 0;
+    }
+
+    #patriodxCommentsSheet .social-comment-actions .profile-comment-reply-button,
+    #patriodxCommentsSheet .social-comment-actions .profile-comment-edit-button,
+    #patriodxCommentsSheet .social-comment-actions .profile-comment-delete-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        padding: 6px;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: inherit;
+    }
+
+    #patriodxCommentsSheet .social-comment-actions button svg {
+        width: 17px;
+        height: 17px;
+    }
+
+    #patriodxCommentsSheet .social-comment-actions .profile-comment-reply-button span,
+    #patriodxCommentsSheet .social-comment-actions .profile-comment-edit-button span,
+    #patriodxCommentsSheet .social-comment-actions .profile-comment-delete-button span {
+        display: none;
+    }
+
+    body.patriodx-comments-active #mobileBottomNav {
+        display: none !important;
     }
 }
 
+/* Comments sheet dark theme */
+body.dark-mode #patriodxCommentsSheet .patriodx-comments-panel {
+    background: #111827;
+    color: #f9fafb;
+    border-color: #374151;
+}
+
+body.dark-mode #patriodxCommentsSheet .patriodx-comments-header,
+body.dark-mode #patriodxCommentsSheet .patriodx-comments-composer {
+    border-color: #374151;
+}
+
+body.dark-mode #patriodxCommentsSheet #patriodxCommentInput {
+    background: #1f2937;
+    color: #f9fafb;
+    border-color: #374151;
+}
+
+body.dark-mode #patriodxCommentsSheet #patriodxCommentInput::placeholder {
+    color: #9ca3af;
+}
+
+body.dark-mode #patriodxCommentsSheet .patriodx-comments-handle {
+    background: #6b7280;
+}
+
+body.dark-mode #patriodxCommentsSheet .social-comment-replies {
+    border-color: #374151;
+}
 
 @media (max-width: 768px) {
-    body.patriodx-comments-active #mobileBottomNav {
-        display: none !important;
+    #patriodxCommentsSheet {
+        overscroll-behavior: none;
+    }
+
+    #patriodxCommentsSheet .patriodx-comments-list {
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
     }
 }
 /* =========================================================
@@ -22051,13 +22206,6 @@ body.dark-mode #messaging .conversation-item.unread .conversation-preview {
     color: #e2e8f0;
     opacity: 1;
 }
-    /* Put Reply beneath the comment actions, like Instagram */
-    .social-comment-actions .profile-comment-reply-button {
-        flex: 0 0 100%;
-        width: 34px;
-        justify-content: flex-start;
-        justify-self: start;
-    }
     /* =========================================
    PATRIODX PUBLIC PROFILE POST ACTIONS
    ========================================= */
@@ -22629,5 +22777,154 @@ body.dark-mode .profile-post-viewer-author-avatar {
         height: auto !important;
         max-height: 480px !important;
         object-fit: contain !important;
+    }
+}
+/* =========================================================
+   PATRIODX — FIXED POST COMMENT COMPOSER
+========================================================= */
+
+@media (max-width: 768px) {
+
+    /* Keep the viewer fixed to the screen. */
+    .profile-post-viewer-dialog {
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    /* Keep the post details within the remaining screen space. */
+    .profile-post-viewer-details {
+        display: flex !important;
+        flex: 1 1 0 !important;
+        flex-direction: column !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* Allow the comments area to use available space. */
+    .profile-post-viewer-actions {
+        display: flex !important;
+        flex: 1 1 0 !important;
+        flex-direction: column !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    .profile-post-viewer-comments-section {
+        display: flex !important;
+        flex: 1 1 0 !important;
+        flex-direction: column !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* Only the comments scroll. */
+    .profile-post-viewer-comments {
+        flex: 1 1 0 !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    /* Keep the composer permanently at the bottom. */
+    .profile-post-viewer-comment-form {
+        position: relative !important;
+        bottom: auto !important;
+        flex: 0 0 auto !important;
+        min-height: 60px !important;
+        width: 100% !important;
+        background: var(--card-bg, #fff) !important;
+        border-top: 1px solid var(--border-color, #eee) !important;
+        padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+        z-index: 30 !important;
+    }
+
+    /* Preserve dark mode. */
+    body.dark-mode .profile-post-viewer-comment-form {
+        background: #121212 !important;
+        border-color: #303030 !important;
+    }
+}
+/* =========================================
+   PATRIODX COMMENTS SHEET — FINAL OVERRIDES
+========================================= */
+
+@media (max-width: 768px) {
+    html:has(body.patriodx-comments-active),
+    body.patriodx-comments-active {
+        overflow: hidden !important;
+        overscroll-behavior: none !important;
+    }
+
+    body.patriodx-comments-active {
+        touch-action: none;
+    }
+
+    #patriodxCommentsSheet {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        overflow: hidden !important;
+        overscroll-behavior: none !important;
+        touch-action: none;
+    }
+
+    #patriodxCommentsSheet .patriodx-comments-panel {
+        background: #ffffff !important;
+        color: #111827 !important;
+        overscroll-behavior: none !important;
+    }
+
+    #patriodxCommentsSheet .patriodx-comments-list {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        overscroll-behavior-y: contain !important;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y !important;
+    }
+
+    #patriodxCommentsSheet .social-comment,
+    #patriodxCommentsSheet .social-comment-content,
+    #patriodxCommentsSheet .social-comment-content strong {
+        color: inherit;
+    }
+
+    #patriodxCommentsSheet .social-comment-replies {
+        border-left-color: #e5e7eb;
+    }
+
+    #patriodxCommentsSheet.is-expanded .patriodx-comments-panel,
+    #patriodxCommentsSheet.keyboard-open .patriodx-comments-panel {
+        top: 0 !important;
+        bottom: 0 !important;
+        height: 100% !important;
+        max-height: none !important;
+        border-radius: 0 !important;
+    }
+}
+
+@media (max-width: 768px) {
+    body.dark-mode #patriodxCommentsSheet .patriodx-comments-panel {
+        background: #111827 !important;
+        color: #f9fafb !important;
+        border-color: #374151 !important;
+    }
+
+    body.dark-mode #patriodxCommentsSheet .patriodx-comments-header,
+    body.dark-mode #patriodxCommentsSheet .patriodx-comments-composer {
+        border-color: #374151 !important;
+    }
+
+    body.dark-mode #patriodxCommentsSheet .social-comment-replies {
+        border-left-color: #374151 !important;
     }
 }

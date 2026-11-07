@@ -6662,43 +6662,56 @@ async function uploadSocialMedia(file) {
 // ==========================================
 
 let patriodxActiveCommentPostId = null;
-async function openPATRIODXComments(postId) {
 
+async function openPATRIODXComments(postId) {
     if (!postId) return;
 
-    const sheet = document.getElementById(
-        "patriodxCommentsSheet"
-    );
-
-    const list = document.getElementById(
-        "patriodxCommentsList"
-    );
+    const sheet = document.getElementById("patriodxCommentsSheet");
+    const list = document.getElementById("patriodxCommentsList");
 
     if (!sheet || !list) return;
-// Display the signed-in user's actual profile picture.
-const commentAvatar = document.getElementById(
-    "patriodxCommentAvatar"
-);
 
-const sourceAvatar = document.getElementById(
-    "socialCreateAvatar"
-);
+    const commentAvatar = document.getElementById("patriodxCommentAvatar");
+    const sourceAvatar = document.getElementById("socialCreateAvatar");
 
-if (commentAvatar && sourceAvatar) {
-    commentAvatar.innerHTML = sourceAvatar.innerHTML;
-}
+    if (commentAvatar && sourceAvatar) {
+        commentAvatar.innerHTML = sourceAvatar.innerHTML;
+    }
 
-if (typeof lucide !== "undefined") {
-    lucide.createIcons();
-}
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+
+    // Preserve the previous page's scroll state only on first opening.
+    if (!sheet.classList.contains("is-open")) {
+        window.patriodxCommentsPreviousOverflow =
+            document.body.style.overflow;
+
+        window.patriodxCommentsPreviousRootOverflow =
+            document.documentElement.style.overflow;
+    }
+
     patriodxActiveCommentPostId = postId;
     window.currentProfileViewerPostId = postId;
 
+    sheet.classList.remove("is-expanded", "keyboard-open");
     sheet.classList.add("is-open");
     sheet.setAttribute("aria-hidden", "false");
 
+    document.body.classList.add("patriodx-comments-active");
     document.body.style.overflow = "hidden";
-document.body.classList.add("patriodx-comments-active");
+    document.documentElement.style.overflow = "hidden";
+
+    const panel = sheet.querySelector(".patriodx-comments-panel");
+
+    if (panel) {
+        panel.style.removeProperty("height");
+        panel.style.removeProperty("top");
+        panel.style.removeProperty("bottom");
+        panel.style.transform = "";
+    }
+
+    list.scrollTop = 0;
     list.innerHTML = `
         <p class="patriodx-comments-loading">
             Loading comments...
@@ -6706,12 +6719,11 @@ document.body.classList.add("patriodx-comments-active");
     `;
 
     try {
+        await refreshProfilePostViewer(postId, {
+            commentsOnly: true
+        });
 
-       await refreshProfilePostViewer(postId, {
-    commentsOnly: true
-});
-
-        if (patriodxActiveCommentPostId !== postId) {
+        if (String(patriodxActiveCommentPostId) !== String(postId)) {
             return;
         }
 
@@ -6722,36 +6734,37 @@ document.body.classList.add("patriodx-comments-active");
         if (!existingComments) {
             throw new Error("Existing comment renderer is unavailable.");
         }
-list.replaceChildren(
-    ...Array.from(existingComments.childNodes).map(node =>
-        node.cloneNode(true)
-    )
-);
+
+        list.replaceChildren(
+            ...Array.from(existingComments.childNodes).map(node =>
+                node.cloneNode(true)
+            )
+        );
+
         if (typeof lucide !== "undefined") {
             lucide.createIcons();
         }
-
     } catch (error) {
-
-        console.error(
-            "Shared comments loading failed:",
-            error
-        );
-
+        console.error("Shared comments loading failed:", error);
         list.textContent = "Could not load comments. Please try again.";
-
     }
 }
-function closePATRIODXComments() {
 
-    const sheet = document.getElementById(
-        "patriodxCommentsSheet"
-    );
+function closePATRIODXComments() {
+    const sheet = document.getElementById("patriodxCommentsSheet");
 
     if (!sheet) return;
 
+    const input = document.getElementById("patriodxCommentInput");
+    const panel = sheet.querySelector(".patriodx-comments-panel");
+
+    if (input && document.activeElement === input) {
+        input.blur();
+    }
+
     sheet.classList.remove(
         "is-open",
+        "is-expanded",
         "keyboard-open"
     );
 
@@ -6759,8 +6772,24 @@ function closePATRIODXComments() {
 
     patriodxActiveCommentPostId = null;
 
-    document.body.style.overflow = "";
+    if (panel) {
+        panel.style.removeProperty("height");
+        panel.style.removeProperty("top");
+        panel.style.removeProperty("bottom");
+        panel.style.removeProperty("transform");
+        panel.style.removeProperty("transition");
+    }
+
     document.body.classList.remove("patriodx-comments-active");
+
+    document.body.style.overflow =
+        window.patriodxCommentsPreviousOverflow || "";
+
+    document.documentElement.style.overflow =
+        window.patriodxCommentsPreviousRootOverflow || "";
+
+    window.patriodxCommentsPreviousOverflow = undefined;
+    window.patriodxCommentsPreviousRootOverflow = undefined;
 }
 // Keep the mobile comments sheet synchronized with
 // the profile viewer's refreshed comment renderer.
@@ -6824,14 +6853,11 @@ function setupPATRIODXCommentsSheet() {
             closePATRIODXComments();
         }
     });
-
-   // Keep the comments panel inside the visible mobile viewport.
-const panel = sheet.querySelector(
-    ".patriodx-comments-panel"
-);
+// Keep the comments sheet aligned with the visible mobile viewport.
+const panel = sheet.querySelector(".patriodx-comments-panel");
 
 function syncCommentsKeyboardLayout() {
-    if (!sheet.classList.contains("is-open")) return;
+    if (!sheet.classList.contains("is-open") || !panel) return;
 
     const viewport = window.visualViewport;
 
@@ -6839,16 +6865,13 @@ function syncCommentsKeyboardLayout() {
         ? viewport.height < window.innerHeight * 0.85
         : document.activeElement === input;
 
-    sheet.classList.toggle(
-        "keyboard-open",
-        keyboardVisible
-    );
+    sheet.classList.toggle("keyboard-open", keyboardVisible);
 
-    if (keyboardVisible && viewport && panel) {
+    if (keyboardVisible && viewport) {
         panel.style.height = `${viewport.height}px`;
         panel.style.top = `${viewport.offsetTop}px`;
         panel.style.bottom = "auto";
-    } else if (panel) {
+    } else {
         panel.style.removeProperty("height");
         panel.style.removeProperty("top");
         panel.style.removeProperty("bottom");
@@ -6876,7 +6899,6 @@ if (window.visualViewport) {
         syncCommentsKeyboardLayout
     );
 }
-
     // Shared comment submission.
     form.addEventListener("submit", async function(event) {
         event.preventDefault();
@@ -6918,15 +6940,14 @@ if (window.visualViewport) {
             button.disabled = false;
         }
     });
-// Instagram-style mobile comments sheet dragging.
-const handle = sheet.querySelector(
-    ".patriodx-comments-handle-area"
-);
+// Controlled Instagram-style comments sheet dragging.
+const handle = sheet.querySelector(".patriodx-comments-handle-area");
 
 if (handle && panel) {
     let startY = null;
     let currentY = null;
     let dragging = false;
+    let dragStartExpanded = false;
 
     handle.addEventListener("pointerdown", function(event) {
         if (
@@ -6940,6 +6961,7 @@ if (handle && panel) {
         startY = event.clientY;
         currentY = event.clientY;
         dragging = true;
+        dragStartExpanded = sheet.classList.contains("is-expanded");
 
         panel.style.transition = "none";
 
@@ -6948,25 +6970,25 @@ if (handle && panel) {
         } catch (error) {
             console.warn("Comments drag capture failed:", error);
         }
+
+        event.preventDefault();
     });
 
     handle.addEventListener("pointermove", function(event) {
         if (!dragging || startY === null) return;
 
         currentY = event.clientY;
+const distance = currentY - startY;
 
-        const distance = currentY - startY;
+// Never drag the sheet above its resting position.
+// Allow downward movement only, so upward dragging
+// expands the sheet without exposing the page underneath.
+const allowedDistance = dragStartExpanded
+    ? Math.max(0, distance)
+    : Math.max(0, distance);
 
-        if (distance > 0 && !sheet.classList.contains("is-expanded")) {
-            panel.style.transform =
-                `translateY(${Math.min(distance, 300)}px)`;
-        } else if (distance > 0) {
-            panel.style.transform =
-                `translateY(${Math.min(distance, 300)}px)`;
-        } else {
-            panel.style.transform =
-                `translateY(${Math.max(distance, -300)}px)`;
-        }
+panel.style.transform =
+    `translateY(${allowedDistance}px)`;
     });
 
     function finishCommentsDrag() {
@@ -6978,13 +7000,15 @@ if (handle && panel) {
         startY = null;
         currentY = null;
 
-        panel.style.transition = "transform 0.25s ease, height 0.25s ease";
+        panel.style.transition =
+            "transform 0.25s ease, height 0.25s ease, top 0.25s ease";
+
         panel.style.transform = "";
 
-        if (distance < -70) {
+        if (distance < -65) {
             sheet.classList.add("is-expanded");
-        } else if (distance > 70) {
-            if (sheet.classList.contains("is-expanded")) {
+        } else if (distance > 65) {
+            if (dragStartExpanded) {
                 sheet.classList.remove("is-expanded");
             } else {
                 closePATRIODXComments();
@@ -6994,8 +7018,6 @@ if (handle && panel) {
 
     handle.addEventListener("pointerup", finishCommentsDrag);
     handle.addEventListener("pointercancel", finishCommentsDrag);
-}
-    console.log("PATRIODX comments sheet initialized.");
 }
 
 // Wait until index.html has created the comments sheet.
@@ -21440,33 +21462,47 @@ async function openProfilePostViewer(postData) {
     authorContainer.textContent = "Loading author...";
     captionContainer.textContent = postData.caption || "";
     dateContainer.textContent = postData.date || "";
+// Preserve the page's original navigation state.
+if (viewer.style.display !== "flex") {
+    window.profileViewerPreviousMobileView =
+        document.body.classList.contains("mobile-public-profile-view");
 
-    // Display the viewer immediately.
-    viewer.style.display = "flex";
-    viewer.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
+    window.profileViewerPreviousOverflow =
+        document.body.style.overflow;
+}
 
-    if (window.matchMedia("(max-width: 768px)").matches) {
-        document.body.classList.add("mobile-public-profile-view");
+// Display the viewer immediately.
+viewer.style.display = "flex";
+viewer.setAttribute("aria-hidden", "false");
+document.body.style.overflow = "hidden";
+
+if (window.matchMedia("(max-width: 768px)").matches) {
+    document.body.classList.add("mobile-public-profile-view");
+
+    // Place the author above the post image.
+    const dialog = viewer.querySelector(".profile-post-viewer-dialog");
+
+    if (dialog && authorContainer.parentElement !== dialog) {
+        dialog.insertBefore(authorContainer, mediaContainer);
     }
+}
 
-    // Display post media.
-    if (postData.imageUrl) {
-        const image = document.createElement("img");
-        image.src = postData.imageUrl;
-        image.alt = "Post image";
-        image.loading = "eager";
-        mediaContainer.appendChild(image);
-    } else if (postData.videoUrl) {
-        const video = document.createElement("video");
-        video.src = postData.videoUrl;
-        video.controls = true;
-        video.playsInline = true;
-        mediaContainer.appendChild(video);
-    } else {
-        mediaContainer.style.display = "none";
-    }
-
+// Display post media.
+if (postData.imageUrl) {
+    const image = document.createElement("img");
+    image.src = postData.imageUrl;
+    image.alt = "Post image";
+    image.loading = "eager";
+    mediaContainer.appendChild(image);
+} else if (postData.videoUrl) {
+    const video = document.createElement("video");
+    video.src = postData.videoUrl;
+    video.controls = true;
+    video.playsInline = true;
+    mediaContainer.appendChild(video);
+} else {
+    mediaContainer.style.display = "none";
+}
     // Retrieve the original post author's profile.
     try {
         const { data: post, error: postError } = await supabaseClient
@@ -21570,41 +21606,56 @@ async function openProfilePostViewer(postData) {
         }
     }
 }
-
 function closeProfilePostViewer() {
-const viewer = document.getElementById("profilePostViewer");
-const mediaContainer = document.getElementById("profilePostViewerMedia");
+    const viewer = document.getElementById("profilePostViewer");
+    const mediaContainer = document.getElementById("profilePostViewerMedia");
+    const authorContainer = document.getElementById("profilePostViewerAuthor");
+    const captionContainer = document.getElementById("profilePostViewerCaption");
 
+    if (!viewer || viewer.style.display !== "flex") return;
 
-if (!viewer) return;
+    viewer.style.display = "none";
+    viewer.setAttribute("aria-hidden", "true");
 
-viewer.style.display = "none";
-viewer.setAttribute("aria-hidden", "true");
-document.body.style.overflow = "";
+    // Restore the original navigation state.
+    document.body.classList.toggle(
+        "mobile-public-profile-view",
+        window.profileViewerPreviousMobileView === true
+    );
 
-if (mediaContainer) {
-    const video = mediaContainer.querySelector("video");
+    document.body.style.overflow =
+        window.profileViewerPreviousOverflow || "";
 
-    if (video) {
-        video.pause();
-        video.removeAttribute("src");
-        video.load();
+    // Move the author back into the details section.
+    const details = viewer.querySelector(".profile-post-viewer-details");
+
+    if (details && authorContainer && captionContainer) {
+        details.insertBefore(authorContainer, captionContainer);
     }
 
-    mediaContainer.replaceChildren();
-}
-if (mobilePostViewerReturnSection === "notifications") {
-    document.body.classList.remove("mobile-public-profile-view");
+    // Stop and clear any playing video.
+    if (mediaContainer) {
+        const video = mediaContainer.querySelector("video");
 
-    if (typeof navigatePATRIODX === "function") {
-        navigatePATRIODX("notifications");
+        if (video) {
+            video.pause();
+            video.removeAttribute("src");
+            video.load();
+        }
+
+        mediaContainer.replaceChildren();
+        mediaContainer.style.display = "";
     }
 
-    mobilePostViewerReturnSection = "profile";
-}
+    // Return to notifications when the viewer was opened there.
+    if (mobilePostViewerReturnSection === "notifications") {
+        if (typeof navigatePATRIODX === "function") {
+            navigatePATRIODX("notifications");
+        }
 
+        mobilePostViewerReturnSection = "profile";
+    }
 }
-
 /* Close the viewer with Escape */
 document.addEventListener("keydown", function (event) {
 if (event.key === "Escape") {
@@ -23450,4 +23501,5 @@ async function unblockPATRIODXUser(userId, button) {
             button.textContent = "Unblock";
         }
     }
+}
 }
