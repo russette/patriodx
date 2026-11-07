@@ -22523,3 +22523,111 @@ body.dark-mode .profile-post-viewer-comment-form {
         padding: 14px !important;
     }
 }
+/* =========================================================
+   PATRIODX — POST VIEWER AUTHOR IDENTITY
+========================================================= */
+
+.profile-post-viewer-author-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+}
+
+.profile-post-viewer-author-avatar {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #e5e7eb;
+}
+
+.profile-post-viewer-author-identity {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.profile-post-viewer-author-name-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.profile-post-viewer-display-name {
+    font-size: 15px;
+    font-weight: 750;
+    color: #16181c;
+    overflow-wrap: anywhere;
+}
+
+.profile-post-viewer-username {
+    font-size: 14px;
+    color: #71767b;
+    overflow-wrap: anywhere;
+}
+
+.profile-post-viewer-author .patriodx-verification-badge {
+    display: inline-flex;
+    width: 17px;
+    height: 17px;
+    flex: 0 0 17px;
+}
+
+.profile-post-viewer-author .patriodx-verification-badge svg {
+    width: 100%;
+    height: 100%;
+}
+
+.profile-post-viewer-caption {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    color: #16181c;
+}
+
+body.dark-mode .profile-post-viewer-display-name,
+body.dark-mode .profile-post-viewer-caption {
+    color: #f1f3f5;
+}
+
+body.dark-mode .profile-post-viewer-username {
+    color: #a1a1aa;
+}
+
+body.dark-mode .profile-post-viewer-author-avatar {
+    background: #303030;
+}
+/* PATRIODX — Ensure post media displays correctly on mobile */
+@media (max-width: 768px) {
+    .profile-post-viewer-dialog {
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+    }
+
+    .profile-post-viewer-media:not(:empty) {
+        display: flex !important;
+        flex: 0 0 auto !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 180px !important;
+        max-height: 480px !important;
+        overflow: hidden !important;
+        background: #000 !important;
+    }
+
+    .profile-post-viewer-media img,
+    .profile-post-viewer-media video {
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: 480px !important;
+        object-fit: contain !important;
+    }
+}

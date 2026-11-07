@@ -21410,64 +21410,165 @@ if (openProfileButton) {
 /* =========================================================
 PATRIODX — PUBLIC PROFILE POST VIEWER
 ========================================================= */
+async function openProfilePostViewer(postData) {
+    const viewer = document.getElementById("profilePostViewer");
+    const mediaContainer = document.getElementById("profilePostViewerMedia");
+    const authorContainer = document.getElementById("profilePostViewerAuthor");
+    const captionContainer = document.getElementById("profilePostViewerCaption");
+    const dateContainer = document.getElementById("profilePostViewerDate");
 
-function openProfilePostViewer(postData) {
-const viewer = document.getElementById("profilePostViewer");
-const mediaContainer = document.getElementById("profilePostViewerMedia");
-const authorContainer = document.getElementById("profilePostViewerAuthor");
-const captionContainer = document.getElementById("profilePostViewerCaption");
-const dateContainer = document.getElementById("profilePostViewerDate");
+    if (!viewer || !mediaContainer || !authorContainer ||
+        !captionContainer || !dateContainer || !postData) {
+        return;
+    }
 
+    const postId = postData.postId;
+    if (!postId) return;
 
-if (
-    !viewer ||
-    !mediaContainer ||
-    !authorContainer ||
-    !captionContainer ||
-    !dateContainer ||
-    !postData
-) {
-    return;
-}
+    // Prevent an older request from replacing a newer post.
+    const requestId = (window.profileViewerRequestId || 0) + 1;
+    window.profileViewerRequestId = requestId;
 
-mediaContainer.replaceChildren();
+    window.currentProfileViewerPostId = postId;
 
-if (postData.imageUrl) {
-    const image = document.createElement("img");
-    image.src = postData.imageUrl;
-    image.alt = "Post image";
-    mediaContainer.appendChild(image);
-} else if (postData.videoUrl) {
-    const video = document.createElement("video");
-    video.src = postData.videoUrl;
-    video.controls = true;
-    video.autoplay = true;
-    video.playsInline = true;
-    mediaContainer.appendChild(video);
-} else {
+    // Clear the previous post before displaying the new one.
     mediaContainer.replaceChildren();
-    mediaContainer.style.display = "none";
-}
+    authorContainer.replaceChildren();
+    captionContainer.replaceChildren();
 
-authorContainer.textContent = postData.author || "PATRIODX User";
-captionContainer.textContent = postData.caption || "";
-dateContainer.textContent = postData.date || "";
-window.currentProfileViewerPostId = postData.postId;
+    mediaContainer.style.display = "";
+    authorContainer.textContent = "Loading author...";
+    captionContainer.textContent = postData.caption || "";
+    dateContainer.textContent = postData.date || "";
 
-viewer.style.display = "flex";
-viewer.setAttribute("aria-hidden", "false");
-document.body.style.overflow = "hidden";
+    // Display the viewer immediately.
+    viewer.style.display = "flex";
+    viewer.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
 
-// Hide normal navigation while viewing a post on mobile.
-if (window.matchMedia("(max-width: 768px)").matches) {
-    document.body.classList.add("mobile-public-profile-view");
-}
-refreshProfilePostViewer(postData.postId);
-if (window.lucide) {
-    lucide.createIcons();
-}
+    if (window.matchMedia("(max-width: 768px)").matches) {
+        document.body.classList.add("mobile-public-profile-view");
+    }
 
+    // Display post media.
+    if (postData.imageUrl) {
+        const image = document.createElement("img");
+        image.src = postData.imageUrl;
+        image.alt = "Post image";
+        image.loading = "eager";
+        mediaContainer.appendChild(image);
+    } else if (postData.videoUrl) {
+        const video = document.createElement("video");
+        video.src = postData.videoUrl;
+        video.controls = true;
+        video.playsInline = true;
+        mediaContainer.appendChild(video);
+    } else {
+        mediaContainer.style.display = "none";
+    }
 
+    // Retrieve the original post author's profile.
+    try {
+        const { data: post, error: postError } = await supabaseClient
+            .from("posts")
+            .select("user_id")
+            .eq("id", postId)
+            .single();
+
+        if (postError) throw postError;
+
+        const { data: profile, error: profileError } = await supabaseClient
+            .from("profiles")
+            .select(`
+                id,
+                username,
+                display_name,
+                avatar_url,
+                is_verified,
+                is_owner,
+                verification_expires_at
+            `)
+            .eq("id", post.user_id)
+            .single();
+
+        if (profileError) throw profileError;
+
+        // Ignore results belonging to an older post.
+        if (
+            requestId !== window.profileViewerRequestId ||
+            postId !== window.currentProfileViewerPostId
+        ) {
+            return;
+        }
+
+        const authorHeader = document.createElement("div");
+        authorHeader.className = "profile-post-viewer-author-header";
+
+        const avatar = document.createElement("img");
+        avatar.className = "profile-post-viewer-author-avatar";
+        avatar.src = profile.avatar_url || "assets/default-avatar.png";
+        avatar.alt = "";
+
+        avatar.onerror = function () {
+            this.onerror = null;
+            this.src = "assets/default-avatar.png";
+        };
+
+        const identity = document.createElement("div");
+        identity.className = "profile-post-viewer-author-identity";
+
+        const nameRow = document.createElement("div");
+        nameRow.className = "profile-post-viewer-author-name-row";
+
+        const displayName = document.createElement("strong");
+        displayName.className = "profile-post-viewer-display-name";
+        displayName.textContent =
+            profile.display_name || profile.username || postData.author || "PATRIODX User";
+
+        nameRow.appendChild(displayName);
+
+        const badgeHTML = getPATRIODXBadge(profile);
+
+        if (badgeHTML) {
+            nameRow.insertAdjacentHTML("beforeend", badgeHTML);
+        }
+
+        const username = document.createElement("span");
+        username.className = "profile-post-viewer-username";
+        username.textContent = profile.username
+            ? `@${profile.username}`
+            : "";
+
+        identity.append(nameRow, username);
+        authorHeader.append(avatar, identity);
+
+        authorContainer.replaceChildren(authorHeader);
+
+        captionContainer.innerHTML =
+            typeof renderClickableMentions === "function"
+                ? renderClickableMentions(postData.caption || "")
+                : "";
+
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+
+    } catch (error) {
+        console.error("PATRIODX: Could not load post author:", error);
+
+        if (requestId === window.profileViewerRequestId) {
+            authorContainer.textContent =
+                postData.author || "PATRIODX User";
+        }
+    }
+
+    if (requestId === window.profileViewerRequestId) {
+        refreshProfilePostViewer(postId);
+
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    }
 }
 
 function closeProfilePostViewer() {
@@ -21871,22 +21972,51 @@ if (isOwner) {
         commentsContainer.textContent = "Comments could not be loaded.";
     }
 }
-/* Like or unlike the post from the viewer. */
+/* Like or unlike the post from the viewer without reloading comments. */
 document.getElementById("profilePostViewerLike")?.addEventListener("click", async function () {
     const postId = window.currentProfileViewerPostId;
 
-    if (!postId) return;
+    if (!postId || !currentUser) return;
 
-    this.disabled = true;
+    const button = this;
+    button.disabled = true;
 
     try {
         await likeSocialPost(postId);
-      await refreshPATRIODXCommentsSurface(postId);
+
+        // Update only the viewer's like information.
+        const [stats, liked] = await Promise.all([
+            getSocialCounts(postId),
+            hasLikedSocialPost(postId)
+        ]);
+
+        const likeCount = document.getElementById(
+            "profilePostViewerLikeCount"
+        );
+
+        if (likeCount) {
+            likeCount.textContent =
+                `${stats.likes} ${stats.likes === 1 ? "like" : "likes"}`;
+        }
+
+        button.classList.toggle("liked", liked);
+        button.setAttribute(
+            "aria-label",
+            liked ? "Unlike post" : "Like post"
+        );
+        button.title = liked ? "Unlike post" : "Like post";
+
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+
+    } catch (error) {
+        console.error("Post viewer like update failed:", error);
+        showPATRIODXToast("Could not update the like.", "error");
     } finally {
-        this.disabled = false;
+        button.disabled = false;
     }
 });
-
 
 /* Scroll to the comments when the comment button is clicked. */
 document.getElementById("profilePostViewerCommentFocus")?.addEventListener("click", function (event) {
