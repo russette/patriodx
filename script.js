@@ -6956,14 +6956,16 @@ form.addEventListener("submit", async function(event) {
 });
 // Controlled Instagram-style comments sheet dragging.
 const handle = sheet.querySelector(".patriodx-comments-handle-area");
+const header = sheet.querySelector(".patriodx-comments-header");
+const dragSurfaces = [handle, header].filter(Boolean);
 
-if (handle && panel) {
+if (dragSurfaces.length && panel) {
     let startY = null;
     let currentY = null;
     let dragging = false;
     let dragStartExpanded = false;
 
-    handle.addEventListener("pointerdown", function(event) {
+  dragSurfaces.forEach(surface => surface.addEventListener("pointerdown", function(event) {
         if (
             !window.matchMedia("(max-width: 768px)").matches ||
             sheet.classList.contains("keyboard-open") ||
@@ -6980,15 +6982,15 @@ if (handle && panel) {
         panel.style.transition = "none";
 
         try {
-            handle.setPointerCapture(event.pointerId);
+            surface.setPointerCapture(event.pointerId);
         } catch (error) {
             console.warn("Comments drag capture failed:", error);
         }
 
         event.preventDefault();
-    });
+    }));
 
-    handle.addEventListener("pointermove", function(event) {
+   dragSurfaces.forEach(surface => surface.addEventListener("pointermove", function(event) {
         if (!dragging || startY === null) return;
 
         currentY = event.clientY;
@@ -6997,13 +6999,11 @@ const distance = currentY - startY;
 // Never drag the sheet above its resting position.
 // Allow downward movement only, so upward dragging
 // expands the sheet without exposing the page underneath.
-const allowedDistance = dragStartExpanded
-    ? Math.max(0, distance)
-    : Math.max(0, distance);
+const allowedDistance = distance;
 
 panel.style.transform =
     `translateY(${allowedDistance}px)`;
-    });
+    }));
 
     function finishCommentsDrag() {
         if (!dragging || startY === null) return;
@@ -7030,8 +7030,10 @@ panel.style.transform =
         }
     }
 
-    handle.addEventListener("pointerup", finishCommentsDrag);
-    handle.addEventListener("pointercancel", finishCommentsDrag);
+   dragSurfaces.forEach(surface => {
+    surface.addEventListener("pointerup", finishCommentsDrag);
+    surface.addEventListener("pointercancel", finishCommentsDrag);
+});
 }
 }
 
