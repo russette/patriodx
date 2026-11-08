@@ -7018,11 +7018,14 @@ panel.style.transform =
             "transform 0.25s ease, height 0.25s ease, top 0.25s ease";
 
         panel.style.transform = "";
-
-               if (distance < -65) {
+        if (distance < -65) {
             sheet.classList.add("is-expanded");
         } else if (distance > 65) {
-            closePATRIODXComments();
+            if (dragStartExpanded) {
+                sheet.classList.remove("is-expanded");
+            } else {
+                closePATRIODXComments();
+            }
         }
     }
 
@@ -21627,48 +21630,7 @@ if (postData.imageUrl) {
 } else {
     mediaContainer.style.display = "none";
 }
-    // Swipe up on post media to open comments.
-    if (mediaContainer.dataset.commentsSwipeInitialized !== "true") {
-        mediaContainer.dataset.commentsSwipeInitialized = "true";
-
-        let mediaTouchStartY = null;
-
-        mediaContainer.addEventListener("touchstart", function(event) {
-            if (
-                !window.matchMedia("(max-width: 768px)").matches ||
-                event.touches.length !== 1
-            ) {
-                mediaTouchStartY = null;
-                return;
-            }
-
-            mediaTouchStartY = event.touches[0].clientY;
-        }, { passive: true });
-
-        mediaContainer.addEventListener("touchend", function(event) {
-            if (mediaTouchStartY === null || !event.changedTouches.length) {
-                return;
-            }
-
-            const endY = event.changedTouches[0].clientY;
-            const distance = endY - mediaTouchStartY;
-
-            mediaTouchStartY = null;
-
-            if (distance < -65) {
-                const activePostId = window.currentProfileViewerPostId;
-
-                if (activePostId) {
-                    openPATRIODXComments(activePostId);
-                }
-            }
-        }, { passive: true });
-
-        mediaContainer.addEventListener("touchcancel", function() {
-            mediaTouchStartY = null;
-        }, { passive: true });
-    }
-  // Reuse the author profile already loaded by the feed.
+// Reuse the author profile already loaded by the feed.
 try {
     let profile = postData.authorProfile || null;
 
@@ -23929,4 +23891,3 @@ async function unblockPATRIODXUser(userId, button) {
         }
     }
 }
-
