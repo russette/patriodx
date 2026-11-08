@@ -8641,11 +8641,6 @@ const postProfileMap =
             })
         );
 
-// Load marketplace products only for the Latest feed.
-const homeMarketplaceProducts =
-    mode === "latest"
-        ? await loadHomeMarketplaceProducts()
-        : [];
     /* =========================================================
        RENDER FEED
     ========================================================= */
@@ -8749,42 +8744,42 @@ const author =
             `
     }
 </div>
-                            <div class="social-post-author-area">
+                           <div class="social-post-author-area">
 
-                               <div
-    class="social-post-author"
-    ${authorProfile?.id ? `role="button" tabindex="0" data-profile-user-id="${safe(authorProfile.id)}" aria-label="View ${safe(author)}'s profile"` : ""}
->
-   ${safe(author)}
+    <div class="social-post-meta-row">
 
-                                    ${
-                                        typeof getPATRIODXBadge === "function"
-                                            ? getPATRIODXBadge(authorProfile)
-                                            : ""
-                                    }
+        <div
+            class="social-post-author"
+            ${authorProfile?.id ? `role="button" tabindex="0" data-profile-user-id="${safe(authorProfile.id)}"` : ""}
+        >
+            ${safe(author)}
 
-                                    ${
-                                        isOwnPost
-                                            ? `
-                                                <span class="social-post-you">
-                                                    You
-                                                </span>
-                                            `
-                                            : ""
-                                    }
-                                </div>
+            ${
+                typeof getPATRIODXBadge === "function"
+                    ? getPATRIODXBadge(authorProfile)
+                    : ""
+            }
 
-                                ${authorProfile?.username ? `
-                                    <div class="social-post-username">
-                                        @${safe(authorProfile.username)}
-                                    </div>
-                                ` : ""}
+            ${
+                isOwnPost
+                    ? `<span class="social-post-you">You</span>`
+                    : ""
+            }
+        </div>
 
-                           <div class="social-post-date">
-    ${formatRelativeTime(post.created_at)}
+        ${
+            authorProfile?.username
+                ? `<span class="social-post-username">@${safe(authorProfile.username)}</span>`
+                : ""
+        }
+
+        <span class="social-post-date">
+            · ${formatRelativeTime(post.created_at)}
+        </span>
+
+    </div>
+
 </div>
-</div>
-
 <div class="social-post-menu-actions">
 
                                 <button
@@ -9045,20 +9040,7 @@ const author =
                         </div>
 
                 </article>
-            ` + (
-                mode === "latest" &&
-                (postIndex + 1) % 3 === 0 &&
-                homeMarketplaceProducts.length
-                    ? renderHomeMarketplaceProducts(
-                        homeMarketplaceProducts.slice(
-                            ((Math.floor(postIndex / 3)) * 3) %
-                            homeMarketplaceProducts.length,
-                            ((Math.floor(postIndex / 3)) * 3) %
-                            homeMarketplaceProducts.length + 3
-                        )
-                    )
-                    : ""
-            );
+                       `;
 
         })
         .join("");
@@ -9085,16 +9067,18 @@ socialFeed.querySelectorAll(".social-post-card").forEach((card, index) => {
             authorProfile?.username ||
             "PATRIODX User";
 
-        openProfilePostViewer({
-            postId: post.id,
-            imageUrl: post.image_url || "",
-            videoUrl: post.video_url || "",
-            author: author,
-            caption: post.content || "",
-            date: post.created_at
-                ? formatRelativeTime(post.created_at)
-                : ""
-        });
+       openProfilePostViewer({
+    postId: post.id,
+    post: post,
+    authorProfile: postProfileMap.get(post.user_id),
+    imageUrl: post.image_url || "",
+    videoUrl: post.video_url || "",
+    author: author,
+    caption: post.content || "",
+    date: post.created_at
+        ? formatRelativeTime(post.created_at)
+        : ""
+});
     });
 });
 // Open a user's public profile from their post name or avatar.
@@ -11295,13 +11279,22 @@ async function loadHomePosts() {
         if (error) throw error;
 
         if (!posts || posts.length === 0) {
-            homeFeed.innerHTML = `
-                <div class="social-empty-state">
-                    <h3>No posts yet</h3>
-                    <p>Be the first to share something with the PATRIODX community.</p>
-                </div>
-            `;
-            return;
+           homeFeed.innerHTML = `
+    <div class="social-empty-state">
+        <h3>No posts yet</h3>
+        <p>Be the first to share something with the PATRIODX community.</p>
+    </div>
+`;
+
+const marketplaceProducts =
+    await loadHomeMarketplaceProducts();
+
+homeFeed.insertAdjacentHTML(
+    "beforeend",
+    renderHomeMarketplaceProducts(marketplaceProducts)
+);
+
+return;
         }
 
         const userIds = [
@@ -11573,7 +11566,17 @@ data-post-id="${post.id}"
                     </div>
                 </article>
             `;
-        }).join("");
+               }).join("");
+
+        // Add Marketplace Picks to Home, not Social.
+        const marketplaceProducts =
+            await loadHomeMarketplaceProducts();
+
+        homeFeed.insertAdjacentHTML(
+            "beforeend",
+            renderHomeMarketplaceProducts(marketplaceProducts)
+        );
+
         observePATRIODXFeedVideos(homeFeed);
         // Open Home feed posts in the full post-details viewer.
 homeFeed.querySelectorAll(".home-feed-post").forEach((card, index) => {
@@ -11893,7 +11896,7 @@ async function submitHomeComment(event, postId) {
     if (!content) return;
 
     button.disabled = true;
-    button.textContent = "Sending...";
+button.setAttribute("aria-busy", "true");
 
     try {
         await createPATRIODXComment(postId, content);
@@ -17899,8 +17902,10 @@ if (messageButton) {
                     );
 
                     if (opened && typeof navigatePATRIODX === "function") {
-                        window.patriodxMessageReturnToPublicProfile = true;
-                        navigatePATRIODX("messaging");
+                      window.patriodxMessageReturnToPublicProfile = true;
+window.patriodxMessageReturnProfileUserId = userId;
+
+navigatePATRIODX("messaging");
                     }
 
                 } catch (error) {
@@ -21539,9 +21544,12 @@ if (viewer.style.display !== "flex") {
 // Display the viewer immediately.
 viewer.style.display = "flex";
 viewer.setAttribute("aria-hidden", "false");
+// Begin loading post information and comments immediately.
+void refreshProfilePostViewer(postId);
 window.profileViewerSavedScrollY = window.scrollY;
 document.body.style.overflow = "hidden";
-
+// Start loading post comments immediately.
+void refreshProfilePostViewer(postId);
 // Start every newly opened post at the top.
 const viewerDialog = viewer.querySelector(
     ".profile-post-viewer-dialog"
@@ -21656,7 +21664,111 @@ if (postData.imageUrl) {
 
         identity.append(nameRow, username);
         authorHeader.append(avatar, identity);
+// Add the post-options menu to the expanded viewer.
+const menuActions = document.createElement("div");
+menuActions.className = "social-post-menu-actions profile-viewer-menu-actions";
 
+const viewerPost = postData.post || {};
+const isOwnViewerPost =
+    viewerPost.user_id === currentUser?.id;
+
+menuActions.innerHTML = `
+    <button
+        type="button"
+        class="social-post-icon-button social-post-menu-toggle"
+        onclick="toggleSocialPostMenu('${safe(postId)}', event)"
+        aria-label="Post options"
+        title="Post options"
+        aria-expanded="false"
+    >
+        <i data-lucide="more-horizontal"></i>
+    </button>
+
+    <div class="social-post-dropdown profile-viewer-post-dropdown" hidden>
+
+        <button
+            type="button"
+            class="social-post-menu-item"
+            onclick="saveSocialPost('${safe(postId)}')"
+        >
+            <i data-lucide="bookmark"></i>
+            <span>Save post</span>
+        </button>
+
+        ${
+            isOwnViewerPost
+                ? `
+                    <button
+                        type="button"
+                        class="social-post-menu-item"
+                        onclick="toggleSocialPostSetting('${safe(postId)}', 'hide_like_count', ${!viewerPost.hide_like_count})"
+                    >
+                        <i data-lucide="heart"></i>
+                        <span>${viewerPost.hide_like_count ? "Show like count" : "Hide like count"}</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="social-post-menu-item"
+                        onclick="toggleSocialPostSetting('${safe(postId)}', 'hide_share_count', ${!viewerPost.hide_share_count})"
+                    >
+                        <i data-lucide="share-2"></i>
+                        <span>${viewerPost.hide_share_count ? "Show share count" : "Hide share count"}</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="social-post-menu-item"
+                        onclick="toggleSocialPostSetting('${safe(postId)}', 'comments_enabled', ${viewerPost.comments_enabled === false})"
+                    >
+                        <i data-lucide="message-circle"></i>
+                        <span>${viewerPost.comments_enabled === false ? "Turn on commenting" : "Turn off commenting"}</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="social-post-menu-item"
+                        onclick="editSocialPost('${safe(postId)}')"
+                        ${Date.now() - new Date(viewerPost.created_at).getTime() > 15 * 60 * 1000 ? "disabled" : ""}
+                    >
+                        <i data-lucide="pencil"></i>
+                        <span>Edit post</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="social-post-menu-item"
+                        onclick="toggleSocialPostSetting('${safe(postId)}', 'is_pinned', ${!viewerPost.is_pinned})"
+                    >
+                        <i data-lucide="pin"></i>
+                        <span>${viewerPost.is_pinned ? "Unpin from profile" : "Pin to profile"}</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="social-post-menu-item social-post-delete-item"
+                        onclick="deleteSocialPost('${safe(postId)}')"
+                    >
+                        <i data-lucide="trash-2"></i>
+                        <span>Delete post</span>
+                    </button>
+                `
+                : `
+                    <button
+                        type="button"
+                        class="social-post-menu-item"
+                        onclick="reportSocialPost('${safe(postId)}')"
+                    >
+                        <i data-lucide="flag"></i>
+                        <span>Report post</span>
+                    </button>
+                `
+        }
+
+    </div>
+`;
+
+authorHeader.appendChild(menuActions);
         authorContainer.replaceChildren(authorHeader);
 
         captionContainer.innerHTML =
@@ -21677,13 +21789,11 @@ if (postData.imageUrl) {
         }
     }
 
-    if (requestId === window.profileViewerRequestId) {
-        refreshProfilePostViewer(postId);
-
-        if (window.lucide) {
-            window.lucide.createIcons();
-        }
+   if (requestId === window.profileViewerRequestId) {
+    if (window.lucide) {
+        window.lucide.createIcons();
     }
+}
 }
 function closeProfilePostViewer() {
     const viewer = document.getElementById("profilePostViewer");
@@ -21772,7 +21882,11 @@ async function refreshProfilePostViewer(postId, options = {}) {
     }
 
    commentsContainer.textContent = "Loading comments...";
-
+const commentsRequest = supabaseClient
+    .from("comments")
+    .select("*")
+    .eq("post_id", postId)
+    .order("created_at", { ascending: true });
 if (!options.commentsOnly) {
 
     likeCount.textContent = "Loading likes...";
@@ -21803,11 +21917,7 @@ if (!options.commentsOnly) {
 }
 
     try {
-        const { data: comments, error } = await supabaseClient
-            .from("comments")
-            .select("*")
-            .eq("post_id", postId)
-            .order("created_at", { ascending: true });
+       const { data: comments, error } = await commentsRequest;
 
         if (error) throw error;
 
@@ -21947,18 +22057,20 @@ const name = document.createElement("strong");
 name.className = "social-comment-author-name";
 name.textContent = author;
 
-if (username) {
-    const usernameElement = document.createElement("span");
-    usernameElement.className = "social-comment-username";
-    usernameElement.textContent = ` @${username}`;
-    name.appendChild(usernameElement);
-}
-
+// Show verification badge immediately after display name.
 if (profile && typeof getPATRIODXBadge === "function") {
     name.insertAdjacentHTML(
         "beforeend",
         getPATRIODXBadge(profile)
     );
+}
+
+// Show username after the verification badge.
+if (username) {
+    const usernameElement = document.createElement("span");
+    usernameElement.className = "social-comment-username";
+    usernameElement.textContent = ` @${username}`;
+    name.appendChild(usernameElement);
 }
 const text = document.createElement("p");
 text.className = "social-comment-text";
@@ -22224,13 +22336,15 @@ document.addEventListener("submit", async function (event) {
     }
 
     button.disabled = true;
-    button.textContent = "Sending...";
+button.setAttribute("aria-busy", "true");
 
     try {
        await createPATRIODXComment(postId, content);
         input.value = "";
 
-       await refreshPATRIODXCommentsSurface(postId);
+     void refreshPATRIODXCommentsSurface(postId).catch(error => {
+    console.error("Could not refresh comments:", error);
+});
 
 void Promise.allSettled([
     refreshSocialPostStats(postId),
@@ -22246,8 +22360,8 @@ showPATRIODXToast("Comment added.", "success");
             "error"
         );
     } finally {
-        button.disabled = false;
-        button.textContent = "Post";
+       button.disabled = false;
+button.removeAttribute("aria-busy");
     }
 });
 /* Share the currently open post. */
@@ -22320,9 +22434,12 @@ if (!confirmed) {
             );
         }
 
-        await refreshPATRIODXCommentsSurface(postId);
-        await refreshSocialPostStats(postId);
-        await refreshHomePostStats(postId);
+      await refreshPATRIODXCommentsSurface(postId);
+
+void Promise.allSettled([
+    refreshSocialPostStats(postId),
+    refreshHomePostStats(postId)
+]);
 
         showPATRIODXToast("Comment deleted.", "success");
 
@@ -22480,7 +22597,7 @@ document.addEventListener("submit", async function (event) {
                 throw new Error("The parent comment could not be found.");
             }
 
-          await createPATRIODXComment(
+         await createPATRIODXComment(
     postId,
     content,
     parentCommentId
@@ -22490,8 +22607,6 @@ input.value = "";
 form.hidden = true;
 
 showPATRIODXToast("Reply added.", "success");
-
-            showPATRIODXToast("Reply added.", "success");
       } else {
     const commentId = form.dataset.commentId;
 
@@ -22549,10 +22664,14 @@ showPATRIODXToast("Reply added.", "success");
 
     showPATRIODXToast("Comment updated.", "success");
 }
+void refreshPATRIODXCommentsSurface(postId).catch(error => {
+    console.error("Could not refresh comments:", error);
+});
 
-      await refreshPATRIODXCommentsSurface(postId);
-        await refreshSocialPostStats(postId);
-        await refreshHomePostStats(postId);
+void Promise.allSettled([
+    refreshSocialPostStats(postId),
+    refreshHomePostStats(postId)
+]);
 
     } catch (error) {
         console.error("PATRIODX: Could not save comment change:", error);
@@ -22612,22 +22731,23 @@ document.addEventListener("click", function (event) {
 stopPATRIODXBlockMonitor();
 activeConversationId = null;
     if (window.patriodxMessageReturnToPublicProfile) {
-        window.patriodxMessageReturnToPublicProfile = false;
+    window.patriodxMessageReturnToPublicProfile = false;
 
-        if (typeof navigatePATRIODX === "function") {
-            navigatePATRIODX("profile");
-        }
+    const returnUserId =
+        window.patriodxMessageReturnProfileUserId;
+
+    window.patriodxMessageReturnProfileUserId = null;
+
+    if (returnUserId) {
+        navigatePATRIODX("profile");
 
         requestAnimationFrame(() => {
-            document.getElementById("publicProfileCard")
-                ?.scrollIntoView({
-                    behavior: "instant",
-                    block: "start"
-                });
+            loadPublicProfile(returnUserId);
         });
-
-        return;
     }
+
+    return;
+}
 });
 // PATRIODX mobile messaging changes
 /* PATRIODX — Refresh inbox when Messages becomes visible */
@@ -22951,28 +23071,7 @@ document.addEventListener("click", function(event) {
     const postId = commentButton.dataset.postId;
 
     if (!postId) return;
-
-    const post = (window.myProfilePosts || []).find(
-        item => String(item.id) === String(postId)
-    );
-
-    if (!post) {
-        console.error("Own profile post not found:", postId);
-        return;
-    }
-
-    openProfilePostViewer({
-        postId: post.id,
-        imageUrl: post.image_url || "",
-        videoUrl: post.video_url || "",
-        author:
-            currentProfile?.display_name ||
-            "PATRIODX User",
-        caption: post.content || "",
-        date: post.created_at
-            ? formatDate(post.created_at)
-            : ""
-    });
+    openPATRIODXComments(postId);
 
 });
 // =========================================================
