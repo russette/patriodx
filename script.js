@@ -8598,6 +8598,20 @@ const postProfileMap =
             ]
         )
     );
+    // Preload comments for the first posts while the feed is displayed.
+const postsToPreload = posts.slice(0, 3);
+
+const preloadComments = () => {
+    postsToPreload.forEach(post => {
+        preloadProfileViewerComments(post.id);
+    });
+};
+
+if ("requestIdleCallback" in window) {
+    requestIdleCallback(preloadComments, { timeout: 1500 });
+} else {
+    setTimeout(preloadComments, 300);
+}
     /* =========================================================
        GET LIKE / COMMENT COUNTS
     ========================================================= */
@@ -9066,14 +9080,12 @@ socialFeed.querySelectorAll(".social-post-card").forEach((card, index) => {
             authorProfile?.display_name ||
             authorProfile?.username ||
             "PATRIODX User";
-
-       openProfilePostViewer({
+openProfilePostViewer({
     postId: post.id,
-    post: post,
-    authorProfile: postProfileMap.get(post.user_id),
     imageUrl: post.image_url || "",
     videoUrl: post.video_url || "",
     author: author,
+    authorProfile: authorProfile,
     caption: post.content || "",
     date: post.created_at
         ? formatRelativeTime(post.created_at)
@@ -9832,7 +9844,7 @@ async function createPATRIODXComment(
             .single();
 
     if (error) throw error;
-
+invalidateProfileViewerCommentsCache(postId);
     // Send notification separately without delaying submission.
     if (!parentCommentId) {
         void (async () => {
@@ -11321,7 +11333,20 @@ return;
         const profileMap = new Map(
             profiles.map(profile => [profile.id, profile])
         );
+// Preload comments for the first three Home posts.
+const preloadHomeComments = () => {
+    posts.slice(0, 3).forEach(post => {
+        preloadProfileViewerComments(post.id);
+    });
+};
 
+if ("requestIdleCallback" in window) {
+    requestIdleCallback(preloadHomeComments, {
+        timeout: 1500
+    });
+} else {
+    setTimeout(preloadHomeComments, 300);
+}
         const postsWithCounts = await Promise.all(
             posts.map(async post => ({
                 ...post,
@@ -17973,7 +17998,20 @@ if (
         console.error("Public profile posts error:", postsError);
         return;
     }
+// Preload comments for public-profile posts.
+const preloadPublicProfileComments = () => {
+    (posts || []).slice(0, 3).forEach(post => {
+        preloadProfileViewerComments(post.id);
+    });
+};
 
+if ("requestIdleCallback" in window) {
+    requestIdleCallback(preloadPublicProfileComments, {
+        timeout: 1500
+    });
+} else {
+    setTimeout(preloadPublicProfileComments, 300);
+}
 
     const postCount =
         document.getElementById("publicProfilePostCount");
@@ -19117,8 +19155,10 @@ if (
     if (!PATRIODX_PAGES.includes(page)) {
         page = "home";
     }
-// Reset public-profile view when returning to your own Profile page.
-if (page === "profile") {
+if (
+    page === "profile" &&
+    !window.patriodxPreservePublicProfileOnNavigation
+) {
     const publicCard = document.getElementById("publicProfileCard");
     const publicPosts = document.getElementById("publicProfilePostsContainer");
 
@@ -21548,8 +21588,7 @@ viewer.setAttribute("aria-hidden", "false");
 void refreshProfilePostViewer(postId);
 window.profileViewerSavedScrollY = window.scrollY;
 document.body.style.overflow = "hidden";
-// Start loading post comments immediately.
-void refreshProfilePostViewer(postId);
+
 // Start every newly opened post at the top.
 const viewerDialog = viewer.querySelector(
     ".profile-post-viewer-dialog"
@@ -21590,31 +21629,40 @@ if (postData.imageUrl) {
 } else {
     mediaContainer.style.display = "none";
 }
-    // Retrieve the original post author's profile.
-    try {
-        const { data: post, error: postError } = await supabaseClient
-            .from("posts")
-            .select("user_id")
-            .eq("id", postId)
-            .single();
+  // Reuse the author profile already loaded by the feed.
+try {
+    let profile = postData.authorProfile || null;
+
+    // Only fetch the author if the feed did not provide it.
+    if (!profile) {
+        const { data: post, error: postError } =
+            await supabaseClient
+                .from("posts")
+                .select("user_id")
+                .eq("id", postId)
+                .single();
 
         if (postError) throw postError;
 
-        const { data: profile, error: profileError } = await supabaseClient
-            .from("profiles")
-            .select(`
-                id,
-                username,
-                display_name,
-                avatar_url,
-                is_verified,
-                is_owner,
-                verification_expires_at
-            `)
-            .eq("id", post.user_id)
-            .single();
+        const { data: fetchedProfile, error: profileError } =
+            await supabaseClient
+                .from("profiles")
+                .select(`
+                    id,
+                    username,
+                    display_name,
+                    avatar_url,
+                    is_verified,
+                    is_owner,
+                    verification_expires_at
+                `)
+                .eq("id", post.user_id)
+                .single();
 
         if (profileError) throw profileError;
+
+        profile = fetchedProfile;
+    }
 
         // Ignore results belonging to an older post.
         if (
@@ -21861,6 +21909,105 @@ if (event.key === "Escape") {
 closeProfilePostViewer();
 }
 });
+// =========================================================
+// PATRIODX — POST VIEWER COMMENTS CACHE
+// =========================================================
+
+const profileViewerCommentsCache = new Map();
+
+async function getProfileViewerCommentsData(postId, forceRefresh = false) {
+    const cached = profileViewerCommentsCache.get(postId);
+
+    if (
+        !forceRefresh &&
+        cached &&
+        Date.now() - cached.timestamp < 15000
+    ) {
+        return cached.data;
+    }
+
+    const request = (async () => {
+        const { data: comments, error } = await supabaseClient
+            .from("comments")
+            .select("*")
+            .eq("post_id", postId)
+            .order("created_at", { ascending: true });
+
+        if (error) throw error;
+
+        const userIds = [
+            ...new Set((comments || []).map(c => c.user_id).filter(Boolean))
+        ];
+
+        const commentIds = (comments || []).map(c => c.id);
+
+        const [profileResult, likeResult] = await Promise.all([
+            userIds.length
+                ? supabaseClient
+                    .from("profiles")
+                    .select(`
+                        id,
+                        username,
+                        display_name,
+                        avatar_url,
+                        is_verified,
+                        is_owner,
+                        verification_expires_at
+                    `)
+                    .in("id", userIds)
+                : Promise.resolve({ data: [], error: null }),
+
+            commentIds.length
+                ? supabaseClient
+                    .from("comment_likes")
+                    .select("comment_id, user_id")
+                    .in("comment_id", commentIds)
+                : Promise.resolve({ data: [], error: null })
+        ]);
+
+        if (profileResult.error) throw profileResult.error;
+        if (likeResult.error) throw likeResult.error;
+
+        return {
+            comments: comments || [],
+            profiles: profileResult.data || [],
+            commentLikes: likeResult.data || []
+        };
+    })();
+
+    profileViewerCommentsCache.set(postId, {
+        timestamp: Date.now(),
+        data: request
+    });
+
+    try {
+        const data = await request;
+
+        profileViewerCommentsCache.set(postId, {
+            timestamp: Date.now(),
+            data: Promise.resolve(data)
+        });
+
+        return data;
+    } catch (error) {
+        profileViewerCommentsCache.delete(postId);
+        throw error;
+    }
+}
+
+// Preload comments before the user opens a post.
+function preloadProfileViewerComments(postId) {
+    if (!postId) return;
+
+    void getProfileViewerCommentsData(postId).catch(error => {
+        console.error("Could not preload post comments:", error);
+    });
+}
+function invalidateProfileViewerCommentsCache(postId) {
+    if (!postId) return;
+
+    profileViewerCommentsCache.delete(postId);
+}
 /* =========================================================
    PATRIODX — PROFILE VIEWER INTERACTIONS
 ========================================================= */
@@ -22426,13 +22573,15 @@ if (!confirmed) {
             .eq("post_id", postId)
             .select("id");
 
-        if (error) throw error;
+      if (error) throw error;
 
-        if (!data || data.length === 0) {
-            throw new Error(
-                "Comment was not deleted. Check your permissions or comment ownership."
-            );
-        }
+if (!data || data.length === 0) {
+    throw new Error(
+        "Comment was not deleted. Check your permissions or comment ownership."
+    );
+}
+
+invalidateProfileViewerCommentsCache(postId);
 
       await refreshPATRIODXCommentsSurface(postId);
 
@@ -22545,7 +22694,7 @@ document.addEventListener("click", async function (event) {
 
             if (error) throw error;
         }
-
+invalidateProfileViewerCommentsCache(postId);
        await refreshPATRIODXCommentsSurface(postId);
 
     } catch (error) {
@@ -22657,7 +22806,7 @@ showPATRIODXToast("Reply added.", "success");
         .select("id");
 
     if (error) throw error;
-
+invalidateProfileViewerCommentsCache(postId);
     if (!data || data.length === 0) {
         throw new Error("The comment was not updated. Check ownership and permissions.");
     }
@@ -22730,7 +22879,7 @@ document.addEventListener("click", function (event) {
     }
 stopPATRIODXBlockMonitor();
 activeConversationId = null;
-    if (window.patriodxMessageReturnToPublicProfile) {
+   if (window.patriodxMessageReturnToPublicProfile) {
     window.patriodxMessageReturnToPublicProfile = false;
 
     const returnUserId =
@@ -22739,7 +22888,11 @@ activeConversationId = null;
     window.patriodxMessageReturnProfileUserId = null;
 
     if (returnUserId) {
+        window.patriodxPreservePublicProfileOnNavigation = true;
+
         navigatePATRIODX("profile");
+
+        window.patriodxPreservePublicProfileOnNavigation = false;
 
         requestAnimationFrame(() => {
             loadPublicProfile(returnUserId);
