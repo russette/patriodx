@@ -8226,55 +8226,192 @@ function observePATRIODXFeedVideos(container) {
         patriodxFeedVideoObserver.observe(video);
     });
 }
-async function loadSocialPosts() {
 
-    await loadPATRIODXStories();
+/* =========================================================
+   PATRIODX INFINITE FEED PAGINATION
+========================================================= */
 
-    if (!socialFeed) {
-        return;
+const PATRIODX_FEED_PAGE_SIZE = 12;
+
+const patriodxFeedPagination = {
+    home: {
+        offset: 0,
+        hasMore: true,
+        loading: false,
+        seenIds: new Set(),
+        observer: null,
+        sentinel: null,
+        generation: 0,
+        marketplaceLoaded: false
+    },
+
+    socialLatest: {
+        offset: 0,
+        hasMore: true,
+        loading: false,
+        seenIds: new Set(),
+        observer: null,
+        sentinel: null,
+        generation: 0
+    },
+
+    socialFollowing: {
+        offset: 0,
+        hasMore: true,
+        loading: false,
+        seenIds: new Set(),
+        observer: null,
+        sentinel: null,
+        generation: 0
     }
-    /* =========================================================
-       LOADING STATE
-    ========================================================= */
+};
 
-    socialFeed.innerHTML = `
-        <div class="social-empty-state">
 
-            <div class="social-empty-icon">
-                <i data-lucide="clock-3"></i>
-            </div>
+/* Reset a feed when it is refreshed or its mode changes. */
 
-            <h3>Loading posts...</h3>
+function resetPATRIODXFeedPagination(state) {
+    if (state.observer) {
+        state.observer.disconnect();
+        state.observer = null;
+    }
 
-            <p>Please wait.</p>
+    state.sentinel?.remove();
+    state.sentinel = null;
 
-        </div>
+    state.offset = 0;
+    state.hasMore = true;
+    state.loading = false;
+    state.seenIds.clear();
+    state.generation++;
+
+    if ("marketplaceLoaded" in state) {
+        state.marketplaceLoaded = false;
+    }
+}
+
+
+/* Create and observe the feed's bottom loading indicator. */
+function observePATRIODXFeedPagination(
+    container,
+    state,
+    loadMore
+) {
+    if (!container || !state.hasMore) return;
+
+    if (!state.sentinel) {
+        state.sentinel = document.createElement("div");
+        state.sentinel.className = "patriodx-feed-pagination";
+    }
+
+    state.sentinel.innerHTML = `
+        <span>Scroll for more posts</span>
     `;
 
+    state.sentinel.classList.remove("is-finished");
 
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
+    // Keep the loading indicator after the newest post.
+    container.appendChild(state.sentinel);
+
+    if (state.observer) {
+        state.observer.disconnect();
     }
 
+    if (!("IntersectionObserver" in window)) return;
 
-    /* =========================================================
-       DETERMINE FEED MODE
-    ========================================================= */
+    state.observer = new IntersectionObserver(
+        entries => {
+            if (
+                entries.some(entry => entry.isIntersecting) &&
+                state.hasMore &&
+                !state.loading
+            ) {
+                loadMore();
+            }
+        },
+        {
+            root: null,
+            rootMargin: "900px 0px",
+            threshold: 0
+        }
+    );
+
+    state.observer.observe(state.sentinel);
+}
+/* Update the loading indicator or show the end of the feed. */
+
+function finishPATRIODXFeedPagination(state, message) {
+    if (state.observer) {
+        state.observer.disconnect();
+        state.observer = null;
+    }
+
+    state.hasMore = false;
+
+    if (state.sentinel) {
+        state.sentinel.innerHTML = `
+            <span>${message || "You're all caught up."}</span>
+        `;
+
+        state.sentinel.classList.add("is-finished");
+    }
+}
+async function loadSocialPosts(loadMore = false) {
+
+    if (!socialFeed) return;
 
     const mode =
         socialFeedMode === "following"
             ? "following"
             : "latest";
 
+    const state =
+        mode === "following"
+            ? patriodxFeedPagination.socialFollowing
+            : patriodxFeedPagination.socialLatest;
+            // Disconnect the observer belonging to the inactive feed.
+const inactiveState =
+    mode === "following"
+        ? patriodxFeedPagination.socialLatest
+        : patriodxFeedPagination.socialFollowing;
 
-    /* =========================================================
-       LOAD POSTS
-    ========================================================= */
+if (inactiveState.observer) {
+    inactiveState.observer.disconnect();
+    inactiveState.observer = null;
+}
+
+    if (state.loading || (!state.hasMore && loadMore)) {
+        return;
+    }
+
+    if (!loadMore) {
+        resetPATRIODXFeedPagination(state);
+        socialFeed.innerHTML = "";
+    }
+
+    const requestGeneration = state.generation;
+
+    state.loading = true;
+
+    if (!loadMore) {
+        await loadPATRIODXStories();
+
+        socialFeed.innerHTML = `
+            <div class="social-empty-state">
+                <div class="social-empty-icon">
+                    <i data-lucide="clock-3"></i>
+                </div>
+                <h3>Loading posts...</h3>
+                <p>Please wait.</p>
+            </div>
+        `;
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+    }
 
     let posts = [];
     let error = null;
-
-
     /* =========================================================
        LATEST FEED
     ========================================================= */
@@ -8282,12 +8419,16 @@ async function loadSocialPosts() {
     if (mode === "latest") {
 
         const result =
-            await supabaseClient
-                .from("posts")
-                .select("*")
-                .order("created_at", {
-                    ascending: false
-                });
+    await supabaseClient
+        .from("posts")
+        .select("*")
+        .order("created_at", {
+            ascending: false
+        })
+        .range(
+            state.offset,
+            state.offset + PATRIODX_FEED_PAGE_SIZE - 1
+        );
 
         posts = result.data || [];
         error = result.error;
@@ -8319,11 +8460,12 @@ async function loadSocialPosts() {
                 </div>
             `;
 
-            if (typeof lucide !== "undefined") {
-                lucide.createIcons();
-            }
+          if (typeof lucide !== "undefined") {
+    lucide.createIcons();
+}
 
-            return;
+state.loading = false;
+return;
         }
 
 
@@ -8369,7 +8511,7 @@ async function loadSocialPosts() {
             if (typeof lucide !== "undefined") {
                 lucide.createIcons();
             }
-
+state.loading = false;
             return;
         }
 
@@ -8415,7 +8557,7 @@ async function loadSocialPosts() {
             if (typeof lucide !== "undefined") {
                 lucide.createIcons();
             }
-
+state.loading = false;
             return;
         }
 
@@ -8424,34 +8566,80 @@ async function loadSocialPosts() {
            Load posts from followed users
         ----------------------------------------------------- */
 
-        const result =
-            await supabaseClient
-                .from("posts")
-                .select("*")
-                .in(
-                    "user_id",
-                    followingIds
-                )
-                .order("created_at", {
-                    ascending: false
-                });
+       const result =
+    await supabaseClient
+        .from("posts")
+        .select("*")
+        .in(
+            "user_id",
+            followingIds
+        )
+        .order("created_at", {
+            ascending: false
+        })
+        .range(
+            state.offset,
+            state.offset + PATRIODX_FEED_PAGE_SIZE - 1
+        );
 
         posts = result.data || [];
         error = result.error;
 
     }
 
+if (requestGeneration !== state.generation) {
+    return;
+}
 
+if (
+    mode !== (
+        socialFeedMode === "following"
+            ? "following"
+            : "latest"
+    )
+) {
+    state.loading = false;
+    return;
+}
     /* =========================================================
        POST QUERY ERROR
     ========================================================= */
+if (error) {
+    state.loading = false;
 
-    if (error) {
+    console.error(
+        "Could not load social posts:",
+        error
+    );
 
-        console.error(
-            "Could not load social posts:",
-            error
-        );
+    if (loadMore) {
+
+        // Keep existing posts visible.
+        if (state.observer) {
+            state.observer.disconnect();
+            state.observer = null;
+        }
+
+        if (!state.sentinel) {
+            state.sentinel = document.createElement("div");
+            state.sentinel.className =
+                "patriodx-feed-pagination";
+
+            socialFeed.appendChild(state.sentinel);
+        }
+
+        state.sentinel.innerHTML = `
+            <span>Couldn't load more posts.</span>
+            <button
+                type="button"
+                class="secondary-btn"
+                id="socialFeedRetryButton"
+            >
+                Try again
+            </button>
+        `;
+
+    } else {
 
         socialFeed.innerHTML = `
             <div class="social-empty-state">
@@ -8462,9 +8650,15 @@ async function loadSocialPosts() {
 
                 <h3>Could not load posts</h3>
 
-                <p>
-                    ${safe(error.message)}
-                </p>
+                <p>${safe(error.message)}</p>
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    id="socialFeedRetryButton"
+                >
+                    Try again
+                </button>
 
             </div>
         `;
@@ -8472,17 +8666,30 @@ async function loadSocialPosts() {
         if (typeof lucide !== "undefined") {
             lucide.createIcons();
         }
-
-        return;
     }
 
+    document
+        .getElementById("socialFeedRetryButton")
+        ?.addEventListener("click", () => {
+           loadSocialPosts(loadMore);
+        });
 
+    return;
+}
     /* =========================================================
        NO POSTS
     ========================================================= */
 
     if (!posts || posts.length === 0) {
+state.loading = false;
 
+if (loadMore) {
+    finishPATRIODXFeedPagination(
+        state,
+        "You're all caught up."
+    );
+    return;
+}
         const emptyTitle =
             mode === "following"
                 ? "No posts from people you follow"
@@ -8547,7 +8754,20 @@ async function loadSocialPosts() {
 
         return;
     }
+// Track the number fetched before removing any duplicates.
+const fetchedPostCount = posts.length;
 
+// Prevent posts already displayed from appearing again.
+posts = posts.filter(post => {
+    const postId = String(post.id);
+
+    if (state.seenIds.has(postId)) {
+        return false;
+    }
+
+    state.seenIds.add(postId);
+    return true;
+});
 /* =========================================================
    LOAD POST AUTHOR PROFILES
 ========================================================= */
@@ -8660,9 +8880,8 @@ if ("requestIdleCallback" in window) {
        RENDER FEED
     ========================================================= */
 
-    socialFeed.innerHTML =
-        postsWithCounts
-                   .map((post, postIndex) => {
+  const postsHTML =
+    postsWithCounts.map((post, postIndex) => {
 
                 const isOwnPost =
                     post.user_id === currentUser?.id;
@@ -9059,14 +9278,47 @@ const author =
 
         })
         .join("");
+        if (requestGeneration !== state.generation) {
+    return;
+}
+
+if (loadMore) {
+    socialFeed.insertAdjacentHTML(
+        "beforeend",
+        postsHTML
+    );
+} else {
+    socialFeed.innerHTML = postsHTML;
+}
+state.offset += fetchedPostCount;
+
+state.hasMore =
+    fetchedPostCount === PATRIODX_FEED_PAGE_SIZE;
+state.loading = false;
 observePATRIODXFeedVideos(socialFeed);
+// Collect only the cards rendered in this batch.
+const renderedCards = postsWithCounts
+    .map(post =>
+        socialFeed.querySelector(
+            `#social-post-${CSS.escape(String(post.id))}`
+        )
+    )
+    .filter(Boolean);
+
+
 // Open Social feed posts in the full post-details viewer.
-socialFeed.querySelectorAll(".social-post-card").forEach((card, index) => {
-    const post = posts[index];
+renderedCards.forEach(card => {
+
+    const postId = card.id.replace("social-post-", "");
+
+    const post = postsWithCounts.find(
+        item => String(item.id) === postId
+    );
+
     if (!post) return;
 
     card.addEventListener("click", function (event) {
-        // Keep existing buttons, menus, profile links and video controls working.
+
         if (
             event.target.closest(
                 'button, a, input, textarea, select, video, [data-profile-user-id], .social-post-menu-actions, .social-comments'
@@ -9081,48 +9333,63 @@ socialFeed.querySelectorAll(".social-post-card").forEach((card, index) => {
             authorProfile?.display_name ||
             authorProfile?.username ||
             "PATRIODX User";
-openProfilePostViewer({
-    postId: post.id,
-    imageUrl: post.image_url || "",
-    videoUrl: post.video_url || "",
-    author: author,
-    authorProfile: authorProfile,
-    caption: post.content || "",
-    date: post.created_at
-        ? formatRelativeTime(post.created_at)
-        : ""
-});
+
+        openProfilePostViewer({
+            postId: post.id,
+            imageUrl: post.image_url || "",
+            videoUrl: post.video_url || "",
+            author: author,
+            authorProfile: authorProfile,
+            caption: post.content || "",
+            date: post.created_at
+                ? formatRelativeTime(post.created_at)
+                : ""
+        });
     });
 });
+
+
 // Open a user's public profile from their post name or avatar.
-socialFeed
-    .querySelectorAll("[data-profile-user-id]")
-    .forEach(element => {
-        element.addEventListener("click", function () {
-            const userId = this.getAttribute("data-profile-user-id");
+renderedCards.forEach(card => {
 
-            if (userId && typeof loadPublicProfile === "function") {
-                loadPublicProfile(userId);
+    card.querySelectorAll("[data-profile-user-id]")
+        .forEach(element => {
 
-                const publicProfileCard =
-                    document.getElementById("publicProfileCard");
+            element.addEventListener("click", function () {
 
-                if (publicProfileCard) {
-                    publicProfileCard.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
-                    });
+                const userId =
+                    this.getAttribute("data-profile-user-id");
+
+                if (
+                    userId &&
+                    typeof loadPublicProfile === "function"
+                ) {
+                    loadPublicProfile(userId);
+
+                    const publicProfileCard =
+                        document.getElementById("publicProfileCard");
+
+                    if (publicProfileCard) {
+                        publicProfileCard.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
+                        });
+                    }
                 }
-            }
-        });
+            });
 
-        element.addEventListener("keydown", function (event) {
-            if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                this.click();
-            }
+            element.addEventListener("keydown", function (event) {
+
+                if (
+                    event.key === "Enter" ||
+                    event.key === " "
+                ) {
+                    event.preventDefault();
+                    this.click();
+                }
+            });
         });
-    });
+});
     /* =========================================================
        LUCIDE
     ========================================================= */
@@ -9140,9 +9407,13 @@ if (currentUser && typeof updateSocialLikeButton === "function") {
 
     requestAnimationFrame(async () => {
 
-        const likeButtons = document.querySelectorAll(
+        const likeButtons = renderedCards.flatMap(card =>
+    Array.from(
+        card.querySelectorAll(
             ".social-like-button[data-post-id]"
-        );
+        )
+    )
+);
 
         const postIds = [
             ...new Set(
@@ -9174,6 +9445,27 @@ if (currentUser && typeof updateSocialLikeButton === "function") {
 
 }
 
+if (requestGeneration !== state.generation) {
+    return;
+}
+
+if (state.hasMore) {
+    observePATRIODXFeedPagination(
+        socialFeed,
+        state,
+       () => {
+    if (socialFeedMode === mode) {
+        loadSocialPosts(true);
+    }
+}
+    );
+} else {
+    finishPATRIODXFeedPagination(
+        state,
+        "You're all caught up."
+    );
+}
+
 setupSocialFeedTabs();
 
 }
@@ -9195,6 +9487,7 @@ if (socialPostForm) {
                     "Please log in before creating a post.",
                     "warning"
                 );
+                state.loading = false;
                 return;
             }
 

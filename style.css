@@ -23316,3 +23316,30 @@ body.dark-mode .profile-post-viewer-dialog {
         z-index: 20 !important;
     }
 }
+/* =========================================================
+   PATRIODX INFINITE FEED PAGINATION
+========================================================= */
+
+.patriodx-feed-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 64px;
+    padding: 18px 12px;
+    box-sizing: border-box;
+    color: var(--text-secondary, #777);
+    font-size: 13px;
+    text-align: center;
+}
+
+.patriodx-feed-pagination.is-finished {
+    opacity: 0.8;
+}
+
+.patriodx-feed-pagination .secondary-btn {
+    min-height: 36px;
+    padding: 8px 14px;
+    font-size: 13px;
+}
