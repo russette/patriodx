@@ -6713,9 +6713,14 @@ async function openPATRIODXComments(postId) {
     `;
 
     try {
-        await refreshProfilePostViewer(postId, {
-            commentsOnly: true
+        const loaded = await refreshProfilePostViewer(postId, {
+            commentsOnly: true,
+            forceRefresh: true
         });
+
+        if (loaded === false) {
+            throw new Error("The comments request was superseded. Please reopen comments.");
+        }
 
         if (String(patriodxActiveCommentPostId) !== String(postId)) {
             return;
@@ -6788,7 +6793,10 @@ function closePATRIODXComments() {
 // Keep the mobile comments sheet synchronized with
 // the profile viewer's refreshed comment renderer.
 async function refreshPATRIODXCommentsSurface(postId) {
-    await refreshProfilePostViewer(postId);
+    await refreshProfilePostViewer(postId, {
+        commentsOnly: true,
+        forceRefresh: true
+    });
 
     if (
         String(patriodxActiveCommentPostId) !==
@@ -9841,31 +9849,10 @@ try {
    TOGGLE COMMENTS
 ========================================================= */
 async function toggleComments(postId) {
-
     if (!postId) return;
 
-    // Phones use the shared Instagram-style comments sheet.
-    if (window.matchMedia("(max-width: 768px)").matches) {
-        openPATRIODXComments(postId);
-        return;
-    }
-
-    // Desktop keeps the original inline comments feature.
-    const commentsBox = document.getElementById(
-        `comments-${postId}`
-    );
-
-    if (!commentsBox) return;
-
-    if (
-        commentsBox.style.display === "none" ||
-        commentsBox.style.display === ""
-    ) {
-        commentsBox.style.display = "block";
-        await loadSocialComments(postId);
-    } else {
-        commentsBox.style.display = "none";
-    }
+    // Every surface and screen size uses the same comments experience.
+    await openPATRIODXComments(postId);
 }
 
 
@@ -12004,192 +11991,10 @@ window.refreshHomePostStats = refreshHomePostStats;
 ========================================================= */
 
 async function toggleHomeComments(postId) {
-    if (window.matchMedia("(max-width: 768px)").matches) {
-        openPATRIODXComments(postId);
-        return;
-    }
-    const existing =
-        document.getElementById(
-            `home-comments-${postId}`
-        );
+    if (!postId) return;
 
-    if (existing) {
-        existing.remove();
-        return;
-    }
-
-    const post =
-        document.getElementById(
-            `home-post-${postId}`
-        );
-
-    if (!post) return;
-
-    const commentsBox =
-        document.createElement("div");
-
-    commentsBox.id =
-        `home-comments-${postId}`;
-
-    commentsBox.className =
-        "social-comments";
-
-    commentsBox.innerHTML = `
-        <div class="social-comments-loading">
-            Loading comments...
-        </div>
-    `;
-
-    post.appendChild(commentsBox);
-
-    const {
-        data: comments,
-        error
-    } = await supabaseClient
-        .from("comments")
-        .select("*")
-        .eq("post_id", postId)
-        .order("created_at", {
-            ascending: true
-        });
-
-    if (error) {
-
-        console.error(
-            "Could not load Home comments:",
-            error
-        );
-
-        commentsBox.innerHTML = `
-            <div class="social-comments-loading">
-                Could not load comments.
-            </div>
-        `;
-
-        return;
-    }
-const commentUserIds = [
-    ...new Set(
-        (comments || [])
-            .map(comment => comment.user_id)
-            .filter(Boolean)
-    )
-];
-
-let commentProfiles = [];
-
-if (commentUserIds.length) {
-    const { data: profiles, error: profileError } =
-        await supabaseClient
-            .from("profiles")
-   .select(`
-    id,
-    username,
-    display_name,
-    avatar_url,
-    is_verified,
-    is_owner,
-    verification_expires_at
-`)
-            .in("id", commentUserIds);
-
-    if (profileError) {
-        console.error(
-            "Could not load Home comment profiles:",
-            profileError
-        );
-    } else {
-        commentProfiles = profiles || [];
-    }
-}
-
-const commentProfileMap = new Map(
-    commentProfiles.map(profile => [
-        profile.id,
-        profile
-    ])
-);
-    commentsBox.innerHTML = `
-        <div
-            id="home-comments-list-${postId}"
-            class="social-comments-list"
-        >
-            ${
-                comments?.length
-                    ? comments.map(comment => {
-    const profile = commentProfileMap.get(comment.user_id);
-
-    const displayName =
-        profile?.display_name ||
-        profile?.username ||
-        "PATRIODX User";
-
-    const username = profile?.username
-        ? `@${safe(profile.username)}`
-        : "";
-
-    const avatar = profile?.avatar_url
-        ? `<img src="${safe(profile.avatar_url)}"
-                alt=""
-                loading="lazy"
-                onerror="this.style.display='none';">`
-        : `<i data-lucide="user"></i>`;
-
-    return `
-        <div class="social-comment">
-            <div class="social-comment-avatar">
-                ${avatar}
-            </div>
-
-            <div class="social-comment-body">
-               <strong class="social-comment-author-name">
-    ${safe(displayName)}
-    ${username
-        ? `<span class="social-comment-username">${username}</span>`
-        : ""
-    }
-    ${profile && typeof getPATRIODXBadge === "function"
-        ? getPATRIODXBadge(profile)
-        : ""
-    }
-</strong>
-
-                <p>
-                    ${renderClickableMentions(comment.content || "")}
-                </p>
-<small>
-    ${formatRelativeTime(comment.created_at)}
-</small>
-            </div>
-        </div>
-    `;
-}).join("")
-                    : `
-                        <div class="social-comments-loading">
-                            No comments yet.
-                        </div>
-                    `
-            }
-        </div>
-
-        <form
-            class="social-comment-form"
-            onsubmit="submitHomeComment(event, '${postId}')"
-        >
-            <input
-                type="text"
-                id="home-comment-input-${postId}"
-                placeholder="Write a comment..."
-                maxlength="1000"
-                autocomplete="off"
-                required
-            >
-
-            <button type="submit">
-                Send
-            </button>
-        </form>
-    `;
+    // Home, Social, and both profile views share one comments system.
+    await openPATRIODXComments(postId);
 }
 async function submitHomeComment(event, postId) {
     event.preventDefault();
@@ -22342,26 +22147,32 @@ async function refreshProfilePostViewer(postId, options = {}) {
     const likeButton = document.getElementById("profilePostViewerLike");
     const commentsContainer = document.getElementById("profilePostViewerComments");
 
-    if (!likeCount || !likeButton || !commentsContainer) {
-        console.error("PATRIODX: A profile viewer interaction element is missing.");
-        return;
+    if (!commentsContainer) {
+        console.error("PATRIODX: The profile viewer comments container is missing.");
+        return false;
     }
 
     if (!postId) {
-        likeCount.textContent = "Likes unavailable";
+        if (likeCount) {
+            likeCount.textContent = "Likes unavailable";
+        }
         commentsContainer.textContent = "Comments unavailable.";
-        return;
+        return false;
     }
 
-   commentsContainer.textContent = "Loading comments...";
-const commentsRequest = supabaseClient
-    .from("comments")
-    .select("*")
-    .eq("post_id", postId)
-    .order("created_at", { ascending: true });
-if (!options.commentsOnly) {
+    const commentsRequestId =
+        (window.profileViewerCommentsRequestId || 0) + 1;
+    window.profileViewerCommentsRequestId = commentsRequestId;
 
-    likeCount.textContent = "Loading likes...";
+    commentsContainer.textContent = "Loading comments...";
+    const commentsRequest = supabaseClient
+        .from("comments")
+        .select("*")
+        .eq("post_id", postId)
+        .order("created_at", { ascending: true });
+
+    if (!options.commentsOnly && likeCount && likeButton) {
+        likeCount.textContent = "Loading likes...";
 
     try {
         const [stats, liked] = await Promise.all([
@@ -22392,6 +22203,14 @@ if (!options.commentsOnly) {
        const { data: comments, error } = await commentsRequest;
 
         if (error) throw error;
+
+        // Ignore stale responses when another post has been opened.
+        if (
+            commentsRequestId !== window.profileViewerCommentsRequestId ||
+            String(postId) !== String(window.currentProfileViewerPostId)
+        ) {
+            return false;
+        }
 
         commentsContainer.replaceChildren();
 
@@ -22580,6 +22399,9 @@ if (comment.parent_comment_id) {
             event.preventDefault();
             event.stopPropagation();
 
+            closePATRIODXComments();
+            closeProfilePostViewer();
+
             await loadPublicProfile(
                 parentProfile.id || parentComment.user_id
             );
@@ -22746,9 +22568,18 @@ if (isOwner) {
 
         if (window.lucide) lucide.createIcons();
 
+        return true;
+
     } catch (error) {
         console.error("PATRIODX: Could not load post comments:", error);
-        commentsContainer.textContent = "Comments could not be loaded.";
+        if (
+            commentsRequestId === window.profileViewerCommentsRequestId &&
+            String(postId) === String(window.currentProfileViewerPostId)
+        ) {
+            commentsContainer.textContent =
+                "Comments could not be loaded. Please try again.";
+        }
+        throw error;
     }
 }
 /* Like or unlike the post from the viewer without reloading comments. */
