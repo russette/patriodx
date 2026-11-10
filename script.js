@@ -22006,6 +22006,37 @@ try {
 
         identity.append(nameRow, username);
         authorHeader.append(avatar, identity);
+
+        const openAuthorProfile = async function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (!profile?.id) return;
+
+            closeProfilePostViewer();
+            await loadPublicProfile(profile.id);
+        };
+
+        avatar.style.cursor = "pointer";
+        avatar.setAttribute("role", "button");
+        avatar.setAttribute("tabindex", "0");
+        avatar.setAttribute("aria-label", "Open author's profile");
+
+        identity.style.cursor = "pointer";
+        identity.setAttribute("role", "button");
+        identity.setAttribute("tabindex", "0");
+        identity.setAttribute("aria-label", "Open author's profile");
+
+        avatar.addEventListener("click", openAuthorProfile);
+        identity.addEventListener("click", openAuthorProfile);
+
+        [avatar, identity].forEach(element => {
+            element.addEventListener("keydown", event => {
+                if (event.key === "Enter" || event.key === " ") {
+                    openAuthorProfile(event);
+                }
+            });
+        });
 // Add the post-options menu to the expanded viewer.
 const menuActions = document.createElement("div");
 menuActions.className = "social-post-menu-actions profile-viewer-menu-actions";
@@ -22539,17 +22570,14 @@ text.innerHTML = renderClickableMentions(
 
             actions.appendChild(commentLikeButton);
 
-            // Replies are displayed beneath top-level comments.
-            if (!isReply) {
-                const replyButton = document.createElement("button");
-                replyButton.type = "button";
-                replyButton.className = "profile-comment-reply-button";
-                replyButton.dataset.commentId = comment.id;
-               replyButton.innerHTML = '<i data-lucide="reply"></i><span>Reply</span>';
-replyButton.setAttribute("aria-label", "Reply");
-replyButton.title = "Reply";
-                actions.appendChild(replyButton);
-            }
+            const replyButton = document.createElement("button");
+            replyButton.type = "button";
+            replyButton.className = "profile-comment-reply-button";
+            replyButton.dataset.commentId = comment.id;
+            replyButton.innerHTML = '<i data-lucide="reply"></i><span>Reply</span>';
+            replyButton.setAttribute("aria-label", "Reply");
+            replyButton.title = "Reply";
+            actions.appendChild(replyButton);
 const commentAge =
     Date.now() - new Date(comment.created_at).getTime();
 
@@ -22589,26 +22617,24 @@ if (isOwner) {
             content.appendChild(actions);
             row.append(avatar, content);
 
-            if (!isReply) {
-                const replyForm = document.createElement("form");
-                replyForm.className = "profile-comment-reply-form";
-                replyForm.dataset.parentCommentId = comment.id;
-                replyForm.hidden = true;
+            const replyForm = document.createElement("form");
+            replyForm.className = "profile-comment-reply-form";
+            replyForm.dataset.parentCommentId = comment.id;
+            replyForm.hidden = true;
 
-                const replyInput = document.createElement("input");
-                replyInput.type = "text";
-                replyInput.name = "reply";
-                replyInput.maxLength = 2000;
-                replyInput.placeholder = "Write a reply...";
-                replyInput.required = true;
+            const replyInput = document.createElement("input");
+            replyInput.type = "text";
+            replyInput.name = "reply";
+            replyInput.maxLength = 2000;
+            replyInput.placeholder = "Write a reply...";
+            replyInput.required = true;
 
-                const replySubmit = document.createElement("button");
-                replySubmit.type = "submit";
-                replySubmit.textContent = "Reply";
+            const replySubmit = document.createElement("button");
+            replySubmit.type = "submit";
+            replySubmit.textContent = "Reply";
 
-                replyForm.append(replyInput, replySubmit);
-                row.appendChild(replyForm);
-            }
+            replyForm.append(replyInput, replySubmit);
+            row.appendChild(replyForm);
 
             const editForm = document.createElement("form");
             editForm.className = "profile-comment-edit-form";
@@ -22643,11 +22669,6 @@ if (isOwner) {
     isReply = false
 ) {
     const row = renderComment(comment, isReply);
-
-    if (isReply) {
-        parentContainer.appendChild(row);
-        return;
-    }
 
     const thread = document.createElement("div");
     thread.className = "social-comment-thread";
