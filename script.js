@@ -22450,7 +22450,9 @@ commentLikes.forEach(item => {
         const profileMap = new Map(
             profiles.map(profile => [profile.id, profile])
         );
-
+const commentsById = new Map(
+    comments.map(comment => [comment.id, comment])
+);
         const commentsByParent = new Map();
 
         comments.forEach(comment => {
@@ -22549,9 +22551,50 @@ text.className = "social-comment-text";
 text.innerHTML = renderClickableMentions(
     comment.content || ""
 );
+let replyContext = null;
+
+if (comment.parent_comment_id) {
+    const parentComment = commentsById.get(
+        comment.parent_comment_id
+    );
+
+    const parentProfile = parentComment
+        ? profileMap.get(parentComment.user_id)
+        : null;
+
+    const parentUsername = parentProfile?.username;
+
+    if (parentComment && parentUsername) {
+        replyContext = document.createElement("div");
+        replyContext.className = "social-comment-reply-context";
+
+        const label = document.createElement("span");
+        label.textContent = "Replying to ";
+
+        const usernameLink = document.createElement("button");
+        usernameLink.type = "button";
+        usernameLink.className = "social-comment-reply-username";
+        usernameLink.textContent = `@${parentUsername}`;
+
+        usernameLink.addEventListener("click", async event => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            await loadPublicProfile(
+                parentProfile.id || parentComment.user_id
+            );
+        });
+
+        replyContext.append(label, usernameLink);
+    }
+}
             const date = document.createElement("small");
            date.textContent = formatRelativeTime(comment.created_at);
-            content.append(name, text, date);
+           if (replyContext) {
+    content.append(name, replyContext, text, date);
+} else {
+    content.append(name, text, date);
+}
 
             const actions = document.createElement("div");
             actions.className = "social-comment-actions";
