@@ -6788,7 +6788,9 @@ function closePATRIODXComments() {
 // Keep the mobile comments sheet synchronized with
 // the profile viewer's refreshed comment renderer.
 async function refreshPATRIODXCommentsSurface(postId) {
-    await refreshProfilePostViewer(postId);
+   await refreshProfilePostViewer(postId, {
+    commentsOnly: true
+});
 
     if (
         String(patriodxActiveCommentPostId) !==
@@ -9841,31 +9843,9 @@ try {
    TOGGLE COMMENTS
 ========================================================= */
 async function toggleComments(postId) {
-
     if (!postId) return;
 
-    // Phones use the shared Instagram-style comments sheet.
-    if (window.matchMedia("(max-width: 768px)").matches) {
-        openPATRIODXComments(postId);
-        return;
-    }
-
-    // Desktop keeps the original inline comments feature.
-    const commentsBox = document.getElementById(
-        `comments-${postId}`
-    );
-
-    if (!commentsBox) return;
-
-    if (
-        commentsBox.style.display === "none" ||
-        commentsBox.style.display === ""
-    ) {
-        commentsBox.style.display = "block";
-        await loadSocialComments(postId);
-    } else {
-        commentsBox.style.display = "none";
-    }
+    await openPATRIODXComments(postId);
 }
 
 
@@ -22342,11 +22322,10 @@ async function refreshProfilePostViewer(postId, options = {}) {
     const likeButton = document.getElementById("profilePostViewerLike");
     const commentsContainer = document.getElementById("profilePostViewerComments");
 
-    if (!likeCount || !likeButton || !commentsContainer) {
-        console.error("PATRIODX: A profile viewer interaction element is missing.");
-        return;
-    }
-
+   if (!commentsContainer) {
+    console.error("PATRIODX: The comments container is missing.");
+    return;
+}
     if (!postId) {
         likeCount.textContent = "Likes unavailable";
         commentsContainer.textContent = "Comments unavailable.";
@@ -22359,7 +22338,7 @@ const commentsRequest = supabaseClient
     .select("*")
     .eq("post_id", postId)
     .order("created_at", { ascending: true });
-if (!options.commentsOnly) {
+if (!options.commentsOnly && likeCount && likeButton) {
 
     likeCount.textContent = "Loading likes...";
 
@@ -22382,10 +22361,13 @@ if (!options.commentsOnly) {
 
         if (window.lucide) lucide.createIcons();
 
-    } catch (error) {
-        console.error("PATRIODX: Could not load post likes:", error);
+   } catch (error) {
+    console.error("PATRIODX: Could not load post likes:", error);
+
+    if (likeCount) {
         likeCount.textContent = "Likes could not be loaded.";
     }
+}
 }
 
     try {
@@ -22576,14 +22558,8 @@ if (comment.parent_comment_id) {
         usernameLink.className = "social-comment-reply-username";
         usernameLink.textContent = `@${parentUsername}`;
 
-        usernameLink.addEventListener("click", async event => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            await loadPublicProfile(
-                parentProfile.id || parentComment.user_id
-            );
-        });
+        usernameLink.dataset.profileUserId =
+    parentProfile.id || parentComment.user_id;
 
         replyContext.append(label, usernameLink);
     }
@@ -22968,6 +22944,22 @@ void Promise.allSettled([
 
 /* Handle comment likes, reply forms, and edit forms. */
 document.addEventListener("click", async function (event) {
+        const profileLink = event.target.closest(
+        ".social-comment-reply-username"
+    );
+
+    if (profileLink) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const userId = profileLink.dataset.profileUserId;
+
+        if (userId) {
+            await loadPublicProfile(userId);
+        }
+
+        return;
+    }
     const target = event.target;
     if (!(target instanceof Element)) return;
 

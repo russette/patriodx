@@ -23369,3 +23369,70 @@ body.dark-mode .profile-post-viewer-dialog {
     text-decoration: underline;
     opacity: 1;
 }
+/* =========================================
+   PATRIODX SHARED COMMENTS — DESKTOP
+========================================= */
+
+@media (min-width: 769px) {
+
+    #patriodxCommentsSheet {
+        position: fixed;
+        inset: 0;
+        z-index: 100000;
+        display: none;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        isolation: isolate;
+    }
+
+    #patriodxCommentsSheet.is-open {
+        display: block;
+    }
+
+    #patriodxCommentsSheet .patriodx-comments-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+    }
+
+    #patriodxCommentsSheet .patriodx-comments-panel {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        width: min(640px, 92vw);
+        height: min(760px, 85vh);
+        overflow: hidden;
+        border: 1px solid var(--border-color, #e5e7eb);
+        border-radius: 18px;
+        background: var(--card-bg, #ffffff);
+        color: var(--text-color, #111827);
+        box-shadow: 0 20px 70px rgba(0, 0, 0, 0.25);
+    }
+
+    #patriodxCommentsSheet .patriodx-comments-handle-area {
+        display: none;
+    }
+
+    #patriodxCommentsSheet .patriodx-comments-header {
+        flex: 0 0 auto;
+    }
+
+    #patriodxCommentsSheet .patriodx-comments-list {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    #patriodxCommentsSheet .patriodx-comments-composer {
+        flex: 0 0 auto;
+    }
+
+    body.patriodx-comments-active {
+        overflow: hidden;
+    }
+}
