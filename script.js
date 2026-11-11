@@ -9845,7 +9845,29 @@ try {
 async function toggleComments(postId) {
     if (!postId) return;
 
-    await openPATRIODXComments(postId);
+    window.currentProfileViewerPostId = postId;
+
+    if (window.matchMedia("(max-width: 768px)").matches) {
+        await openPATRIODXComments(postId);
+        return;
+    }
+
+    const commentsBox = document.getElementById(
+        `comments-${postId}`
+    );
+
+    if (!commentsBox) return;
+
+    const isHidden =
+        commentsBox.style.display === "none" ||
+        commentsBox.style.display === "";
+
+    if (isHidden) {
+        commentsBox.style.display = "block";
+        await loadSocialComments(postId);
+    } else {
+        commentsBox.style.display = "none";
+    }
 }
 
 
