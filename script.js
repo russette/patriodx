@@ -22453,7 +22453,14 @@ commentsContainer.replaceChildren();
                 .select("comment_id, user_id")
                 .in("comment_id", commentIds)
         ]);
-
+        // Recheck after every asynchronous lookup so an older post
+        // can never overwrite the currently selected post.
+        if (
+            commentsRequestId !== window.profileViewerCommentsRequestId ||
+            String(postId) !== String(window.currentProfileViewerPostId)
+        ) {
+            return false;
+        }
         if (profileResult.error) {
             console.error("PATRIODX: Could not load profiles:", profileResult.error);
         }
