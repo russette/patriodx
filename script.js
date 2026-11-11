@@ -6963,6 +6963,7 @@ form.addEventListener("submit", async function(event) {
     }
 });
 // Controlled Instagram-style comments sheet dragging.
+// Resize the panel while keeping its bottom edge anchored.
 const handle = sheet.querySelector(".patriodx-comments-handle-area");
 const header = sheet.querySelector(".patriodx-comments-header");
 const dragSurfaces = [handle, header].filter(Boolean);
@@ -6970,62 +6971,121 @@ const dragSurfaces = [handle, header].filter(Boolean);
 if (dragSurfaces.length && panel) {
     let startY = null;
     let currentY = null;
+    let startHeight = 0;
     let dragging = false;
     let dragStartExpanded = false;
+    let activePointerId = null;
 
-  dragSurfaces.forEach(surface => surface.addEventListener("pointerdown", function(event) {
+    dragSurfaces.forEach(surface => {
+        surface.style.touchAction = "none";
+    });
+
+    const getViewportHeight = () =>
+        window.visualViewport?.height || window.innerHeight;
+
+    function clearDragSizing() {
+        panel.style.removeProperty("height");
+        panel.style.removeProperty("top");
+        panel.style.removeProperty("bottom");
+        panel.style.removeProperty("transform");
+    }
+
+    dragSurfaces.forEach(surface => {
+        surface.addEventListener("pointerdown", function(event) {
+            if (
+                !window.matchMedia("(max-width: 768px)").matches ||
+                sheet.classList.contains("keyboard-open") ||
+                !event.isPrimary ||
+                (event.pointerType === "mouse" && event.button !== 0) ||
+                event.target.closest("button, input, textarea, a")
+            ) {
+                return;
+            }
+
+            const rect = panel.getBoundingClientRect();
+
+            startY = event.clientY;
+            currentY = event.clientY;
+            startHeight = rect.height;
+            dragging = true;
+            dragStartExpanded = sheet.classList.contains("is-expanded");
+            activePointerId = event.pointerId;
+
+            panel.style.setProperty("transition", "none");
+            panel.style.setProperty("top", "auto", "important");
+            panel.style.setProperty("bottom", "0px", "important");
+            panel.style.setProperty(
+                "height",
+                `${startHeight}px`,
+                "important"
+            );
+
+            try {
+                surface.setPointerCapture(event.pointerId);
+            } catch (error) {
+                console.warn("Comments drag capture failed:", error);
+            }
+
+            event.preventDefault();
+        });
+
+        surface.addEventListener("pointermove", function(event) {
+            if (
+                !dragging ||
+                startY === null ||
+                event.pointerId !== activePointerId
+            ) {
+                return;
+            }
+
+            currentY = event.clientY;
+
+            const distance = currentY - startY;
+            const viewportHeight = getViewportHeight();
+            const minimumHeight = Math.min(
+                180,
+                viewportHeight * 0.28
+            );
+
+            const nextHeight = Math.max(
+                minimumHeight,
+                Math.min(viewportHeight, startHeight - distance)
+            );
+
+            // The bottom remains anchored; only the top edge moves.
+            panel.style.setProperty(
+                "height",
+                `${nextHeight}px`,
+                "important"
+            );
+
+            event.preventDefault();
+        });
+    });
+
+    function finishCommentsDrag(event) {
         if (
-            !window.matchMedia("(max-width: 768px)").matches ||
-            sheet.classList.contains("keyboard-open") ||
-            !event.isPrimary
+            !dragging ||
+            startY === null ||
+            (event && event.pointerId !== activePointerId)
         ) {
             return;
         }
-
-        startY = event.clientY;
-        currentY = event.clientY;
-        dragging = true;
-        dragStartExpanded = sheet.classList.contains("is-expanded");
-
-        panel.style.transition = "none";
-
-        try {
-            surface.setPointerCapture(event.pointerId);
-        } catch (error) {
-            console.warn("Comments drag capture failed:", error);
-        }
-
-        event.preventDefault();
-    }));
-
-   dragSurfaces.forEach(surface => surface.addEventListener("pointermove", function(event) {
-        if (!dragging || startY === null) return;
-
-        currentY = event.clientY;
-const distance = currentY - startY;
-
-// Never drag the sheet above its resting position.
-// Allow downward movement only, so upward dragging
-// expands the sheet without exposing the page underneath.
-const allowedDistance = distance;
-
-panel.style.transform =
-    `translateY(${allowedDistance}px)`;
-    }));
-
-    function finishCommentsDrag() {
-        if (!dragging || startY === null) return;
 
         const distance = currentY - startY;
 
         dragging = false;
         startY = null;
         currentY = null;
+        activePointerId = null;
 
-        panel.style.transition =
-            "transform 0.25s ease, height 0.25s ease, top 0.25s ease";
+        panel.style.setProperty(
+            "transition",
+            "height 0.25s ease, top 0.25s ease, border-radius 0.25s ease"
+        );
 
-        panel.style.transform = "";
+        clearDragSizing();
+
         if (distance < -65) {
             sheet.classList.add("is-expanded");
         } else if (distance > 65) {
@@ -7035,15 +7095,21 @@ panel.style.transform =
                 closePATRIODXComments();
             }
         }
+
+        window.setTimeout(() => {
+            if (!dragging && panel.isConnected) {
+                panel.style.removeProperty("transition");
+            }
+        }, 280);
     }
 
-   dragSurfaces.forEach(surface => {
-    surface.addEventListener("pointerup", finishCommentsDrag);
-    surface.addEventListener("pointercancel", finishCommentsDrag);
-});
+    dragSurfaces.forEach(surface => {
+        surface.addEventListener("pointerup", finishCommentsDrag);
+        surface.addEventListener("pointercancel", finishCommentsDrag);
+        surface.addEventListener("lostpointercapture", finishCommentsDrag);
+    });
 }
 }
-
 // Wait until index.html has created the comments sheet.
 if (document.readyState === "loading") {
     document.addEventListener(
@@ -23316,52 +23382,58 @@ window.addEventListener("message", function (event) {
 });
 // Return to the originating profile or conversation list.
 document.addEventListener("click", function (event) {
-    const backButton = event.target.closest(
-        "#mobileChatBackButton"
-    );
+    const backButton = event.target.closest("#mobileChatBackButton");
 
     if (!backButton) return;
 
-    const messagingSection =
-        document.getElementById("messaging");
-
-    // Close the full-screen conversation.
-    if (messagingSection) {
-        messagingSection.classList.remove("mobile-chat-open");
-    }
-
-    stopPATRIODXBlockMonitor();
-    activeConversationId = null;
-
-    // Restore the normal mobile app navigation.
+    const messagingSection = document.getElementById("messaging");
     const header = document.querySelector(
         ".patriodx-header.patriodx-clean-header"
     );
+    const bottomNav = document.getElementById("mobileBottomNav");
 
-    const bottomNav = document.getElementById(
-        "mobileBottomNav"
+    // Stop conversation-specific monitoring.
+    stopPATRIODXBlockMonitor();
+
+    activeConversationId = null;
+
+    // Restore the normal mobile app navigation.
+    messagingSection?.classList.remove("mobile-chat-open");
+
+    document.body.classList.remove(
+        "mobile-public-profile-view"
     );
 
     if (header) {
         header.classList.remove(
             "patriodx-scroll-header-hidden"
         );
-
-        header.style.removeProperty("display");
     }
 
-    if (bottomNav) {
-        bottomNav.style.removeProperty("display");
-    }
+    // Restore any inline visibility overrides.
+    header?.style.removeProperty("display");
+    bottomNav?.style.removeProperty("display");
 
-    // Return the inbox to its normal top position.
+    // Restore normal page scrolling.
+    document.body.style.removeProperty("overflow");
+
     window.scrollTo({
         top: 0,
         left: 0,
         behavior: "instant"
     });
 
-    // Preserve the existing profile-message return behavior.
+    // Reassert visibility after the mobile layout updates.
+    requestAnimationFrame(() => {
+        header?.classList.remove(
+            "patriodx-scroll-header-hidden"
+        );
+
+        header?.style.removeProperty("display");
+        bottomNav?.style.removeProperty("display");
+    });
+
+    // Preserve the existing return-to-profile behaviour.
     if (window.patriodxMessageReturnToPublicProfile) {
         window.patriodxMessageReturnToPublicProfile = false;
 
@@ -23384,15 +23456,6 @@ document.addEventListener("click", function (event) {
 
         return;
     }
-
-    // Ensure the header remains visible after the transition.
-    requestAnimationFrame(() => {
-        if (header) {
-            header.classList.remove(
-                "patriodx-scroll-header-hidden"
-            );
-        }
-    });
 });
 // PATRIODX mobile messaging changes
 /* PATRIODX — Refresh inbox when Messages becomes visible */
