@@ -15139,7 +15139,7 @@ if (
 
 window.openConversation =
     openConversation;
-    document.addEventListener("click", async function (event) {
+   document.addEventListener("click", async function (event) {
     const profileTarget = event.target.closest(
         "[data-open-chat-profile]"
     );
@@ -15152,6 +15152,23 @@ window.openConversation =
 
     event.preventDefault();
 
+    const messagingSection =
+        document.getElementById("messaging");
+
+    // Preserve the exact conversation for the profile Back button.
+    const conversationId = activeConversationId;
+
+    if (
+        messagingSection?.classList.contains("mobile-chat-open") &&
+        conversationId
+    ) {
+        window.patriodxProfileReturnConversationId =
+            conversationId;
+
+        // Restore the normal app navigation while viewing the profile.
+        messagingSection.classList.remove("mobile-chat-open");
+    }
+
     try {
         await loadPublicProfile(userId);
 
@@ -15160,8 +15177,12 @@ window.openConversation =
                 behavior: "smooth",
                 block: "start"
             });
+
     } catch (error) {
-        console.error("Could not open chat user's profile:", error);
+        console.error(
+            "Could not open chat user's profile:",
+            error
+        );
 
         showPATRIODXToast(
             "Could not open this profile. Please try again.",
@@ -15169,7 +15190,6 @@ window.openConversation =
         );
     }
 });
-
 document.addEventListener("keydown", function (event) {
     const profileTarget = event.target.closest(
         "[data-open-chat-profile]"
@@ -23296,39 +23316,83 @@ window.addEventListener("message", function (event) {
 });
 // Return to the originating profile or conversation list.
 document.addEventListener("click", function (event) {
-    const backButton = event.target.closest("#mobileChatBackButton");
+    const backButton = event.target.closest(
+        "#mobileChatBackButton"
+    );
 
     if (!backButton) return;
 
-    const messagingSection = document.getElementById("messaging");
+    const messagingSection =
+        document.getElementById("messaging");
 
+    // Close the full-screen conversation.
     if (messagingSection) {
         messagingSection.classList.remove("mobile-chat-open");
     }
-stopPATRIODXBlockMonitor();
-activeConversationId = null;
-   if (window.patriodxMessageReturnToPublicProfile) {
-    window.patriodxMessageReturnToPublicProfile = false;
 
-    const returnUserId =
-        window.patriodxMessageReturnProfileUserId;
+    stopPATRIODXBlockMonitor();
+    activeConversationId = null;
 
-    window.patriodxMessageReturnProfileUserId = null;
+    // Restore the normal mobile app navigation.
+    const header = document.querySelector(
+        ".patriodx-header.patriodx-clean-header"
+    );
 
-    if (returnUserId) {
-        window.patriodxPreservePublicProfileOnNavigation = true;
+    const bottomNav = document.getElementById(
+        "mobileBottomNav"
+    );
 
-        navigatePATRIODX("profile");
+    if (header) {
+        header.classList.remove(
+            "patriodx-scroll-header-hidden"
+        );
 
-        window.patriodxPreservePublicProfileOnNavigation = false;
-
-        requestAnimationFrame(() => {
-            loadPublicProfile(returnUserId);
-        });
+        header.style.removeProperty("display");
     }
 
-    return;
-}
+    if (bottomNav) {
+        bottomNav.style.removeProperty("display");
+    }
+
+    // Return the inbox to its normal top position.
+    window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "instant"
+    });
+
+    // Preserve the existing profile-message return behavior.
+    if (window.patriodxMessageReturnToPublicProfile) {
+        window.patriodxMessageReturnToPublicProfile = false;
+
+        const returnUserId =
+            window.patriodxMessageReturnProfileUserId;
+
+        window.patriodxMessageReturnProfileUserId = null;
+
+        if (returnUserId) {
+            window.patriodxPreservePublicProfileOnNavigation = true;
+
+            navigatePATRIODX("profile");
+
+            window.patriodxPreservePublicProfileOnNavigation = false;
+
+            requestAnimationFrame(() => {
+                loadPublicProfile(returnUserId);
+            });
+        }
+
+        return;
+    }
+
+    // Ensure the header remains visible after the transition.
+    requestAnimationFrame(() => {
+        if (header) {
+            header.classList.remove(
+                "patriodx-scroll-header-hidden"
+            );
+        }
+    });
 });
 // PATRIODX mobile messaging changes
 /* PATRIODX — Refresh inbox when Messages becomes visible */
