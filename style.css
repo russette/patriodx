@@ -23099,50 +23099,41 @@ body.dark-mode .profile-post-viewer-dialog {
     background: #121212 !important;
     color: #f5f5f5 !important;
 }
-/* PATRIODX — X-STYLE MOBILE POST VIEWER
-   Post and comments scroll together as one surface.
-*/
+/* =========================================================
+   PATRIODX — FIXED MOBILE POST VIEWER
+   Independent comments scrolling + bottom-pinned composer
+========================================================= */
+
 @media (max-width: 768px) {
 
     .profile-post-viewer-dialog {
         display: flex !important;
         flex-direction: column !important;
         align-items: stretch !important;
+
         width: 100% !important;
         height: 100dvh !important;
         max-height: 100dvh !important;
         min-height: 0 !important;
 
-        overflow-x: hidden !important;
-        overflow-y: auto !important;
-
-        -webkit-overflow-scrolling: touch !important;
-        overscroll-behavior-y: contain !important;
-        touch-action: pan-y !important;
+        overflow: hidden !important;
+        overscroll-behavior: none !important;
+        box-sizing: border-box !important;
     }
 
-    .profile-post-viewer-close {
-        position: sticky !important;
-        top: 0 !important;
-        flex: 0 0 56px !important;
-        z-index: 100 !important;
-    }
-
-    .profile-post-viewer-author {
-        flex: 0 0 auto !important;
-        min-height: 0 !important;
-    }
-
+    /* Post media stays above the details. */
     .profile-post-viewer-media:not(:empty) {
         display: flex !important;
-        flex: 0 0 auto !important;
+        flex: 0 1 42dvh !important;
         align-items: center !important;
         justify-content: center !important;
+
         width: 100% !important;
         height: auto !important;
         min-height: 0 !important;
-        max-height: none !important;
-        overflow: visible !important;
+        max-height: 42dvh !important;
+
+        overflow: hidden !important;
     }
 
     .profile-post-viewer-media img,
@@ -23150,61 +23141,158 @@ body.dark-mode .profile-post-viewer-dialog {
         display: block !important;
         width: 100% !important;
         height: auto !important;
-        max-height: 55dvh !important;
+        max-height: 42dvh !important;
         object-fit: contain !important;
     }
 
+    /* Details use all space remaining below the media. */
     .profile-post-viewer-details {
         display: flex !important;
-        flex: 0 0 auto !important;
+        flex: 1 1 0 !important;
         flex-direction: column !important;
+
         width: 100% !important;
-        height: auto !important;
+        min-width: 0 !important;
         min-height: 0 !important;
+        height: auto !important;
         max-height: none !important;
-        overflow: visible !important;
+
+        overflow: hidden !important;
+        box-sizing: border-box !important;
     }
 
-    .profile-post-viewer-actions {
+    /* Keep author identity and caption above the comments. */
+    .profile-post-viewer-author {
+        flex: 0 0 auto !important;
+        min-height: 0 !important;
+    }
+
+    .profile-post-viewer-author-meta {
         display: flex !important;
-        flex: 0 0 auto !important;
-        flex-direction: column !important;
-        height: auto !important;
-        min-height: 0 !important;
-        overflow: visible !important;
-    }
-
-    .profile-post-viewer-comments-section {
-        display: flex !important;
-        flex: 0 0 auto !important;
-        flex-direction: column !important;
-        height: auto !important;
-        min-height: 0 !important;
-        overflow: visible !important;
-    }
-
-    .profile-post-viewer-comments {
-        flex: 0 0 auto !important;
-        height: auto !important;
-        min-height: 0 !important;
-        max-height: none !important;
-        overflow: visible !important;
-        overscroll-behavior: auto !important;
-        -webkit-overflow-scrolling: auto !important;
-    }
-
-    .profile-post-viewer-comment-form {
-        position: sticky !important;
-        bottom: 0 !important;
-        flex: 0 0 auto !important;
-        width: 100% !important;
-        min-height: 60px !important;
-        z-index: 50 !important;
-        padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        min-width: 0 !important;
     }
 
     .profile-post-viewer-date {
         flex: 0 0 auto !important;
+        margin-top: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        font-size: 11px !important;
+    }
+
+    .profile-post-viewer-caption {
+        flex: 0 0 auto !important;
+        min-height: 0 !important;
+    }
+
+    /* Actions and comments share the remaining height. */
+    .profile-post-viewer-actions {
+        display: flex !important;
+        flex: 1 1 0 !important;
+        flex-direction: column !important;
+
+        min-height: 0 !important;
+        height: auto !important;
+        overflow: hidden !important;
+    }
+
+    .profile-post-viewer-action-buttons,
+    .profile-post-viewer-likes {
+        flex: 0 0 auto !important;
+    }
+
+    /* Only this section's comments list scrolls. */
+    .profile-post-viewer-comments-section {
+        display: flex !important;
+        flex: 1 1 0 !important;
+        flex-direction: column !important;
+
+        min-height: 0 !important;
+        height: auto !important;
+        overflow: hidden !important;
+    }
+
+    .profile-post-viewer-comments {
+        display: block !important;
+        flex: 1 1 0 !important;
+
+        min-height: 0 !important;
+        height: auto !important;
+        max-height: none !important;
+
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+
+        overscroll-behavior-y: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    /* Composer stays at the bottom, including an empty comment list. */
+    .profile-post-viewer-comment-form {
+        position: relative !important;
+        inset: auto !important;
+
+        display: flex !important;
+        flex: 0 0 auto !important;
+        align-items: center !important;
+
+        width: 100% !important;
+        min-height: 60px !important;
+
+        z-index: 5 !important;
+        box-sizing: border-box !important;
+
+        padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+    }
+
+    .profile-post-viewer-comment-form input {
+        flex: 1 1 auto !important;
+        width: 0 !important;
+        min-width: 0 !important;
+    }
+
+    .profile-post-viewer-comment-form button {
+        flex: 0 0 auto !important;
+    }
+
+    /* Light theme */
+    body:not(.dark-mode) .profile-post-viewer-dialog,
+    body:not(.dark-mode) .profile-post-viewer-details,
+    body:not(.dark-mode) .profile-post-viewer-actions,
+    body:not(.dark-mode) .profile-post-viewer-comments-section,
+    body:not(.dark-mode) .profile-post-viewer-comment-form {
+        background: #ffffff !important;
+        color: #262626 !important;
+    }
+
+    body:not(.dark-mode) .profile-post-viewer-actions,
+    body:not(.dark-mode) .profile-post-viewer-comments-section,
+    body:not(.dark-mode) .profile-post-viewer-comment-form {
+        border-color: #efefef !important;
+    }
+
+    /* Dark theme */
+    body.dark-mode .profile-post-viewer-dialog,
+    body.dark-mode .profile-post-viewer-details,
+    body.dark-mode .profile-post-viewer-actions,
+    body.dark-mode .profile-post-viewer-comments-section,
+    body.dark-mode .profile-post-viewer-comment-form {
+        background: #121212 !important;
+        color: #f5f5f5 !important;
+    }
+
+    body.dark-mode .profile-post-viewer-actions,
+    body.dark-mode .profile-post-viewer-comments-section,
+    body.dark-mode .profile-post-viewer-comment-form {
+        border-color: #303030 !important;
+    }
+
+    body.dark-mode .profile-post-viewer-comment-form input {
+        background: transparent !important;
+        color: #f5f5f5 !important;
     }
 }
 /* PATRIODX — X-STYLE SOCIAL POST IDENTITY */

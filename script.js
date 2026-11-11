@@ -9349,9 +9349,7 @@ renderedCards.forEach(card => {
             author: author,
             authorProfile: authorProfile,
             caption: post.content || "",
-            date: post.created_at
-                ? formatRelativeTime(post.created_at)
-                : ""
+           createdAt: post.created_at || null
         });
     });
 });
@@ -11926,9 +11924,7 @@ homeFeed.querySelectorAll(".home-feed-post").forEach((card, index) => {
             videoUrl: post.video_url || "",
             author: post.author_name || post.display_name || "PATRIODX User",
             caption: post.content || "",
-            date: post.created_at
-                ? formatRelativeTime(post.created_at)
-                : ""
+           createdAt: post.created_at || null
         });
     });
 });
@@ -15619,9 +15615,7 @@ try {
         videoUrl: post.video_url || "",
         author: author,
         caption: post.content || "",
-        date: post.created_at
-            ? formatDate(post.created_at)
-            : ""
+       createdAt: post.created_at || null
     });
 
     // For comment notifications, focus the comment input.
@@ -17102,9 +17096,7 @@ if ("IntersectionObserver" in window) {
                         currentProfile?.display_name ||
                         "PATRIODX User",
                     caption: post.content || "",
-                    date: post.created_at
-                        ? formatDate(post.created_at)
-                        : ""
+                    createdAt: post.created_at || null
                 });
             }
 
@@ -18679,9 +18671,7 @@ postsElement
                 videoUrl: post.video_url || "",
                 author: profile.display_name || "PATRIODX User",
                 caption: post.content || "",
-                date: post.created_at
-                    ? new Date(post.created_at).toLocaleString()
-                    : ""
+               createdAt: post.created_at || null
             });
         }
 
@@ -21873,8 +21863,7 @@ async function openProfilePostViewer(postData) {
    authorContainer.textContent =
     postData.author || "PATRIODX User";
     captionContainer.textContent = postData.caption || "";
-    dateContainer.textContent = postData.date || "";
-// Preserve the page's original navigation state.
+ // Preserve the page's original navigation state.
 if (viewer.style.display !== "flex") {
     window.profileViewerPreviousMobileView =
         document.body.classList.contains("mobile-public-profile-view");
@@ -22006,14 +21995,29 @@ try {
             nameRow.insertAdjacentHTML("beforeend", badgeHTML);
         }
 
-        const username = document.createElement("span");
-        username.className = "profile-post-viewer-username";
-        username.textContent = profile.username
-            ? `@${profile.username}`
-            : "";
+const username = document.createElement("span");
+username.className = "profile-post-viewer-username";
+username.textContent = profile.username
+    ? `@${profile.username}`
+    : "";
 
-        identity.append(nameRow, username);
-        authorHeader.append(avatar, identity);
+const authorMetaRow = document.createElement("div");
+authorMetaRow.className = "profile-post-viewer-author-meta";
+
+const postTimestamp =
+    postData.createdAt ||
+    postData.created_at ||
+    null;
+
+dateContainer.textContent = postTimestamp
+    ? formatRelativeTime(postTimestamp)
+    : (postData.date || "");
+
+dateContainer.className = "profile-post-viewer-date";
+
+authorMetaRow.append(username, dateContainer);
+identity.append(nameRow, authorMetaRow);
+authorHeader.append(avatar, identity);
 
         const openAuthorProfile = async function (event) {
             event.preventDefault();
