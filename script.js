@@ -6713,10 +6713,16 @@ async function openPATRIODXComments(postId) {
     `;
 
     try {
-        await refreshProfilePostViewer(postId, {
-            commentsOnly: true
-        });
+       const loaded = await refreshProfilePostViewer(postId, {
+    commentsOnly: true,
+    forceRefresh: true
+});
 
+if (loaded === false) {
+    throw new Error(
+        "The comments request was superseded. Please reopen comments."
+    );
+}
         if (String(patriodxActiveCommentPostId) !== String(postId)) {
             return;
         }
@@ -6788,10 +6794,10 @@ function closePATRIODXComments() {
 // Keep the mobile comments sheet synchronized with
 // the profile viewer's refreshed comment renderer.
 async function refreshPATRIODXCommentsSurface(postId) {
-   await refreshProfilePostViewer(postId, {
-    commentsOnly: true
+  await refreshProfilePostViewer(postId, {
+    commentsOnly: true,
+    forceRefresh: true
 });
-
     if (
         String(patriodxActiveCommentPostId) !==
         String(postId)
@@ -22348,13 +22354,22 @@ async function refreshProfilePostViewer(postId, options = {}) {
     console.error("PATRIODX: The comments container is missing.");
     return;
 }
-    if (!postId) {
+   if (!postId) {
+    if (likeCount) {
         likeCount.textContent = "Likes unavailable";
-        commentsContainer.textContent = "Comments unavailable.";
-        return;
     }
 
-   commentsContainer.textContent = "Loading comments...";
+    commentsContainer.textContent = "Comments unavailable.";
+    return false;
+}
+
+  const commentsRequestId =
+    (window.profileViewerCommentsRequestId || 0) + 1;
+
+window.profileViewerCommentsRequestId = commentsRequestId;
+
+commentsContainer.textContent = "Loading comments...";
+
 const commentsRequest = supabaseClient
     .from("comments")
     .select("*")
@@ -22395,10 +22410,17 @@ if (!options.commentsOnly && likeCount && likeButton) {
     try {
        const { data: comments, error } = await commentsRequest;
 
-        if (error) throw error;
+       if (error) throw error;
 
-        commentsContainer.replaceChildren();
+// Ignore outdated responses if another post has been opened.
+if (
+    commentsRequestId !== window.profileViewerCommentsRequestId ||
+    String(postId) !== String(window.currentProfileViewerPostId)
+) {
+    return false;
+}
 
+commentsContainer.replaceChildren();
         if (!comments || comments.length === 0) {
             commentsContainer.textContent = "No comments yet. Be the first!";
             return;
@@ -22743,11 +22765,20 @@ if (isOwner) {
         }
 
         if (window.lucide) lucide.createIcons();
+return true;
+   } catch (error) {
+    console.error("PATRIODX: Could not load post comments:", error);
 
-    } catch (error) {
-        console.error("PATRIODX: Could not load post comments:", error);
-        commentsContainer.textContent = "Comments could not be loaded.";
+    if (
+        commentsRequestId === window.profileViewerCommentsRequestId &&
+        String(postId) === String(window.currentProfileViewerPostId)
+    ) {
+        commentsContainer.textContent =
+            "Comments could not be loaded. Please try again.";
     }
+
+    throw error;
+}
 }
 /* Like or unlike the post from the viewer without reloading comments. */
 document.getElementById("profilePostViewerLike")?.addEventListener("click", async function () {
@@ -22989,7 +23020,21 @@ document.addEventListener("click", async function (event) {
     const replyButton = target.closest(".profile-comment-reply-button");
     const editButton = target.closest(".profile-comment-edit-button");
     const cancelButton = target.closest(".profile-comment-edit-cancel");
+const replyUsernameButton = target.closest(".social-comment-reply-username");
 
+if (replyUsernameButton) {
+    const userId = replyUsernameButton.dataset.profileUserId;
+
+    if (!userId || typeof loadPublicProfile !== "function") return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    closePATRIODXComments();
+    closeProfilePostViewer();
+    await loadPublicProfile(userId);
+    return;
+}
     if (cancelButton) {
         const editForm = cancelButton.closest(".profile-comment-edit-form");
         if (editForm) editForm.hidden = true;
