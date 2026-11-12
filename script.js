@@ -22281,15 +22281,11 @@ function closeProfilePostViewer() {
     viewer.style.display = "none";
     viewer.setAttribute("aria-hidden", "true");
 
-    // Return to the same immersive public profile.
-    const returningToChatProfile =
-        Boolean(window.patriodxChatProfileReturnConversationId);
-
-    document.body.classList.toggle(
-        "mobile-public-profile-view",
-        returningToChatProfile ||
-        window.profileViewerPreviousMobileView === true
-    );
+   // Restore the mobile view that was open before the post.
+document.body.classList.toggle(
+    "mobile-public-profile-view",
+    window.profileViewerPreviousMobileView === true
+);
 
     document.body.style.overflow =
         window.profileViewerPreviousOverflow || "";
