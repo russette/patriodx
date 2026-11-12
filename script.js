@@ -15205,7 +15205,8 @@ if (
 
 window.openConversation =
     openConversation;
-   document.addEventListener("click", async function (event) {
+  document.addEventListener("click", async function (event) {
+
     const profileTarget = event.target.closest(
         "[data-open-chat-profile]"
     );
@@ -15213,9 +15214,7 @@ window.openConversation =
     if (!profileTarget) return;
 
     const userId = profileTarget.dataset.openChatProfile;
-// Remember the exact conversation behind this profile.
-window.patriodxChatProfileReturnConversationId =
-    activeConversationId || null;
+
     if (!userId || !userId.trim()) return;
 
     event.preventDefault();
@@ -15223,21 +15222,25 @@ window.patriodxChatProfileReturnConversationId =
     const messagingSection =
         document.getElementById("messaging");
 
-    // Preserve the exact conversation for the profile Back button.
-    const conversationId = activeConversationId;
+    const isMobileChat =
+        window.matchMedia("(max-width: 768px)").matches &&
+        messagingSection?.classList.contains("mobile-chat-open");
 
-    if (
-        messagingSection?.classList.contains("mobile-chat-open") &&
-        conversationId
-    ) {
-        window.patriodxProfileReturnConversationId =
-            conversationId;
+    const conversationId = activeConversationId || null;
 
-        // Restore the normal app navigation while viewing the profile.
+    // Preserve the exact conversation only when opening
+    // a profile from an active mobile conversation.
+    window.patriodxChatProfileReturnConversationId =
+        isMobileChat ? conversationId : null;
+
+    // Restore the normal app navigation while viewing
+    // the public profile.
+    if (isMobileChat && conversationId) {
         messagingSection.classList.remove("mobile-chat-open");
     }
 
     try {
+
         await loadPublicProfile(userId);
 
         document.getElementById("publicProfileCard")
@@ -15247,6 +15250,7 @@ window.patriodxChatProfileReturnConversationId =
             });
 
     } catch (error) {
+
         console.error(
             "Could not open chat user's profile:",
             error
@@ -15256,7 +15260,9 @@ window.patriodxChatProfileReturnConversationId =
             "Could not open this profile. Please try again.",
             "error"
         );
+
     }
+
 });
 document.addEventListener("keydown", function (event) {
     const profileTarget = event.target.closest(
@@ -21969,28 +21975,18 @@ window.profileViewerSavedScrollY = window.scrollY;
 document.body.style.overflow = "hidden";
 
 // Start every newly opened post at the top.
-const viewerDialog = viewer.querySelector(
-    ".profile-post-viewer-dialog"
+const viewerScroll = viewer.querySelector(
+    ".profile-post-viewer-scroll"
 );
 
-if (viewerDialog) {
-    viewerDialog.scrollTop = 0;
+if (viewerScroll) {
+    viewerScroll.scrollTop = 0;
 }
 
 if (window.matchMedia("(max-width: 768px)").matches) {
     document.body.classList.add("mobile-public-profile-view");
+}
 
-    // Place the author above the post image.
-   if (
-    viewerDialog &&
-    authorContainer.parentElement !== viewerDialog
-) {
-    viewerDialog.insertBefore(
-        authorContainer,
-        mediaContainer
-    );
-}
-}
 
 // Display post media.
 if (postData.imageUrl) {
@@ -22269,49 +22265,56 @@ authorHeader.appendChild(menuActions);
 }
 }
 function closeProfilePostViewer() {
+
     const viewer = document.getElementById("profilePostViewer");
-    const mediaContainer = document.getElementById("profilePostViewerMedia");
-    const authorContainer = document.getElementById("profilePostViewerAuthor");
-    const captionContainer = document.getElementById("profilePostViewerCaption");
 
-    if (!viewer || viewer.style.display !== "flex") return;
-// Invalidate pending requests when the viewer closes.
-window.profileViewerRequestId =
-    (window.profileViewerRequestId || 0) + 1;
+    const mediaContainer = document.getElementById(
+        "profilePostViewerMedia"
+    );
 
-window.currentProfileViewerPostId = null;
+    if (
+        !viewer ||
+        viewer.getAttribute("aria-hidden") === "true"
+    ) {
+        return;
+    }
+
+    // Invalidate pending requests.
+    window.profileViewerRequestId =
+        (window.profileViewerRequestId || 0) + 1;
+
+    window.currentProfileViewerPostId = null;
+
     viewer.style.display = "none";
     viewer.setAttribute("aria-hidden", "true");
 
-    // Preserve the immersive profile when returning from a post
-// opened through an active messaging conversation.
-const returningToChatProfile =
-    Boolean(window.patriodxChatProfileReturnConversationId);
+    // Return to the same immersive public profile.
+    const returningToChatProfile =
+        Boolean(window.patriodxChatProfileReturnConversationId);
 
-document.body.classList.toggle(
-    "mobile-public-profile-view",
-    returningToChatProfile ||
-    window.profileViewerPreviousMobileView === true
-);
+    document.body.classList.toggle(
+        "mobile-public-profile-view",
+        returningToChatProfile ||
+        window.profileViewerPreviousMobileView === true
+    );
 
     document.body.style.overflow =
         window.profileViewerPreviousOverflow || "";
-requestAnimationFrame(() => {
-    window.scrollTo({
-        top: window.profileViewerSavedScrollY || 0,
-        left: 0,
-        behavior: "instant"
-    });
-});
-    // Move the author back into the details section.
-    const details = viewer.querySelector(".profile-post-viewer-details");
 
-    if (details && authorContainer && captionContainer) {
-        details.insertBefore(authorContainer, captionContainer);
-    }
+    // Restore the previous page position.
+    requestAnimationFrame(() => {
+
+        window.scrollTo({
+            top: window.profileViewerSavedScrollY || 0,
+            left: 0,
+            behavior: "instant"
+        });
+
+    });
 
     // Stop and clear any playing video.
     if (mediaContainer) {
+
         const video = mediaContainer.querySelector("video");
 
         if (video) {
@@ -22322,17 +22325,40 @@ requestAnimationFrame(() => {
 
         mediaContainer.replaceChildren();
         mediaContainer.style.display = "";
+
     }
 
-    // Return to notifications when the viewer was opened there.
+    // Preserve existing notification-viewer behavior.
     if (mobilePostViewerReturnSection === "notifications") {
+
         if (typeof navigatePATRIODX === "function") {
             navigatePATRIODX("notifications");
         }
 
         mobilePostViewerReturnSection = "profile";
+
     }
+
 }
+
+// Make the function explicitly available globally.
+window.closeProfilePostViewer = closeProfilePostViewer;
+
+// Use delegated clicks because script.js loads before the viewer HTML.
+document.addEventListener("click", function (event) {
+
+    const closeTarget = event.target.closest(
+        ".profile-post-viewer-close, .profile-post-viewer-overlay"
+    );
+
+    if (!closeTarget) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    closeProfilePostViewer();
+
+});
 /* Close the viewer with Escape */
 document.addEventListener("keydown", function (event) {
 if (event.key === "Escape") {
@@ -23664,6 +23690,7 @@ if (typeof navigatePATRIODX === "function") {
 
     const returnScrollY = mobileProfileReturnScrollY || 0;
 
+    // Navigate first. navigatePATRIODX is synchronous.
     navigatePATRIODX(returnSection);
 
     mobileProfileReturnSection = "profile";
@@ -23671,31 +23698,48 @@ if (typeof navigatePATRIODX === "function") {
 
     if (chatConversationId) {
 
-        window.patriodxChatProfileReturnConversationId = null;
-
         requestAnimationFrame(async () => {
+
             try {
+
                 await openConversation(chatConversationId);
+
             } catch (error) {
+
                 console.error(
                     "Could not restore the previous conversation:",
                     error
                 );
+
+                showPATRIODXToast(
+                    "Could not reopen the previous conversation.",
+                    "error"
+                );
+
+            } finally {
+
+                window.patriodxChatProfileReturnConversationId = null;
+
             }
+
         });
 
     } else {
 
         requestAnimationFrame(() => {
+
             window.scrollTo({
                 top: returnScrollY,
                 left: 0,
                 behavior: "instant"
             });
+
         });
+
     }
+
 }
-});
+  });
     // =========================================================
 // OWN PROFILE POST ACTIONS
 // =========================================================

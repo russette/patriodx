@@ -5790,107 +5790,118 @@ if ("serviceWorker" in navigator) {
     </div>
 
 </div>
-    <!-- PATRIODX PROFILE POST VIEWER -->
-
+   <!-- PATRIODX PROFILE POST VIEWER -->
 <div
     id="profilePostViewer"
     class="profile-post-viewer"
     style="display: none;"
     aria-hidden="true"
 >
+    <div class="profile-post-viewer-overlay"></div>
+
     <div
-        class="profile-post-viewer-overlay"
-        onclick="closeProfilePostViewer()"
-    ></div>
-
-<div
-    class="profile-post-viewer-dialog"
-    role="dialog"
-    aria-modal="true"
-    aria-label="View profile post"
->
-   <button
-    type="button"
-    class="profile-post-viewer-close"
-    onclick="closeProfilePostViewer()"
-    aria-label="Back to posts"
-    title="Back"
->
-    <i data-lucide="arrow-left"></i>
-</button>
-    <div
-        id="profilePostViewerMedia"
-        class="profile-post-viewer-media"
-    ></div>
-
-    <div class="profile-post-viewer-details">
-        <!-- Post author -->
-<div
-    id="profilePostViewerAuthor"
-    class="profile-post-viewer-author"
-></div>
-
-<!-- Caption -->
-<div
-    id="profilePostViewerCaption"
-    class="profile-post-viewer-caption"
-></div>
-
-<!-- Instagram-style post interactions -->
-<div class="profile-post-viewer-actions">
-
-    <div class="profile-post-viewer-action-buttons">
-
-        <button
-            type="button"
-            id="profilePostViewerLike"
-            class="profile-post-viewer-action-button"
-            aria-label="Like post"
-            title="Like post"
-        >
-            <i data-lucide="heart"></i>
-        </button>
-
-        <button
-            type="button"
-            id="profilePostViewerCommentFocus"
-            class="profile-post-viewer-action-button"
-            aria-label="View comments"
-            title="View comments"
-        >
-            <i data-lucide="message-circle"></i>
-        </button>
-
-        <button
-            type="button"
-            id="profilePostViewerShare"
-            class="profile-post-viewer-action-button"
-            aria-label="Share post"
-            title="Share post"
-        >
-            <i data-lucide="send"></i>
-        </button>
-
-    </div>
-
-    <!-- Like count -->
-    <div
-        id="profilePostViewerLikeCount"
-        class="profile-post-viewer-like-count"
+        class="profile-post-viewer-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-label="View profile post"
     >
-        Loading likes...
-    </div>
 
-    <!-- Comments -->
-    <div class="profile-post-viewer-comments-section">
-
-        <div
-            id="profilePostViewerComments"
-            class="profile-post-viewer-comments"
+        <!-- FIXED TOP BAR -->
+        <button
+            type="button"
+            class="profile-post-viewer-close"
+            aria-label="Back to posts"
+            title="Back"
         >
-            Loading comments...
+            <i data-lucide="arrow-left"></i>
+        </button>
+
+        <!-- SCROLLABLE POST AND COMMENTS -->
+        <div class="profile-post-viewer-scroll">
+
+            <div
+                id="profilePostViewerAuthor"
+                class="profile-post-viewer-author"
+            ></div>
+
+            <div
+                id="profilePostViewerMedia"
+                class="profile-post-viewer-media"
+            ></div>
+
+            <div class="profile-post-viewer-details">
+
+                <div
+                    id="profilePostViewerCaption"
+                    class="profile-post-viewer-caption"
+                ></div>
+
+                <div class="profile-post-viewer-actions">
+
+                    <div class="profile-post-viewer-action-buttons">
+
+                        <button
+                            type="button"
+                            id="profilePostViewerLike"
+                            class="profile-post-viewer-action-button"
+                            aria-label="Like post"
+                            title="Like post"
+                        >
+                            <i data-lucide="heart"></i>
+                        </button>
+
+                        <button
+                            type="button"
+                            id="profilePostViewerCommentFocus"
+                            class="profile-post-viewer-action-button"
+                            aria-label="View comments"
+                            title="View comments"
+                        >
+                            <i data-lucide="message-circle"></i>
+                        </button>
+
+                        <button
+                            type="button"
+                            id="profilePostViewerShare"
+                            class="profile-post-viewer-action-button"
+                            aria-label="Share post"
+                            title="Share post"
+                        >
+                            <i data-lucide="send"></i>
+                        </button>
+
+                    </div>
+
+                    <div
+                        id="profilePostViewerLikeCount"
+                        class="profile-post-viewer-like-count"
+                    >
+                        Loading likes...
+                    </div>
+
+                    <div class="profile-post-viewer-comments-section">
+
+                        <div
+                            id="profilePostViewerComments"
+                            class="profile-post-viewer-comments"
+                        >
+                            Loading comments...
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div
+                    id="profilePostViewerDate"
+                    class="profile-post-viewer-date"
+                ></div>
+
+            </div>
+
         </div>
 
+        <!-- FIXED BOTTOM COMMENT COMPOSER -->
         <form
             id="profilePostViewerCommentForm"
             class="profile-post-viewer-comment-form"
@@ -5910,18 +5921,6 @@ if ("serviceWorker" in navigator) {
         </form>
 
     </div>
-
-</div>
-
-<!-- Post date -->
-<div
-    id="profilePostViewerDate"
-    class="profile-post-viewer-date"
-></div>
-    </div>
-</div>
-
-
 </div>
 <!-- PATRIODX INSTAGRAM-STYLE COMMENTS SHEET -->
 <div id="patriodxCommentsSheet" class="patriodx-comments-sheet" aria-hidden="true">
