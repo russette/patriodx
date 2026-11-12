@@ -15213,7 +15213,9 @@ window.openConversation =
     if (!profileTarget) return;
 
     const userId = profileTarget.dataset.openChatProfile;
-
+// Remember the exact conversation behind this profile.
+window.patriodxChatProfileReturnConversationId =
+    activeConversationId || null;
     if (!userId || !userId.trim()) return;
 
     event.preventDefault();
@@ -22281,11 +22283,16 @@ window.currentProfileViewerPostId = null;
     viewer.style.display = "none";
     viewer.setAttribute("aria-hidden", "true");
 
-    // Restore the original navigation state.
-    document.body.classList.toggle(
-        "mobile-public-profile-view",
-        window.profileViewerPreviousMobileView === true
-    );
+    // Preserve the immersive profile when returning from a post
+// opened through an active messaging conversation.
+const returningToChatProfile =
+    Boolean(window.patriodxChatProfileReturnConversationId);
+
+document.body.classList.toggle(
+    "mobile-public-profile-view",
+    returningToChatProfile ||
+    window.profileViewerPreviousMobileView === true
+);
 
     document.body.style.overflow =
         window.profileViewerPreviousOverflow || "";
@@ -23646,28 +23653,49 @@ if (followList) {
     followList.style.display = "none";
 }
 
-    if (typeof navigatePATRIODX === "function") {
+if (typeof navigatePATRIODX === "function") {
 
-    const returnSection =
-        mobileProfileReturnSection || "profile";
+    const chatConversationId =
+        window.patriodxChatProfileReturnConversationId;
 
-    const returnScrollY =
-        mobileProfileReturnScrollY || 0;
+    const returnSection = chatConversationId
+        ? "messaging"
+        : (mobileProfileReturnSection || "profile");
+
+    const returnScrollY = mobileProfileReturnScrollY || 0;
 
     navigatePATRIODX(returnSection);
 
     mobileProfileReturnSection = "profile";
     mobileProfileReturnScrollY = 0;
 
-    requestAnimationFrame(() => {
-        window.scrollTo({
-            top: returnScrollY,
-            left: 0,
-            behavior: "instant"
+    if (chatConversationId) {
+
+        window.patriodxChatProfileReturnConversationId = null;
+
+        requestAnimationFrame(async () => {
+            try {
+                await openConversation(chatConversationId);
+            } catch (error) {
+                console.error(
+                    "Could not restore the previous conversation:",
+                    error
+                );
+            }
         });
-    });
+
+    } else {
+
+        requestAnimationFrame(() => {
+            window.scrollTo({
+                top: returnScrollY,
+                left: 0,
+                behavior: "instant"
+            });
+        });
+    }
 }
-    });
+});
     // =========================================================
 // OWN PROFILE POST ACTIONS
 // =========================================================
