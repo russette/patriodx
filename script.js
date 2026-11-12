@@ -15231,13 +15231,12 @@ window.openConversation =
     event.preventDefault();
 
     try {
-        if (window.matchMedia("(max-width: 768px)").matches) {
+         if (window.matchMedia("(max-width: 768px)").matches) {
             mobileProfileReturnSection = "messaging";
             mobileProfileReturnScrollY = 0;
-            window.mobileProfileReturnConversationId =
+            window.patriodxChatProfileReturnConversationId =
                 activeConversationId || null;
         }
-
         await loadPublicProfile(userId);
 
         document.getElementById("publicProfileCard")
