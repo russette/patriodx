@@ -23601,7 +23601,15 @@ window.saveSocialPost = saveSocialPost;
 // PATRIODX — Return from public profile
 document.getElementById("publicProfileBackButton")
     ?.addEventListener("click", function () {
+        const postViewer =
+            document.getElementById("profilePostViewer");
 
+        if (
+            postViewer &&
+            postViewer.getAttribute("aria-hidden") !== "true"
+        ) {
+            return;
+        }
         // Close the immersive mobile view
         document.body.classList.remove("mobile-public-profile-view");
 
