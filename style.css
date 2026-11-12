@@ -23747,3 +23747,71 @@ body.dark-mode .profile-post-viewer-dialog {
     }
 
 }
+/* PATRIODX — FINAL MOBILE POST VIEWER FIX */
+@media (max-width: 768px) {
+    #profilePostViewer {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100dvh !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        align-items: stretch !important;
+        justify-content: stretch !important;
+    }
+
+    #profilePostViewer .profile-post-viewer-dialog {
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex: 1 1 0 !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        height: 100dvh !important;
+        min-height: 0 !important;
+        max-height: 100dvh !important;
+        margin: 0 !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        overscroll-behavior-y: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-y !important;
+    }
+
+    #profilePostViewer .profile-post-viewer-author,
+    #profilePostViewer .profile-post-viewer-media,
+    #profilePostViewer .profile-post-viewer-details,
+    #profilePostViewer .profile-post-viewer-actions,
+    #profilePostViewer .profile-post-viewer-comments-section,
+    #profilePostViewer .profile-post-viewer-comments,
+    #profilePostViewer .profile-post-viewer-date,
+    #profilePostViewer .profile-post-viewer-comment-form {
+        flex: 0 0 auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    #profilePostViewer .profile-post-viewer-media:not(:empty) {
+        display: flex !important;
+        width: 100% !important;
+        height: auto !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    #profilePostViewer .profile-post-viewer-media img,
+    #profilePostViewer .profile-post-viewer-media video {
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: 65dvh !important;
+        object-fit: contain !important;
+    }
+
+    #profilePostViewer .profile-post-viewer-comment-form {
+        position: sticky !important;
+        bottom: 0 !important;
+        z-index: 100 !important;
+        background: var(--card-bg, var(--background, #fff)) !important;
+    }
+}

@@ -110,8 +110,20 @@ document.addEventListener("click", async function (event) {
             return;
         }
 
-        await loadPublicProfile(profile.id);
+       const viewer = document.getElementById("profilePostViewer");
 
+if (
+    viewer &&
+    viewer.getAttribute("aria-hidden") !== "true" &&
+    window.currentProfileViewerPostData
+) {
+    window.patriodxAuthorProfileReturnPostData =
+        window.currentProfileViewerPostData;
+
+    closeProfilePostViewer();
+}
+
+await loadPublicProfile(profile.id);
         const profileCard =
             document.getElementById("publicProfileCard");
 
@@ -15206,7 +15218,6 @@ if (
 window.openConversation =
     openConversation;
   document.addEventListener("click", async function (event) {
-
     const profileTarget = event.target.closest(
         "[data-open-chat-profile]"
     );
@@ -15219,27 +15230,13 @@ window.openConversation =
 
     event.preventDefault();
 
-    const messagingSection =
-        document.getElementById("messaging");
-
-    const isMobileChat =
-        window.matchMedia("(max-width: 768px)").matches &&
-        messagingSection?.classList.contains("mobile-chat-open");
-
-    const conversationId = activeConversationId || null;
-
-    // Preserve the exact conversation only when opening
-    // a profile from an active mobile conversation.
-    window.patriodxChatProfileReturnConversationId =
-        isMobileChat ? conversationId : null;
-
-    // Restore the normal app navigation while viewing
-    // the public profile.
-    if (isMobileChat && conversationId) {
-        messagingSection.classList.remove("mobile-chat-open");
-    }
-
     try {
+        if (window.matchMedia("(max-width: 768px)").matches) {
+            mobileProfileReturnSection = "messaging";
+            mobileProfileReturnScrollY = 0;
+            window.mobileProfileReturnConversationId =
+                activeConversationId || null;
+        }
 
         await loadPublicProfile(userId);
 
@@ -15248,21 +15245,14 @@ window.openConversation =
                 behavior: "smooth",
                 block: "start"
             });
-
     } catch (error) {
-
-        console.error(
-            "Could not open chat user's profile:",
-            error
-        );
+        console.error("Could not open chat user's profile:", error);
 
         showPATRIODXToast(
             "Could not open this profile. Please try again.",
             "error"
         );
-
     }
-
 });
 document.addEventListener("keydown", function (event) {
     const profileTarget = event.target.closest(
@@ -21941,7 +21931,7 @@ async function openProfilePostViewer(postData) {
 
     const postId = postData.postId;
     if (!postId) return;
-
+window.currentProfileViewerPostData = postData;
     // Prevent an older request from replacing a newer post.
     const requestId = (window.profileViewerRequestId || 0) + 1;
     window.profileViewerRequestId = requestId;
@@ -22103,15 +22093,18 @@ authorMetaRow.append(username, dateContainer);
 identity.append(nameRow, authorMetaRow);
 authorHeader.append(avatar, identity);
 
-        const openAuthorProfile = async function (event) {
-            event.preventDefault();
-            event.stopPropagation();
+       const openAuthorProfile = async function (event) {
+    event.preventDefault();
+    event.stopPropagation();
 
-            if (!profile?.id) return;
+    if (!profile?.id) return;
 
-            closeProfilePostViewer();
-            await loadPublicProfile(profile.id);
-        };
+    // Preserve the exact post so Back can reopen it.
+    window.patriodxAuthorProfileReturnPostData = postData;
+
+    closeProfilePostViewer();
+    await loadPublicProfile(profile.id);
+};
 
         avatar.style.cursor = "pointer";
         avatar.setAttribute("role", "button");
@@ -23127,22 +23120,7 @@ void Promise.allSettled([
 
 /* Handle comment likes, reply forms, and edit forms. */
 document.addEventListener("click", async function (event) {
-        const profileLink = event.target.closest(
-        ".social-comment-reply-username"
-    );
-
-    if (profileLink) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const userId = profileLink.dataset.profileUserId;
-
-        if (userId) {
-            await loadPublicProfile(userId);
-        }
-
-        return;
-    }
+        
     const target = event.target;
     if (!(target instanceof Element)) return;
 
@@ -23160,8 +23138,21 @@ if (replyUsernameButton) {
     event.preventDefault();
     event.stopPropagation();
 
+    // Preserve the exact post before closing its viewer.
+    const viewer = document.getElementById("profilePostViewer");
+
+    if (
+        viewer &&
+        viewer.getAttribute("aria-hidden") !== "true" &&
+        window.currentProfileViewerPostData
+    ) {
+        window.patriodxAuthorProfileReturnPostData =
+            window.currentProfileViewerPostData;
+    }
+
     closePATRIODXComments();
     closeProfilePostViewer();
+
     await loadPublicProfile(userId);
     return;
 }
@@ -23724,23 +23715,39 @@ if (typeof navigatePATRIODX === "function") {
 
         });
 
-    } else {
+   } else {
+
+    const returnPostData =
+        window.patriodxAuthorProfileReturnPostData;
+
+    if (returnPostData) {
+        window.patriodxAuthorProfileReturnPostData = null;
 
         requestAnimationFrame(() => {
-
             window.scrollTo({
                 top: returnScrollY,
                 left: 0,
                 behavior: "instant"
             });
 
+            void openProfilePostViewer(returnPostData);
         });
 
+    } else {
+        requestAnimationFrame(() => {
+            window.scrollTo({
+                top: returnScrollY,
+                left: 0,
+                behavior: "instant"
+            });
+        });
     }
 
 }
+
+}
   });
-    // =========================================================
+    // ========================================================
 // OWN PROFILE POST ACTIONS
 // =========================================================
 
