@@ -22279,7 +22279,9 @@ function closeProfilePostViewer() {
 
     viewer.style.display = "none";
     viewer.setAttribute("aria-hidden", "true");
-
+if (viewer.contains(document.activeElement)) {
+    document.activeElement.blur();
+}
    // Restore the mobile view that was open before the post.
 document.body.classList.toggle(
     "mobile-public-profile-view",
