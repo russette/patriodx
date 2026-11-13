@@ -22332,9 +22332,8 @@ document.body.classList.toggle(
 // Make the function explicitly available globally.
 window.closeProfilePostViewer = closeProfilePostViewer;
 
-// Use delegated clicks because script.js loads before the viewer HTML.
+// Handle post-viewer Back before other navigation handlers.
 document.addEventListener("click", function (event) {
-
     const closeTarget = event.target.closest(
         ".profile-post-viewer-close, .profile-post-viewer-overlay"
     );
@@ -22342,11 +22341,11 @@ document.addEventListener("click", function (event) {
     if (!closeTarget) return;
 
     event.preventDefault();
-    event.stopPropagation();
+    event.stopImmediatePropagation();
 
     closeProfilePostViewer();
 
-});
+}, true);
 /* Close the viewer with Escape */
 document.addEventListener("keydown", function (event) {
 if (event.key === "Escape") {
@@ -23601,15 +23600,7 @@ window.saveSocialPost = saveSocialPost;
 // PATRIODX — Return from public profile
 document.getElementById("publicProfileBackButton")
     ?.addEventListener("click", function () {
-        const postViewer =
-            document.getElementById("profilePostViewer");
 
-        if (
-            postViewer &&
-            postViewer.getAttribute("aria-hidden") !== "true"
-        ) {
-            return;
-        }
         // Close the immersive mobile view
         document.body.classList.remove("mobile-public-profile-view");
 
