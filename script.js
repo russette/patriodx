@@ -22257,7 +22257,7 @@ authorHeader.appendChild(menuActions);
 }
 }
 function closeProfilePostViewer() {
-
+console.log("[BACK DEBUG] closeProfilePostViewer ENTERED");
     const viewer = document.getElementById("profilePostViewer");
 
     const mediaContainer = document.getElementById(
@@ -22279,6 +22279,9 @@ function closeProfilePostViewer() {
 
     viewer.style.display = "none";
     viewer.setAttribute("aria-hidden", "true");
+    console.log("[BACK DEBUG] Viewer hidden");
+console.log("[BACK DEBUG] Previous profile state:",
+    window.profileViewerPreviousMobileView);
 if (viewer.contains(document.activeElement)) {
     document.activeElement.blur();
 }
@@ -22287,7 +22290,8 @@ document.body.classList.toggle(
     "mobile-public-profile-view",
     window.profileViewerPreviousMobileView === true
 );
-
+console.log("[BACK DEBUG] Profile restored:",
+    document.body.classList.contains("mobile-public-profile-view"));
     document.body.style.overflow =
         window.profileViewerPreviousOverflow || "";
 
@@ -22341,10 +22345,14 @@ document.addEventListener("click", function (event) {
     );
 
     if (!closeTarget) return;
-
+console.log("[BACK DEBUG] Post viewer Back clicked");
+console.log("[BACK DEBUG] Viewer visible:", 
+    document.getElementById("profilePostViewer")?.style.display);
+console.log("[BACK DEBUG] Profile state before close:",
+    document.body.classList.contains("mobile-public-profile-view"));
     event.preventDefault();
     event.stopImmediatePropagation();
-
+console.log("[BACK DEBUG] Calling close function");
     closeProfilePostViewer();
 
 }, true);
