@@ -22327,8 +22327,10 @@ console.log("[BACK DEBUG] Profile restored:",
         mediaContainer.replaceChildren();
         mediaContainer.style.display = "";
  }
-// Restore the existing public profile without reloading it.
+// Restore the existing public profile without creating
+// another navigation-history entry.
 if (options.restoreOrigin === true) {
+
     const previousUserId =
         window.profileViewerPreviousProfileUserId;
 
@@ -22338,28 +22340,19 @@ if (options.restoreOrigin === true) {
 
         viewedProfileUserId = previousUserId;
 
-        // Preserve the public profile while navigating.
-        window.patriodxPreservePublicProfileOnNavigation = true;
-
-        try {
-            navigatePATRIODX("profile");
-        } finally {
-            window.patriodxPreservePublicProfileOnNavigation = false;
-        }
-
-        // Make sure the existing public profile remains visible.
+        // Keep the public profile visible.
         document.getElementById("publicProfileCard")
             ?.style.setProperty("display", "block");
 
         document.getElementById("publicProfilePostsContainer")
             ?.style.setProperty("display", "block");
 
-        // Restore the immersive mobile profile presentation.
+        // Restore mobile immersive profile mode.
         if (window.matchMedia("(max-width: 768px)").matches) {
             document.body.classList.add("mobile-public-profile-view");
         }
 
-        // Restore the position where the post was opened.
+        // Restore the profile's original scroll position.
         requestAnimationFrame(() => {
             window.scrollTo({
                 top: window.profileViewerSavedScrollY || 0,
