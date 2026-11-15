@@ -19522,6 +19522,10 @@ if (
     if (!PATRIODX_PAGES.includes(page)) {
         page = "home";
     }
+    // Restore normal mobile navigation when leaving a public profile.
+if (page !== "profile") {
+    document.body.classList.remove("mobile-public-profile-view");
+}
 if (
     page === "profile" &&
     !window.patriodxPreservePublicProfileOnNavigation
@@ -20028,55 +20032,21 @@ function setupPATRIODXMobileMenu() {
    BROWSER BACK / FORWARD
 ========================================================= */
 
-window.addEventListener(
-    "popstate",
-    function() {
-        const postViewer = document.getElementById("profilePostViewer");
+window.addEventListener("popstate", function () {
 
-       if (
-    postViewer &&
-    postViewer.style.display === "flex"
-) {
-    window.profileViewerHistoryEntryActive = false;
+    const postViewer = document.getElementById("profilePostViewer");
 
-    closeProfilePostViewer({ restoreOrigin: true });
-    return;
-}
-        let page =
-            window.location.hash
-                .replace("#", "");
+    // First Back: close the post viewer and restore its profile.
+    if (
+        postViewer &&
+        postViewer.style.display === "flex"
+    ) {
+        window.profileViewerHistoryEntryActive = false;
 
-
-        if (page === "ai") {
-            page = "patriodxAI";
-        }
-
-
-        if (
-            !PATRIODX_PAGES.includes(page)
-        ) {
-            page = "home";
-        }
-
-
-        /* Don't push another history entry */
-
-        const oldPushState =
-            history.pushState;
-
-        history.pushState =
-            function() {};
-
-        navigatePATRIODX(page);
-
-       navigatePATRIODX(page, {
-    preserveHistory: true,
-    preserveScroll: true
-});
+        closeProfilePostViewer({ restoreOrigin: true });
     }
-);
 
-
+});
 /* =========================================================
    START NAVIGATION
 ========================================================= */
