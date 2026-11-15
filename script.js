@@ -21939,20 +21939,33 @@ window.currentProfileViewerPostData = postData;
    authorContainer.textContent =
     postData.author || "PATRIODX User";
     captionContainer.textContent = postData.caption || "";
- // Preserve the actual page the user opened the post from.
+// Preserve the actual page the user opened the post from.
 if (viewer.style.display !== "flex") {
     const isMobile = window.matchMedia("(max-width: 768px)").matches;
 
+    const publicProfileCard =
+        document.getElementById("publicProfileCard");
+
+    const publicProfilePosts =
+        document.getElementById("publicProfilePostsContainer");
+
+    const publicProfileIsVisible =
+        (
+            publicProfileCard &&
+            getComputedStyle(publicProfileCard).display !== "none"
+        ) ||
+        (
+            publicProfilePosts &&
+            getComputedStyle(publicProfilePosts).display !== "none"
+        );
+
     const isViewingPublicProfile =
-        typeof viewedProfileUserId !== "undefined" &&
-        Boolean(viewedProfileUserId) &&
-        viewedProfileUserId !== currentUser?.id;
+        Boolean(viewedProfileUserId) ||
+        document.body.classList.contains("mobile-public-profile-view") ||
+        publicProfileIsVisible;
 
     window.profileViewerPreviousMobileView =
-        isMobile && (
-            document.body.classList.contains("mobile-public-profile-view") ||
-            isViewingPublicProfile
-        );
+        isMobile && Boolean(isViewingPublicProfile);
 
     window.profileViewerPreviousOverflow =
         document.body.style.overflow;
