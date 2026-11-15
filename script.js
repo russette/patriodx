@@ -21985,7 +21985,10 @@ window.profileViewerPreviousProfileUserId =
         document.body.style.overflow;
 }
 // Give the mobile post viewer its own Back-history entry.
-if (isMobile && !window.profileViewerHistoryEntryActive) {
+if (
+    window.matchMedia("(max-width: 768px)").matches &&
+    !window.profileViewerHistoryEntryActive
+) {
     history.pushState(
         {
             ...(history.state || {}),
