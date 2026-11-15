@@ -22425,16 +22425,15 @@ document.addEventListener("click", function (event) {
     );
 
     if (!closeTarget) return;
-console.log("[BACK DEBUG] Post viewer Back clicked");
-console.log("[BACK DEBUG] Viewer visible:", 
-    document.getElementById("profilePostViewer")?.style.display);
-console.log("[BACK DEBUG] Profile state before close:",
-    document.body.classList.contains("mobile-public-profile-view"));
+
     event.preventDefault();
     event.stopImmediatePropagation();
-console.log("[BACK DEBUG] Calling close function");
-  closeProfilePostViewer({ restoreOrigin: true });
 
+    if (window.profileViewerHistoryEntryActive) {
+        history.back();
+    } else {
+        closeProfilePostViewer({ restoreOrigin: true });
+    }
 }, true);
 /* Close the viewer with Escape */
 document.addEventListener("keydown", function (event) {
