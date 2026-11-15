@@ -21939,15 +21939,24 @@ window.currentProfileViewerPostData = postData;
    authorContainer.textContent =
     postData.author || "PATRIODX User";
     captionContainer.textContent = postData.caption || "";
- // Preserve the page's original navigation state.
+ // Preserve the actual page the user opened the post from.
 if (viewer.style.display !== "flex") {
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
+    const isViewingPublicProfile =
+        typeof viewedProfileUserId !== "undefined" &&
+        Boolean(viewedProfileUserId) &&
+        viewedProfileUserId !== currentUser?.id;
+
     window.profileViewerPreviousMobileView =
-        document.body.classList.contains("mobile-public-profile-view");
+        isMobile && (
+            document.body.classList.contains("mobile-public-profile-view") ||
+            isViewingPublicProfile
+        );
 
     window.profileViewerPreviousOverflow =
         document.body.style.overflow;
 }
-
 // Display the viewer immediately.
 viewer.style.display = "flex";
 viewer.setAttribute("aria-hidden", "false");
