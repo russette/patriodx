@@ -9432,47 +9432,40 @@ renderedCards.forEach(card => {
     });
 });
 
-
 // Open a user's public profile from their post name or avatar.
 renderedCards.forEach(card => {
+    card.querySelectorAll("[data-profile-user-id]").forEach(element => {
+        element.addEventListener("click", function (event) {
+            const userId = this.getAttribute("data-profile-user-id");
 
-    card.querySelectorAll("[data-profile-user-id]")
-        .forEach(element => {
+            if (!userId || typeof loadPublicProfile !== "function") return;
 
-            element.addEventListener("click", function () {
+            event.preventDefault();
+            event.stopPropagation();
 
-                const userId =
-                    this.getAttribute("data-profile-user-id");
+            if (window.matchMedia("(max-width: 768px)").matches) {
+                mobileProfileReturnSection = "social";
+                mobileProfileReturnScrollY = window.scrollY;
 
-                if (
-                    userId &&
-                    typeof loadPublicProfile === "function"
-                ) {
-                    loadPublicProfile(userId);
+                window.patriodxChatProfileReturnConversationId = null;
+                window.patriodxAuthorProfileReturnPostData = null;
+            }
 
-                    const publicProfileCard =
-                        document.getElementById("publicProfileCard");
-
-                    if (publicProfileCard) {
-                        publicProfileCard.scrollIntoView({
-                            behavior: "smooth",
-                            block: "start"
-                        });
-                    }
-                }
-            });
-
-            element.addEventListener("keydown", function (event) {
-
-                if (
-                    event.key === "Enter" ||
-                    event.key === " "
-                ) {
-                    event.preventDefault();
-                    this.click();
-                }
+            void loadPublicProfile(userId).then(() => {
+                document.getElementById("publicProfileCard")?.scrollIntoView({
+                    behavior: "auto",
+                    block: "start"
+                });
             });
         });
+
+        element.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                this.click();
+            }
+        });
+    });
 });
     /* =========================================================
        LUCIDE
@@ -22292,6 +22285,8 @@ document.body.classList.toggle(
 );
 console.log("[BACK DEBUG] Profile restored:",
     document.body.classList.contains("mobile-public-profile-view"));
+    console.log("[BACK DEBUG] Comments sheet still open:",
+    document.getElementById("patriodxCommentsSheet")?.classList.contains("is-open"));
     document.body.style.overflow =
         window.profileViewerPreviousOverflow || "";
 
@@ -23687,7 +23682,8 @@ if (typeof navigatePATRIODX === "function") {
 
     // Navigate first. navigatePATRIODX is synchronous.
     navigatePATRIODX(returnSection);
-
+// Restore normal mobile navigation after leaving the immersive profile.
+document.body.classList.remove("mobile-public-profile-view");
     mobileProfileReturnSection = "profile";
     mobileProfileReturnScrollY = 0;
 
