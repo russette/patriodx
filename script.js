@@ -19508,8 +19508,7 @@ function patriodxHide(element) {
     );
 }
 
-
-function navigatePATRIODX(page) {
+function navigatePATRIODX(page, options = {}) {
 if (
     page !== "messaging" &&
     typeof stopPATRIODXBlockMonitor === "function"
@@ -19757,23 +19756,24 @@ if (appearance) {
     /* =====================================================
        UPDATE URL
     ===================================================== */
-
+if (!options.preserveHistory) {
     history.pushState(
         { page: page },
         "",
         "#" + page
     );
-
-
+}
     /* =====================================================
        RESET VIEW POSITION
     ===================================================== */
 
+   if (!options.preserveScroll) {
     window.scrollTo({
         top: 0,
         left: 0,
         behavior: "instant"
     });
+}
 
 
     /* =====================================================
@@ -22336,31 +22336,42 @@ if (options.restoreOrigin === true) {
 
     window.profileViewerPreviousProfileUserId = null;
 
-    if (previousUserId) {
+   if (previousUserId) {
 
-        viewedProfileUserId = previousUserId;
+    viewedProfileUserId = previousUserId;
 
-        // Keep the public profile visible.
-        document.getElementById("publicProfileCard")
-            ?.style.setProperty("display", "block");
+    // Restore the actual Profile section without adding
+    // another history entry or resetting the scroll.
+    window.patriodxPreservePublicProfileOnNavigation = true;
 
-        document.getElementById("publicProfilePostsContainer")
-            ?.style.setProperty("display", "block");
-
-        // Restore mobile immersive profile mode.
-        if (window.matchMedia("(max-width: 768px)").matches) {
-            document.body.classList.add("mobile-public-profile-view");
-        }
-
-        // Restore the profile's original scroll position.
-        requestAnimationFrame(() => {
-            window.scrollTo({
-                top: window.profileViewerSavedScrollY || 0,
-                left: 0,
-                behavior: "instant"
-            });
+    try {
+        navigatePATRIODX("profile", {
+            preserveHistory: true,
+            preserveScroll: true
         });
+    } finally {
+        window.patriodxPreservePublicProfileOnNavigation = false;
     }
+
+    // Keep the existing public profile visible.
+    document.getElementById("publicProfileCard")
+        ?.style.setProperty("display", "block");
+
+    document.getElementById("publicProfilePostsContainer")
+        ?.style.setProperty("display", "block");
+
+    if (window.matchMedia("(max-width: 768px)").matches) {
+        document.body.classList.add("mobile-public-profile-view");
+    }
+
+    requestAnimationFrame(() => {
+        window.scrollTo({
+            top: window.profileViewerSavedScrollY || 0,
+            left: 0,
+            behavior: "instant"
+        });
+    });
+}
 }
     // Preserve existing notification-viewer behavior.
     if (mobilePostViewerReturnSection === "notifications") {
