@@ -18071,7 +18071,7 @@ if (currentSection && currentSection !== "profile") {
 }
 // Make the Profile section visible before displaying the user.
 if (typeof navigatePATRIODX === "function") {
-    navigatePATRIODX("profile");
+navigatePATRIODX("profile");
 }
 
 if (window.matchMedia("(max-width: 768px)").matches) {
@@ -20031,7 +20031,17 @@ function setupPATRIODXMobileMenu() {
 window.addEventListener(
     "popstate",
     function() {
+        const postViewer = document.getElementById("profilePostViewer");
 
+       if (
+    postViewer &&
+    postViewer.style.display === "flex"
+) {
+    window.profileViewerHistoryEntryActive = false;
+
+    closeProfilePostViewer({ restoreOrigin: true });
+    return;
+}
         let page =
             window.location.hash
                 .replace("#", "");
@@ -20059,9 +20069,10 @@ window.addEventListener(
 
         navigatePATRIODX(page);
 
-        history.pushState =
-            oldPushState;
-
+       navigatePATRIODX(page, {
+    preserveHistory: true,
+    preserveScroll: true
+});
     }
 );
 
@@ -21059,8 +21070,10 @@ window.addEventListener("hashchange", () => {
         page = "patriodxAI";
     }
 
-    navigatePATRIODX(page);
-
+navigatePATRIODX(page, {
+    preserveHistory: true,
+    preserveScroll: true
+});
 });
 
 
@@ -21971,6 +21984,19 @@ window.profileViewerPreviousProfileUserId =
     window.profileViewerPreviousOverflow =
         document.body.style.overflow;
 }
+// Give the mobile post viewer its own Back-history entry.
+if (isMobile && !window.profileViewerHistoryEntryActive) {
+    history.pushState(
+        {
+            ...(history.state || {}),
+            patriodxPostViewer: true
+        },
+        "",
+        window.location.href
+    );
+
+    window.profileViewerHistoryEntryActive = true;
+}
 // Display the viewer immediately.
 viewer.style.display = "flex";
 viewer.setAttribute("aria-hidden", "false");
@@ -22410,7 +22436,11 @@ console.log("[BACK DEBUG] Calling close function");
 /* Close the viewer with Escape */
 document.addEventListener("keydown", function (event) {
 if (event.key === "Escape") {
-closeProfilePostViewer({ restoreOrigin: true });
+if (window.profileViewerHistoryEntryActive) {
+    history.back();
+} else {
+    closeProfilePostViewer({ restoreOrigin: true });
+}
 }
 });
 // =========================================================
