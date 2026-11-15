@@ -22313,18 +22313,7 @@ console.log("[BACK DEBUG] Profile restored:",
     document.body.style.overflow =
         window.profileViewerPreviousOverflow || "";
 
-    // Restore the previous page position.
-    requestAnimationFrame(() => {
-
-        window.scrollTo({
-            top: window.profileViewerSavedScrollY || 0,
-            left: 0,
-            behavior: "instant"
-        });
-
-    });
-
-    // Stop and clear any playing video.
+   // Stop and clear any playing video.
     if (mediaContainer) {
 
         const video = mediaContainer.querySelector("video");
@@ -22338,7 +22327,7 @@ console.log("[BACK DEBUG] Profile restored:",
         mediaContainer.replaceChildren();
         mediaContainer.style.display = "";
  }
-// Restore the exact public profile that opened this post.
+// Restore the existing public profile without reloading it.
 if (options.restoreOrigin === true) {
     const previousUserId =
         window.profileViewerPreviousProfileUserId;
@@ -22346,11 +22335,40 @@ if (options.restoreOrigin === true) {
     window.profileViewerPreviousProfileUserId = null;
 
     if (previousUserId) {
-        void loadPublicProfile(previousUserId);
+
+        viewedProfileUserId = previousUserId;
+
+        // Preserve the public profile while navigating.
+        window.patriodxPreservePublicProfileOnNavigation = true;
+
+        try {
+            navigatePATRIODX("profile");
+        } finally {
+            window.patriodxPreservePublicProfileOnNavigation = false;
+        }
+
+        // Make sure the existing public profile remains visible.
+        document.getElementById("publicProfileCard")
+            ?.style.setProperty("display", "block");
+
+        document.getElementById("publicProfilePostsContainer")
+            ?.style.setProperty("display", "block");
+
+        // Restore the immersive mobile profile presentation.
+        if (window.matchMedia("(max-width: 768px)").matches) {
+            document.body.classList.add("mobile-public-profile-view");
+        }
+
+        // Restore the position where the post was opened.
+        requestAnimationFrame(() => {
+            window.scrollTo({
+                top: window.profileViewerSavedScrollY || 0,
+                left: 0,
+                behavior: "instant"
+            });
+        });
     }
-
- }
-
+}
     // Preserve existing notification-viewer behavior.
     if (mobilePostViewerReturnSection === "notifications") {
 
