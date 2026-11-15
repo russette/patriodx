@@ -21966,7 +21966,8 @@ if (viewer.style.display !== "flex") {
 
     window.profileViewerPreviousMobileView =
         isMobile && Boolean(isViewingPublicProfile);
-
+window.profileViewerPreviousProfileUserId =
+    viewedProfileUserId || null;
     window.profileViewerPreviousOverflow =
         document.body.style.overflow;
 }
@@ -22271,7 +22272,7 @@ authorHeader.appendChild(menuActions);
     }
 }
 }
-function closeProfilePostViewer() {
+function closeProfilePostViewer(options = {}) {
 console.log("[BACK DEBUG] closeProfilePostViewer ENTERED");
     const viewer = document.getElementById("profilePostViewer");
 
@@ -22336,8 +22337,19 @@ console.log("[BACK DEBUG] Profile restored:",
 
         mediaContainer.replaceChildren();
         mediaContainer.style.display = "";
+ }
+// Restore the exact public profile that opened this post.
+if (options.restoreOrigin === true) {
+    const previousUserId =
+        window.profileViewerPreviousProfileUserId;
 
+    window.profileViewerPreviousProfileUserId = null;
+
+    if (previousUserId) {
+        void loadPublicProfile(previousUserId);
     }
+
+ }
 
     // Preserve existing notification-viewer behavior.
     if (mobilePostViewerReturnSection === "notifications") {
@@ -22370,13 +22382,13 @@ console.log("[BACK DEBUG] Profile state before close:",
     event.preventDefault();
     event.stopImmediatePropagation();
 console.log("[BACK DEBUG] Calling close function");
-    closeProfilePostViewer();
+  closeProfilePostViewer({ restoreOrigin: true });
 
 }, true);
 /* Close the viewer with Escape */
 document.addEventListener("keydown", function (event) {
 if (event.key === "Escape") {
-closeProfilePostViewer();
+closeProfilePostViewer({ restoreOrigin: true });
 }
 });
 // =========================================================
