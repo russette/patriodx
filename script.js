@@ -18090,7 +18090,10 @@ navigatePATRIODX("profile");
 }
 
 if (window.matchMedia("(max-width: 768px)").matches) {
-    document.body.classList.add("mobile-public-profile-view");
+    document.body.classList.toggle(
+        "mobile-public-profile-view",
+        window.profileViewerPreviousMobileView === true
+    );
 }
 
 viewedProfileUserId = userId;
