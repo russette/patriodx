@@ -20031,12 +20031,11 @@ function setupPATRIODXMobileMenu() {
 /* =========================================================
    BROWSER BACK / FORWARD
 ========================================================= */
-
-window.addEventListener("popstate", function () {
+window.addEventListener("popstate", function (event) {
 
     const postViewer = document.getElementById("profilePostViewer");
 
-    // First Back: close the post viewer and restore its profile.
+    // FIRST BACK: Close the post and restore its public profile.
     if (
         postViewer &&
         postViewer.style.display === "flex"
@@ -20044,6 +20043,36 @@ window.addEventListener("popstate", function () {
         window.profileViewerHistoryEntryActive = false;
 
         closeProfilePostViewer({ restoreOrigin: true });
+
+        return;
+    }
+
+    // SECOND BACK: Restore the original application section.
+    const previousPage = event.state?.page;
+
+    if (
+        previousPage &&
+        PATRIODX_PAGES.includes(previousPage)
+    ) {
+
+        navigatePATRIODX(previousPage, {
+            preserveHistory: true,
+            preserveScroll: true
+        });
+
+        // Restore the original feed position.
+        if (
+            previousPage === mobileProfileReturnSection
+        ) {
+            requestAnimationFrame(() => {
+                window.scrollTo({
+                    top: mobileProfileReturnScrollY || 0,
+                    left: 0,
+                    behavior: "instant"
+                });
+            });
+        }
+
     }
 
 });
@@ -20097,7 +20126,12 @@ setupPATRIODXStoryViewer();
         oldPushState;
 
 }
-
+// Save the initial app page so browser Back can restore it.
+history.replaceState(
+    { page: startingPage },
+    "",
+    window.location.href
+);
 
 if (
     document.readyState ===
@@ -21942,11 +21976,17 @@ if (viewer.style.display !== "flex") {
             getComputedStyle(publicProfilePosts).display !== "none"
         );
 
-    const isViewingPublicProfile =
+   const activePage = window.location.hash
+    .replace("#", "")
+    .trim();
+
+const isViewingPublicProfile =
+    activePage === "profile" &&
+    (
         Boolean(viewedProfileUserId) ||
         document.body.classList.contains("mobile-public-profile-view") ||
-        publicProfileIsVisible;
-
+        publicProfileIsVisible
+    );
     window.profileViewerPreviousMobileView =
         isMobile && Boolean(isViewingPublicProfile);
 window.profileViewerPreviousProfileUserId =
@@ -21988,7 +22028,10 @@ if (viewerScroll) {
 }
 
 if (window.matchMedia("(max-width: 768px)").matches) {
-    document.body.classList.add("mobile-public-profile-view");
+    document.body.classList.toggle(
+        "mobile-public-profile-view",
+        window.profileViewerPreviousMobileView === true
+    );
 }
 
 
