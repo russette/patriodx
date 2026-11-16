@@ -22023,8 +22023,8 @@ const sourceSection =
     "social";
 
 const isViewingPublicProfile =
-    Boolean(viewedProfileUserId) ||
-    document.body.classList.contains("mobile-public-profile-view");
+    sourceSection === "profile" &&
+    Boolean(viewedProfileUserId);
 
 window.profileViewerPreviousSection = sourceSection;
 
