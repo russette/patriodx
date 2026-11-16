@@ -18095,10 +18095,7 @@ navigatePATRIODX("profile");
 }
 
 if (window.matchMedia("(max-width: 768px)").matches) {
-    document.body.classList.toggle(
-        "mobile-public-profile-view",
-        window.profileViewerPreviousMobileView === true
-    );
+    document.body.classList.add("mobile-public-profile-view");
 }
 
 viewedProfileUserId = userId;
@@ -20052,19 +20049,22 @@ function setupPATRIODXMobileMenu() {
 
 }
 
-
 /* =========================================================
-   BROWSER BACK / FORWARD
+   PATRIODX — DEDICATED MOBILE PROFILE BACK NAVIGATION
 ========================================================= */
-window.addEventListener("popstate", function () {
 
-    const postViewer =
-        document.getElementById("profilePostViewer");
+function handleMobileProfileBack(event) {
 
-    // FIRST BACK: close the post viewer.
+    if (!window.matchMedia("(max-width: 768px)").matches) {
+        return;
+    }
+
+    const viewer = document.getElementById("profilePostViewer");
+
+    // STEP 1: Post viewer → Public profile.
     if (
-        postViewer &&
-        postViewer.style.display === "flex"
+        viewer &&
+        viewer.style.display === "flex"
     ) {
         window.profileViewerHistoryEntryActive = false;
 
@@ -20075,16 +20075,20 @@ window.addEventListener("popstate", function () {
         return;
     }
 
-    // SECOND BACK: leave the public profile and
-    // restore the page from which it was opened.
+    // STEP 2: Public profile → Original section.
     if (
-        window.matchMedia("(max-width: 768px)").matches &&
         document.body.classList.contains("mobile-public-profile-view") &&
         window.patriodxPublicProfileReturnSection
     ) {
 
+        const historyPage = event.state?.page;
+
         const returnSection =
-            window.patriodxPublicProfileReturnSection;
+            historyPage &&
+            PATRIODX_PAGES.includes(historyPage) &&
+            historyPage !== "profile"
+                ? historyPage
+                : window.patriodxPublicProfileReturnSection;
 
         const returnScroll =
             window.patriodxPublicProfileReturnScrollY || 0;
@@ -20110,9 +20114,16 @@ window.addEventListener("popstate", function () {
                 behavior: "instant"
             });
         });
-    }
 
-});
+        return;
+    }
+}
+
+// Register ONE Back handler.
+window.addEventListener(
+    "popstate",
+    handleMobileProfileBack
+);
 /* =========================================================
    START NAVIGATION
 ========================================================= */
