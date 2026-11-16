@@ -18069,21 +18069,14 @@ async function loadPublicProfile(userId) {
 const currentSection = window.location.hash
     .replace("#", "")
     .trim();
-    if (
-    currentSection &&
-    currentSection !== "profile"
-) {
-    window.patriodxPublicProfileReturnSection =
-        currentSection;
-
-    window.patriodxPublicProfileReturnScrollY =
-        window.scrollY;
-}
 
 if (currentSection && currentSection !== "profile") {
+
     mobileProfileReturnSection = currentSection;
     mobileProfileReturnScrollY = window.scrollY;
+
 }
+
 window.patriodxPublicProfileReturnSection =
     mobileProfileReturnSection;
 
@@ -20065,19 +20058,34 @@ function PATRIODXMobileProfileNavigationController(event) {
         getComputedStyle(viewer).display !== "none" &&
         viewer.getAttribute("aria-hidden") !== "true";
 
-    // FIRST BACK: Post viewer → Public profile.
-    if (viewerIsOpen) {
+   // FIRST BACK: Close the comments sheet AND post viewer.
+if (viewerIsOpen) {
+    const commentsSheet = document.getElementById(
+        "patriodxCommentsSheet"
+    );
 
-        window.profileViewerHistoryEntryActive = false;
+    const commentsAreOpen =
+        commentsSheet &&
+        commentsSheet.classList.contains("is-open");
 
-        closeProfilePostViewer({
-            restoreOrigin: true
-        });
-
-        document.body.classList.add("mobile-public-profile-view");
-
-        return true;
+    // The comments sheet must not remain over the restored page.
+    if (
+        commentsAreOpen &&
+        typeof closePATRIODXComments === "function"
+    ) {
+        closePATRIODXComments();
     }
+
+    window.profileViewerHistoryEntryActive = false;
+
+    closeProfilePostViewer({
+        restoreOrigin: true
+    });
+
+    document.body.classList.add("mobile-public-profile-view");
+
+    return true;
+}
 
        // SECOND BACK: Public profile → Original section.
     if (
@@ -20161,79 +20169,11 @@ function PATRIODXMobileProfileNavigationController(event) {
 /* =========================================================
    PATRIODX — DEDICATED MOBILE PROFILE BACK NAVIGATION
 ========================================================= */
-
 function handleMobileProfileBack(event) {
-    // Let the dedicated controller handle mobile profile navigation first.
-    if (
-        typeof PATRIODXMobileProfileNavigationController === "function" &&
-        PATRIODXMobileProfileNavigationController(event)
-    ) {
-        return;
-    }
-    if (!window.matchMedia("(max-width: 768px)").matches) {
-        return;
-    }
 
-    const viewer = document.getElementById("profilePostViewer");
+    PATRIODXMobileProfileNavigationController(event);
 
-    // STEP 1: Post viewer → Public profile.
-    if (
-        viewer &&
-        viewer.style.display === "flex"
-    ) {
-        window.profileViewerHistoryEntryActive = false;
-
-        closeProfilePostViewer({
-            restoreOrigin: true
-        });
-
-        return;
-    }
-
-    // STEP 2: Public profile → Original section.
-    if (
-        document.body.classList.contains("mobile-public-profile-view") &&
-        window.patriodxPublicProfileReturnSection
-    ) {
-
-        const historyPage = event.state?.page;
-
-        const returnSection =
-            historyPage &&
-            PATRIODX_PAGES.includes(historyPage) &&
-            historyPage !== "profile"
-                ? historyPage
-                : window.patriodxPublicProfileReturnSection;
-
-        const returnScroll =
-            window.patriodxPublicProfileReturnScrollY || 0;
-
-        window.patriodxPublicProfileReturnSection = null;
-        window.patriodxPublicProfileReturnScrollY = null;
-
-        viewedProfileUserId = null;
-
-        document.body.classList.remove(
-            "mobile-public-profile-view"
-        );
-
-        navigatePATRIODX(returnSection, {
-            preserveHistory: true,
-            preserveScroll: true
-        });
-
-        requestAnimationFrame(() => {
-            window.scrollTo({
-                top: returnScroll,
-                left: 0,
-                behavior: "instant"
-            });
-        });
-
-        return;
-    }
 }
-
 // Register ONE Back handler.
 window.addEventListener(
     "popstate",
@@ -22319,16 +22259,16 @@ authorMetaRow.append(username, dateContainer);
 identity.append(nameRow, authorMetaRow);
 authorHeader.append(avatar, identity);
 
-       const openAuthorProfile = async function (event) {
+const openAuthorProfile = async function (event) {
     event.preventDefault();
     event.stopPropagation();
 
     if (!profile?.id) return;
 
-    // Preserve the exact post so Back can reopen it.
     window.patriodxAuthorProfileReturnPostData = postData;
 
     closeProfilePostViewer();
+
     await loadPublicProfile(profile.id);
 };
 
