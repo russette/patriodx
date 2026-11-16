@@ -20170,9 +20170,17 @@ if (viewerIsOpen) {
    PATRIODX — DEDICATED MOBILE PROFILE BACK NAVIGATION
 ========================================================= */
 function handleMobileProfileBack(event) {
+    console.log("[BACK DEBUG] POPSTATE FIRED", {
+        hash: window.location.hash,
+        historyState: history.state,
+        viewerVisible:
+            document.getElementById("profilePostViewer")?.getAttribute("aria-hidden"),
+        historyFlag: window.profileViewerHistoryEntryActive,
+        mobileProfile:
+            document.body.classList.contains("mobile-public-profile-view")
+    });
 
     PATRIODXMobileProfileNavigationController(event);
-
 }
 // Register ONE Back handler.
 window.addEventListener(
