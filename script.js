@@ -1,4 +1,5 @@
-﻿const PAYSTACK_PUBLIC_KEY =
+﻿const profileViewerCommentsCache = new Map();
+const PAYSTACK_PUBLIC_KEY =
     "pk_live_e1462983063e834b226acdca9492e980762a6ddd";
 const SUPABASE_URL = "https://saerujjsfzyxkyacbvgr.supabase.co";
 const SUPABASE_KEY = "sb_publishable_l50YIYtYLXkjWE1iQSTyoA_GkrIKWn7";
@@ -20124,14 +20125,14 @@ setupPATRIODXStoryViewer();
 
     history.pushState =
         oldPushState;
-
-}
-// Save the initial app page so browser Back can restore it.
+// Save the initial app page for browser Back navigation.
 history.replaceState(
     { page: startingPage },
     "",
     window.location.href
 );
+}
+
 
 if (
     document.readyState ===
@@ -22462,7 +22463,6 @@ if (window.profileViewerHistoryEntryActive) {
 // PATRIODX — POST VIEWER COMMENTS CACHE
 // =========================================================
 
-const profileViewerCommentsCache = new Map();
 
 async function getProfileViewerCommentsData(postId, forceRefresh = false) {
     const cached = profileViewerCommentsCache.get(postId);
