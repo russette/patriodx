@@ -18084,6 +18084,11 @@ if (currentSection && currentSection !== "profile") {
     mobileProfileReturnSection = currentSection;
     mobileProfileReturnScrollY = window.scrollY;
 }
+window.patriodxPublicProfileReturnSection =
+    mobileProfileReturnSection;
+
+window.patriodxPublicProfileReturnScrollY =
+    mobileProfileReturnScrollY;
 // Make the Profile section visible before displaying the user.
 if (typeof navigatePATRIODX === "function") {
 navigatePATRIODX("profile");
@@ -22014,7 +22019,7 @@ if (viewer.style.display !== "flex") {
 
 const sourceSection =
     postData.sourceSection ||
-    window.location.hash.replace("#", "") ||
+    window.location.hash.replace("#", "").trim() ||
     "social";
 
 const isViewingPublicProfile =
