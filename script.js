@@ -20048,13 +20048,128 @@ function setupPATRIODXMobileMenu() {
         };
 
 }
+/* =========================================================
+   PATRIODX — MOBILE PROFILE NAVIGATION CONTROLLER
+========================================================= */
+
+function PATRIODXMobileProfileNavigationController(event) {
+
+    if (!window.matchMedia("(max-width: 768px)").matches) {
+        return false;
+    }
+
+    const viewer = document.getElementById("profilePostViewer");
+
+    const viewerIsOpen =
+        viewer &&
+        getComputedStyle(viewer).display !== "none" &&
+        viewer.getAttribute("aria-hidden") !== "true";
+
+    // FIRST BACK: Post viewer → Public profile.
+    if (viewerIsOpen) {
+
+        window.profileViewerHistoryEntryActive = false;
+
+        closeProfilePostViewer({
+            restoreOrigin: true
+        });
+
+        document.body.classList.add("mobile-public-profile-view");
+
+        return true;
+    }
+
+       // SECOND BACK: Public profile → Original section.
+    if (
+        document.body.classList.contains("mobile-public-profile-view") &&
+        window.patriodxPublicProfileReturnSection
+    ) {
+
+        const chatConversationId =
+            window.patriodxChatProfileReturnConversationId;
+
+        const returnSection = chatConversationId
+            ? "messaging"
+            : window.patriodxPublicProfileReturnSection;
+
+        const returnScroll =
+            window.patriodxPublicProfileReturnScrollY || 0;
+
+        // Clear the saved public-profile state.
+        window.patriodxPublicProfileReturnSection = null;
+        window.patriodxPublicProfileReturnScrollY = null;
+
+        viewedProfileUserId = null;
+
+        document.body.classList.remove(
+            "mobile-public-profile-view"
+        );
+
+        navigatePATRIODX(returnSection, {
+            preserveHistory: true,
+            preserveScroll: true
+        });
+
+        // Restore the original conversation when returning to Messaging.
+        if (chatConversationId) {
+
+            requestAnimationFrame(async () => {
+
+                try {
+                    await openConversation(chatConversationId);
+
+                } catch (error) {
+
+                    console.error(
+                        "Could not restore the previous conversation:",
+                        error
+                    );
+
+                    showPATRIODXToast(
+                        "Could not reopen the previous conversation.",
+                        "error"
+                    );
+
+                } finally {
+
+                    window.patriodxChatProfileReturnConversationId = null;
+
+                }
+
+            });
+
+        } else {
+
+            requestAnimationFrame(() => {
+                window.scrollTo({
+                    top: returnScroll,
+                    left: 0,
+                    behavior: "instant"
+                });
+            });
+
+        }
+
+        mobileProfileReturnSection = "profile";
+        mobileProfileReturnScrollY = 0;
+
+        return true;
+    }
+    return false;
+}
 
 /* =========================================================
    PATRIODX — DEDICATED MOBILE PROFILE BACK NAVIGATION
 ========================================================= */
 
 function handleMobileProfileBack(event) {
-
+    // Let the dedicated controller handle mobile profile navigation first.
+    if (
+        typeof PATRIODXMobileProfileNavigationController === "function" &&
+        PATRIODXMobileProfileNavigationController(event)
+    ) {
+        return;
+    }
     if (!window.matchMedia("(max-width: 768px)").matches) {
         return;
     }
