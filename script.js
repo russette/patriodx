@@ -9421,15 +9421,16 @@ renderedCards.forEach(card => {
             authorProfile?.username ||
             "PATRIODX User";
 
-        openProfilePostViewer({
-            postId: post.id,
-            imageUrl: post.image_url || "",
-            videoUrl: post.video_url || "",
-            author: author,
-            authorProfile: authorProfile,
-            caption: post.content || "",
-           createdAt: post.created_at || null
-        });
+      openProfilePostViewer({
+    postId: post.id,
+    imageUrl: post.image_url || "",
+    videoUrl: post.video_url || "",
+    author: author,
+    authorProfile: authorProfile,
+    caption: post.content || "",
+    createdAt: post.created_at || null,
+    sourceSection: "social"
+});
     });
 });
 
@@ -11990,14 +11991,15 @@ homeFeed.querySelectorAll(".home-feed-post").forEach((card, index) => {
             return;
         }
 
-        openProfilePostViewer({
-            postId: post.id,
-            imageUrl: post.image_url || "",
-            videoUrl: post.video_url || "",
-            author: post.author_name || post.display_name || "PATRIODX User",
-            caption: post.content || "",
-           createdAt: post.created_at || null
-        });
+      openProfilePostViewer({
+    postId: post.id,
+    imageUrl: post.image_url || "",
+    videoUrl: post.video_url || "",
+    author: post.author_name || post.display_name || "PATRIODX User",
+    caption: post.content || "",
+    createdAt: post.created_at || null,
+    sourceSection: "home"
+});
     });
 });
 // Open the author's public profile from Home posts.
@@ -15686,14 +15688,15 @@ try {
         "PATRIODX User";
 
     // Reuse the existing Instagram-style post viewer.
-    openProfilePostViewer({
-        postId: post.id,
-        imageUrl: post.image_url || "",
-        videoUrl: post.video_url || "",
-        author: author,
-        caption: post.content || "",
-       createdAt: post.created_at || null
-    });
+   openProfilePostViewer({
+    postId: post.id,
+    imageUrl: post.image_url || "",
+    videoUrl: post.video_url || "",
+    author: author,
+    caption: post.content || "",
+    createdAt: post.created_at || null,
+    sourceSection: "social"
+});
 
     // For comment notifications, focus the comment input.
     if (type === "comment") {
@@ -17165,16 +17168,17 @@ if ("IntersectionObserver" in window) {
             card.setAttribute("aria-label", "Open post");
 
             function openThisPost() {
-                openProfilePostViewer({
-                    postId: post.id,
-                    imageUrl: post.image_url || "",
-                    videoUrl: post.video_url || "",
-                    author:
-                        currentProfile?.display_name ||
-                        "PATRIODX User",
-                    caption: post.content || "",
-                    createdAt: post.created_at || null
-                });
+               openProfilePostViewer({
+    postId: post.id,
+    imageUrl: post.image_url || "",
+    videoUrl: post.video_url || "",
+    author:
+        currentProfile?.display_name ||
+        "PATRIODX User",
+    caption: post.content || "",
+    createdAt: post.created_at || null,
+    sourceSection: "profile"
+});
             }
 
             card.addEventListener("click", function (event) {
@@ -18065,6 +18069,16 @@ async function loadPublicProfile(userId) {
 const currentSection = window.location.hash
     .replace("#", "")
     .trim();
+    if (
+    currentSection &&
+    currentSection !== "profile"
+) {
+    window.patriodxPublicProfileReturnSection =
+        currentSection;
+
+    window.patriodxPublicProfileReturnScrollY =
+        window.scrollY;
+}
 
 if (currentSection && currentSection !== "profile") {
     mobileProfileReturnSection = currentSection;
@@ -18742,14 +18756,16 @@ postsElement
         card.setAttribute("aria-label", "Open post");
 
         function openThisPost() {
-            openProfilePostViewer({
-                postId: post.id,
-                imageUrl: post.image_url || "",
-                videoUrl: post.video_url || "",
-                author: profile.display_name || "PATRIODX User",
-                caption: post.content || "",
-               createdAt: post.created_at || null
-            });
+          openProfilePostViewer({
+    postId: post.id,
+    imageUrl: post.image_url || "",
+    videoUrl: post.video_url || "",
+    author: profile.display_name || "PATRIODX User",
+    authorProfile: profile,
+    caption: post.content || "",
+    createdAt: post.created_at || null,
+    sourceSection: "profile"
+});
         }
 
         card.addEventListener("click", function (event) {
@@ -20032,48 +20048,60 @@ function setupPATRIODXMobileMenu() {
 /* =========================================================
    BROWSER BACK / FORWARD
 ========================================================= */
-window.addEventListener("popstate", function (event) {
+window.addEventListener("popstate", function () {
 
-    const postViewer = document.getElementById("profilePostViewer");
+    const postViewer =
+        document.getElementById("profilePostViewer");
 
-    // FIRST BACK: Close the post and restore its public profile.
+    // FIRST BACK: close the post viewer.
     if (
         postViewer &&
         postViewer.style.display === "flex"
     ) {
         window.profileViewerHistoryEntryActive = false;
 
-        closeProfilePostViewer({ restoreOrigin: true });
+        closeProfilePostViewer({
+            restoreOrigin: true
+        });
 
         return;
     }
 
-    // SECOND BACK: Restore the original application section.
-    const previousPage = event.state?.page;
-
+    // SECOND BACK: leave the public profile and
+    // restore the page from which it was opened.
     if (
-        previousPage &&
-        PATRIODX_PAGES.includes(previousPage)
+        window.matchMedia("(max-width: 768px)").matches &&
+        document.body.classList.contains("mobile-public-profile-view") &&
+        window.patriodxPublicProfileReturnSection
     ) {
 
-        navigatePATRIODX(previousPage, {
+        const returnSection =
+            window.patriodxPublicProfileReturnSection;
+
+        const returnScroll =
+            window.patriodxPublicProfileReturnScrollY || 0;
+
+        window.patriodxPublicProfileReturnSection = null;
+        window.patriodxPublicProfileReturnScrollY = null;
+
+        viewedProfileUserId = null;
+
+        document.body.classList.remove(
+            "mobile-public-profile-view"
+        );
+
+        navigatePATRIODX(returnSection, {
             preserveHistory: true,
             preserveScroll: true
         });
 
-        // Restore the original feed position.
-        if (
-            previousPage === mobileProfileReturnSection
-        ) {
-            requestAnimationFrame(() => {
-                window.scrollTo({
-                    top: mobileProfileReturnScrollY || 0,
-                    left: 0,
-                    behavior: "instant"
-                });
+        requestAnimationFrame(() => {
+            window.scrollTo({
+                top: returnScroll,
+                left: 0,
+                behavior: "instant"
             });
-        }
-
+        });
     }
 
 });
@@ -21981,19 +22009,25 @@ if (viewer.style.display !== "flex") {
     .replace("#", "")
     .trim();
 
+const sourceSection =
+    postData.sourceSection ||
+    window.location.hash.replace("#", "") ||
+    "social";
+
 const isViewingPublicProfile =
-    activePage === "profile" &&
-    (
-        Boolean(viewedProfileUserId) ||
-        document.body.classList.contains("mobile-public-profile-view") ||
-        publicProfileIsVisible
-    );
-    window.profileViewerPreviousMobileView =
-        isMobile && Boolean(isViewingPublicProfile);
+    sourceSection === "profile" &&
+    Boolean(viewedProfileUserId);
+
+window.profileViewerPreviousSection = sourceSection;
+
+window.profileViewerPreviousMobileView =
+    isMobile && isViewingPublicProfile;
+
 window.profileViewerPreviousProfileUserId =
-    viewedProfileUserId || null;
-    window.profileViewerPreviousOverflow =
-        document.body.style.overflow;
+    isViewingPublicProfile ? viewedProfileUserId : null;
+
+window.profileViewerPreviousOverflow =
+    document.body.style.overflow;
 }
 // Give the mobile post viewer its own Back-history entry.
 if (
@@ -22403,10 +22437,12 @@ if (options.restoreOrigin === true) {
     document.getElementById("publicProfilePostsContainer")
         ?.style.setProperty("display", "block");
 
-    if (window.matchMedia("(max-width: 768px)").matches) {
-        document.body.classList.add("mobile-public-profile-view");
-    }
-
+if (window.matchMedia("(max-width: 768px)").matches) {
+    document.body.classList.toggle(
+        "mobile-public-profile-view",
+        window.profileViewerPreviousMobileView === true
+    );
+}
     requestAnimationFrame(() => {
         window.scrollTo({
             top: window.profileViewerSavedScrollY || 0,
