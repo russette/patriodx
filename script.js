@@ -22444,8 +22444,11 @@ console.log("[BACK DEBUG] closeProfilePostViewer ENTERED");
 
     window.currentProfileViewerPostId = null;
 
-    viewer.style.display = "none";
-    viewer.setAttribute("aria-hidden", "true");
+   viewer.style.display = "none";
+viewer.setAttribute("aria-hidden", "true");
+
+// Reset viewer history state whenever the viewer closes.
+window.profileViewerHistoryEntryActive = false;
     console.log("[BACK DEBUG] Viewer hidden");
 console.log("[BACK DEBUG] Previous profile state:",
     window.profileViewerPreviousMobileView);
