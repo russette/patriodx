@@ -24742,3 +24742,178 @@ async function unblockPATRIODXUser(userId, button) {
         }
     }
 }
+/* =========================================================
+   PATRIODX — MOBILE BACK NAVIGATION OVERRIDE
+   Handles:
+   Post Viewer → Public Profile → Original Section
+========================================================= */
+(function () {
+    "use strict";
+
+    if (window.patriodxMobileBackOverrideInstalled) return;
+
+    window.patriodxMobileBackOverrideInstalled = true;
+
+    // Remove the previous handler so two controllers
+    // cannot process the same Back operation.
+    if (typeof handleMobileProfileBack === "function") {
+        window.removeEventListener(
+            "popstate",
+            handleMobileProfileBack
+        );
+    }
+
+    window.addEventListener("popstate", function (event) {
+
+        if (!window.matchMedia("(max-width: 768px)").matches) {
+            return;
+        }
+
+        const viewer = document.getElementById("profilePostViewer");
+        const commentsSheet = document.getElementById(
+            "patriodxCommentsSheet"
+        );
+
+        const viewerOpen = Boolean(
+            viewer &&
+            viewer.getAttribute("aria-hidden") !== "true" &&
+            getComputedStyle(viewer).display !== "none"
+        );
+
+        const commentsOpen = Boolean(
+            commentsSheet &&
+            commentsSheet.classList.contains("is-open")
+        );
+
+        // PRIORITY 1: Close comments.
+        if (commentsOpen) {
+            event.stopImmediatePropagation();
+
+            if (typeof closePATRIODXComments === "function") {
+                closePATRIODXComments();
+            }
+
+            return;
+        }
+
+        // PRIORITY 2: Close the post and restore its profile.
+        if (viewerOpen) {
+            event.stopImmediatePropagation();
+
+            const previousUserId =
+                window.profileViewerPreviousProfileUserId ||
+                viewedProfileUserId ||
+                null;
+
+            window.profileViewerHistoryEntryActive = false;
+
+            closeProfilePostViewer({
+                restoreOrigin: true
+            });
+
+            if (previousUserId) {
+                viewedProfileUserId = previousUserId;
+
+                document.body.classList.add(
+                    "mobile-public-profile-view"
+                );
+
+                window.patriodxPreservePublicProfileOnNavigation = true;
+
+                try {
+                    navigatePATRIODX("profile", {
+                        preserveHistory: true,
+                        preserveScroll: true
+                    });
+                } finally {
+                    window.patriodxPreservePublicProfileOnNavigation = false;
+                }
+            }
+
+            return;
+        }
+
+        // PRIORITY 3: Leave the public profile.
+        const isPublicProfile =
+            document.body.classList.contains(
+                "mobile-public-profile-view"
+            ) ||
+            Boolean(viewedProfileUserId);
+
+        const returnSection =
+            window.patriodxPublicProfileReturnSection ||
+            mobileProfileReturnSection;
+
+        if (
+            isPublicProfile &&
+            returnSection &&
+            returnSection !== "profile"
+        ) {
+            event.stopImmediatePropagation();
+
+            const conversationId =
+                window.patriodxChatProfileReturnConversationId;
+
+            const destination = conversationId
+                ? "messaging"
+                : returnSection;
+
+            const returnScroll =
+                Number(
+                    window.patriodxPublicProfileReturnScrollY ??
+                    mobileProfileReturnScrollY ??
+                    0
+                );
+
+            // Clear profile state before restoring the destination.
+            document.body.classList.remove(
+                "mobile-public-profile-view"
+            );
+
+            viewedProfileUserId = null;
+
+            window.profileViewerPreviousProfileUserId = null;
+            window.profileViewerPreviousMobileView = false;
+
+            window.patriodxPublicProfileReturnSection = null;
+            window.patriodxPublicProfileReturnScrollY = null;
+
+            mobileProfileReturnSection = "profile";
+            mobileProfileReturnScrollY = 0;
+
+            window.patriodxChatProfileReturnConversationId = null;
+
+            navigatePATRIODX(destination, {
+                preserveHistory: true,
+                preserveScroll: true
+            });
+
+            requestAnimationFrame(async function () {
+                if (conversationId) {
+                    try {
+                        await openConversation(conversationId);
+                    } catch (error) {
+                        console.error(
+                            "[PATRIODX BACK] Conversation restoration failed:",
+                            error
+                        );
+                    }
+                } else {
+                    window.scrollTo({
+                        top: returnScroll,
+                        left: 0,
+                        behavior: "instant"
+                    });
+                }
+            });
+
+            return;
+        }
+
+    }, true);
+
+    console.log(
+        "[PATRIODX BACK] Mobile navigation override installed."
+    );
+
+})();
