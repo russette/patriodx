@@ -6783,10 +6783,22 @@ if (loaded === false) {
     }
 }
 
-function closePATRIODXComments() {
+function closePATRIODXComments(options = {}) {
     const sheet = document.getElementById("patriodxCommentsSheet");
 
-    if (!sheet) return;
+    if (!sheet || !sheet.classList.contains("is-open")) return;
+
+    // Manual close must consume the comments history entry.
+    if (
+        window.patriodxCommentsHistoryEntryActive &&
+        options.fromPopState !== true
+    ) {
+        history.back();
+        return;
+    }
+
+    // Browser Back has already consumed this entry.
+    window.patriodxCommentsHistoryEntryActive = false;
 
     const input = document.getElementById("patriodxCommentInput");
     const panel = sheet.querySelector(".patriodx-comments-panel");
@@ -20097,13 +20109,12 @@ function PATRIODXMobileProfileNavigationController(event) {
     );
 
     // 1. Close comments before handling the post viewer.
-    if (commentsOpen) {
-        if (typeof closePATRIODXComments === "function") {
-            closePATRIODXComments();
-        }
-        return true;
+   if (commentsOpen) {
+    if (typeof closePATRIODXComments === "function") {
+        closePATRIODXComments({ fromPopState: true });
     }
-
+    return true;
+}
     // 2. First Back: close the post and restore its profile.
     if (viewerOpen) {
         const previousUserId =
