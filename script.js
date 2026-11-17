@@ -20074,7 +20074,7 @@ function setupPATRIODXMobileMenu() {
 
 }
 /* =========================================================
-   PATRIODX — MOBILE PROFILE NAVIGATION CONTROLLER
+   PATRIODX — MOBILE PROFILE BACK CONTROLLER
 ========================================================= */
 function PATRIODXMobileProfileNavigationController(event) {
 
@@ -20085,98 +20085,128 @@ function PATRIODXMobileProfileNavigationController(event) {
     const viewer = document.getElementById("profilePostViewer");
     const commentsSheet = document.getElementById("patriodxCommentsSheet");
 
-    const viewerIsOpen =
+    const viewerOpen = Boolean(
         viewer &&
-        getComputedStyle(viewer).display !== "none" &&
-        viewer.getAttribute("aria-hidden") !== "true";
+        viewer.getAttribute("aria-hidden") !== "true" &&
+        getComputedStyle(viewer).display !== "none"
+    );
 
-    const commentsAreOpen =
+    const commentsOpen = Boolean(
         commentsSheet &&
-        commentsSheet.classList.contains("is-open");
+        commentsSheet.classList.contains("is-open")
+    );
 
-    // 1. If comments are open → just close them (do NOT touch history)
-    if (commentsAreOpen && typeof closePATRIODXComments === "function") {
-        closePATRIODXComments();
-        return true; // Important: stop here
-    }
-
-    // 2. If post viewer is open → close it and restore its actual origin
-if (viewerIsOpen) {
-    const wasViewingPublicProfile =
-        Boolean(window.profileViewerPreviousProfileUserId);
-
-    window.profileViewerHistoryEntryActive = false;
-
-    closeProfilePostViewer({
-        restoreOrigin: true
-    });
-
-    // Only preserve public-profile mode when the post
-    // was actually opened from another user's profile.
-    if (wasViewingPublicProfile) {
-        document.body.classList.add("mobile-public-profile-view");
-    }
-
-    return true;
-}
-    // 3. If we are on a public profile → go back to the previous section
-    if (
-        document.body.classList.contains("mobile-public-profile-view") &&
-        window.patriodxPublicProfileReturnSection
-    ) {
-        const chatConversationId =
-            window.patriodxChatProfileReturnConversationId;
-
-        const returnSection = chatConversationId
-            ? "messaging"
-            : window.patriodxPublicProfileReturnSection;
-
-        const returnScroll =
-            window.patriodxPublicProfileReturnScrollY || 0;
-
-        // Clear saved state
-        window.patriodxPublicProfileReturnSection = null;
-        window.patriodxPublicProfileReturnScrollY = null;
-        viewedProfileUserId = null;
-
-        document.body.classList.remove("mobile-public-profile-view");
-
-        navigatePATRIODX(returnSection, {
-            preserveHistory: true,
-            preserveScroll: true
-        });
-
-        if (chatConversationId) {
-            requestAnimationFrame(async () => {
-                try {
-                    await openConversation(chatConversationId);
-                } catch (error) {
-                    console.error("Could not restore conversation:", error);
-                    showPATRIODXToast(
-                        "Could not reopen the previous conversation.",
-                        "error"
-                    );
-                } finally {
-                    window.patriodxChatProfileReturnConversationId = null;
-                }
-            });
-        } else {
-            requestAnimationFrame(() => {
-                window.scrollTo({
-                    top: returnScroll,
-                    left: 0,
-                    behavior: "instant"
-                });
-            });
+    // 1. Close comments before handling the post viewer.
+    if (commentsOpen) {
+        if (typeof closePATRIODXComments === "function") {
+            closePATRIODXComments();
         }
-
-        mobileProfileReturnSection = "profile";
-        mobileProfileReturnScrollY = 0;
         return true;
     }
 
-    return false;
+    // 2. First Back: close the post and restore its profile.
+    if (viewerOpen) {
+        const previousUserId =
+            window.profileViewerPreviousProfileUserId ||
+            viewedProfileUserId ||
+            null;
+
+        window.profileViewerHistoryEntryActive = false;
+
+        closeProfilePostViewer({
+            restoreOrigin: true
+        });
+
+        if (previousUserId) {
+            viewedProfileUserId = previousUserId;
+            document.body.classList.add("mobile-public-profile-view");
+
+            const publicCard =
+                document.getElementById("publicProfileCard");
+
+            const publicPosts =
+                document.getElementById("publicProfilePostsContainer");
+
+            if (publicCard) publicCard.style.display = "block";
+            if (publicPosts) publicPosts.style.display = "block";
+        }
+
+        return true;
+    }
+
+    // 3. Second Back: leave the public profile.
+    const isPublicProfile = Boolean(
+        document.body.classList.contains("mobile-public-profile-view") ||
+        viewedProfileUserId
+    );
+
+    if (!isPublicProfile) {
+        return false;
+    }
+
+    const returnSection =
+        window.patriodxPublicProfileReturnSection ||
+        mobileProfileReturnSection;
+
+    if (!returnSection || returnSection === "profile") {
+        return false;
+    }
+
+    const conversationId =
+        window.patriodxChatProfileReturnConversationId || null;
+
+    const destination = conversationId
+        ? "messaging"
+        : returnSection;
+
+    const returnScroll = Number(
+        window.patriodxPublicProfileReturnScrollY ??
+        mobileProfileReturnScrollY ??
+        0
+    );
+
+    // Clear profile state before rendering the destination.
+    document.body.classList.remove("mobile-public-profile-view");
+
+    viewedProfileUserId = null;
+
+    window.profileViewerPreviousProfileUserId = null;
+    window.profileViewerPreviousMobileView = false;
+
+    window.patriodxPublicProfileReturnSection = null;
+    window.patriodxPublicProfileReturnScrollY = null;
+    window.patriodxChatProfileReturnConversationId = null;
+
+    mobileProfileReturnSection = "profile";
+    mobileProfileReturnScrollY = 0;
+
+    navigatePATRIODX(destination, {
+        preserveHistory: true,
+        preserveScroll: true
+    });
+
+    requestAnimationFrame(async function () {
+        if (conversationId) {
+            try {
+                await openConversation(conversationId);
+            } catch (error) {
+                console.error(
+                    "[PATRIODX BACK] Conversation restoration failed:",
+                    error
+                );
+            }
+        } else {
+            window.scrollTo({
+                top: returnScroll,
+                left: 0,
+                behavior: "instant"
+            });
+        }
+    });
+
+    return true;
 }
+
 /* =========================================================
    PATRIODX — DEDICATED MOBILE PROFILE BACK NAVIGATION
 ========================================================= */
