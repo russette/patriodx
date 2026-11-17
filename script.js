@@ -20064,59 +20064,96 @@ function setupPATRIODXMobileMenu() {
 /* =========================================================
    PATRIODX — MOBILE PROFILE NAVIGATION CONTROLLER
 ========================================================= */
-
 function PATRIODXMobileProfileNavigationController(event) {
 
     if (!window.matchMedia("(max-width: 768px)").matches) {
         return false;
     }
 
-    const commentsSheet = document.getElementById(
-        "patriodxCommentsSheet"
-    );
-
     const viewer = document.getElementById("profilePostViewer");
-
-    const commentsAreOpen =
-        commentsSheet &&
-        commentsSheet.classList.contains("is-open");
+    const commentsSheet = document.getElementById("patriodxCommentsSheet");
 
     const viewerIsOpen =
         viewer &&
         getComputedStyle(viewer).display !== "none" &&
         viewer.getAttribute("aria-hidden") !== "true";
 
-    // FIRST BACK: Close comments only.
-    if (commentsAreOpen) {
+    const commentsAreOpen =
+        commentsSheet &&
+        commentsSheet.classList.contains("is-open");
+
+    // 1st BACK: only close the comments sheet
+    if (commentsAreOpen && typeof closePATRIODXComments === "function") {
         closePATRIODXComments();
-        return true;
+        return true;          // stop here – stay on the post
     }
 
-    // SECOND BACK: Close post and restore public profile.
+    // 2nd BACK: close the post viewer and restore the public profile
     if (viewerIsOpen) {
-
         window.profileViewerHistoryEntryActive = false;
 
         closeProfilePostViewer({
             restoreOrigin: true
         });
 
+        // Make sure we stay in public-profile mode
+        document.body.classList.add("mobile-public-profile-view");
         return true;
     }
 
-    // THIRD BACK: Public profile → Original section.
+    // 3rd BACK: leave the public profile → original section
     if (
-        document.body.classList.contains("mobile-public-profile-view")
+        document.body.classList.contains("mobile-public-profile-view") &&
+        window.patriodxPublicProfileReturnSection
     ) {
+        const chatConversationId =
+            window.patriodxChatProfileReturnConversationId;
 
-        const backButton = document.getElementById(
-            "publicProfileBackButton"
-        );
+        const returnSection = chatConversationId
+            ? "messaging"
+            : window.patriodxPublicProfileReturnSection;
 
-        if (backButton) {
-            backButton.click();
-            return true;
+        const returnScroll =
+            window.patriodxPublicProfileReturnScrollY || 0;
+
+        window.patriodxPublicProfileReturnSection = null;
+        window.patriodxPublicProfileReturnScrollY = null;
+        viewedProfileUserId = null;
+
+        document.body.classList.remove("mobile-public-profile-view");
+
+        navigatePATRIODX(returnSection, {
+            preserveHistory: true,
+            preserveScroll: true
+        });
+
+        if (chatConversationId) {
+            requestAnimationFrame(async () => {
+                try {
+                    await openConversation(chatConversationId);
+                } catch (error) {
+                    console.error("Could not restore conversation:", error);
+                    showPATRIODXToast(
+                        "Could not reopen the previous conversation.",
+                        "error"
+                    );
+                } finally {
+                    window.patriodxChatProfileReturnConversationId = null;
+                }
+            });
+        } else {
+            requestAnimationFrame(() => {
+                window.scrollTo({
+                    top: returnScroll,
+                    left: 0,
+                    behavior: "instant"
+                });
+            });
         }
+
+        mobileProfileReturnSection = "profile";
+        mobileProfileReturnScrollY = 0;
+        return true;
     }
 
     return false;
