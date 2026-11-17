@@ -19798,11 +19798,17 @@ if (appearance) {
        UPDATE URL
     ===================================================== */
 if (!options.preserveHistory) {
-    history.pushState(
-        { page: page },
-        "",
-        "#" + page
-    );
+    const currentPage = window.location.hash
+        .replace("#", "")
+        .trim();
+
+    if (currentPage !== page) {
+        history.pushState(
+            { ...(history.state || {}), page: page },
+            "",
+            "#" + page
+        );
+    }
 }
     /* =====================================================
        RESET VIEW POSITION
@@ -21192,27 +21198,6 @@ navigatePATRIODX(page, {
 });
 });
 
-
-/* Load the correct page when PATRIODX starts */
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    let page =
-        window.location.hash
-            .replace("#", "")
-            .trim();
-
-    if (!page) {
-        page = "home";
-    }
-
-    if (page === "ai") {
-        page = "patriodxAI";
-    }
-
-    navigatePATRIODX(page);
-
-});
 // PATRIODX ROUTER SYNC
 /* =========================================================
    GLOBAL SEARCH
