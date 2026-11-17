@@ -22426,124 +22426,112 @@ authorHeader.appendChild(menuActions);
 }
 }
 function closeProfilePostViewer(options = {}) {
-console.log("[BACK DEBUG] closeProfilePostViewer ENTERED");
     const viewer = document.getElementById("profilePostViewer");
+    const mediaContainer = document.getElementById("profilePostViewerMedia");
 
-    const mediaContainer = document.getElementById(
-        "profilePostViewerMedia"
-    );
-
-    if (
-        !viewer ||
-        viewer.getAttribute("aria-hidden") === "true"
-    ) {
+    if (!viewer || viewer.getAttribute("aria-hidden") === "true") {
         return;
     }
 
-    // Invalidate pending requests.
-    window.profileViewerRequestId =
-        (window.profileViewerRequestId || 0) + 1;
-
+    // Invalidate pending requests
+    window.profileViewerRequestId = (window.profileViewerRequestId || 0) + 1;
     window.currentProfileViewerPostId = null;
 
-   viewer.style.display = "none";
-viewer.setAttribute("aria-hidden", "true");
+    // Hide the viewer
+    viewer.style.display = "none";
+    viewer.setAttribute("aria-hidden", "true");
+    window.profileViewerHistoryEntryActive = false;
 
-// Reset viewer history state whenever the viewer closes.
-window.profileViewerHistoryEntryActive = false;
-    console.log("[BACK DEBUG] Viewer hidden");
-console.log("[BACK DEBUG] Previous profile state:",
-    window.profileViewerPreviousMobileView);
-if (viewer.contains(document.activeElement)) {
-    document.activeElement.blur();
-}
-   // Restore the mobile view that was open before the post.
-document.body.classList.toggle(
-    "mobile-public-profile-view",
-    window.profileViewerPreviousMobileView === true
-);
-console.log("[BACK DEBUG] Profile restored:",
-    document.body.classList.contains("mobile-public-profile-view"));
-    console.log("[BACK DEBUG] Comments sheet still open:",
-    document.getElementById("patriodxCommentsSheet")?.classList.contains("is-open"));
-    document.body.style.overflow =
-        window.profileViewerPreviousOverflow || "";
+    if (viewer.contains(document.activeElement)) {
+        document.activeElement.blur();
+    }
 
-   // Stop and clear any playing video.
+    // Restore overflow
+    document.body.style.overflow = window.profileViewerPreviousOverflow || "";
+
+    // Stop any playing video
     if (mediaContainer) {
-
         const video = mediaContainer.querySelector("video");
-
         if (video) {
             video.pause();
             video.removeAttribute("src");
             video.load();
         }
-
         mediaContainer.replaceChildren();
         mediaContainer.style.display = "";
- }
-// Restore the existing public profile without creating
-// another navigation-history entry.
-if (options.restoreOrigin === true) {
-
-    const previousUserId =
-        window.profileViewerPreviousProfileUserId;
-
-    window.profileViewerPreviousProfileUserId = null;
-
-   if (previousUserId) {
-
-    viewedProfileUserId = previousUserId;
-
-    // Restore the actual Profile section without adding
-    // another history entry or resetting the scroll.
-    window.patriodxPreservePublicProfileOnNavigation = true;
-
-    try {
-        navigatePATRIODX("profile", {
-            preserveHistory: true,
-            preserveScroll: true
-        });
-    } finally {
-        window.patriodxPreservePublicProfileOnNavigation = false;
     }
 
-    // Keep the existing public profile visible.
-    document.getElementById("publicProfileCard")
-        ?.style.setProperty("display", "block");
+    // === RESTORE THE PUBLIC PROFILE CORRECTLY ===
+    if (options.restoreOrigin === true) {
+        const previousUserId = window.profileViewerPreviousProfileUserId;
+        window.profileViewerPreviousProfileUserId = null;
 
-    document.getElementById("publicProfilePostsContainer")
-        ?.style.setProperty("display", "block");
+        if (previousUserId) {
+            viewedProfileUserId = previousUserId;
 
-if (window.matchMedia("(max-width: 768px)").matches) {
-    document.body.classList.toggle(
-        "mobile-public-profile-view",
-        window.profileViewerPreviousMobileView === true
-    );
-}
-    requestAnimationFrame(() => {
-        window.scrollTo({
-            top: window.profileViewerSavedScrollY || 0,
-            left: 0,
-            behavior: "instant"
-        });
-    });
-}
-}
-    // Preserve existing notification-viewer behavior.
+            // Make sure we are in public profile mode
+            document.body.classList.add("mobile-public-profile-view");
+
+            // Hide YOUR own profile elements
+            const ownProfileElements = [
+                document.getElementById("profileCover"),
+                document.getElementById("profileAvatar")?.closest(".profile-header"),
+                document.getElementById("profilePostCount")?.closest(".profile-stats"),
+                document.getElementById("profilePosts")?.closest(".profile-posts")
+            ];
+
+            ownProfileElements.forEach(el => {
+                if (el) el.style.display = "none";
+            });
+
+            // Hide "Your Profile" headings
+            document.querySelectorAll("#profile > .section-heading").forEach(heading => {
+                heading.style.display = "none";
+            });
+
+            // Hide Find People search
+            document.getElementById("profileSearchForm")
+                ?.closest(".profile-search-card")
+                ?.style.setProperty("display", "none");
+
+            // Show the public profile
+            const publicCard = document.getElementById("publicProfileCard");
+            const publicPosts = document.getElementById("publicProfilePostsContainer");
+
+            if (publicCard) publicCard.style.setProperty("display", "block");
+            if (publicPosts) publicPosts.style.setProperty("display", "block");
+
+            // Navigate without destroying the public profile
+            window.patriodxPreservePublicProfileOnNavigation = true;
+
+            try {
+                navigatePATRIODX("profile", {
+                    preserveHistory: true,
+                    preserveScroll: true
+                });
+            } finally {
+                window.patriodxPreservePublicProfileOnNavigation = false;
+            }
+
+            // Restore scroll position
+            requestAnimationFrame(() => {
+                window.scrollTo({
+                    top: window.profileViewerSavedScrollY || 0,
+                    left: 0,
+                    behavior: "instant"
+                });
+            });
+        }
+    }
+
+    // Special case for notifications
     if (mobilePostViewerReturnSection === "notifications") {
-
         if (typeof navigatePATRIODX === "function") {
             navigatePATRIODX("notifications");
         }
-
         mobilePostViewerReturnSection = "profile";
-
     }
-
 }
-
 // Make the function explicitly available globally.
 window.closeProfilePostViewer = closeProfilePostViewer;
 
