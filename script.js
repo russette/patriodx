@@ -18773,18 +18773,20 @@ postsElement
         card.setAttribute("tabindex", "0");
         card.setAttribute("aria-label", "Open post");
 
-        function openThisPost() {
-          openProfilePostViewer({
-    postId: post.id,
-    imageUrl: post.image_url || "",
-    videoUrl: post.video_url || "",
-    author: profile.display_name || "PATRIODX User",
-    authorProfile: profile,
-    caption: post.content || "",
-    createdAt: post.created_at || null,
-    sourceSection: "profile"
-});
-        }
+       function openThisPost() {
+    openProfilePostViewer({
+        postId: post.id,
+        imageUrl: post.image_url || "",
+        videoUrl: post.video_url || "",
+        author: profile.display_name || "PATRIODX User",
+        authorProfile: profile,
+        profileUserId: profile.id,
+        isPublicProfilePost: true,
+        caption: post.content || "",
+        createdAt: post.created_at || null,
+        sourceSection: "profile"
+    });
+}
 
         card.addEventListener("click", function (event) {
             // Preserve video controls and action buttons
@@ -22096,6 +22098,7 @@ const sourceSection =
     "social";
 
 const isViewingPublicProfile =
+    postData.isPublicProfilePost === true ||
     Boolean(viewedProfileUserId) ||
     document.body.classList.contains("mobile-public-profile-view");
 
@@ -22105,7 +22108,8 @@ window.profileViewerPreviousMobileView =
     isMobile && isViewingPublicProfile;
 
 window.profileViewerPreviousProfileUserId =
-    isViewingPublicProfile ? viewedProfileUserId : null;
+    postData.profileUserId ||
+    (isViewingPublicProfile ? viewedProfileUserId : null);
 
 window.profileViewerPreviousOverflow =
     document.body.style.overflow;
