@@ -20082,26 +20082,27 @@ function PATRIODXMobileProfileNavigationController(event) {
         commentsSheet &&
         commentsSheet.classList.contains("is-open");
 
-    // 1st BACK: only close the comments sheet
+    // 1. If comments are open → just close them (do NOT touch history)
     if (commentsAreOpen && typeof closePATRIODXComments === "function") {
         closePATRIODXComments();
-        return true;          // stop here – stay on the post
+        return true; // Important: stop here
     }
 
-    // 2nd BACK: close the post viewer and restore the public profile
+    // 2. If post viewer is open → close it and restore the public profile
     if (viewerIsOpen) {
+        // Prevent double handling
         window.profileViewerHistoryEntryActive = false;
 
         closeProfilePostViewer({
             restoreOrigin: true
         });
 
-        // Make sure we stay in public-profile mode
+        // Make sure we stay on the public profile
         document.body.classList.add("mobile-public-profile-view");
         return true;
     }
 
-    // 3rd BACK: leave the public profile → original section
+    // 3. If we are on a public profile → go back to the previous section
     if (
         document.body.classList.contains("mobile-public-profile-view") &&
         window.patriodxPublicProfileReturnSection
@@ -20116,6 +20117,7 @@ function PATRIODXMobileProfileNavigationController(event) {
         const returnScroll =
             window.patriodxPublicProfileReturnScrollY || 0;
 
+        // Clear saved state
         window.patriodxPublicProfileReturnSection = null;
         window.patriodxPublicProfileReturnScrollY = null;
         viewedProfileUserId = null;
@@ -22556,11 +22558,17 @@ document.addEventListener("click", function (event) {
     event.preventDefault();
     event.stopImmediatePropagation();
 
+// Always prefer controlled close on mobile so comments can be handled first
+if (window.matchMedia("(max-width: 768px)").matches) {
+    // Let the popstate controller handle it cleanly
     if (window.profileViewerHistoryEntryActive) {
         history.back();
     } else {
         closeProfilePostViewer({ restoreOrigin: true });
     }
+} else {
+    closeProfilePostViewer({ restoreOrigin: true });
+}
 }, true);
 /* Close the viewer with Escape */
 document.addEventListener("keydown", function (event) {
