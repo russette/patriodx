@@ -20088,20 +20088,25 @@ function PATRIODXMobileProfileNavigationController(event) {
         return true; // Important: stop here
     }
 
-    // 2. If post viewer is open → close it and restore the public profile
-    if (viewerIsOpen) {
-        // Prevent double handling
-        window.profileViewerHistoryEntryActive = false;
+    // 2. If post viewer is open → close it and restore its actual origin
+if (viewerIsOpen) {
+    const wasViewingPublicProfile =
+        Boolean(window.profileViewerPreviousProfileUserId);
 
-        closeProfilePostViewer({
-            restoreOrigin: true
-        });
+    window.profileViewerHistoryEntryActive = false;
 
-        // Make sure we stay on the public profile
+    closeProfilePostViewer({
+        restoreOrigin: true
+    });
+
+    // Only preserve public-profile mode when the post
+    // was actually opened from another user's profile.
+    if (wasViewingPublicProfile) {
         document.body.classList.add("mobile-public-profile-view");
-        return true;
     }
 
+    return true;
+}
     // 3. If we are on a public profile → go back to the previous section
     if (
         document.body.classList.contains("mobile-public-profile-view") &&
@@ -22432,7 +22437,8 @@ function closeProfilePostViewer(options = {}) {
     if (!viewer || viewer.getAttribute("aria-hidden") === "true") {
         return;
     }
-
+const returningToPublicProfile =
+    Boolean(window.profileViewerPreviousProfileUserId);
     // Invalidate pending requests
     window.profileViewerRequestId = (window.profileViewerRequestId || 0) + 1;
     window.currentProfileViewerPostId = null;
@@ -22524,13 +22530,18 @@ function closeProfilePostViewer(options = {}) {
         }
     }
 
-    // Special case for notifications
-    if (mobilePostViewerReturnSection === "notifications") {
-        if (typeof navigatePATRIODX === "function") {
-            navigatePATRIODX("notifications");
-        }
-        mobilePostViewerReturnSection = "profile";
+   // Direct notification post viewers return to Notifications.
+// Posts opened from a public profile must stay on that profile.
+if (
+    !returningToPublicProfile &&
+    mobilePostViewerReturnSection === "notifications"
+) {
+    if (typeof navigatePATRIODX === "function") {
+        navigatePATRIODX("notifications");
     }
+}
+
+mobilePostViewerReturnSection = "profile";
 }
 // Make the function explicitly available globally.
 window.closeProfilePostViewer = closeProfilePostViewer;
