@@ -9612,24 +9612,14 @@ if (currentUser && typeof updateSocialLikeButton === "function") {
             )
         ];
 
-        for (const postId of postIds) {
-
-            try {
-
-                await updateSocialLikeButton(postId);
-
-            } catch (error) {
-
-                console.error(
-                    "Could not restore post like state:",
-                    postId,
-                    error
-                );
-
-            }
-
-        }
-
+try {
+    await updateSocialLikeButtons(postIds);
+} catch (error) {
+    console.error(
+        "Could not restore post like states:",
+        error
+    );
+}
     });
 
 }
@@ -9910,12 +9900,6 @@ async function likeSocialPost(postId) {
 
             button.title = liked ? "Unlike" : "Like";
 
-            const label = button.querySelector("span");
-
-            if (label) {
-                label.textContent = liked ? "Liked" : "Like";
-            }
-
             if (liked) {
                 button.classList.remove("is-animating");
 
@@ -10023,39 +10007,42 @@ async function likeSocialPost(postId) {
         patriodxPendingSocialLikes.delete(postId);
     }
 }
-async function updateSocialLikeButton(postId) {
+async function updateSocialLikeButtons(postIds) {
+    if (!currentUser || !postIds.length) return;
 
-    const buttons = document.querySelectorAll(
-        `.social-like-button[data-post-id="${postId}"]`
+    const uniquePostIds = [...new Set(postIds)];
+
+    const { data, error } = await supabaseClient
+        .from("post_likes")
+        .select("post_id")
+        .eq("user_id", currentUser.id)
+        .in("post_id", uniquePostIds);
+
+    if (error) throw error;
+
+    const likedPostIds = new Set(
+        (data || []).map(item => String(item.post_id))
     );
 
-    if (buttons.length === 0) {
-        return;
-    }
+    document.querySelectorAll(
+        ".social-like-button[data-post-id]"
+    ).forEach(button => {
+        const postId = button.dataset.postId;
 
-    const liked = await hasLikedSocialPost(postId);
+        if (!uniquePostIds.includes(postId)) return;
 
-    buttons.forEach((button) => {
+        const liked = likedPostIds.has(postId);
 
         button.classList.toggle("liked", liked);
-
-      const heart = button.querySelector("i");
-
-if (heart) {
-    heart.setAttribute("data-lucide", "heart");
-}
-
         button.setAttribute(
             "aria-label",
             liked ? "Unlike post" : "Like post"
         );
-
         button.title = liked ? "Unlike" : "Like";
-
     });
 
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
+    if (window.lucide) {
+        window.lucide.createIcons();
     }
 }
 /* =========================================================
@@ -10064,47 +10051,28 @@ REFRESH POST COUNTS
 async function refreshSocialPostStats(postId) {
     if (!postId) return;
 
+    const statsElement = document.getElementById(
+        `social-stats-${postId}`
+    );
+
+    // No Social-feed stats element means no request is needed.
+    if (!statsElement) return;
+
     try {
         const stats = await getSocialCounts(postId);
 
-        const card = document.getElementById(
-            `social-post-${postId}`
-        );
+        statsElement.innerHTML = `
+            <span>
+                <i data-lucide="heart"></i> ${stats.likes}
+            </span>
+            <span>
+                <i data-lucide="message-circle"></i> ${stats.comments}
+            </span>
+        `;
 
-        if (!card) return;
-
-        function updateActionCount(button, value) {
-            if (!button) return;
-
-            const count = Number(value) || 0;
-
-            let countElement = button.querySelector(
-                ".social-action-count"
-            );
-
-            if (count > 0) {
-                if (!countElement) {
-                    countElement = document.createElement("span");
-                    countElement.className = "social-action-count";
-                    button.appendChild(countElement);
-                }
-
-                countElement.textContent = count.toLocaleString();
-            } else if (countElement) {
-                countElement.remove();
-            }
+        if (window.lucide) {
+            window.lucide.createIcons();
         }
-
-        updateActionCount(
-            card.querySelector(".social-like-button"),
-            stats.likes
-        );
-
-        updateActionCount(
-            card.querySelector(".social-comment-button"),
-            stats.comments
-        );
-
     } catch (error) {
         console.error(
             "PATRIODX: Could not refresh social post statistics:",
@@ -18368,7 +18336,7 @@ const profilePostsPromise =
         .order("created_at", {
             ascending: false
         });
-        const following = await profileFollowStatusPromise;
+       let following = false;
     const card =
         document.getElementById("publicProfileCard");
 
@@ -18433,69 +18401,55 @@ if (badgeElement) {
     }
 
 let isFollowingProfile = false;
-    // --------------------------------------
-// FOLLOW BUTTON
+   // --------------------------------------
+// FOLLOW + MESSAGE BUTTONS
 // --------------------------------------
 
-const followButton =
-    document.getElementById("publicProfileFollowButton");
+function applyProfileRelationshipState(following) {
+    const followButton = document.getElementById(
+        "publicProfileFollowButton"
+    );
 
-if (followButton) {
+    if (followButton) {
+        if (currentUser && userId === currentUser.id) {
+            followButton.style.display = "none";
+        } else {
+            followButton.style.display = "inline-block";
 
-    if (currentUser && userId === currentUser.id) {
+            if (
+                requestId !== publicProfileRequestId ||
+                userId !== viewedProfileUserId
+            ) return;
 
-        followButton.style.display = "none";
+            followButton.textContent = following
+                ? "Following"
+                : "Follow";
 
-    } else {
+            followButton.disabled = false;
 
-        followButton.style.display = "inline-block";
-
-        if (
-            requestId !== publicProfileRequestId ||
-            userId !== viewedProfileUserId
-        ) {
-            return;
+            followButton.onclick = function () {
+                if (following) {
+                    unfollowUser(userId);
+                } else {
+                    followUser(userId);
+                }
+            };
         }
-
-        followButton.textContent =
-            following ? "Following" : "Follow";
-
-        followButton.disabled = false;
-
-        followButton.onclick = function () {
-
-            if (following) {
-                unfollowUser(userId);
-            } else {
-                followUser(userId);
-            }
-
-        };
     }
-}
 
-// --------------------------------------
-// MESSAGE BUTTON
-// --------------------------------------
+    const messageButton = document.getElementById(
+        "publicProfileMessageButton"
+    );
 
-const messageButton = document.getElementById(
-    "publicProfileMessageButton"
-);
-
-if (messageButton) {
-    messageButton.style.display = "none";
-    messageButton.onclick = null;
-
-    if (currentUser && userId !== currentUser.id) {
+    if (messageButton) {
+        messageButton.style.display = "none";
+        messageButton.onclick = null;
 
         if (
-            requestId !== publicProfileRequestId ||
-            userId !== viewedProfileUserId
+            currentUser &&
+            userId !== currentUser.id &&
+            following
         ) {
-            return;
-        }
-
-        if (following) {
             messageButton.style.display = "inline-flex";
 
             messageButton.onclick = async function () {
@@ -18507,13 +18461,14 @@ if (messageButton) {
                         profile
                     );
 
-                    if (opened && typeof navigatePATRIODX === "function") {
-                      window.patriodxMessageReturnToPublicProfile = true;
-window.patriodxMessageReturnProfileUserId = userId;
-
-navigatePATRIODX("messaging");
+                    if (
+                        opened &&
+                        typeof navigatePATRIODX === "function"
+                    ) {
+                        window.patriodxMessageReturnToPublicProfile = true;
+                        window.patriodxMessageReturnProfileUserId = userId;
+                        navigatePATRIODX("messaging");
                     }
-
                 } catch (error) {
                     console.error(
                         "Could not start conversation:",
@@ -18524,7 +18479,6 @@ navigatePATRIODX("messaging");
                         "Could not open this conversation. Please try again.",
                         "error"
                     );
-
                 } finally {
                     messageButton.disabled = false;
                 }
@@ -18532,6 +18486,49 @@ navigatePATRIODX("messaging");
         }
     }
 }
+
+// Show a temporary loading state.
+const followButton = document.getElementById(
+    "publicProfileFollowButton"
+);
+
+if (followButton && (!currentUser || userId !== currentUser.id)) {
+    followButton.style.display = "inline-block";
+    followButton.textContent = "Checking...";
+    followButton.disabled = true;
+}
+
+const messageButton = document.getElementById(
+    "publicProfileMessageButton"
+);
+
+if (messageButton) {
+    messageButton.style.display = "none";
+    messageButton.onclick = null;
+}
+
+// Apply the real relationship status when it arrives.
+profileFollowStatusPromise
+    .then(isFollowing => {
+        if (
+            requestId !== publicProfileRequestId ||
+            userId !== viewedProfileUserId
+        ) return;
+
+        following = isFollowing;
+        applyProfileRelationshipState(following);
+    })
+    .catch(error => {
+        console.error("Profile follow status failed:", error);
+
+        if (
+            requestId !== publicProfileRequestId ||
+            userId !== viewedProfileUserId
+        ) return;
+
+        following = false;
+        applyProfileRelationshipState(false);
+    });
 // --------------------------------------
 // FOLLOW COUNTS — BACKGROUND LOADING
 // --------------------------------------
@@ -19003,10 +19000,8 @@ postsElement
             try {
                 await likeSocialPost(postId);
 
-                const [stats, liked] = await Promise.all([
-                    getSocialCounts(postId),
-                    hasLikedSocialPost(postId)
-                ]);
+               const stats = await getSocialCounts(postId);
+const liked = button.classList.contains("liked");
 
                 const statsElement = document.getElementById(
                     `public-profile-stats-${postId}`
@@ -22911,11 +22906,10 @@ window.profileViewerCommentsRequestId = commentsRequestId;
 
 commentsContainer.textContent = "Loading comments...";
 
-const commentsRequest = supabaseClient
-    .from("comments")
-    .select("*")
-    .eq("post_id", postId)
-    .order("created_at", { ascending: true });
+const commentsRequest = getProfileViewerCommentsData(
+    postId,
+    options.forceRefresh === true
+);
 if (!options.commentsOnly && likeCount && likeButton) {
 
     likeCount.textContent = "Loading likes...";
@@ -22947,83 +22941,41 @@ if (!options.commentsOnly && likeCount && likeButton) {
     }
 }
 }
+try {
+    const {
+        comments,
+        profiles,
+        commentLikes
+    } = await commentsRequest;
 
-    try {
-       const { data: comments, error } = await commentsRequest;
-
-       if (error) throw error;
-
-// Ignore outdated responses if another post has been opened.
-if (
-    commentsRequestId !== window.profileViewerCommentsRequestId ||
-    String(postId) !== String(window.currentProfileViewerPostId)
-) {
-    return false;
-}
-
-commentsContainer.replaceChildren();
-        if (!comments || comments.length === 0) {
-            commentsContainer.textContent = "No comments yet. Be the first!";
-            return;
-        }
-
-        const userIds = [...new Set(
-            comments.map(comment => comment.user_id).filter(Boolean)
-        )];
-
-        const commentIds = comments.map(comment => comment.id);
-
-        const [profileResult, commentLikeResult] = await Promise.all([
-            userIds.length
-                ? supabaseClient
-                    .from("profiles")
-                   .select(`
-    id,
-    username,
-    display_name,
-    avatar_url,
-    is_verified,
-    is_owner,
-    verification_expires_at
-`)
-                    .in("id", userIds)
-                : Promise.resolve({ data: [], error: null }),
-
-            supabaseClient
-                .from("comment_likes")
-                .select("comment_id, user_id")
-                .in("comment_id", commentIds)
-        ]);
-        // Recheck after every asynchronous lookup so an older post
-        // can never overwrite the currently selected post.
-        if (
-            commentsRequestId !== window.profileViewerCommentsRequestId ||
-            String(postId) !== String(window.currentProfileViewerPostId)
-        ) {
-            return false;
-        }
-        if (profileResult.error) {
-            console.error("PATRIODX: Could not load profiles:", profileResult.error);
-        }
-
-        if (commentLikeResult.error) {
-            throw commentLikeResult.error;
-        }
-
-        const profiles = profileResult.data || [];
-        const commentLikes = commentLikeResult.data || [];
-const commentLikesById = new Map();
-
-commentLikes.forEach(item => {
-    if (!commentLikesById.has(item.comment_id)) {
-        commentLikesById.set(item.comment_id, []);
+    // Ignore outdated responses if another post has been opened.
+    if (
+        commentsRequestId !== window.profileViewerCommentsRequestId ||
+        String(postId) !== String(window.currentProfileViewerPostId)
+    ) {
+        return false;
     }
 
-    commentLikesById.get(item.comment_id).push(item);
-});
-        const profileMap = new Map(
-            profiles.map(profile => [profile.id, profile])
-        );
+    commentsContainer.replaceChildren();
+
+    if (!comments || comments.length === 0) {
+        commentsContainer.textContent = "No comments yet. Be the first!";
+        return true;
+    }
+
+    const commentLikesById = new Map();
+
+    commentLikes.forEach(item => {
+        if (!commentLikesById.has(item.comment_id)) {
+            commentLikesById.set(item.comment_id, []);
+        }
+
+        commentLikesById.get(item.comment_id).push(item);
+    });
+
+    const profileMap = new Map(
+        profiles.map(profile => [profile.id, profile])
+    );
 const commentsById = new Map(
     comments.map(comment => [comment.id, comment])
 );
@@ -23340,11 +23292,9 @@ document.getElementById("profilePostViewerLike")?.addEventListener("click", asyn
     try {
         await likeSocialPost(postId);
 
-        // Update only the viewer's like information.
-        const [stats, liked] = await Promise.all([
-            getSocialCounts(postId),
-            hasLikedSocialPost(postId)
-        ]);
+      // Update only the viewer's like information.
+const stats = await getSocialCounts(postId);
+const liked = button.classList.contains("liked");
 
         const likeCount = document.getElementById(
             "profilePostViewerLikeCount"
@@ -23699,7 +23649,7 @@ document.addEventListener("submit", async function (event) {
 
     button.disabled = true;
     const originalText = button.textContent;
-    button.textContent = isReplyForm ? "Sending..." : "Saving...";
+    button.setAttribute("aria-busy", "true");
 
     try {
         if (isReplyForm) {
