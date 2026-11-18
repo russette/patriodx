@@ -23815,3 +23815,737 @@ body.dark-mode .profile-post-viewer-dialog {
         background: var(--card-bg, var(--background, #fff)) !important;
     }
 }
+/* =========================================================
+   PATRIODX — X-INSPIRED SOCIAL FEED POST CARDS
+   Social feed only. Does not affect profile or Home cards.
+========================================================= */
+
+#socialFeed.social-feed {
+    gap: 0 !important;
+    border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+#socialFeed .social-post-card {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    border: 0 !important;
+    border-bottom: 1px solid var(--border-color, #e5e7eb) !important;
+    border-radius: 0 !important;
+
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+
+    transition: background-color 0.16s ease;
+}
+
+#socialFeed .social-post-card:hover {
+    background: rgba(128, 128, 128, 0.045) !important;
+}
+
+#socialFeed .social-post-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    min-width: 0 !important;
+    padding: 12px 14px 6px !important;
+    margin: 0 !important;
+}
+
+#socialFeed .social-post-avatar {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+}
+
+#socialFeed .social-post-author-area {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+
+#socialFeed .social-post-meta-row {
+    display: flex !important;
+    align-items: baseline !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+    min-width: 0 !important;
+    line-height: 1.4 !important;
+}
+
+#socialFeed .social-post-meta-row .social-post-author {
+    display: inline-flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 4px !important;
+    width: auto !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+}
+
+#socialFeed .social-post-meta-row .social-post-username,
+#socialFeed .social-post-meta-row .social-post-date {
+    display: inline !important;
+    width: auto !important;
+    margin: 0 !important;
+    color: var(--muted-text, #71767b) !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    white-space: nowrap !important;
+}
+
+#socialFeed .social-post-menu-actions {
+    flex: 0 0 38px !important;
+    width: 38px !important;
+    min-width: 38px !important;
+    margin-left: auto !important;
+}
+
+#socialFeed .social-post-icon-button {
+    width: 36px !important;
+    height: 36px !important;
+}
+
+#socialFeed .social-post-content {
+    padding: 5px 14px 11px !important;
+    font-size: 16px !important;
+    line-height: 1.45 !important;
+    overflow-wrap: anywhere !important;
+}
+
+#socialFeed .social-media-wrapper {
+    width: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+#socialFeed .social-post-actions-bar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    min-height: 38px !important;
+    padding: 2px 14px 8px !important;
+    border: 0 !important;
+}
+
+#socialFeed .social-post-actions-bar .social-action-button {
+    display: inline-flex !important;
+    flex: 1 1 0 !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 34px !important;
+    height: auto !important;
+
+    padding: 5px 8px !important;
+    border: 0 !important;
+    border-radius: 7px !important;
+
+    background: transparent !important;
+    color: var(--muted-text, #71767b) !important;
+
+    font-size: 13px !important;
+    font-weight: 400 !important;
+}
+
+#socialFeed .social-post-actions-bar .social-action-button:hover {
+    background: rgba(128, 128, 128, 0.09) !important;
+}
+
+#socialFeed .social-post-actions-bar .social-action-button svg {
+    flex: 0 0 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+}
+
+#socialFeed .social-action-count {
+    font-size: 13px;
+    line-height: 1;
+    font-weight: 400;
+    color: inherit;
+}
+
+body.dark-mode #socialFeed .social-post-card {
+    background: transparent !important;
+    border-bottom-color: var(--border-color, #374151) !important;
+}
+
+body.dark-mode #socialFeed .social-post-meta-row .social-post-username,
+body.dark-mode #socialFeed .social-post-meta-row .social-post-date,
+body.dark-mode #socialFeed .social-post-actions-bar .social-action-button {
+    color: #9ca3af !important;
+}
+
+@media (max-width: 600px) {
+    #socialFeed .social-post-header {
+        padding: 11px 12px 5px !important;
+    }
+
+    #socialFeed .social-post-content {
+        padding: 5px 12px 10px !important;
+        font-size: 15px !important;
+    }
+
+    #socialFeed .social-post-actions-bar {
+        padding: 2px 10px 7px !important;
+    }
+
+    #socialFeed .social-post-actions-bar .social-action-button {
+        min-height: 34px !important;
+        padding: 5px 6px !important;
+    }
+}
+/* =========================================================
+   PATRIODX — COMMENTS SHEET THEME FIX
+========================================================= */
+
+#patriodxCommentsSheet .patriodx-comments-panel {
+    background: var(--card-bg, #ffffff) !important;
+    color: var(--text-color, #111827) !important;
+    border-color: var(--border-color, #e5e7eb) !important;
+}
+
+#patriodxCommentsSheet .patriodx-comments-header {
+    background: var(--card-bg, #ffffff) !important;
+    color: var(--text-color, #111827) !important;
+    border-bottom-color: var(--border-color, #e5e7eb) !important;
+}
+
+#patriodxCommentsSheet .patriodx-comments-list {
+    background: var(--card-bg, #ffffff) !important;
+    color: var(--text-color, #111827) !important;
+}
+
+#patriodxCommentsSheet .patriodx-comments-composer {
+    background: var(--card-bg, #ffffff) !important;
+    border-top-color: var(--border-color, #e5e7eb) !important;
+}
+
+#patriodxCommentsSheet #patriodxCommentInput {
+    background: var(--input-bg, #f3f4f6) !important;
+    color: var(--text-color, #111827) !important;
+    border-color: var(--border-color, #d1d5db) !important;
+}
+
+#patriodxCommentsSheet #patriodxCommentInput::placeholder {
+    color: var(--muted-text, #6b7280) !important;
+}
+
+#patriodxCommentsSheet .patriodx-comments-handle {
+    background: var(--muted-text, #a1a1aa) !important;
+}
+
+body.dark-mode #patriodxCommentsSheet .patriodx-comments-panel,
+body.dark-mode #patriodxCommentsSheet .patriodx-comments-header,
+body.dark-mode #patriodxCommentsSheet .patriodx-comments-list,
+body.dark-mode #patriodxCommentsSheet .patriodx-comments-composer {
+    background: #111827 !important;
+    color: #f9fafb !important;
+    border-color: #374151 !important;
+}
+
+body.dark-mode #patriodxCommentsSheet #patriodxCommentInput {
+    background: #1f2937 !important;
+    color: #f9fafb !important;
+    border-color: #374151 !important;
+}
+/* =========================================================
+   PATRIODX — MOBILE COMMENTS SHEET LAYOUT
+========================================================= */
+
+@media (max-width: 768px) {
+
+    #patriodxCommentsSheet .patriodx-comments-panel {
+        height: 70dvh !important;
+        max-height: 100dvh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+    }
+
+    #patriodxCommentsSheet.is-expanded .patriodx-comments-panel,
+    #patriodxCommentsSheet.keyboard-open .patriodx-comments-panel {
+        top: 0 !important;
+        bottom: 0 !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+    }
+
+    #patriodxCommentsSheet .patriodx-comments-list {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    #patriodxCommentsSheet .patriodx-comments-composer {
+        position: relative !important;
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        z-index: 2 !important;
+    }
+}
+/* =========================================================
+   PATRIODX — SOCIAL FEED TABS
+========================================================= */
+
+#social .social-feed-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+#social .social-feed-header > div:first-child {
+    padding-bottom: 12px;
+}
+
+#social .social-feed-header .eyebrow {
+    margin-bottom: 4px;
+}
+
+#social .social-feed-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+#social .social-feed-controls {
+    display: flex;
+    align-items: stretch;
+    gap: 22px;
+    margin-left: auto;
+}
+
+#social .social-feed-control {
+    position: relative;
+    min-height: 44px;
+    padding: 0 3px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--muted-text, #6b7280);
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+#social .social-feed-control.active {
+    color: var(--accent-color, #2563eb);
+    background: transparent;
+    border: 0;
+}
+
+#social .social-feed-control.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: var(--accent-color, #2563eb);
+}
+
+#social .social-feed-control svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    #social .social-feed-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #social .social-feed-header > div:first-child {
+        padding-bottom: 0;
+    }
+
+    #social .social-feed-controls {
+        width: 100%;
+        gap: 28px;
+        margin-left: 0;
+    }
+
+    #social .social-feed-control {
+        flex: 0 0 auto;
+        min-height: 42px;
+    }
+}
+/* =========================================================
+   PATRIODX — PUBLIC PROFILE HEADER
+========================================================= */
+
+#publicProfileCard {
+    overflow: hidden;
+}
+
+#publicProfileCard .profile-cover {
+    height: 190px;
+}
+
+#publicProfileCard .profile-header {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 18px;
+    padding: 0 24px 20px;
+    margin-top: -52px;
+}
+
+#publicProfileCard .profile-avatar {
+    width: 112px;
+    height: 112px;
+    min-width: 112px;
+    border-width: 4px;
+    z-index: 1;
+}
+
+#publicProfileCard .profile-main-info {
+    min-width: 0;
+    padding-bottom: 5px;
+}
+
+#publicProfileCard .profile-main-info h2 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+}
+
+#publicProfileCard .profile-username {
+    margin: 4px 0;
+}
+
+#publicProfileCard .profile-bio {
+    margin-top: 9px;
+}
+
+#publicProfileCard .public-profile-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+#publicProfileCard .public-profile-actions .profile-edit-button {
+    width: auto;
+    min-width: 90px;
+    min-height: 38px;
+    padding: 8px 16px;
+    border-radius: 20px;
+}
+
+#publicProfileCard .public-profile-more-button {
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+}
+
+/* Profile statistics */
+#publicProfileCard .profile-stats {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    padding: 17px 24px;
+}
+
+#publicProfileCard .profile-stats > div,
+#publicProfileCard .profile-stats > button {
+    min-width: 0;
+    padding: 0;
+}
+
+#publicProfileCard .profile-stat-button {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: transparent;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+}
+
+/* Posts heading */
+#publicProfilePostsContainer {
+    margin-top: 20px;
+}
+
+#publicProfilePostsContainer > .section-heading {
+    padding: 12px 0;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+#publicProfilePostsContainer > .section-heading h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    #publicProfileCard .profile-cover {
+        height: 145px;
+    }
+
+    #publicProfileCard .profile-header {
+        grid-template-columns: 82px minmax(0, 1fr);
+        align-items: start;
+        gap: 12px;
+        padding: 0 15px 16px;
+        margin-top: -40px;
+    }
+
+    #publicProfileCard .profile-avatar {
+        width: 82px;
+        height: 82px;
+        min-width: 82px;
+        grid-row: 1;
+    }
+
+    #publicProfileCard .profile-main-info {
+        padding-top: 43px;
+        padding-bottom: 0;
+    }
+
+    #publicProfileCard .profile-main-info h2 {
+        font-size: 19px;
+    }
+
+    #publicProfileCard .profile-username {
+        font-size: 13px;
+    }
+
+    #publicProfileCard .profile-bio {
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    #publicProfileCard .public-profile-actions {
+        grid-column: 1 / -1;
+        width: 100%;
+        justify-content: flex-start;
+        margin-top: 2px;
+    }
+
+    #publicProfileCard .public-profile-actions .profile-edit-button {
+        flex: 1;
+        min-width: 0;
+        width: auto;
+    }
+
+    #publicProfileCard .public-profile-more-button {
+        flex: 0 0 40px;
+    }
+
+    #publicProfileCard .profile-stats {
+        justify-content: space-around;
+        gap: 10px;
+        padding: 15px;
+    }
+
+    #publicProfileCard .profile-stats strong {
+        font-size: 17px;
+    }
+
+    #publicProfileCard .profile-stats span {
+        font-size: 12px;
+    }
+}
+/* =========================================================
+   PATRIODX — PUBLIC PROFILE TABS
+========================================================= */
+
+#publicProfilePostsContainer .public-profile-tabs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    border-top: 1px solid var(--border-color, #e5e7eb);
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    margin-bottom: 16px;
+}
+
+#publicProfilePostsContainer .public-profile-tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 1;
+    min-height: 48px;
+    border: 0;
+    background: transparent;
+    color: var(--muted-text, #777);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#publicProfilePostsContainer .public-profile-tab.is-active {
+    color: var(--text-color, #111827);
+}
+
+#publicProfilePostsContainer .public-profile-tab.is-active::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 20%;
+    width: 60%;
+    height: 2px;
+    background: var(--primary-color, #6366f1);
+    border-radius: 2px;
+}
+
+#publicProfilePostsContainer .public-profile-tab i {
+    width: 17px;
+    height: 17px;
+}
+
+#publicProfilePostsContainer .social-post-card[hidden],
+#publicProfilePostsContainer .public-profile-media-empty[hidden] {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    #publicProfilePostsContainer .public-profile-tabs {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: var(--card-bg, #fff);
+    }
+
+    #publicProfilePostsContainer .public-profile-tab {
+        min-height: 46px;
+    }
+}
+
+body.dark-mode #publicProfilePostsContainer .public-profile-tabs {
+    background: var(--card-bg, #111827);
+    border-color: var(--border-color, #374151);
+}
+/* =========================================================
+   PATRIODX — SOCIAL LIKE HEART ANIMATION
+========================================================= */
+
+#socialFeed .social-like-button {
+    transition:
+        color 180ms ease,
+        background 180ms ease,
+        transform 180ms ease;
+}
+
+#socialFeed .social-like-button svg {
+    transform-origin: center;
+}
+
+#socialFeed .social-like-button.liked {
+    color: #ef4444 !important;
+}
+
+#socialFeed .social-like-button.liked svg {
+    fill: #ef4444 !important;
+    stroke: #ef4444 !important;
+}
+
+#socialFeed .social-like-button.is-animating svg {
+    animation: patriodxHeartPop 420ms ease;
+}
+
+@keyframes patriodxHeartPop {
+    0% {
+        transform: scale(1);
+    }
+    35% {
+        transform: scale(1.4);
+    }
+    65% {
+        transform: scale(0.88);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #socialFeed .social-like-button,
+    #socialFeed .social-like-button.is-animating svg {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+/* =========================================================
+   PATRIODX — DOUBLE-TAP LIKE HEART OVERLAY
+========================================================= */
+
+#socialFeed .social-media-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+#socialFeed .patriodx-double-tap-heart {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    animation: patriodxDoubleTapHeart 750ms ease forwards;
+}
+
+#socialFeed .patriodx-double-tap-heart svg {
+    width: 105px;
+    height: 105px;
+    fill: #fff;
+    stroke: #fff;
+    stroke-width: 1.5;
+    filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.4));
+}
+
+@keyframes patriodxDoubleTapHeart {
+    0% {
+        opacity: 0;
+        transform: scale(0.2);
+    }
+    25% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+    45% {
+        transform: scale(0.95);
+    }
+    65% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.15);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #socialFeed .patriodx-double-tap-heart {
+        animation: none;
+        opacity: 1;
+    }
+}

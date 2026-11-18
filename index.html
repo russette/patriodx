@@ -1664,13 +1664,33 @@
             style="display:none;"
         >
 
-            <div class="section-heading">
+<div class="public-profile-tabs" role="tablist" aria-label="Profile content">
 
-                <div>
-                    <h3 data-i18n="posts">Posts</h3>
-                </div>
+    <button
+        type="button"
+        class="public-profile-tab is-active"
+        data-public-profile-tab="posts"
+        role="tab"
+        aria-selected="true"
+        onclick="setPublicProfileTab('posts')"
+    >
+        <i data-lucide="grid-3x3"></i>
+        <span>Posts</span>
+    </button>
 
-            </div>
+    <button
+        type="button"
+        class="public-profile-tab"
+        data-public-profile-tab="media"
+        role="tab"
+        aria-selected="false"
+        onclick="setPublicProfileTab('media')"
+    >
+        <i data-lucide="images"></i>
+        <span>Media</span>
+    </button>
+
+</div>
 
             <div
                 id="publicProfilePosts"

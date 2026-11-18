@@ -6377,7 +6377,90 @@ const socialPostForm =
 
 const socialFeed =
     document.getElementById("socialFeed");
+/* =========================================================
+   PATRIODX — DOUBLE-TAP IMAGE TO LIKE
+========================================================= */
 
+let patriodxLastImageTap = {
+    time: 0,
+    wrapper: null
+};
+
+function showPATRIODXDoubleTapHeart(wrapper) {
+    if (!wrapper) return;
+
+    const heart = document.createElement("div");
+
+    heart.className = "patriodx-double-tap-heart";
+
+    heart.innerHTML = `
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/>
+        </svg>
+    `;
+
+    wrapper.appendChild(heart);
+
+    setTimeout(() => heart.remove(), 750);
+}
+
+function handlePATRIODXImageDoubleTap(event) {
+    const image = event.target.closest(
+        ".social-post-image"
+    );
+
+    if (!image || !socialFeed.contains(image)) return;
+
+    const wrapper = image.closest(".social-media-wrapper");
+
+    const post = image.closest(".social-post-card");
+
+    if (!wrapper || !post) return;
+
+    const now = Date.now();
+
+    const isDoubleTap =
+        patriodxLastImageTap.wrapper === wrapper &&
+        now - patriodxLastImageTap.time < 350;
+
+    patriodxLastImageTap = {
+        time: now,
+        wrapper: isDoubleTap ? null : wrapper
+    };
+
+    if (!isDoubleTap) return;
+
+    patriodxLastImageTap.time = 0;
+
+    showPATRIODXDoubleTapHeart(wrapper);
+
+    const likeButton = post.querySelector(
+        ".social-like-button"
+    );
+
+    if (
+        likeButton &&
+        !likeButton.classList.contains("liked")
+    ) {
+        likeSocialPost(post.id.replace("social-post-", ""));
+    }
+}
+
+// Mobile double-tap
+socialFeed?.addEventListener(
+    "pointerup",
+    event => {
+        if (event.pointerType === "touch") {
+            handlePATRIODXImageDoubleTap(event);
+        }
+    }
+);
+
+// Desktop double-click
+socialFeed?.addEventListener(
+    "dblclick",
+    handlePATRIODXImageDoubleTap
+);
 const socialImageInput =
     document.getElementById("socialImageInput");
 
@@ -7178,10 +7261,9 @@ supabaseClient
 
 
     supabaseClient
-        .from("comments")
-        .select("id", { count: "exact", head: true })
-        .eq("post_id", postId)
-        .is("parent_comment_id", null)
+       .from("comments")
+.select("id", { count: "exact", head: true })
+.eq("post_id", postId)
 ]);
 
 if (likesResult.error) {
@@ -8807,6 +8889,7 @@ if (loadMore) {
         state,
         "You're all caught up."
     );
+    setPublicProfileTab("posts");
     return;
 }
         const emptyTitle =
@@ -9256,57 +9339,52 @@ const author =
                         ${video}
 
 
-                        <!-- LIKE / COMMENT COUNTS -->
+            <!-- POST ACTIONS -->
+<div class="social-post-actions-bar">
 
-                        <div
-                            class="social-post-stats"
-                            id="social-stats-${post.id}"
-                        >
+    <button
+        type="button"
+        class="social-action-button social-like-button"
+        data-post-id="${post.id}"
+        onclick="likeSocialPost('${post.id}')"
+        aria-label="Like post"
+        title="Like"
+    >
+        <i data-lucide="heart"></i>
+        ${
+            Number(post.likes) > 0
+                ? `<span class="social-action-count">${Number(post.likes)}</span>`
+                : ""
+        }
+    </button>
 
-                            <span class="social-like-stat">
+    <button
+        type="button"
+        class="social-action-button social-comment-button"
+        data-post-id="${post.id}"
+        onclick="toggleComments('${post.id}')"
+        aria-label="View comments"
+        title="Comment"
+    >
+        <i data-lucide="message-circle"></i>
+        ${
+            Number(post.comments) > 0
+                ? `<span class="social-action-count">${Number(post.comments)}</span>`
+                : ""
+        }
+    </button>
 
-                                <i data-lucide="heart"></i>
+    <button
+        type="button"
+        class="social-action-button"
+        onclick="shareSocialPost('${post.id}')"
+        aria-label="Share post"
+        title="Share"
+    >
+        <i data-lucide="share-2"></i>
+    </button>
 
-                                <strong>
-                                    ${post.likes}
-                                </strong>
-
-                                <span>
-                                    ${
-                                        post.likes === 1
-                                            ? "Like"
-                                            : "Likes"
-                                    }
-                                </span>
-
-                            </span>
-
-
-                            <button
-                                type="button"
-                                class="social-comment-stat"
-                                onclick="toggleComments('${post.id}')"
-                            >
-
-                                <i data-lucide="message-circle"></i>
-
-                                <strong>
-                                    ${post.comments}
-                                </strong>
-
-                                <span>
-                                    ${
-                                        post.comments === 1
-                                            ? "Comment"
-                                            : "Comments"
-                                    }
-                                </span>
-
-                            </button>
-
-                        </div>
-
-
+</div>
                     
                     <!-- ACTION BAR -->
 
@@ -9793,85 +9871,156 @@ if (socialPostForm) {
 /* =========================================================
    LIKE POST
 ========================================================= */
+const patriodxPendingSocialLikes = new Set();
 
 async function likeSocialPost(postId) {
-
     if (!currentUser) {
-
         showPATRIODXToast(
             "Please log in to like posts.",
             "warning"
         );
-
         return;
     }
 
-    try {
+    if (!postId || patriodxPendingSocialLikes.has(postId)) {
+        return;
+    }
 
-        const alreadyLiked =
-            await hasLikedSocialPost(postId);
+    const buttons = document.querySelectorAll(
+        `.social-like-button[data-post-id="${postId}"]`
+    );
 
-        if (alreadyLiked) {
+    const wasLiked = Array.from(buttons).some(button =>
+        button.classList.contains("liked")
+    );
 
-            const { error } =
-                await supabaseClient
-                    .from("post_likes")
-                    .delete()
-                    .eq(
-                        "post_id",
-                        postId
-                    )
-                    .eq(
-                        "user_id",
-                        currentUser.id
-                    );
+    const nextLiked = !wasLiked;
+    const countChange = nextLiked ? 1 : -1;
 
-            if (error) {
-                throw error;
+    patriodxPendingSocialLikes.add(postId);
+
+    function updateLikeUI(liked, delta) {
+        buttons.forEach(button => {
+            button.classList.toggle("liked", liked);
+
+            button.setAttribute(
+                "aria-label",
+                liked ? "Unlike post" : "Like post"
+            );
+
+            button.title = liked ? "Unlike" : "Like";
+
+            const label = button.querySelector("span");
+
+            if (label) {
+                label.textContent = liked ? "Liked" : "Like";
             }
 
-        } else {
+            if (liked) {
+                button.classList.remove("is-animating");
 
-            const { error } =
-                await supabaseClient
-                    .from("post_likes")
-                    .insert({
-                        post_id:
-                            postId,
+                void button.offsetWidth;
 
-                        user_id:
-                            currentUser.id
-                    });
+                button.classList.add("is-animating");
 
-            if (error) {
-                throw error;
+                setTimeout(() => {
+                    button.classList.remove("is-animating");
+                }, 450);
+            }
+        });
+
+        const statsElement = document.getElementById(
+            `social-stats-${postId}`
+        );
+
+        if (statsElement) {
+            const firstStat = statsElement.querySelector(
+                ".social-like-stat"
+            ) || statsElement.querySelector("span");
+
+            const secondStat = statsElement.querySelector(
+                ".social-comment-stat"
+            ) || statsElement.children[1];
+
+            const extractCount = element => {
+                if (!element) return 0;
+
+                const strong = element.querySelector("strong");
+
+                if (strong) {
+                    return Number(strong.textContent) || 0;
+                }
+
+                const match = element.textContent.match(/\d+/);
+
+                return match ? Number(match[0]) : 0;
+            };
+
+            const likes = Math.max(
+                0,
+                extractCount(firstStat) + delta
+            );
+
+            const comments = extractCount(secondStat);
+
+            statsElement.innerHTML = `
+                <span>
+                    <i data-lucide="heart"></i> ${likes}
+                </span>
+                <span>
+                    <i data-lucide="message-circle"></i> ${comments}
+                </span>
+            `;
+
+            if (window.lucide) {
+                window.lucide.createIcons();
             }
         }
+    }
 
-        await refreshSocialPostStats(
-            postId
-        );
+    // Update the interface immediately.
+    updateLikeUI(nextLiked, countChange);
 
-        await refreshHomePostStats(
-            postId
-        );
+    try {
+        if (nextLiked) {
+            const { error } = await supabaseClient
+                .from("post_likes")
+                .insert({
+                    post_id: postId,
+                    user_id: currentUser.id
+                });
 
-        await updateSocialLikeButton(
-            postId
-        );
+            if (error) throw error;
+
+        } else {
+            const { error } = await supabaseClient
+                .from("post_likes")
+                .delete()
+                .eq("post_id", postId)
+                .eq("user_id", currentUser.id);
+
+            if (error) throw error;
+        }
+
+        // Refresh authoritative counts after successful save.
+        await Promise.all([
+            refreshSocialPostStats(postId),
+            refreshHomePostStats(postId)
+        ]);
 
     } catch (error) {
+        console.error("Like toggle error:", error);
 
-        console.error(
-            "Like toggle error:",
-            error
-        );
+        // Restore the previous state if saving failed.
+        updateLikeUI(wasLiked, -countChange);
 
         showPATRIODXToast(
-            "Could not update your like. " +
-            error.message,
+            "Could not update your like. " + error.message,
             "error"
         );
+
+    } finally {
+        patriodxPendingSocialLikes.delete(postId);
     }
 }
 async function updateSocialLikeButton(postId) {
@@ -9912,42 +10061,57 @@ if (heart) {
 /* =========================================================
 REFRESH POST COUNTS
 ========================================================= */
-
 async function refreshSocialPostStats(postId) {
-if (!postId) return;
+    if (!postId) return;
 
+    try {
+        const stats = await getSocialCounts(postId);
 
-try {
-    const stats = await getSocialCounts(postId);
+        const card = document.getElementById(
+            `social-post-${postId}`
+        );
 
-    const statsElement = document.getElementById(
-        `social-stats-${postId}`
-    );
+        if (!card) return;
 
-    if (!statsElement) return;
+        function updateActionCount(button, value) {
+            if (!button) return;
 
-    statsElement.innerHTML = `
-        <span>
-            <i data-lucide="heart"></i> ${stats.likes}
-        </span>
-        <span>
-            <i data-lucide="message-circle"></i> ${stats.comments}
-        </span>
-    `;
+            const count = Number(value) || 0;
 
-    if (window.lucide) {
-        window.lucide.createIcons();
+            let countElement = button.querySelector(
+                ".social-action-count"
+            );
+
+            if (count > 0) {
+                if (!countElement) {
+                    countElement = document.createElement("span");
+                    countElement.className = "social-action-count";
+                    button.appendChild(countElement);
+                }
+
+                countElement.textContent = count.toLocaleString();
+            } else if (countElement) {
+                countElement.remove();
+            }
+        }
+
+        updateActionCount(
+            card.querySelector(".social-like-button"),
+            stats.likes
+        );
+
+        updateActionCount(
+            card.querySelector(".social-comment-button"),
+            stats.comments
+        );
+
+    } catch (error) {
+        console.error(
+            "PATRIODX: Could not refresh social post statistics:",
+            error
+        );
     }
-} catch (error) {
-    console.error(
-        "PATRIODX: Could not refresh social post statistics:",
-        error
-    );
 }
-
-
-}
-
 /* =========================================================
    TOGGLE COMMENTS
 ========================================================= */
@@ -18497,9 +18661,11 @@ const renderedPosts = (
 let stats = { likes: 0, comments: 0 };
 let liked = false;
 
-            return `
-                <article class="social-post-card">
-
+          return `
+    <article
+        class="social-post-card"
+        data-profile-post-media="${post.image_url || post.video_url ? "true" : "false"}"
+    >
                     <div class="social-post-header">
                         <div class="social-post-avatar">
                             ${
@@ -18645,6 +18811,7 @@ if (
 }
 
 postsElement.innerHTML = renderedPosts;
+setPublicProfileTab("posts");
 // Load all profile post statistics in ONE database request.
 supabaseClient
     .rpc("get_profile_post_stats", {
@@ -24791,3 +24958,75 @@ async function unblockPATRIODXUser(userId, button) {
         }
     }
 }
+/* =========================================================
+   PATRIODX — PUBLIC PROFILE CONTENT TABS
+========================================================= */
+
+function setPublicProfileTab(tab) {
+    const postsContainer = document.getElementById(
+        "publicProfilePosts"
+    );
+
+    if (!postsContainer) return;
+
+    const isMediaTab = tab === "media";
+
+    document.querySelectorAll(
+        "#publicProfilePostsContainer [data-public-profile-tab]"
+    ).forEach(button => {
+        const active =
+            button.dataset.publicProfileTab === tab;
+
+        button.classList.toggle("is-active", active);
+        button.setAttribute(
+            "aria-selected",
+            active ? "true" : "false"
+        );
+    });
+
+    const cards = postsContainer.querySelectorAll(
+        ".social-post-card[data-profile-post-media]"
+    );
+
+    let visibleMediaCount = 0;
+
+    cards.forEach(card => {
+        const hasMedia =
+            card.dataset.profilePostMedia === "true";
+
+        card.hidden = isMediaTab && !hasMedia;
+
+        if (hasMedia) visibleMediaCount++;
+    });
+
+    let emptyState = postsContainer.querySelector(
+        ".public-profile-media-empty"
+    );
+
+    if (isMediaTab && visibleMediaCount === 0) {
+        if (!emptyState) {
+            emptyState = document.createElement("div");
+            emptyState.className =
+                "social-empty-state public-profile-media-empty";
+
+            emptyState.innerHTML = `
+                <div><i data-lucide="images"></i></div>
+                <h3>No media yet</h3>
+                <p>This user has not shared any photos or videos.</p>
+            `;
+
+            postsContainer.appendChild(emptyState);
+
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        }
+
+        emptyState.hidden = false;
+
+    } else if (emptyState) {
+        emptyState.hidden = true;
+    }
+}
+
+window.setPublicProfileTab = setPublicProfileTab;
