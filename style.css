@@ -6628,8 +6628,8 @@ label {
         width: 100% !important;
         max-width: 100% !important;
 
-        height: 68px !important;
-        min-height: 68px !important;
+       height: auto !important;
+min-height: 64px !important;
 
         z-index: 999999 !important;
 
@@ -17265,7 +17265,7 @@ padding: 6px 10px !important;
     min-width: 0;
     height: auto !important;
     min-height: 64px !important;
-    padding: 5px 5px calc(5px + env(safe-area-inset-bottom)) !important;
+   padding: 5px 5px calc(5px + env(safe-area-inset-bottom, 0px)) !important;
     background: var(--card-bg, #fff);
     border-top: 1px solid var(--border-color, #e5e7eb);
     box-shadow: 0 -4px 18px rgba(15, 23, 42, 0.07);
@@ -17322,7 +17322,7 @@ padding: 6px 10px !important;
 
 /* Ensure page content can scroll above the fixed navigation */
 body {
-    padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 /* Prevent common flex/grid children from forcing horizontal overflow */
@@ -24548,4 +24548,174 @@ body.dark-mode #publicProfilePostsContainer .public-profile-tabs {
         animation: none;
         opacity: 1;
     }
+}
+/* =========================================================
+   PATRIODX — DOUBLE-TAP HEART OVERLAY
+   Social feed + own profile + public profiles
+========================================================= */
+
+.patriodx-double-tap-media {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.patriodx-double-tap-media > img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+}
+
+.patriodx-double-tap-media .patriodx-double-tap-heart {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    animation: patriodxDoubleTapHeart 750ms ease forwards;
+}
+
+.patriodx-double-tap-media .patriodx-double-tap-heart svg {
+    width: 105px;
+    height: 105px;
+    fill: #fff;
+    stroke: #fff;
+    stroke-width: 1.5;
+    filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.4));
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .patriodx-double-tap-media .patriodx-double-tap-heart {
+        animation: none;
+        opacity: 1;
+    }
+}
+/* =========================================================
+   PATRIODX — UNIFIED X-STYLE POST ACTION BAR
+   Social feed + own profile + public profiles
+========================================================= */
+
+#socialFeed .social-post-actions-bar,
+.profile-posts .social-post-actions-bar,
+.public-profile-posts .social-post-actions-bar {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    align-items: center !important;
+    justify-content: stretch !important;
+
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+
+    gap: 0 !important;
+    padding: 4px 8px !important;
+    box-sizing: border-box !important;
+}
+
+#socialFeed .social-post-actions-bar .social-action-button,
+.profile-posts .social-post-actions-bar .social-action-button,
+.public-profile-posts .social-post-actions-bar .social-action-button {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-wrap: nowrap !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    min-height: 44px !important;
+
+    gap: 6px !important;
+    margin: 0 !important;
+    padding: 8px 4px !important;
+
+    box-sizing: border-box !important;
+    background: transparent !important;
+    border: 0 !important;
+
+    font-size: 13px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+}
+
+#socialFeed .social-post-actions-bar .social-action-button span,
+.profile-posts .social-post-actions-bar .social-action-button span,
+.public-profile-posts .social-post-actions-bar .social-action-button span {
+    display: inline-block !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+}
+
+#socialFeed .social-post-actions-bar .social-action-button svg,
+.profile-posts .social-post-actions-bar .social-action-button svg,
+.public-profile-posts .social-post-actions-bar .social-action-button svg {
+    flex: 0 0 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+}
+
+#socialFeed .social-post-actions-bar .social-action-button:hover,
+.profile-posts .social-post-actions-bar .social-action-button:hover,
+.public-profile-posts .social-post-actions-bar .social-action-button:hover {
+    background: rgba(128, 128, 128, 0.09) !important;
+    border-radius: 8px !important;
+}
+
+@media (max-width: 600px) {
+    #socialFeed .social-post-actions-bar .social-action-button,
+    .profile-posts .social-post-actions-bar .social-action-button,
+    .public-profile-posts .social-post-actions-bar .social-action-button {
+        min-height: 42px !important;
+        gap: 4px !important;
+        padding: 7px 2px !important;
+        font-size: 12px !important;
+    }
+
+    #socialFeed .social-post-actions-bar .social-action-button svg,
+    .profile-posts .social-post-actions-bar .social-action-button svg,
+    .public-profile-posts .social-post-actions-bar .social-action-button svg {
+        width: 17px !important;
+        height: 17px !important;
+    }
+}
+/* =========================================================
+   PATRIODX OFFLINE INDICATOR
+========================================================= */
+
+.patriodx-offline-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 10px 14px;
+    background: #252525;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    transform: translateY(-110%);
+    transition: transform 0.25s ease;
+    pointer-events: none;
+}
+
+.patriodx-offline-indicator.visible {
+    transform: translateY(0);
+}
+
+.patriodx-offline-indicator svg {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+}
+
+body.dark-mode .patriodx-offline-indicator {
+    background: #303030;
 }

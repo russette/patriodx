@@ -7,7 +7,7 @@
 
    <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
 >
 
    <title>PATRIODX | Business Management Dashboard</title>
@@ -5447,20 +5447,57 @@
 <!-- PATRIODX JAVASCRIPT -->
 <script src="script.js"></script>
 <script>
-if ("serviceWorker" in navigator) {
+(function () {
+    function createOfflineIndicator() {
+        let indicator = document.getElementById(
+            "patriodxOfflineIndicator"
+        );
+
+        if (!indicator) {
+            indicator = document.createElement("div");
+
+            indicator.id = "patriodxOfflineIndicator";
+            indicator.className = "patriodx-offline-indicator";
+
+            indicator.innerHTML = `
+                <i data-lucide="wifi-off"></i>
+                <span>You're offline. Some features are unavailable.</span>
+            `;
+
+            document.body.appendChild(indicator);
+        }
+
+        const offline = !navigator.onLine;
+
+        indicator.classList.toggle("visible", offline);
+
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    }
+
+    window.addEventListener("online", createOfflineIndicator);
+    window.addEventListener("offline", createOfflineIndicator);
+
     window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js")
-            .then(() => {
-                console.log("PATRIODX service worker registered");
-            })
-            .catch(error => {
-                console.error(
-                    "PATRIODX service worker registration failed:",
-                    error
-                );
-            });
+        createOfflineIndicator();
+
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("./sw.js")
+                .then(() => {
+                    console.log(
+                        "PATRIODX service worker registered"
+                    );
+                })
+                .catch(error => {
+                    console.error(
+                        "PATRIODX service worker registration failed:",
+                        error
+                    );
+                });
+        }
     });
-}
+})();
 </script>
     <!-- =========================================================
      CHANGE PASSWORD MODAL

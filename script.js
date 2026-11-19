@@ -649,16 +649,25 @@ function setupPATRIODXMobileHeaderScroll() {
 
     const mobileQuery = window.matchMedia("(max-width: 768px)");
 
-    let lastScrollY = window.scrollY;
+    let lastScrollY = 0;
     let ticking = false;
 
+    function getScrollPosition() {
+        const scrollingElement = document.scrollingElement;
+
+        return Math.max(
+            0,
+            scrollingElement ? scrollingElement.scrollTop : 0,
+            document.documentElement.scrollTop || 0,
+            document.body.scrollTop || 0
+        );
+    }
+
     function updateHeader() {
-        const currentScrollY = Math.max(0, window.scrollY);
+        const currentScrollY = getScrollPosition();
 
         if (!mobileQuery.matches) {
-            header.classList.remove(
-                "patriodx-scroll-header-hidden"
-            );
+            header.classList.remove("patriodx-scroll-header-hidden");
             lastScrollY = currentScrollY;
             ticking = false;
             return;
@@ -667,35 +676,40 @@ function setupPATRIODXMobileHeaderScroll() {
         const difference = currentScrollY - lastScrollY;
 
         if (currentScrollY <= 12) {
-            header.classList.remove(
-                "patriodx-scroll-header-hidden"
-            );
-        } else if (difference > 6) {
-            header.classList.add(
-                "patriodx-scroll-header-hidden"
-            );
-        } else if (difference < -6) {
-            header.classList.remove(
-                "patriodx-scroll-header-hidden"
-            );
+            header.classList.remove("patriodx-scroll-header-hidden");
+        } else if (difference > 5) {
+            header.classList.add("patriodx-scroll-header-hidden");
+        } else if (difference < -5) {
+            header.classList.remove("patriodx-scroll-header-hidden");
         }
 
         lastScrollY = currentScrollY;
         ticking = false;
     }
 
-    window.addEventListener("scroll", function () {
+    function handleScroll() {
         if (ticking) return;
 
         ticking = true;
         window.requestAnimationFrame(updateHeader);
-    }, { passive: true });
+    }
 
-    window.addEventListener("resize", updateHeader);
+    lastScrollY = getScrollPosition();
+
+    // Capture scroll events from the document's scrolling element.
+    document.addEventListener("scroll", handleScroll, {
+        passive: true,
+        capture: true
+    });
+
+    window.addEventListener("scroll", handleScroll, {
+        passive: true
+    });
+
+    window.addEventListener("resize", handleScroll);
 
     updateHeader();
 }
-
 setupPATRIODXMobileHeaderScroll();
 // =========================================================
 // DARK MODE
@@ -6403,7 +6417,81 @@ function showPATRIODXDoubleTapHeart(wrapper) {
 
     setTimeout(() => heart.remove(), 750);
 }
+/* =========================================================
+   PATRIODX — PROFILE IMAGE DOUBLE-TAP LIKE
+   Own profile + public profiles only
+========================================================= */
 
+function setupPATRIODXProfileImageDoubleTap(card, postId, openThisPost) {
+    if (!card || !postId || typeof openThisPost !== "function") return;
+
+    let lastImage = null;
+    let lastTapTime = 0;
+    let openTimer = null;
+
+    card.addEventListener("click", function (event) {
+        const image = event.target.closest("img.social-post-image");
+
+        if (!image || !card.contains(image)) return;
+
+        // Ignore clicks on controls or interactive elements.
+        if (event.target.closest("button, a")) return;
+
+        // Prevent the normal card click handler from opening immediately.
+        event.preventDefault();
+        event.stopPropagation();
+
+        const now = Date.now();
+
+        const isDoubleTap =
+            lastImage === image &&
+            now - lastTapTime <= 350;
+
+        if (isDoubleTap) {
+            clearTimeout(openTimer);
+
+            lastImage = null;
+            lastTapTime = 0;
+
+            // Make sure the image has a dedicated overlay container.
+            let wrapper = image.closest(".patriodx-double-tap-media");
+
+            if (!wrapper) {
+                wrapper = document.createElement("div");
+                wrapper.className = "patriodx-double-tap-media";
+
+                image.parentNode.insertBefore(wrapper, image);
+                wrapper.appendChild(image);
+            }
+
+            showPATRIODXDoubleTapHeart(wrapper);
+
+            // Do not unlike an already-liked post.
+            const likeButton = card.querySelector(
+                `.social-like-button[data-post-id="${postId}"]`
+            );
+
+            if (!likeButton?.classList.contains("liked")) {
+                likeSocialPost(postId);
+            }
+
+            return;
+        }
+
+        clearTimeout(openTimer);
+
+        lastImage = image;
+        lastTapTime = now;
+
+        // A normal single tap still opens the post.
+        openTimer = setTimeout(() => {
+            lastImage = null;
+            lastTapTime = 0;
+            openThisPost();
+        }, 350);
+
+    }, true);
+}
 function handlePATRIODXImageDoubleTap(event) {
     const image = event.target.closest(
         ".social-post-image"
@@ -7068,11 +7156,8 @@ form.addEventListener("submit", async function(event) {
             console.error("Could not refresh comments:", error);
         });
 
-        // Update post counts without delaying the composer.
-        void Promise.allSettled([
-            refreshSocialPostStats(postId),
-            refreshHomePostStats(postId)
-        ]);
+// Update both surfaces with one count lookup.
+void refreshBothPostStats(postId);
 
         input.focus();
 
@@ -7251,36 +7336,63 @@ if (document.readyState === "loading") {
 /* =========================================================
 GET POST COUNTS
 ========================================================= */
-
 async function getSocialCounts(postId) {
-const [likesResult, commentsResult] = await Promise.all([
-supabaseClient
-.from("post_likes")
-.select("id", { count: "exact", head: true })
-.eq("post_id", postId),
+    if (!postId) {
+        return {
+            likes: 0,
+            comments: 0
+        };
+    }
 
+    const { data, error } = await supabaseClient.rpc(
+        "get_social_post_counts",
+        {
+            p_post_id: postId
+        }
+    );
 
-    supabaseClient
-       .from("comments")
-.select("id", { count: "exact", head: true })
-.eq("post_id", postId)
-]);
+    if (error) {
+        throw error;
+    }
 
-if (likesResult.error) {
-    throw likesResult.error;
+    const counts = Array.isArray(data) ? data[0] : data;
+
+    return {
+        likes: Number(counts?.likes ?? 0),
+        comments: Number(counts?.comments ?? 0)
+    };
 }
+async function getSocialCountsBatch(postIds) {
+    const uniquePostIds = [
+        ...new Set(
+            (postIds || []).filter(Boolean).map(String)
+        )
+    ];
 
-if (commentsResult.error) {
-    throw commentsResult.error;
+    if (!uniquePostIds.length) {
+        return new Map();
+    }
+
+    const { data, error } = await supabaseClient.rpc(
+        "get_social_post_counts_batch",
+        {
+            p_post_ids: uniquePostIds
+        }
+    );
+
+    if (error) throw error;
+
+    const countsMap = new Map();
+
+    (data || []).forEach(row => {
+        countsMap.set(String(row.post_id), {
+            likes: Number(row.likes ?? 0),
+            comments: Number(row.comments ?? 0)
+        });
+    });
+
+    return countsMap;
 }
-
-return {
-    likes: likesResult.count ?? 0,
-    comments: commentsResult.count ?? 0
-};
-
-}
-
 /* =========================================================
    CHECK IF CURRENT USER LIKED A POST
 ========================================================= */
@@ -7303,6 +7415,28 @@ async function hasLikedSocialPost(postId) {
     }
 
     return Boolean(data);
+}
+async function getLikedSocialPostIds(postIds) {
+    if (!currentUser || !postIds?.length) {
+        return new Set();
+    }
+
+    const uniquePostIds = [...new Set(postIds.map(String))];
+
+    const { data, error } = await supabaseClient
+        .from("post_likes")
+        .select("post_id")
+        .eq("user_id", currentUser.id)
+        .in("post_id", uniquePostIds);
+
+    if (error) {
+        console.error("Could not load liked posts:", error);
+        throw error;
+    }
+
+    return new Set(
+        (data || []).map(item => String(item.post_id))
+    );
 }
 /* =========================================================
    LOAD SOCIAL POSTS
@@ -8556,6 +8690,89 @@ function finishPATRIODXFeedPagination(state, message) {
         state.sentinel.classList.add("is-finished");
     }
 }
+/* =========================================================
+   PATRIODX OFFLINE SOCIAL FEED CACHE
+========================================================= */
+
+const PATRIODX_FEED_DB_NAME = "patriodx-offline";
+const PATRIODX_FEED_DB_VERSION = 1;
+const PATRIODX_FEED_STORE = "social-feeds";
+
+function openPATRIODXFeedDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(
+            PATRIODX_FEED_DB_NAME,
+            PATRIODX_FEED_DB_VERSION
+        );
+
+        request.onupgradeneeded = () => {
+            const db = request.result;
+
+            if (!db.objectStoreNames.contains(PATRIODX_FEED_STORE)) {
+                db.createObjectStore(PATRIODX_FEED_STORE, {
+                    keyPath: "key"
+                });
+            }
+        };
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function savePATRIODXOfflineFeed(key, posts, profiles) {
+    try {
+        const db = await openPATRIODXFeedDB();
+
+        await new Promise((resolve, reject) => {
+            const transaction = db.transaction(
+                PATRIODX_FEED_STORE,
+                "readwrite"
+            );
+
+            transaction.objectStore(PATRIODX_FEED_STORE).put({
+                key,
+                posts,
+                profiles,
+                savedAt: Date.now()
+            });
+
+            transaction.oncomplete = resolve;
+            transaction.onerror = () => reject(transaction.error);
+            transaction.onabort = () => reject(transaction.error);
+        });
+
+        db.close();
+    } catch (error) {
+        console.warn("Could not cache PATRIODX feed:", error);
+    }
+}
+
+async function getPATRIODXOfflineFeed(key) {
+    try {
+        const db = await openPATRIODXFeedDB();
+
+        const result = await new Promise((resolve, reject) => {
+            const transaction = db.transaction(
+                PATRIODX_FEED_STORE,
+                "readonly"
+            );
+
+            const request = transaction
+                .objectStore(PATRIODX_FEED_STORE)
+                .get(key);
+
+            request.onsuccess = () => resolve(request.result || null);
+            request.onerror = () => reject(request.error);
+        });
+
+        db.close();
+        return result;
+    } catch (error) {
+        console.warn("Could not read PATRIODX offline feed:", error);
+        return null;
+    }
+}
 async function loadSocialPosts(loadMore = false) {
 
     if (!socialFeed) return;
@@ -8611,8 +8828,29 @@ if (inactiveState.observer) {
         }
     }
 
-    let posts = [];
-    let error = null;
+   let posts = [];
+let error = null;
+
+let usingCachedPosts = false;
+let cachedProfiles = [];
+
+const offlineFeedKey =
+    `social-${mode}-${currentUser?.id || "guest"}`;
+
+if (!navigator.onLine && !loadMore) {
+    const cachedFeed = await getPATRIODXOfflineFeed(
+        offlineFeedKey
+    );
+
+    if (cachedFeed && Array.isArray(cachedFeed.posts)) {
+        posts = cachedFeed.posts;
+        cachedProfiles = cachedFeed.profiles || [];
+        usingCachedPosts = true;
+
+        console.log("PATRIODX: Loading cached offline feed.");
+    }
+}
+    if (!usingCachedPosts) {
     /* =========================================================
        LATEST FEED
     ========================================================= */
@@ -8641,7 +8879,7 @@ if (inactiveState.observer) {
        FOLLOWING FEED
     ========================================================= */
 
-    if (mode === "following") {
+    if (!usingCachedPosts && mode === "following") {
 
         if (!currentUser) {
 
@@ -8786,6 +9024,7 @@ state.loading = false;
         posts = result.data || [];
         error = result.error;
 
+    }
     }
 
 if (requestGeneration !== state.generation) {
@@ -8982,9 +9221,11 @@ const postUserIds = [
     )
 ];
 
-let postProfiles = [];
+let postProfiles = usingCachedPosts
+    ? cachedProfiles
+    : [];
 
-if (postUserIds.length) {
+if (!usingCachedPosts && postUserIds.length) {
 
     const { data: profileData, error: profileError } =
         await supabaseClient
@@ -9022,62 +9263,65 @@ const postProfileMap =
         )
     );
     // Preload comments for the first posts while the feed is displayed.
-const postsToPreload = posts.slice(0, 3);
+if (!usingCachedPosts) {
+    const postsToPreload = posts.slice(0, 3);
 
-const preloadComments = () => {
-    postsToPreload.forEach(post => {
-        preloadProfileViewerComments(post.id);
-    });
-};
+    const preloadComments = () => {
+        postsToPreload.forEach(post => {
+            preloadProfileViewerComments(post.id);
+        });
+    };
 
-if ("requestIdleCallback" in window) {
-    requestIdleCallback(preloadComments, { timeout: 1500 });
-} else {
-    setTimeout(preloadComments, 300);
+    if ("requestIdleCallback" in window) {
+        requestIdleCallback(preloadComments, {
+            timeout: 1500
+        });
+    } else {
+        setTimeout(preloadComments, 300);
+    }
 }
-    /* =========================================================
-       GET LIKE / COMMENT COUNTS
-    ========================================================= */
+/* =========================================================
+   GET LIKE / COMMENT COUNTS — BATCH
+========================================================= */
+let postsWithCounts;
 
-    const postsWithCounts =
-        await Promise.all(
-            posts.map(async post => {
+if (usingCachedPosts) {
 
-                try {
+    postsWithCounts = posts;
 
-                    const counts =
-                        await getSocialCounts(post.id);
+} else {
 
-                    return {
-                        ...post,
-                        likes:
-                            Number(
-                                counts?.likes || 0
-                            ),
-                        comments:
-                            Number(
-                                counts?.comments || 0
-                            )
-                    };
+    let socialCountsMap = new Map();
 
-                } catch (error) {
-
-                    console.error(
-                        "Could not get social counts:",
-                        error
-                    );
-
-                    return {
-                        ...post,
-                        likes: 0,
-                        comments: 0
-                    };
-
-                }
-
-            })
+    try {
+        socialCountsMap = await getSocialCountsBatch(
+            posts.map(post => post.id)
         );
+    } catch (error) {
+        console.error(
+            "Could not load social post counts:",
+            error
+        );
+    }
 
+    postsWithCounts = posts.map(post => {
+        const counts = socialCountsMap.get(String(post.id));
+
+        return {
+            ...post,
+            likes: counts?.likes ?? 0,
+            comments: counts?.comments ?? 0
+        };
+    });
+
+    if (!loadMore) {
+        await savePATRIODXOfflineFeed(
+            offlineFeedKey,
+            postsWithCounts,
+            postProfiles
+        );
+    }
+}
     /* =========================================================
        RENDER FEED
     ========================================================= */
@@ -9386,46 +9630,6 @@ const author =
 
 </div>
                     
-                    <!-- ACTION BAR -->
-
-                   <div class="social-post-actions-bar">
-
-    <button
-        type="button"
-        class="social-action-button social-like-button"
-        data-post-id="${post.id}"
-        onclick="likeSocialPost('${post.id}')"
-        aria-label="Like post"
-        title="Like"
-    >
-        <i data-lucide="heart"></i>
-        <span>Like</span>
-    </button>
-
-    <button
-        type="button"
-        class="social-action-button"
-        onclick="toggleComments('${post.id}')"
-        aria-label="View comments"
-        title="Comment"
-    >
-        <i data-lucide="message-circle"></i>
-        <span>Comment</span>
-    </button>
-
-    <button
-        type="button"
-        class="social-action-button"
-        onclick="shareSocialPost('${post.id}')"
-        aria-label="Share post"
-        title="Share"
-    >
-        <i data-lucide="share-2"></i>
-        <span>Share</span>
-    </button>
-
-</div>
-
                         <!-- COMMENTS -->
 
                         <div
@@ -9548,28 +9752,71 @@ renderedCards.forEach(card => {
 renderedCards.forEach(card => {
     card.querySelectorAll("[data-profile-user-id]").forEach(element => {
         element.addEventListener("click", function (event) {
-            const userId = this.getAttribute("data-profile-user-id");
+    const userId = this.getAttribute("data-profile-user-id");
 
-            if (!userId || typeof loadPublicProfile !== "function") return;
+    if (!userId) return;
 
-            event.preventDefault();
-            event.stopPropagation();
+    event.preventDefault();
+    event.stopPropagation();
 
-            if (window.matchMedia("(max-width: 768px)").matches) {
-                mobileProfileReturnSection = "social";
-                mobileProfileReturnScrollY = window.scrollY;
+    // YOUR OWN AVATAR → YOUR OWN PROFILE
+    if (currentUser && userId === currentUser.id) {
+        publicProfileRequestId++;
+        viewedProfileUserId = null;
 
-                window.patriodxChatProfileReturnConversationId = null;
-                window.patriodxAuthorProfileReturnPostData = null;
-            }
+        document.body.classList.remove("mobile-public-profile-view");
 
-            void loadPublicProfile(userId).then(() => {
-                document.getElementById("publicProfileCard")?.scrollIntoView({
-                    behavior: "auto",
-                    block: "start"
-                });
+        // Hide any previously opened public profile.
+        document.getElementById("publicProfileCard")?.style.setProperty("display", "none");
+        document.getElementById("publicProfilePostsContainer")?.style.setProperty("display", "none");
+
+        // Restore your own profile elements.
+        [
+            document.getElementById("profileCover"),
+            document.getElementById("profileAvatar")?.closest(".profile-header"),
+            document.getElementById("profilePostCount")?.closest(".profile-stats"),
+            document.getElementById("profilePosts")?.closest(".profile-posts")
+        ].forEach(element => {
+            if (element) element.style.display = "";
+        });
+
+        document.querySelectorAll("#profile > .section-heading")
+            .forEach(heading => heading.style.display = "");
+
+        document.getElementById("profileSearchForm")
+            ?.closest(".profile-search-card")
+            ?.style.setProperty("display", "");
+
+        navigatePATRIODX("profile");
+
+        requestAnimationFrame(() => {
+            document.getElementById("profile")?.scrollIntoView({
+                behavior: "auto",
+                block: "start"
             });
         });
+
+        return;
+    }
+
+    // ANOTHER USER'S AVATAR → THEIR PUBLIC PROFILE
+    if (typeof loadPublicProfile !== "function") return;
+
+    if (window.matchMedia("(max-width: 768px)").matches) {
+        mobileProfileReturnSection = "social";
+        mobileProfileReturnScrollY = window.scrollY;
+
+        window.patriodxChatProfileReturnConversationId = null;
+        window.patriodxAuthorProfileReturnPostData = null;
+    }
+
+    void loadPublicProfile(userId).then(() => {
+        document.getElementById("publicProfileCard")?.scrollIntoView({
+            behavior: "auto",
+            block: "start"
+        });
+    });
+});
 
         element.addEventListener("keydown", function (event) {
             if (event.key === "Enter" || event.key === " ") {
@@ -9592,7 +9839,7 @@ renderedCards.forEach(card => {
 }
 
 // Restore each post's saved like state.
-if (currentUser && typeof updateSocialLikeButton === "function") {
+if (currentUser && typeof updateSocialLikeButtons === "function") {
 
     requestAnimationFrame(async () => {
 
@@ -9986,11 +10233,8 @@ async function likeSocialPost(postId) {
             if (error) throw error;
         }
 
-        // Refresh authoritative counts after successful save.
-        await Promise.all([
-            refreshSocialPostStats(postId),
-            refreshHomePostStats(postId)
-        ]);
+      // Refresh authoritative counts and return them to the caller.
+return await refreshBothPostStats(postId);
 
     } catch (error) {
         console.error("Like toggle error:", error);
@@ -10002,7 +10246,7 @@ async function likeSocialPost(postId) {
             "Could not update your like. " + error.message,
             "error"
         );
-
+return null;
     } finally {
         patriodxPendingSocialLikes.delete(postId);
     }
@@ -10337,9 +10581,7 @@ commentsList
             }
         });
     });
-    await refreshSocialPostStats(
-        postId
-    );
+   await refreshBothPostStats(postId);
 }
 
 // ==========================================
@@ -10487,8 +10729,6 @@ async function submitSocialComment(event, postId) {
 
         // Refresh comment content without blocking the Send button.
         void loadSocialComments(postId);
-
-        void refreshSocialPostStats(postId);
 
         showPATRIODXToast(
             "Comment posted.",
@@ -11884,13 +12124,32 @@ if ("requestIdleCallback" in window) {
 } else {
     setTimeout(preloadHomeComments, 300);
 }
-        const postsWithCounts = await Promise.all(
-            posts.map(async post => ({
-                ...post,
-                ...(await getSocialCounts(post.id))
-            }))
-        );
+      /* =========================================================
+   GET HOME POST COUNTS — BATCH
+========================================================= */
 
+let homeCountsMap = new Map();
+
+try {
+    homeCountsMap = await getSocialCountsBatch(
+        posts.map(post => post.id)
+    );
+} catch (error) {
+    console.error(
+        "Could not load Home post counts:",
+        error
+    );
+}
+
+const postsWithCounts = posts.map(post => {
+    const counts = homeCountsMap.get(String(post.id));
+
+    return {
+        ...post,
+        likes: counts?.likes ?? 0,
+        comments: counts?.comments ?? 0
+    };
+});
         homeFeed.innerHTML = postsWithCounts.map(post => {
             const profile = profileMap.get(post.user_id);
             const isOwnPost = post.user_id === currentUser?.id;
@@ -12240,7 +12499,70 @@ try {
 }
 
 window.refreshHomePostStats = refreshHomePostStats;
+async function refreshBothPostStats(postId) {
+    if (!postId) return null;
 
+    const socialElement = document.getElementById(
+        `social-stats-${postId}`
+    );
+
+    const homeElement = document.querySelector(
+        `#home-post-${postId} .social-post-stats`
+    );
+
+    const publicProfileLikeCount = document.querySelector(
+        `#public-profile-stats-${postId} .public-profile-like-count`
+    );
+
+    const viewerLikeCount = document.getElementById(
+        "profilePostViewerLikeCount"
+    );
+
+    try {
+        const counts = await getSocialCounts(postId);
+
+        const markup = `
+            <span>
+                <i data-lucide="heart"></i> ${counts.likes}
+            </span>
+            <span>
+                <i data-lucide="message-circle"></i> ${counts.comments}
+            </span>
+        `;
+
+        if (socialElement) {
+            socialElement.innerHTML = markup;
+        }
+
+        if (homeElement) {
+            homeElement.innerHTML = markup;
+        }
+
+        if (publicProfileLikeCount) {
+            publicProfileLikeCount.textContent = counts.likes;
+        }
+
+        if (viewerLikeCount &&
+            window.currentProfileViewerPostId === postId) {
+            viewerLikeCount.textContent =
+                `${counts.likes} ${counts.likes === 1 ? "like" : "likes"}`;
+        }
+
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+
+        return counts;
+
+    } catch (error) {
+        console.error(
+            "PATRIODX: Could not refresh post statistics:",
+            error
+        );
+
+        return null;
+    }
+}
 /* =========================================================
    PATRIODX HOME COMMENTS
 ========================================================= */
@@ -12471,7 +12793,7 @@ button.setAttribute("aria-busy", "true");
         }
 
         await toggleHomeComments(postId);
-        await refreshHomePostStats(postId);
+       await refreshBothPostStats(postId);
 
     } catch (error) {
         console.error("Home comment submission failed:", error);
@@ -17070,42 +17392,48 @@ async function loadMyProfilePosts() {
         profilePostCount.textContent =
             posts.length;
     }
-/* LOAD POST LIKES, COMMENTS AND LIKE STATUS */
+/* LOAD POST COUNTS IN ONE BATCH */
 
-const postsWithCounts = await Promise.all(
-    posts.map(async post => {
+let profileCountsMap = new Map();
 
-        try {
-            const [counts, liked] = await Promise.all([
-                getSocialCounts(post.id),
-                hasLikedSocialPost(post.id)
-            ]);
+try {
+    profileCountsMap = await getSocialCountsBatch(
+        posts.map(post => post.id)
+    );
+} catch (error) {
+    console.error(
+        "Could not load own profile post counts:",
+        error
+    );
+}
 
-            return {
-                ...post,
-                likes: counts.likes,
-                comments: counts.comments,
-                liked: liked
-            };
+/* LOAD LIKED POST IDS IN ONE BATCH */
 
-        } catch (error) {
+let likedPostIds = new Set();
 
-            console.error(
-                "Could not load own profile post statistics:",
-                post.id,
-                error
-            );
+try {
+    likedPostIds = await getLikedSocialPostIds(
+        posts.map(post => post.id)
+    );
+} catch (error) {
+    console.error(
+        "Could not load own profile liked posts:",
+        error
+    );
+}
 
-            return {
-                ...post,
-                likes: 0,
-                comments: 0,
-                liked: false
-            };
-        }
-    })
-);
+/* MERGE COUNTS AND LIKE STATUS */
 
+const postsWithCounts = posts.map(post => {
+    const counts = profileCountsMap.get(String(post.id));
+
+    return {
+        ...post,
+        likes: counts?.likes ?? 0,
+        comments: counts?.comments ?? 0,
+        liked: likedPostIds.has(String(post.id))
+    };
+});
     window.myProfilePosts = postsWithCounts;
 
     profilePosts.innerHTML =
@@ -17347,16 +17675,15 @@ isPublicProfilePost: true
 });
             }
 
-            card.addEventListener("click", function (event) {
+setupPATRIODXProfileImageDoubleTap(card, post.id, openThisPost);
 
-                // Don't interrupt video controls or links
-                if (event.target.closest("video, button, a")) {
-                    return;
-                }
+card.addEventListener("click", function (event) {
+    if (event.target.closest("video, button, a, img.social-post-image")) {
+        return;
+    }
 
-                openThisPost();
-            });
-
+    openThisPost();
+});
             card.addEventListener("keydown", function (event) {
 
                 if (
@@ -18968,11 +19295,15 @@ isPublicProfilePost: true
     });
 }
 
-        card.addEventListener("click", function (event) {
-            // Preserve video controls and action buttons
-            if (event.target.closest("video, button, a")) return;
-            openThisPost();
-        });
+setupPATRIODXProfileImageDoubleTap(card, post.id, openThisPost);
+
+card.addEventListener("click", function (event) {
+    if (event.target.closest("video, button, a, img.social-post-image")) {
+        return;
+    }
+
+    openThisPost();
+});
 
         card.addEventListener("keydown", function (event) {
             if (
@@ -18997,44 +19328,49 @@ postsElement
 
             this.disabled = true;
 
-            try {
-                await likeSocialPost(postId);
+try {
+    const wasLiked = button.classList.contains("liked");
 
-               const stats = await getSocialCounts(postId);
-const liked = button.classList.contains("liked");
+    const stats = await likeSocialPost(postId);
+    if (!stats) return;
 
-                const statsElement = document.getElementById(
-                    `public-profile-stats-${postId}`
-                );
+    const liked = !wasLiked;
 
-                if (statsElement) {
-                    const countElement = statsElement.querySelector(
-                        ".public-profile-like-count"
-                    );
+    const statsElement = document.getElementById(
+        `public-profile-stats-${postId}`
+    );
 
-                    if (countElement) {
-                        countElement.textContent = stats.likes;
-                    }
-                }
+    if (statsElement) {
+        const countElement = statsElement.querySelector(
+            ".public-profile-like-count"
+        );
 
-                this.classList.toggle("liked", liked);
-                this.setAttribute(
-                    "aria-label",
-                    liked ? "Unlike post" : "Like post"
-                );
-                this.title = liked ? "Unlike" : "Like";
+        if (countElement) {
+            countElement.textContent = stats.likes;
+        }
+    }
 
-                const label = this.querySelector("span");
-                if (label) {
-                    label.textContent = liked ? "Liked" : "Like";
-                }
+    button.classList.toggle("liked", liked);
 
-                if (typeof lucide !== "undefined") {
-                    lucide.createIcons();
-                }
-            } catch (error) {
-                console.error("Public profile like error:", error);
-            } finally {
+    button.setAttribute(
+        "aria-label",
+        liked ? "Unlike post" : "Like post"
+    );
+
+    button.title = liked ? "Unlike" : "Like";
+
+    const label = button.querySelector("span");
+    if (label) {
+        label.textContent = liked ? "Liked" : "Like";
+    }
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+
+} catch (error) {
+    console.error("Public profile like error:", error);
+} finally {
                 this.disabled = false;
             }
         });
@@ -23290,12 +23626,13 @@ document.getElementById("profilePostViewerLike")?.addEventListener("click", asyn
     button.disabled = true;
 
     try {
-        await likeSocialPost(postId);
+       const wasLiked = button.classList.contains("liked");
 
-      // Update only the viewer's like information.
-const stats = await getSocialCounts(postId);
-const liked = button.classList.contains("liked");
+const stats = await likeSocialPost(postId);
 
+if (!stats) return;
+
+const liked = !wasLiked;
         const likeCount = document.getElementById(
             "profilePostViewerLikeCount"
         );
@@ -23378,10 +23715,7 @@ button.setAttribute("aria-busy", "true");
     console.error("Could not refresh comments:", error);
 });
 
-void Promise.allSettled([
-    refreshSocialPostStats(postId),
-    refreshHomePostStats(postId)
-]);
+void refreshBothPostStats(postId);
 
 showPATRIODXToast("Comment added.", "success");
     } catch (error) {
@@ -23470,10 +23804,7 @@ invalidateProfileViewerCommentsCache(postId);
 
       await refreshPATRIODXCommentsSurface(postId);
 
-void Promise.allSettled([
-    refreshSocialPostStats(postId),
-    refreshHomePostStats(postId)
-]);
+void refreshBothPostStats(postId);
 
         showPATRIODXToast("Comment deleted.", "success");
 
@@ -23730,11 +24061,7 @@ void refreshPATRIODXCommentsSurface(postId).catch(error => {
     console.error("Could not refresh comments:", error);
 });
 
-void Promise.allSettled([
-    refreshSocialPostStats(postId),
-    refreshHomePostStats(postId)
-]);
-
+void refreshBothPostStats(postId);
     } catch (error) {
         console.error("PATRIODX: Could not save comment change:", error);
 
