@@ -640,6 +640,7 @@ setupHeaderSearch();
 // =========================================================
 // PATRIODX - MOBILE SCROLL-AWARE HEADER
 // =========================================================
+
 function setupPATRIODXMobileHeaderScroll() {
     const header = document.querySelector(
         ".patriodx-header.patriodx-clean-header"
@@ -650,66 +651,178 @@ function setupPATRIODXMobileHeaderScroll() {
     const mobileQuery = window.matchMedia("(max-width: 768px)");
 
     let lastScrollY = 0;
+    let activeScrollTarget = null;
     let ticking = false;
+    let pendingScrollY = 0;
 
-    function getScrollPosition() {
-        const scrollingElement = document.scrollingElement;
+    function getScrollPosition(target) {
+        if (
+            target === document ||
+            target === document.documentElement ||
+            target === document.body
+        ) {
+            return document.scrollingElement?.scrollTop || 0;
+        }
 
-        return Math.max(
-            0,
-            scrollingElement ? scrollingElement.scrollTop : 0,
-            document.documentElement.scrollTop || 0,
-            document.body.scrollTop || 0
-        );
+        return target?.scrollTop || 0;
     }
 
     function updateHeader() {
-        const currentScrollY = getScrollPosition();
-
         if (!mobileQuery.matches) {
             header.classList.remove("patriodx-scroll-header-hidden");
-            lastScrollY = currentScrollY;
             ticking = false;
             return;
         }
 
-        const difference = currentScrollY - lastScrollY;
+        const difference = pendingScrollY - lastScrollY;
 
-        if (currentScrollY <= 12) {
+        if (pendingScrollY <= 12) {
             header.classList.remove("patriodx-scroll-header-hidden");
-        } else if (difference > 5) {
-            header.classList.add("patriodx-scroll-header-hidden");
-        } else if (difference < -5) {
-            header.classList.remove("patriodx-scroll-header-hidden");
-        }
+       } else if (difference > 0) {
+    // Any downward movement hides the header
+    header.classList.add("patriodx-scroll-header-hidden");
+} else if (difference < 0) {
+    // Any upward movement reveals the header
+    header.classList.remove("patriodx-scroll-header-hidden");
+}
 
-        lastScrollY = currentScrollY;
+        lastScrollY = pendingScrollY;
         ticking = false;
     }
 
-    function handleScroll() {
-        if (ticking) return;
+   function handleScroll(event) {
+    if (!mobileQuery.matches) return;
 
-        ticking = true;
-        window.requestAnimationFrame(updateHeader);
-    }
+    pendingScrollY = getScrollPosition(event.target);
 
-    lastScrollY = getScrollPosition();
+    if (ticking) return;
 
-    // Capture scroll events from the document's scrolling element.
+    ticking = true;
+    window.requestAnimationFrame(updateHeader);
+}
+
     document.addEventListener("scroll", handleScroll, {
         passive: true,
         capture: true
     });
 
-    window.addEventListener("scroll", handleScroll, {
-        passive: true
+     window.addEventListener("resize", () => {
+        if (!mobileQuery.matches) {
+            header.classList.remove("patriodx-scroll-header-hidden");
+        }
     });
 
-    window.addEventListener("resize", handleScroll);
+   lastScrollY = document.scrollingElement?.scrollTop || 0;
+pendingScrollY = lastScrollY;
 
     updateHeader();
 }
+
+/* =========================================================
+   PATRIODX POST IMAGE DOUBLE-TAP TO LIKE
+========================================================= */
+
+let patriodxPendingImageTap = null;
+
+document.addEventListener("click", function(event) {
+    const image = event.target.closest(
+        "img.social-post-image"
+    );
+
+    if (!image) return;
+
+    const card = image.closest(".social-post-card");
+
+    if (!card) return;
+
+    const supportedSurface =
+        card.closest("#profilePosts") ||
+        card.closest("#publicProfilePosts") ||
+        (
+            typeof socialFeed !== "undefined" &&
+            socialFeed?.contains(card)
+        );
+
+    if (!supportedSurface) return;
+
+    // Prevent the first tap from immediately opening the post.
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    const now = Date.now();
+
+    if (
+        patriodxPendingImageTap &&
+        patriodxPendingImageTap.image === image &&
+        now - patriodxPendingImageTap.time < 350
+    ) {
+        clearTimeout(patriodxPendingImageTap.timer);
+        patriodxPendingImageTap = null;
+
+        const likeButton = card.querySelector(
+            ".social-like-button[data-post-id]"
+        );
+
+        const postId = likeButton?.dataset.postId;
+
+        if (!postId) return;
+
+        // Show the Instagram-style heart animation.
+        const wrapper = image.closest(".social-media-wrapper");
+
+        if (wrapper) {
+            const heart = document.createElement("div");
+
+            heart.className = "patriodx-double-tap-heart";
+            heart.textContent = "♥";
+            heart.setAttribute("aria-hidden", "true");
+
+            wrapper.appendChild(heart);
+
+            setTimeout(() => heart.remove(), 850);
+        }
+
+        // Double-tapping an already-liked post must not unlike it.
+        hasLikedSocialPost(postId)
+            .then(liked => {
+                if (!liked) {
+                    return likeSocialPost(postId);
+                }
+            })
+            .catch(error => {
+                console.error(
+                    "Double-tap like failed:",
+                    error
+                );
+            });
+
+        return;
+    }
+
+    // Finish a previous single tap if it was on another image.
+    if (patriodxPendingImageTap) {
+        clearTimeout(patriodxPendingImageTap.timer);
+        patriodxPendingImageTap.card.click();
+    }
+
+    const timer = setTimeout(() => {
+        if (patriodxPendingImageTap?.image !== image) return;
+
+        patriodxPendingImageTap = null;
+
+        if (card.isConnected) {
+            card.click();
+        }
+    }, 350);
+
+    patriodxPendingImageTap = {
+        image,
+        card,
+        time: now,
+        timer
+    };
+
+}, true);
 setupPATRIODXMobileHeaderScroll();
 // =========================================================
 // DARK MODE
@@ -6421,7 +6534,6 @@ function showPATRIODXDoubleTapHeart(wrapper) {
    PATRIODX — PROFILE IMAGE DOUBLE-TAP LIKE
    Own profile + public profiles only
 ========================================================= */
-
 function setupPATRIODXProfileImageDoubleTap(card, postId, openThisPost) {
     if (!card || !postId || typeof openThisPost !== "function") return;
 
@@ -6429,15 +6541,13 @@ function setupPATRIODXProfileImageDoubleTap(card, postId, openThisPost) {
     let lastTapTime = 0;
     let openTimer = null;
 
-    card.addEventListener("click", function (event) {
+    function handleImageTap(event) {
         const image = event.target.closest("img.social-post-image");
 
         if (!image || !card.contains(image)) return;
 
-        // Ignore clicks on controls or interactive elements.
         if (event.target.closest("button, a")) return;
 
-        // Prevent the normal card click handler from opening immediately.
         event.preventDefault();
         event.stopPropagation();
 
@@ -6453,7 +6563,6 @@ function setupPATRIODXProfileImageDoubleTap(card, postId, openThisPost) {
             lastImage = null;
             lastTapTime = 0;
 
-            // Make sure the image has a dedicated overlay container.
             let wrapper = image.closest(".patriodx-double-tap-media");
 
             if (!wrapper) {
@@ -6466,12 +6575,11 @@ function setupPATRIODXProfileImageDoubleTap(card, postId, openThisPost) {
 
             showPATRIODXDoubleTapHeart(wrapper);
 
-            // Do not unlike an already-liked post.
             const likeButton = card.querySelector(
                 `.social-like-button[data-post-id="${postId}"]`
             );
 
-            if (!likeButton?.classList.contains("liked")) {
+            if (likeButton && !likeButton.classList.contains("liked")) {
                 likeSocialPost(postId);
             }
 
@@ -6483,14 +6591,14 @@ function setupPATRIODXProfileImageDoubleTap(card, postId, openThisPost) {
         lastImage = image;
         lastTapTime = now;
 
-        // A normal single tap still opens the post.
         openTimer = setTimeout(() => {
             lastImage = null;
             lastTapTime = 0;
             openThisPost();
         }, 350);
+    }
 
-    }, true);
+    card.addEventListener("pointerup", handleImageTap, true);
 }
 function handlePATRIODXImageDoubleTap(event) {
     const image = event.target.closest(
@@ -10295,31 +10403,111 @@ REFRESH POST COUNTS
 async function refreshSocialPostStats(postId) {
     if (!postId) return;
 
-    const statsElement = document.getElementById(
-        `social-stats-${postId}`
-    );
-
-    // No Social-feed stats element means no request is needed.
-    if (!statsElement) return;
-
     try {
         const stats = await getSocialCounts(postId);
+// OWN PROFILE POSTS
+document.querySelectorAll("[data-profile-post-stats]").forEach(element => {
+    if (element.dataset.profilePostStats !== String(postId)) return;
 
-        statsElement.innerHTML = `
-            <span>
-                <i data-lucide="heart"></i> ${stats.likes}
-            </span>
-            <span>
-                <i data-lucide="message-circle"></i> ${stats.comments}
-            </span>
-        `;
+    element.innerHTML = `
+        <span>
+            <i data-lucide="heart"></i> ${stats.likes}
+        </span>
+        <span>
+            <i data-lucide="message-circle"></i> ${stats.comments}
+        </span>
+    `;
+});
+        // SOCIAL FEED
+        const socialStats = document.getElementById(
+            `social-stats-${postId}`
+        );
+
+        if (socialStats) {
+            socialStats.innerHTML = `
+                <span>
+                    <i data-lucide="heart"></i> ${stats.likes}
+                </span>
+                <span>
+                    <i data-lucide="message-circle"></i> ${stats.comments}
+                </span>
+            `;
+        }
+
+        // HOME FEED
+        const homeStats = document
+            .getElementById(`home-post-${postId}`)
+            ?.querySelector(".social-post-stats");
+
+        if (homeStats) {
+            homeStats.innerHTML = `
+                <span>
+                    <i data-lucide="heart"></i> ${stats.likes}
+                </span>
+                <span>
+                    <i data-lucide="message-circle"></i> ${stats.comments}
+                </span>
+            `;
+        }
+
+        // YOUR OWN PROFILE
+        document.querySelectorAll(
+            "[data-profile-post-stats]"
+        ).forEach(element => {
+            if (element.dataset.profilePostStats !== String(postId)) {
+                return;
+            }
+
+            const values = element.querySelectorAll("strong");
+
+            if (values[0]) {
+                values[0].textContent = stats.likes;
+            }
+
+            if (values[1]) {
+                values[1].textContent = stats.comments;
+            }
+        });
+
+        // OTHER USERS' PUBLIC PROFILES
+        const publicStats = document.getElementById(
+            `public-profile-stats-${postId}`
+        );
+
+        if (publicStats) {
+            const likes = publicStats.querySelector(
+                ".public-profile-like-count"
+            );
+
+            const comments = publicStats.querySelector(
+                ".public-profile-comment-count"
+            );
+
+            if (likes) likes.textContent = stats.likes;
+            if (comments) comments.textContent = stats.comments;
+        }
+
+        // OPEN POST VIEWER
+        if (
+            window.currentProfileViewerPostId === postId
+        ) {
+            const viewerLikes = document.getElementById(
+                "profilePostViewerLikeCount"
+            );
+
+            if (viewerLikes) {
+                viewerLikes.textContent =
+                    `${stats.likes} ${stats.likes === 1 ? "like" : "likes"}`;
+            }
+        }
 
         if (window.lucide) {
             window.lucide.createIcons();
         }
+
     } catch (error) {
         console.error(
-            "PATRIODX: Could not refresh social post statistics:",
+            "PATRIODX: Could not refresh post statistics:",
             error
         );
     }
@@ -19331,8 +19519,7 @@ postsElement
 try {
     const wasLiked = button.classList.contains("liked");
 
-    const stats = await likeSocialPost(postId);
-    if (!stats) return;
+   await likeSocialPost(postId);
 
     const liked = !wasLiked;
 
@@ -24458,99 +24645,43 @@ document.body.classList.remove("mobile-public-profile-view");
 
 }
   });
-    // ========================================================
-// OWN PROFILE POST ACTIONS
-// =========================================================
+// ========================================================
+// OWN PROFILE POST LIKES
+// ========================================================
 
 document.addEventListener("click", async function(event) {
-
     const likeButton = event.target.closest(
         ".profile-own-like-button"
     );
 
-   if (!likeButton) return;
+    if (!likeButton) return;
 
-if (!currentUser) {
-    showPATRIODXToast(
-        "Please log in to like comments.",
-        "warning"
-    );
-    return;
-}
+    event.preventDefault();
+    event.stopPropagation();
 
-const commentId = likeButton.dataset.commentId;
-const postId = window.currentProfileViewerPostId;
+    const postId = likeButton.dataset.postId;
 
-if (!commentId || !postId) return;
+    if (!postId || likeButton.disabled) return;
 
-const wasLiked = likeButton.classList.contains("liked");
-const originalText = likeButton.textContent;
-const originalLabel = likeButton.getAttribute("aria-label");
-
-const countMatch = originalText.match(/\d+/);
-const originalCount = countMatch ? Number(countMatch[0]) : 0;
-
-const newCount = Math.max(
-    0,
-    originalCount + (wasLiked ? -1 : 1)
-);
-
-function updateLikeUI(liked, count) {
-    likeButton.classList.toggle("liked", liked);
-    likeButton.textContent = `${liked ? "♥" : "♡"} ${count}`;
-
-    likeButton.setAttribute(
-        "aria-label",
-        liked ? "Unlike comment" : "Like comment"
-    );
-}
-
-updateLikeUI(!wasLiked, newCount);
-likeButton.disabled = true;
-
-try {
-    if (wasLiked) {
-        const { error } = await supabaseClient
-            .from("comment_likes")
-            .delete()
-            .eq("comment_id", commentId)
-            .eq("user_id", currentUser.id);
-
-        if (error) throw error;
-
-    } else {
-        const { error } = await supabaseClient
-            .from("comment_likes")
-            .insert({
-                comment_id: commentId,
-                user_id: currentUser.id
-            });
-
-        if (error) throw error;
+    if (!currentUser) {
+        showPATRIODXToast(
+            "Please log in to like posts.",
+            "warning"
+        );
+        return;
     }
 
-} catch (error) {
-    console.error(
-        "PATRIODX: Could not update comment like:",
-        error
-    );
+    likeButton.disabled = true;
 
-    updateLikeUI(wasLiked, originalCount);
-
-    if (originalLabel) {
-        likeButton.setAttribute("aria-label", originalLabel);
+    try {
+        await likeSocialPost(postId);
+    } catch (error) {
+        console.error("Own profile post like failed:", error);
+    } finally {
+        likeButton.disabled = false;
     }
-
-    showPATRIODXToast(
-        "Could not update comment like. " + error.message,
-        "error"
-    );
-
-} finally {
-    likeButton.disabled = false;
-}
-
 });
+
 // =========================================================
 // OWN PROFILE POST COMMENT BUTTON
 // =========================================================
