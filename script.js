@@ -17,6 +17,7 @@ let invoices = [];
 let currentUser = null;
 let currentBusiness = null;
 let currentPlan = "free";
+let currentProfile = null; 
 let editingProductId = null;
 let socialFeedMode = "latest";
 
@@ -515,38 +516,6 @@ function updatePlanUsage() {
    PATRIODX NAVIGATION COMPATIBILITY
    All navigation goes through the app router.
 ========================================================= */
-
-function scrollToSection(id) {
-
-    if (typeof navigatePATRIODX === "function") {
-
-        let pageId = id;
-
-        /*
-           Support the old AI section name.
-        */
-        if (pageId === "ai") {
-            pageId = "patriodxAI";
-        }
-
-        navigatePATRIODX(pageId);
-        return;
-    }
-
-    /*
-       Fallback only if router has not loaded yet.
-    */
-    const section = document.getElementById(id);
-
-    if (section) {
-        section.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-    }
-}
-
-
 function setupNavigation() {
 
     /*
@@ -4600,7 +4569,7 @@ async function verifyPatriodxPayment(reference, expectedPlan) {
 
 
        const response = await fetch(
-    "https://businessos-wine-eight.vercel.app/api/verify-payment",
+    "/api/",
             {
                 method: "POST",
 
@@ -4723,7 +4692,7 @@ async function startPlanCheckout(plan) {
         }
 
         const response = await fetch(
-            "https://businessos-wine-eight.vercel.app/api/initialize-payment",
+            "/api/",
             {
                 method: "POST",
                 headers: {
@@ -6260,7 +6229,7 @@ function addAIMessage(message, type = "bot") {
 
         messageDiv.innerHTML = `
             <strong>You</strong>
-            <p>${message}</p>
+           <p>${safe(message)}</p>
         `;
 
     } else {
@@ -6270,7 +6239,7 @@ function addAIMessage(message, type = "bot") {
     <i data-lucide="sparkles"></i>
     PATRIODX AI
 </strong>
-            <p>${message}</p>
+            <p>${safe(message)}</p>
         `;
 
     }
@@ -6368,7 +6337,7 @@ if (aiForm) {
 
             const response =
                 await fetch(
-                   "https://businessos-wine-eight.vercel.app/api/ai",
+                   "/api/",
                     {
                         method: "POST",
 
@@ -7056,10 +7025,18 @@ if (loaded === false) {
         if (typeof lucide !== "undefined") {
             lucide.createIcons();
         }
-    } catch (error) {
-        console.error("Shared comments loading failed:", error);
-        list.textContent = "Could not load comments. Please try again.";
+} catch (error) {
+    // Ignore errors from an older post request.
+    if (
+        String(patriodxActiveCommentPostId) !== String(postId) ||
+        !sheet.classList.contains("is-open")
+    ) {
+        return;
     }
+
+    console.error("Shared comments loading failed:", error);
+    list.textContent = "Could not load comments. Please try again.";
+}
 }
 
 function closePATRIODXComments(options = {}) {
@@ -10021,7 +9998,6 @@ if (socialPostForm) {
                     "Please log in before creating a post.",
                     "warning"
                 );
-                state.loading = false;
                 return;
             }
 
@@ -10254,7 +10230,11 @@ async function likeSocialPost(postId) {
             );
 
             button.title = liked ? "Unlike" : "Like";
+const label = button.querySelector("span");
 
+if (label) {
+    label.textContent = liked ? "Liked" : "Like";
+}
             if (liked) {
                 button.classList.remove("is-animating");
 
@@ -11132,68 +11112,53 @@ if (!reason) {
 /* =========================================================
    SHARE POST
 ========================================================= */
-
 async function shareSocialPost(postId) {
-
     const shareUrl =
-        `${window.location.origin}${window.location.pathname}#social-post-${postId}`;
-
+        `${window.location.origin}${window.location.pathname}#social-post-${encodeURIComponent(postId)}`;
 
     const shareData = {
-
-        title:
-            "PATRIODX Social",
-
-        text:
-            "Check out this post on PATRIODX.",
-
-        url:
-            shareUrl
+        title: "PATRIODX Social",
+        text: "Check out this post on PATRIODX.",
+        url: shareUrl
     };
 
-
     try {
+        if (navigator.share && navigator.canShare?.(shareData) !== false) {
+            await navigator.share(shareData);
+            return;
+        }
 
-       if (navigator.share) {
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(shareUrl);
+        } else {
+            const input = document.createElement("textarea");
+            input.value = shareUrl;
+            input.style.position = "fixed";
+            input.style.opacity = "0";
+            document.body.appendChild(input);
+            input.select();
 
-    await navigator.share(
-        shareData
-    );
+            const copied = document.execCommand("copy");
+            input.remove();
 
-    return;
-}
+            if (!copied) throw new Error("Clipboard copy failed");
+        }
 
+        showPATRIODXToast(
+            "Post link copied to clipboard!",
+            "success"
+        );
 
-await navigator.clipboard.writeText(
-    shareUrl
-);
+    } catch (error) {
+        if (error.name === "AbortError") return;
 
+        console.error("Share error:", error);
 
-showPATRIODXToast(
-    "Post link copied to clipboard!",
-    "success"
-);
-
-} catch (error) {
-
-    if (
-        error.name ===
-        "AbortError"
-    ) {
-        return;
+        showPATRIODXToast(
+            "Could not share this post.",
+            "error"
+        );
     }
-
-
-    console.error(
-        "Share error:",
-        error
-    );
-
-    showPATRIODXToast(
-        "Could not share this post.",
-        "error"
-    );
-}
 }
 
 /* =========================================================
@@ -12725,7 +12690,15 @@ async function refreshBothPostStats(postId) {
         if (homeElement) {
             homeElement.innerHTML = markup;
         }
+// OWN PROFILE
+document.querySelectorAll("[data-profile-post-stats]").forEach(element => {
+    if (element.dataset.profilePostStats !== String(postId)) return;
 
+    const values = element.querySelectorAll("strong");
+
+    if (values[0]) values[0].textContent = counts.likes;
+    if (values[1]) values[1].textContent = counts.comments;
+});
         if (publicProfileLikeCount) {
             publicProfileLikeCount.textContent = counts.likes;
         }
@@ -14071,7 +14044,8 @@ if (hasBlockedMember) {
     activeConversationId = null;
 
     if (messageList) messageList.innerHTML = "";
-    if (chatHeader) chatHeader.innerHTML = "";
+   const earlyChatHeader = document.getElementById("chatHeader");
+if (earlyChatHeader) earlyChatHeader.innerHTML = "";
 
     showPATRIODXToast(
         "This conversation is unavailable.",
@@ -15767,6 +15741,35 @@ function subscribeToMessages(conversationId) {
     if (typeof setupPATRIODXTyping === "function") {
         setupPATRIODXTyping(conversationId);
     }
+    function setupPATRIODXTyping(conversationId) {
+    const input = document.getElementById("messageInput");
+    if (!input || !messagingRealtimeChannel) return;
+
+    if (input._patriodxTypingHandler) {
+        input.removeEventListener("input", input._patriodxTypingHandler);
+    }
+
+    const channel = messagingRealtimeChannel;
+    let isTyping = false;
+    let stopTimer = null;
+
+    const sendTyping = typing => channel.send({
+        type: "broadcast",
+        event: "typing",
+        payload: { user_id: currentUser.id, typing }
+    });
+
+    input._patriodxTypingHandler = () => {
+        if (!isTyping) { isTyping = true; sendTyping(true); }
+        clearTimeout(stopTimer);
+        stopTimer = setTimeout(() => {
+            isTyping = false;
+            sendTyping(false);
+        }, 2000);
+    };
+
+    input.addEventListener("input", input._patriodxTypingHandler);
+}
 }
 /* =========================================================
    NEW CONVERSATION — OPEN USER PICKER
@@ -16193,10 +16196,10 @@ function renderNotifications() {
                         <p class="notification-text">
 
                             <strong>
-    ${
-        notification.title ||
-        "PATRIODX Notification"
-    }
+   ${
+    safe(notification.title ||
+    "PATRIODX Notification")
+}
     ${
         window.notificationSenderProfiles?.[notification.sender_id] &&
         typeof getPATRIODXBadge === "function"
@@ -16209,7 +16212,7 @@ function renderNotifications() {
 
                             ${
                                 notification.message
-                                    ? `<br>${notification.message}`
+                                    ? `<br>${safe(notification.message)}`
                                     : ""
                             }
 
@@ -17858,7 +17861,7 @@ if ("IntersectionObserver" in window) {
     caption: post.content || "",
     createdAt: post.created_at || null,
     sourceSection: "profile",
-profileUserId: profile.id,
+profileUserId: currentProfile?.id,
 isPublicProfilePost: true
 });
             }
@@ -18153,7 +18156,7 @@ if (
                 profile.avatar_url
                     ? `
                         <img
-                            src="${profile.avatar_url}"
+                            src="${safe(profile.avatar_url)}"
                             alt="Profile"
                         >
                     `
@@ -18751,21 +18754,35 @@ const currentSection = window.location.hash
     .replace("#", "")
     .trim();
 
-if (currentSection && currentSection !== "profile") {
-
+// Preserve an explicitly saved origin, such as a messaging conversation.
+// Only infer the origin from the URL when no origin has been saved.
+if (
+    mobileProfileReturnSection === "profile" &&
+    currentSection &&
+    currentSection !== "profile"
+) {
     mobileProfileReturnSection = currentSection;
     mobileProfileReturnScrollY = window.scrollY;
-
 }
 
+// Preserve the actual originating location.
+const publicProfileReturnSection =
+    mobileProfileReturnSection || "profile";
+
 window.patriodxPublicProfileReturnSection =
-    mobileProfileReturnSection;
+    publicProfileReturnSection;
 
 window.patriodxPublicProfileReturnScrollY =
     mobileProfileReturnScrollY;
+
+// Never carry an old conversation into another section.
+if (publicProfileReturnSection !== "messaging") {
+    window.patriodxChatProfileReturnConversationId = null;
+}
+
 // Make the Profile section visible before displaying the user.
 if (typeof navigatePATRIODX === "function") {
-navigatePATRIODX("profile");
+    navigatePATRIODX("profile");
 }
 
 if (window.matchMedia("(max-width: 768px)").matches) {
@@ -18907,7 +18924,7 @@ if (badgeElement) {
         if (profile.avatar_url) {
 
             avatarElement.innerHTML =
-                `<img src="${profile.avatar_url}" alt="Profile picture">`;
+                `<img src="${safe(profile.avatar_url)}" alt="Profile picture">`;
 
         } else {
 
@@ -19509,6 +19526,7 @@ postsElement
     .querySelectorAll(".public-profile-like-button")
     .forEach(button => {
         button.addEventListener("click", async function (event) {
+            event.preventDefault();
             event.stopPropagation();
 
             const postId = this.dataset.postId;
@@ -19516,48 +19534,11 @@ postsElement
 
             this.disabled = true;
 
-try {
-    const wasLiked = button.classList.contains("liked");
-
-   await likeSocialPost(postId);
-
-    const liked = !wasLiked;
-
-    const statsElement = document.getElementById(
-        `public-profile-stats-${postId}`
-    );
-
-    if (statsElement) {
-        const countElement = statsElement.querySelector(
-            ".public-profile-like-count"
-        );
-
-        if (countElement) {
-            countElement.textContent = stats.likes;
-        }
-    }
-
-    button.classList.toggle("liked", liked);
-
-    button.setAttribute(
-        "aria-label",
-        liked ? "Unlike post" : "Like post"
-    );
-
-    button.title = liked ? "Unlike" : "Like";
-
-    const label = button.querySelector("span");
-    if (label) {
-        label.textContent = liked ? "Liked" : "Like";
-    }
-
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
-    }
-
-} catch (error) {
-    console.error("Public profile like error:", error);
-} finally {
+            try {
+                await likeSocialPost(postId);
+            } catch (error) {
+                console.error("Public profile like error:", error);
+            } finally {
                 this.disabled = false;
             }
         });
@@ -19655,7 +19636,7 @@ async function searchPATRIODXUsers(username) {
     results.innerHTML = data.map(profile => {
 
         const avatar = profile.avatar_url
-            ? `<img src="${profile.avatar_url}" alt="Profile">`
+            ? `<img src="${safe(profile.avatar_url)}" alt="Profile">`
            : '<i data-lucide="user"></i>';
 
 
@@ -20793,11 +20774,26 @@ function PATRIODXMobileProfileNavigationController(event) {
         commentsSheet.classList.contains("is-open")
     );
 
-    // 1. Close comments before handling the post viewer.
-   if (commentsOpen) {
+   // 1. Close comments before handling the post viewer.
+if (commentsOpen) {
     if (typeof closePATRIODXComments === "function") {
         closePATRIODXComments({ fromPopState: true });
     }
+
+    // Continue a pending navigation only after comments have closed.
+    const afterCommentsBack =
+        window.patriodxAfterCommentsBack;
+
+    if (typeof afterCommentsBack === "function") {
+        window.patriodxAfterCommentsBack = null;
+        Promise.resolve(afterCommentsBack()).catch(error => {
+            console.error(
+                "[PATRIODX] Author profile navigation failed:",
+                error
+            );
+        });
+    }
+
     return true;
 }
     // 2. First Back: close the post and restore its profile.
@@ -21844,7 +21840,7 @@ if (choice.trim() === "1") {
 }
 
         const response = await fetch(
-            "https://businessos-wine-eight.vercel.app/api/initialize-verification",
+            "/api/",
             {
                 method: "POST",
 
@@ -22177,7 +22173,7 @@ async function performGlobalSearch(query) {
 
         results.innerHTML = `
             <div class="global-search-empty">
-                No people found for "${query}".
+                No people found for "${safe(query)}".
             </div>
         `;
 
@@ -22202,7 +22198,7 @@ async function performGlobalSearch(query) {
                 profile.avatar_url
                     ? `
                         <img
-                            src="${profile.avatar_url}"
+                            src="${safe(profile.avatar_url)}"
                             alt=""
                         >
                     `
@@ -22814,9 +22810,11 @@ const sourceSection =
 
 const isViewingPublicProfile =
     postData.isPublicProfilePost === true ||
-    Boolean(viewedProfileUserId) ||
-    document.body.classList.contains("mobile-public-profile-view");
-
+    (
+        sourceSection === "profile" &&
+        Boolean(viewedProfileUserId) &&
+        publicProfileIsVisible
+    );
 window.profileViewerPreviousSection = sourceSection;
 
 window.profileViewerPreviousMobileView =
@@ -23830,6 +23828,10 @@ const liked = !wasLiked;
         }
 
         button.classList.toggle("liked", liked);
+        const label = button.querySelector("span");
+if (label) {
+    label.textContent = liked ? "Liked" : "Like";
+}
         button.setAttribute(
             "aria-label",
             liked ? "Unlike post" : "Like post"
@@ -24031,7 +24033,7 @@ if (replyUsernameButton) {
     event.preventDefault();
     event.stopPropagation();
 
-    // Preserve the exact post before closing its viewer.
+    // Preserve the exact post before leaving its viewer.
     const viewer = document.getElementById("profilePostViewer");
 
     if (
@@ -24043,10 +24045,21 @@ if (replyUsernameButton) {
             window.currentProfileViewerPostData;
     }
 
-    closePATRIODXComments();
-    closeProfilePostViewer();
+    const navigateToAuthor = async () => {
+        closeProfilePostViewer();
+        await loadPublicProfile(userId);
+    };
 
-    await loadPublicProfile(userId);
+    // If comments own a history entry, wait for Back to close them.
+    if (window.patriodxCommentsHistoryEntryActive) {
+        window.patriodxAfterCommentsBack = navigateToAuthor;
+        history.back();
+        return;
+    }
+
+    // Otherwise close the sheet directly.
+    closePATRIODXComments({ fromPopState: true });
+    await navigateToAuthor();
     return;
 }
     if (cancelButton) {
@@ -24561,15 +24574,26 @@ if (followList) {
 
 if (typeof navigatePATRIODX === "function") {
 
-    const chatConversationId =
-        window.patriodxChatProfileReturnConversationId;
+   // Restore the exact section from which this profile was opened.
+const returnSection =
+    window.patriodxPublicProfileReturnSection ||
+    mobileProfileReturnSection ||
+    "profile";
 
-    const returnSection = chatConversationId
-        ? "messaging"
-        : (mobileProfileReturnSection || "profile");
+// Restore a conversation only when Messaging was the origin.
+const chatConversationId =
+    returnSection === "messaging"
+        ? window.patriodxChatProfileReturnConversationId
+        : null;
 
-    const returnScrollY = mobileProfileReturnScrollY || 0;
-
+// Restore the original scroll position.
+const returnScrollY = Number(
+    window.patriodxPublicProfileReturnScrollY ??
+    mobileProfileReturnScrollY ??
+    0
+);
+window.patriodxPublicProfileReturnSection = null;
+window.patriodxPublicProfileReturnScrollY = null;
     // Navigate first. navigatePATRIODX is synchronous.
        navigatePATRIODX(
         returnSection,
