@@ -794,7 +794,7 @@ document.addEventListener("click", function(event) {
 }, true);
 setupPATRIODXMobileHeaderScroll();
 // =========================================================
-// DARK MODE
+// DARK MODE — SYSTEM + MANUAL THEME SUPPORT
 // =========================================================
 
 function setupDarkMode() {
@@ -803,133 +803,191 @@ function setupDarkMode() {
         document.getElementById("themeToggle");
 
     const settingsToggle =
-        document.getElementById(
-            "settingsDarkModeToggle"
-        );
+        document.getElementById("settingsDarkModeToggle");
 
     const savedTheme =
         localStorage.getItem("patriodxTheme");
 
-    function isDarkMode() {
+    const systemTheme =
+        window.matchMedia("(prefers-color-scheme: dark)");
 
-        return document.body.classList.contains(
-            "dark-mode"
-        );
+    function isDarkMode() {
+        return document.body.classList.contains("dark-mode");
     }
 
     function updateThemeUI() {
 
         const dark = isDarkMode();
 
-        // Existing header/sidebar dark-mode button
         if (button) {
 
-            button.innerHTML =
-                dark
-                    ? '<i data-lucide="sun"></i>'
-                    : '<i data-lucide="moon"></i>';
+            button.innerHTML = dark
+                ? '<i data-lucide="sun"></i>'
+                : '<i data-lucide="moon"></i>';
 
             button.setAttribute(
                 "aria-label",
-                dark
-                    ? "Switch to light mode"
-                    : "Switch to dark mode"
+                dark ? "Switch to light mode" : "Switch to dark mode"
             );
 
             button.setAttribute(
                 "title",
-                dark
-                    ? "Switch to light mode"
-                    : "Switch to dark mode"
+                dark ? "Switch to light mode" : "Switch to dark mode"
             );
         }
 
-        // Settings & Activity toggle
         if (settingsToggle) {
-
             settingsToggle.checked = dark;
         }
 
-        if (
-            typeof lucide !== "undefined"
-        ) {
-
+        if (typeof lucide !== "undefined") {
             lucide.createIcons();
         }
     }
 
-    function setDarkMode(dark) {
+    function applyTheme(dark) {
 
-        document.body.classList.toggle(
-            "dark-mode",
-            dark
-        );
+        document.body.classList.toggle("dark-mode", dark);
 
-        localStorage.setItem(
-            "patriodxTheme",
-            dark
-                ? "dark"
-                : "light"
-        );
+        document.documentElement.style.colorScheme =
+            dark ? "dark" : "light";
+
+        const themeColor =
+            document.querySelector('meta[name="theme-color"]');
+
+        if (themeColor) {
+            themeColor.setAttribute(
+                "content",
+                dark ? "#0f172a" : "#ffffff"
+            );
+        }
 
         updateThemeUI();
     }
 
+    function setDarkMode(dark) {
 
-    // Load saved theme
-    if (savedTheme === "dark") {
-
-        document.body.classList.add(
-            "dark-mode"
+        localStorage.setItem(
+            "patriodxTheme",
+            dark ? "dark" : "light"
         );
+
+        applyTheme(dark);
     }
 
+    // Respect an existing manual preference.
+    // Otherwise, follow the device appearance.
+    const hasManualPreference =
+        savedTheme === "dark" || savedTheme === "light";
 
-    // Existing dark-mode button
+    applyTheme(
+        hasManualPreference
+            ? savedTheme === "dark"
+            : systemTheme.matches
+    );
+
+    // Follow future iPhone system appearance changes
+    // unless the user has manually selected a theme.
+    function handleSystemThemeChange(event) {
+
+        const preference =
+            localStorage.getItem("patriodxTheme");
+
+        if (preference !== "dark" && preference !== "light") {
+            applyTheme(event.matches);
+        }
+    }
+
+    if (typeof systemTheme.addEventListener === "function") {
+        systemTheme.addEventListener(
+            "change",
+            handleSystemThemeChange
+        );
+    } else {
+        systemTheme.addListener(handleSystemThemeChange);
+    }
+
+    // Header theme button
     if (button) {
 
-        button.addEventListener(
-            "click",
-            function() {
-
-                setDarkMode(
-                    !isDarkMode()
-                );
-            }
-        );
+        button.addEventListener("click", function() {
+            setDarkMode(!isDarkMode());
+        });
     }
 
+    // Settings theme toggle
+    if (settingsToggle) {
 
-    // Settings & Activity dark-mode toggle
-   if (settingsToggle) {
-
-    settingsToggle.addEventListener(
-        "change",
-        function() {
-
-            const enabled =
-                this.checked;
-
-            document.body.classList.toggle(
-                "dark-mode",
-                enabled
-            );
-
-            localStorage.setItem(
-                "patriodxTheme",
-                enabled
-                    ? "dark"
-                    : "light"
-            );
-
-            updateThemeUI();
-
-        }
-    );
+        settingsToggle.addEventListener("change", function() {
+            setDarkMode(this.checked);
+        });
+    }
 }
+// =========================================================
+// PATRIODX — ACCESSIBILITY TEXT SIZE
+// =========================================================
 
+function setupPATRIODXTextSize() {
 
-    updateThemeUI();
+    const selector =
+        document.getElementById("settingsTextSize");
+
+    const allowedSizes = [
+        "small",
+        "default",
+        "large",
+        "extra-large"
+    ];
+
+    const savedSize =
+        localStorage.getItem("patriodxTextSize");
+
+    const initialSize =
+        allowedSizes.includes(savedSize)
+            ? savedSize
+            : "default";
+
+   function applyTextSize(size) {
+
+    const textAdjustments = {
+        "small": "85%",
+        "default": "100%",
+        "large": "115%",
+        "extra-large": "130%"
+    };
+
+    if (!textAdjustments[size]) {
+        size = "default";
+    }
+
+    const adjustment = textAdjustments[size];
+
+    document.documentElement.dataset.textSize = size;
+
+    // Ask mobile browsers, including iOS Safari,
+    // to adjust text sizing.
+    document.documentElement.style.webkitTextSizeAdjust =
+        adjustment;
+
+    document.documentElement.style.textSizeAdjust =
+        adjustment;
+
+    localStorage.setItem(
+        "patriodxTextSize",
+        size
+    );
+
+    if (selector) {
+        selector.value = size;
+    }
+}
+    applyTextSize(initialSize);
+
+    if (selector) {
+        selector.addEventListener("change", function() {
+            applyTextSize(this.value);
+        });
+    }
 }
 function calculateProductPerformance() {
 const performance = new Map();
@@ -5914,9 +5972,10 @@ async function startPATRIODX() {
 
     setupSearch();
 
-    setupDarkMode();
+   setupDarkMode();
+setupPATRIODXTextSize();
 
-    setupModalBehavior();
+setupModalBehavior();
 
     setupForms();
 setupSettingsActivity();
@@ -19470,7 +19529,8 @@ if ("IntersectionObserver" in window) {
                 .observe(video);
         });
 }
-// Make public profile posts clickable
+// Make ONLY your own profile posts clickable.
+// Other users' public profile posts will not open the post viewer.
 postsElement
     .querySelectorAll(".social-post-card")
     .forEach((card, index) => {
@@ -19478,37 +19538,57 @@ postsElement
         const post = posts[index];
         if (!post) return;
 
+        const isOwnProfile =
+            currentUser &&
+            profile.id === currentUser.id;
+
+        // Disable post opening on other users' profiles.
+        if (!isOwnProfile) {
+            card.style.cursor = "default";
+            card.removeAttribute("role");
+            card.removeAttribute("tabindex");
+            card.removeAttribute("aria-label");
+            return;
+        }
+
+        // Preserve existing behavior on your own profile.
         card.style.cursor = "pointer";
         card.setAttribute("role", "button");
         card.setAttribute("tabindex", "0");
         card.setAttribute("aria-label", "Open post");
 
-       function openThisPost() {
-    openProfilePostViewer({
-        postId: post.id,
-        imageUrl: post.image_url || "",
-        videoUrl: post.video_url || "",
-        author: profile.display_name || "PATRIODX User",
-        authorProfile: profile,
-        profileUserId: profile.id,
-        isPublicProfilePost: true,
-        caption: post.content || "",
-        createdAt: post.created_at || null,
-       sourceSection: "profile",
-profileUserId: profile.id,
-isPublicProfilePost: true
-    });
-}
+        function openThisPost() {
+            openProfilePostViewer({
+                postId: post.id,
+                imageUrl: post.image_url || "",
+                videoUrl: post.video_url || "",
+                author: profile.display_name || "PATRIODX User",
+                authorProfile: profile,
+                profileUserId: profile.id,
+                isPublicProfilePost: true,
+                caption: post.content || "",
+                createdAt: post.created_at || null,
+                sourceSection: "profile"
+            });
+        }
 
-setupPATRIODXProfileImageDoubleTap(card, post.id, openThisPost);
+        setupPATRIODXProfileImageDoubleTap(
+            card,
+            post.id,
+            openThisPost
+        );
 
-card.addEventListener("click", function (event) {
-    if (event.target.closest("video, button, a, img.social-post-image")) {
-        return;
-    }
+        card.addEventListener("click", function (event) {
+            if (
+                event.target.closest(
+                    "video, button, a, img.social-post-image"
+                )
+            ) {
+                return;
+            }
 
-    openThisPost();
-});
+            openThisPost();
+        });
 
         card.addEventListener("keydown", function (event) {
             if (

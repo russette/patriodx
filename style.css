@@ -16,6 +16,14 @@
 
 html {
     scroll-behavior: smooth;
+   -webkit-text-size-adjust: auto;
+text-size-adjust: auto;
+    font-size: 100%;
+    color-scheme: light;
+}
+
+html:has(body.dark-mode) {
+    color-scheme: dark;
 }
 
 body {
@@ -9149,7 +9157,48 @@ main.container {
     font-size: 13px;
     opacity: 0.65;
 }
+/* =========================================================
+   PATRIODX — TEXT SIZE SETTINGS
+========================================================= */
 
+#settingsTextSize {
+    width: 145px;
+    max-width: 42%;
+    min-height: 42px;
+    padding: 9px 30px 9px 12px;
+
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 10px;
+
+    background: var(--header-bg, #ffffff);
+    color: var(--text-color, #0f172a);
+
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+#settingsTextSize:focus {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
+
+body.dark-mode #settingsTextSize {
+    background: #181b21;
+    color: #f1f5f9;
+    border-color: #374151;
+}
+
+@media (max-width: 480px) {
+    #settingsAppearance .settings-card {
+        gap: 12px;
+    }
+
+    #settingsTextSize {
+        width: 125px;
+    }
+}
 
 /* DARK MODE SWITCH */
 
@@ -23813,6 +23862,94 @@ body.dark-mode .profile-post-viewer-dialog {
         bottom: 0 !important;
         z-index: 100 !important;
         background: var(--card-bg, var(--background, #fff)) !important;
+    }
+}
+/* =========================================================
+   PATRIODX — MOBILE POST VIEWER LAYOUT CORRECTION
+   Scoped only to the profile post viewer
+========================================================= */
+
+@media (max-width: 768px) {
+
+    #profilePostViewer .profile-post-viewer-dialog {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* Only the post and comments area scrolls */
+    #profilePostViewer .profile-post-viewer-scroll {
+        display: flex !important;
+        flex: 1 1 auto !important;
+        flex-direction: column !important;
+        min-height: 0 !important;
+        height: auto !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        overscroll-behavior-y: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    /* Keep the comment composer visible at the bottom */
+    #profilePostViewer .profile-post-viewer-comment-form {
+        position: relative !important;
+        inset: auto !important;
+        display: flex !important;
+        flex: 0 0 auto !important;
+        align-items: center !important;
+        width: 100% !important;
+        min-height: 60px !important;
+        margin: 0 !important;
+        padding: 10px 14px max(10px, env(safe-area-inset-bottom)) !important;
+        box-sizing: border-box !important;
+        z-index: 100 !important;
+    }
+
+    #profilePostViewer .profile-post-viewer-comment-form input {
+        flex: 1 1 auto !important;
+        width: 0 !important;
+        min-width: 0 !important;
+    }
+
+    #profilePostViewer .profile-post-viewer-comment-form button {
+        flex: 0 0 auto !important;
+    }
+
+    /* Align Like, Comment and Share evenly */
+    #profilePostViewer .profile-post-viewer-action-buttons {
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        align-items: center !important;
+        gap: 8px !important;
+        width: 100% !important;
+        padding: 10px 12px !important;
+        box-sizing: border-box !important;
+    }
+
+    #profilePostViewer .profile-post-viewer-action-button {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        height: 42px !important;
+        padding: 6px 2px !important;
+        box-sizing: border-box !important;
+        white-space: nowrap !important;
+    }
+
+    #profilePostViewer .profile-post-viewer-action-button svg {
+        flex: 0 0 auto !important;
+        width: 20px !important;
+        height: 20px !important;
+    }
+
+    #profilePostViewer .profile-post-viewer-action-button span {
+        font-size: 12px !important;
     }
 }
 /* =========================================================
