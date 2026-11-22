@@ -24913,3 +24913,58 @@ body.dark-mode .patriodx-offline-indicator {
         font-size: 12px !important;
     }
 }
+/* =========================================================
+   PATRIODX — POST VIEWER ACTION BAR VISIBILITY FIX
+========================================================= */
+
+#profilePostViewer .profile-post-viewer-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+}
+
+#profilePostViewer .profile-post-viewer-action-buttons {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-height: 48px !important;
+    flex: 0 0 auto !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+}
+
+#profilePostViewer .profile-post-viewer-action-button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 5 !important;
+}
+
+#profilePostViewer .profile-post-viewer-action-button span,
+#profilePostViewer .profile-post-viewer-action-button svg {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+#profilePostViewer .profile-post-viewer-scroll {
+    min-width: 0 !important;
+}
+
+@media (max-width: 768px) {
+    #profilePostViewer .profile-post-viewer-action-buttons {
+        position: relative !important;
+        flex-shrink: 0 !important;
+    }
+}
