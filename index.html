@@ -75,11 +75,14 @@ body {
             transition: none;
         }
     }
+    .patriodx-splash-active #mobileBottomNav {
+    display: none !important;
+}
 </style>
 </head>
 
 
-<body>
+<body class="patriodx-splash-active">
 <div id="patriodxSplash">
     <img
         src="assets/patriodx-logo-transparent.png"
@@ -90,11 +93,13 @@ body {
     window.patriodxSplashTimer = setTimeout(() => {
         const splash = document.getElementById("patriodxSplash");
 
-        if (splash) {
-            splash.classList.add("is-hidden");
+       if (splash) {
+    splash.classList.add("is-hidden");
 
-            setTimeout(() => splash.remove(), 500);
-        }
+    document.body.classList.remove("patriodx-splash-active");
+
+    setTimeout(() => splash.remove(), 500);
+}
     }, 4000);
 </script>
 <!-- =========================================================
