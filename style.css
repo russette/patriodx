@@ -25040,3 +25040,35 @@ body.dark-mode .patriodx-offline-indicator {
         height: 48px !important;
     }
 }
+/* PATRIODX — responsive header logo */
+.patriodx-centered-logo {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+}
+
+.patriodx-centered-logo img {
+    width: 44px !important;
+    height: 44px !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+    flex-shrink: 0 !important;
+}
+
+/* Phones */
+@media (max-width: 768px) {
+    .patriodx-centered-logo img {
+        width: 40px !important;
+        height: 40px !important;
+    }
+}
+
+/* Small phones */
+@media (max-width: 360px) {
+    .patriodx-centered-logo img {
+        width: 36px !important;
+        height: 36px !important;
+    }
+}
