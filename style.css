@@ -25029,18 +25029,19 @@ body.dark-mode .patriodx-offline-indicator {
     flex-shrink: 0 !important;
 }
 
-/* Mobile header: 58px high */
+/* Mobile header logo */
 @media (max-width: 768px) {
     .patriodx-centered-logo img {
-        width: 38px !important;
-        height: 38px !important;
+        width: 48px !important;
+        height: 48px !important;
+        max-height: 48px !important;
     }
 }
 
 /* Very small phones */
 @media (max-width: 360px) {
     .patriodx-centered-logo img {
-        width: 34px !important;
-        height: 34px !important;
+        width: 44px !important;
+        height: 44px !important;
     }
 }
