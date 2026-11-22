@@ -29,11 +29,66 @@
     href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&display=swap"
     rel="stylesheet"
 >
+<style>
+    #patriodxSplash {
+        position: fixed;
+        inset: 0;
+        z-index: 999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fc;
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.45s ease, visibility 0.45s ease;
+    }
+
+    #patriodxSplash img {
+        display: block;
+        width: 180px;
+        height: 150px;
+        max-width: 65vw;
+        object-fit: contain;
+    }
+
+    #patriodxSplash.is-hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    @media (max-width: 768px) {
+        #patriodxSplash img {
+            width: 155px;
+            height: 135px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        #patriodxSplash {
+            transition: none;
+        }
+    }
+</style>
+<script>
+    window.patriodxSplashFallback = setTimeout(() => {
+        if (typeof hidePATRIODXSplash === "function") {
+            hidePATRIODXSplash();
+        } else {
+            document.getElementById("patriodxSplash")?.remove();
+        }
+    }, 30000);
+</script>
 </head>
 
 
 <body>
-
+<div id="patriodxSplash">
+    <img
+        src="assets/patriodx-logo-transparent.png"
+        alt="PATRIODX"
+    >
+</div>
 <!-- =========================================================
      PATRIODX PLATFORM HEADER
 ========================================================= -->
@@ -1913,8 +1968,6 @@
             id="profilePosts"
             class="social-feed"
         ></div>
-
-    </div>
  </div>
 </section>
 <!-- =========================================================

@@ -25010,62 +25010,62 @@ body.dark-mode .patriodx-offline-indicator {
         pointer-events: none !important;
     }
 }
-/* PATRIODX — final responsive centered logo */
-
-.patriodx-centered-logo {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-width: 0 !important;
-    height: 100% !important;
-}
+/* PATRIODX — responsive header logo */
 
 .patriodx-centered-logo img {
     display: block !important;
     width: 44px !important;
     height: 44px !important;
-    max-width: 100% !important;
+    max-width: 44px !important;
+    max-height: 44px !important;
     object-fit: contain !important;
     flex-shrink: 0 !important;
 }
-/* PATRIODX — iPhone and mobile header logo */
+
 @media screen and (max-width: 768px) {
-    .patriodx-header.patriodx-clean-header {
-        grid-template-columns: 44px minmax(0, 1fr) 44px !important;
-        min-height: 64px !important;
-        height: 64px !important;
-        align-items: center !important;
-    }
-
-    .patriodx-centered-logo {
-        grid-area: logo !important;
-        justify-self: center !important;
-        align-self: center !important;
-        height: 64px !important;
-    }
-
     .patriodx-centered-logo img {
-        display: block !important;
-        width: 52px !important;
-        height: 52px !important;
-        max-width: 52px !important;
-        max-height: 52px !important;
-        object-fit: contain !important;
+        width: 58px !important;
+        height: 58px !important;
+        max-width: 58px !important;
+        max-height: 58px !important;
     }
 }
 
 @media screen and (max-width: 360px) {
     .patriodx-centered-logo img {
-        width: 46px !important;
-        height: 46px !important;
+        width: 54px !important;
+        height: 54px !important;
+        max-width: 54px !important;
+        max-height: 54px !important;
     }
 }
-/* Very small phones */
-@media screen and (max-width: 360px) {
-    .patriodx-centered-logo img {
-        width: 46px !important;
-        height: 46px !important;
-        max-width: 46px !important;
-        max-height: 46px !important;
-    }
+body #messaging .message-row.mine .message-bubble.mine {
+    background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+    color: #ffffff;
+    border-bottom-right-radius: 6px;
+    box-shadow: 0 2px 10px rgba(124, 58, 237, 0.28);
+}
+body #messaging .message-row.mine .message-time { color: rgba(255,255,255,.75); opacity: 1; }
+body #messaging .message-row.theirs .message-bubble.theirs {
+    background: var(--msg-input);
+    color: var(--msg-text);
+    border: 1px solid var(--msg-border);
+    border-bottom-left-radius: 6px;
+}
+.patriodx-pinned-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 6px;
+    padding: 4px 9px;
+    border-radius: 20px;
+    background: rgba(128, 128, 128, 0.13);
+    color: var(--patriodx-accent, #6366f1);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.patriodx-pinned-label svg {
+    width: 12px;
+    height: 12px;
 }

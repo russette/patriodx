@@ -5954,6 +5954,17 @@ function setupSocialCommentsRealtime() {
 // =========================================================
 // START PATRIODX
 // =========================================================
+function hidePATRIODXSplash() {
+    const splash = document.getElementById("patriodxSplash");
+
+    if (!splash) return;
+
+    splash.classList.add("is-hidden");
+
+    setTimeout(() => {
+        splash.remove();
+    }, 500);
+}
 async function startPATRIODX() {
 
     const authenticated =
@@ -6031,6 +6042,8 @@ if (sharedProfileId) {
 console.log(
     "PATRIODX connected successfully."
 );
+
+hidePATRIODXSplash();
 
 }
 // =========================================================
@@ -9272,7 +9285,6 @@ if (loadMore) {
         state,
         "You're all caught up."
     );
-    setPublicProfileTab("posts");
     return;
 }
         const emptyTitle =
@@ -10133,9 +10145,7 @@ if (socialPostForm) {
                         const usernames = [
                             ...new Set(
                                 Array.from(
-                                    content.matchAll(
-                                        /(^|[\s(])@([A-Za-z0-9_.-]{2,30})\b/g
-                                    ).map(match => match[2])
+                                  Array.from(content.matchAll(/(^|[\s(])@([A-Za-z0-9_.-]{2,30})\b/g), m => m[2])
                                 )
                             )];
 
@@ -11076,7 +11086,9 @@ async function deleteSocialPost(postId) {
         }
 
         await loadSocialPosts();
-
+if (String(window.currentProfileViewerPostId) === String(postId)) closeProfilePostViewer({ restoreOrigin: true });
+if (typeof loadMyProfilePosts === "function") loadMyProfilePosts();
+if (typeof loadHomePosts === "function") loadHomePosts();
         showPATRIODXToast(
             "Your post was deleted successfully.",
             "success"
@@ -17574,6 +17586,7 @@ async function loadMyProfilePosts() {
                 "user_id",
                 currentUser.id
             )
+            .order("is_pinned", { ascending: false, nullsFirst: false })
             .order(
                 "created_at",
                 {
@@ -17787,7 +17800,12 @@ ${
                                         post.created_at
                                     )}
                                 </div>
-
+${post.is_pinned ? `
+    <span class="patriodx-pinned-label">
+        <i data-lucide="pin"></i>
+        Pinned
+    </span>
+` : ""}
                             </div>
 
                         </div>
@@ -17796,13 +17814,9 @@ ${
                         ${
                             post.content
                                 ? `
-                                    <div
-                                        class="social-post-content"
-                                    >
-                                        ${safe(
-                                            post.content
-                                        )}
-                                    </div>
+                                  <div class="social-post-content">
+    ${renderClickableMentions(post.content)}
+</div>
                                 `
                                 : ""
                         }
@@ -17920,8 +17934,6 @@ if ("IntersectionObserver" in window) {
     caption: post.content || "",
     createdAt: post.created_at || null,
     sourceSection: "profile",
-profileUserId: currentProfile?.id,
-isPublicProfilePost: true
 });
             }
 
@@ -18924,6 +18936,7 @@ const profilePostsPromise =
         .from("posts")
         .select("*")
         .eq("user_id", userId)
+        .order("is_pinned", { ascending: false, nullsFirst: false })
         .order("created_at", {
             ascending: false
         });
@@ -19284,6 +19297,12 @@ let liked = false;
     <div class="social-post-date">
         ${escapeHTML(date)}
     </div>
+    ${post.is_pinned ? `
+    <span class="patriodx-pinned-label">
+        <i data-lucide="pin"></i>
+        Pinned
+    </span>
+` : ""}
 </div>
                         <div class="social-post-menu-actions">
 
@@ -19327,8 +19346,8 @@ let liked = false;
                     </div>
 
                     <div class="social-post-content">
-                        ${escapeHTML(post.content || "")}
-                    </div>
+    ${renderClickableMentions(post.content || "")}
+</div>
 
                     ${media}
 
@@ -22834,7 +22853,10 @@ async function openProfilePostViewer(postData) {
     const mediaContainer = document.getElementById("profilePostViewerMedia");
     const authorContainer = document.getElementById("profilePostViewerAuthor");
     const captionContainer = document.getElementById("profilePostViewerCaption");
-    const dateContainer = document.getElementById("profilePostViewerDate");
+   const dateContainer =
+    document.getElementById("profilePostViewerDate") ||
+    window.patriodxViewerDateElement || null;
+if (dateContainer) window.patriodxViewerDateElement = dateContainer;
 
     if (!viewer || !mediaContainer || !authorContainer ||
         !captionContainer || !dateContainer || !postData) {
@@ -23104,7 +23126,15 @@ const openAuthorProfile = async function (event) {
 const menuActions = document.createElement("div");
 menuActions.className = "social-post-menu-actions profile-viewer-menu-actions";
 
-const viewerPost = postData.post || {};
+let viewerPost = postData.post || null;
+if (!viewerPost) {
+    const { data: row } = await supabaseClient.from("posts")
+        .select("id, user_id, created_at, hide_like_count, hide_share_count, comments_enabled, is_pinned")
+        .eq("id", postId).maybeSingle();
+    viewerPost = row || {};
+    if (requestId !== window.profileViewerRequestId ||
+        postId !== window.currentProfileViewerPostId) return;
+}
 const isOwnViewerPost =
     viewerPost.user_id === currentUser?.id;
 
