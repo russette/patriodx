@@ -25274,3 +25274,9 @@ body.dark-mode #profilePostViewer #profilePostViewerShare:hover {
         border-bottom-color: var(--border-color, #2a2f38) !important;
     }
 }
+/* Hide mobile sidebar close button on desktop */
+@media (min-width: 769px) {
+    #patriodxSidebar .mobile-sidebar-close {
+        display: none !important;
+    }
+}
