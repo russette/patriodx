@@ -24993,3 +24993,12 @@ body.dark-mode .patriodx-offline-indicator {
         pointer-events: none !important;
     }
 }
+/* =========================================================
+   PATRIODX — FIX MOBILE POST VIEWER STACKING
+========================================================= */
+
+@media (max-width: 768px) {
+    #profilePostViewer {
+        z-index: 1000000 !important;
+    }
+}
