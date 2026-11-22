@@ -25010,65 +25010,37 @@ body.dark-mode .patriodx-offline-indicator {
         pointer-events: none !important;
     }
 }
-/* PATRIODX — centered header logo sizing */
+/* PATRIODX — final responsive centered logo */
+
 .patriodx-centered-logo {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     min-width: 0 !important;
+    height: 100% !important;
 }
 
 .patriodx-centered-logo img {
-    width: 54px !important;
-    height: 54px !important;
-    max-width: none !important;
-    max-height: none !important;
-    object-fit: contain !important;
-    flex-shrink: 0 !important;
-}
-
-@media (max-width: 768px) {
-    .patriodx-centered-logo img {
-        width: 54px !important;
-        height: 54px !important;
-    }
-}
-
-@media (max-width: 360px) {
-    .patriodx-centered-logo img {
-        width: 48px !important;
-        height: 48px !important;
-    }
-}
-/* PATRIODX — responsive header logo */
-.patriodx-centered-logo {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-width: 0 !important;
-}
-
-.patriodx-centered-logo img {
+    display: block !important;
     width: 44px !important;
     height: 44px !important;
     max-width: 100% !important;
-    max-height: 100% !important;
     object-fit: contain !important;
     flex-shrink: 0 !important;
 }
 
-/* Phones */
+/* Mobile header: 58px high */
 @media (max-width: 768px) {
     .patriodx-centered-logo img {
-        width: 40px !important;
-        height: 40px !important;
+        width: 38px !important;
+        height: 38px !important;
     }
 }
 
-/* Small phones */
+/* Very small phones */
 @media (max-width: 360px) {
     .patriodx-centered-logo img {
-        width: 36px !important;
-        height: 36px !important;
+        width: 34px !important;
+        height: 34px !important;
     }
 }
