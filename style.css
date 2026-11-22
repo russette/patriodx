@@ -24968,3 +24968,78 @@ body.dark-mode .patriodx-offline-indicator {
         flex-shrink: 0 !important;
     }
 }
+/* =========================================================
+   PATRIODX — MOBILE POST VIEWER COMMENT COMPOSER
+========================================================= */
+
+@media (max-width: 768px) {
+
+    #profilePostViewer .profile-post-viewer-dialog {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100dvh !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    #profilePostViewer .profile-post-viewer-scroll {
+        display: flex !important;
+        flex: 1 1 auto !important;
+        flex-direction: column !important;
+        min-height: 0 !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+    }
+
+    #profilePostViewer #profilePostViewerCommentForm {
+        display: flex !important;
+        flex: 0 0 auto !important;
+        flex-direction: row !important;
+        align-items: center !important;
+
+        position: relative !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 64px !important;
+
+        margin: 0 !important;
+        padding: 10px 14px !important;
+
+        visibility: visible !important;
+        opacity: 1 !important;
+
+        border-top: 1px solid var(--border-color, #e5e7eb) !important;
+        z-index: 100 !important;
+        box-sizing: border-box !important;
+    }
+
+    #profilePostViewer #profilePostViewerCommentInput {
+        display: block !important;
+        flex: 1 1 auto !important;
+        width: 0 !important;
+        min-width: 0 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    #profilePostViewer #profilePostViewerCommentForm button {
+        display: inline-flex !important;
+        flex: 0 0 auto !important;
+        align-items: center !important;
+        justify-content: center !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    body.dark-mode #profilePostViewer #profilePostViewerCommentForm {
+        background: #121212 !important;
+        color: #f5f5f5 !important;
+        border-color: #303030 !important;
+    }
+
+    body:not(.dark-mode) #profilePostViewer #profilePostViewerCommentForm {
+        background: #ffffff !important;
+        color: #262626 !important;
+        border-color: #e5e7eb !important;
+    }
+}
