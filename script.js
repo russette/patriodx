@@ -675,14 +675,13 @@ function setupPATRIODXMobileHeaderScroll() {
         window.requestAnimationFrame(updateHeader);
     }
 
-    document.addEventListener(
-        "scroll",
-        handleScroll,
-        {
-            passive: true,
-            capture: true
-        }
-    );
+   window.addEventListener(
+    "scroll",
+    handleScroll,
+    {
+        passive: true
+    }
+);
 
     window.addEventListener("resize", () => {
 
