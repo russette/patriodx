@@ -5570,20 +5570,51 @@ body {
     window.addEventListener("load", () => {
         createOfflineIndicator();
 
-        if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.register("./sw.js")
-                .then(() => {
-                    console.log(
-                        "PATRIODX service worker registered"
-                    );
-                })
-                .catch(error => {
-                    console.error(
-                        "PATRIODX service worker registration failed:",
-                        error
-                    );
-                });
+       if ("serviceWorker" in navigator) {
+
+    let refreshing = false;
+
+    // Reload once when a new service worker takes control.
+    navigator.serviceWorker.addEventListener(
+        "controllerchange",
+        () => {
+            if (refreshing) return;
+
+            refreshing = true;
+            window.location.reload();
         }
+    );
+
+    navigator.serviceWorker.register("./sw.js", {
+        updateViaCache: "none"
+    })
+        .then(async registration => {
+
+            console.log(
+                "PATRIODX service worker registered"
+            );
+
+            // Check Vercel for a newer service worker.
+            try {
+                await registration.update();
+
+                console.log(
+                    "PATRIODX service worker update check completed"
+                );
+            } catch (error) {
+                console.warn(
+                    "PATRIODX update check failed:",
+                    error
+                );
+            }
+        })
+        .catch(error => {
+            console.error(
+                "PATRIODX service worker registration failed:",
+                error
+            );
+        });
+}
     });
 })();
 </script>

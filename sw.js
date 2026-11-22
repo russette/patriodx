@@ -1,4 +1,4 @@
-const CACHE_NAME = "patriodx-v3";
+const CACHE_NAME = "patriodx-v4";
 
 const APP_FILES = [
     "./",
@@ -18,6 +18,10 @@ const APP_FILES = [
 
 const SUPABASE_HOST = "saerujjsfzyxkyacbvgr.supabase.co";
 
+/* =========================================================
+   INSTALL
+========================================================= */
+
 self.addEventListener("install", event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
@@ -25,7 +29,18 @@ self.addEventListener("install", event => {
                 await Promise.all(
                     APP_FILES.map(async file => {
                         try {
-                            await cache.add(file);
+                            const url = new URL(
+                                file,
+                                self.registration.scope
+                            );
+
+                            const response = await fetch(url, {
+                                cache: "reload"
+                            });
+
+                            if (response.ok) {
+                                await cache.put(url, response);
+                            }
                         } catch (error) {
                             console.warn(
                                 "Could not cache:",
@@ -40,20 +55,30 @@ self.addEventListener("install", event => {
     );
 });
 
+/* =========================================================
+   ACTIVATE — REMOVE OLD CACHES
+========================================================= */
+
 self.addEventListener("activate", event => {
     event.waitUntil(
         caches.keys()
             .then(keys =>
                 Promise.all(
                     keys
-                        .filter(key => key.startsWith("patriodx-") &&
-                            key !== CACHE_NAME)
+                        .filter(key =>
+                            key.startsWith("patriodx-") &&
+                            key !== CACHE_NAME
+                        )
                         .map(key => caches.delete(key))
                 )
             )
             .then(() => self.clients.claim())
     );
 });
+
+/* =========================================================
+   FETCH — NETWORK FIRST
+========================================================= */
 
 self.addEventListener("fetch", event => {
     const request = event.request;
@@ -62,81 +87,79 @@ self.addEventListener("fetch", event => {
 
     const url = new URL(request.url);
 
-    // Never cache Supabase requests or private API responses.
+    // Never cache Supabase requests.
     if (url.hostname === SUPABASE_HOST) return;
 
-    // Navigation: try network first, then use cached page.
-    if (request.mode === "navigate") {
-        event.respondWith(
-            fetch(request)
-                .then(response => {
-                    if (response.ok && url.origin === self.location.origin) {
-                        const copy = response.clone();
-
-                        caches.open(CACHE_NAME)
-                            .then(cache => cache.put(request, copy));
-                    }
-
-                    return response;
-                })
-                .catch(async () => {
-                    return (
-                        await caches.match(request) ||
-                        await caches.match("./index.html") ||
-                        Response.error()
-                    );
-                })
-        );
-
-        return;
-    }
-
-    // Static resources: cache first, then network.
-    if (url.origin === self.location.origin) {
-        event.respondWith(
-            caches.match(request).then(cached => {
-                if (cached) return cached;
-
-                return fetch(request).then(response => {
-                    if (response.ok) {
-                        const copy = response.clone();
-
-                        caches.open(CACHE_NAME)
-                            .then(cache => cache.put(request, copy));
-                    }
-
-                    return response;
-                });
-            })
-        );
-
-        return;
-    }
-
-    // External libraries: network first, cached fallback.
+    // Never cache private API responses.
     if (
-        request.destination === "script" ||
-        request.destination === "style" ||
-        request.destination === "font"
+        url.origin === self.location.origin &&
+        url.pathname.startsWith("/api/")
     ) {
-        event.respondWith(
-            fetch(request)
-                .then(response => {
-                    if (response.ok || response.type === "opaque") {
-                        const copy = response.clone();
-
-                        caches.open(CACHE_NAME)
-                            .then(cache => cache.put(request, copy));
-                    }
-
-                    return response;
-                })
-                .catch(async () => {
-                    return (
-                        await caches.match(request) ||
-                        Response.error()
-                    );
-                })
-        );
+        return;
     }
+
+    // External scripts, styles and fonts: network first.
+    if (url.origin !== self.location.origin) {
+
+        if (
+            request.destination === "script" ||
+            request.destination === "style" ||
+            request.destination === "font"
+        ) {
+            event.respondWith(
+                fetch(request, { cache: "no-cache" })
+                    .then(response => {
+                        if (
+                            response.ok ||
+                            response.type === "opaque"
+                        ) {
+                            const copy = response.clone();
+
+                            caches.open(CACHE_NAME)
+                                .then(cache =>
+                                    cache.put(request, copy)
+                                );
+                        }
+
+                        return response;
+                    })
+                    .catch(async () => {
+                        return (
+                            await caches.match(request) ||
+                            Response.error()
+                        );
+                    })
+            );
+        }
+
+        return;
+    }
+
+    // All same-origin requests: network first.
+    event.respondWith(
+        fetch(request, { cache: "no-cache" })
+            .then(response => {
+                if (response.ok) {
+                    const copy = response.clone();
+
+                    caches.open(CACHE_NAME)
+                        .then(cache =>
+                            cache.put(request, copy)
+                        );
+                }
+
+                return response;
+            })
+            .catch(async () => {
+                return (
+                    await caches.match(request) ||
+                    (
+                        request.mode === "navigate"
+                            ? await caches.match("./index.html")
+                            : null
+                    ) ||
+                    Response.error()
+                );
+            })
+    );
 });
