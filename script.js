@@ -17852,6 +17852,91 @@ ${post.is_pinned ? `
         Pinned
     </span>
 ` : ""}
+                                                       </div>
+
+                            <!-- OWN PROFILE POST MENU -->
+                            <div class="social-post-menu-actions">
+                                <button
+                                    type="button"
+                                    class="social-post-icon-button social-post-menu-toggle"
+                                    onclick="toggleSocialPostMenu('${safe(post.id)}', event)"
+                                    title="Post options"
+                                    aria-label="Post options"
+                                    aria-expanded="false"
+                                    aria-controls="social-post-menu-${safe(post.id)}"
+                                >
+                                    <i data-lucide="more-horizontal"></i>
+                                </button>
+
+                                <div
+                                    class="social-post-dropdown"
+                                    id="social-post-menu-${safe(post.id)}"
+                                    hidden
+                                >
+                                    <button
+                                        type="button"
+                                        class="social-post-menu-item"
+                                        onclick="saveSocialPost('${safe(post.id)}')"
+                                    >
+                                        <i data-lucide="bookmark"></i>
+                                        <span>Save post</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="social-post-menu-item"
+                                        onclick="toggleSocialPostSetting('${safe(post.id)}', 'hide_like_count', ${!post.hide_like_count})"
+                                    >
+                                        <i data-lucide="heart"></i>
+                                        <span>${post.hide_like_count ? "Show like count" : "Hide like count"}</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="social-post-menu-item"
+                                        onclick="toggleSocialPostSetting('${safe(post.id)}', 'hide_share_count', ${!post.hide_share_count})"
+                                    >
+                                        <i data-lucide="share-2"></i>
+                                        <span>${post.hide_share_count ? "Show share count" : "Hide share count"}</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="social-post-menu-item"
+                                        onclick="toggleSocialPostSetting('${safe(post.id)}', 'comments_enabled', ${post.comments_enabled === false})"
+                                    >
+                                        <i data-lucide="message-circle"></i>
+                                        <span>${post.comments_enabled === false ? "Turn on commenting" : "Turn off commenting"}</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="social-post-menu-item"
+                                        onclick="editSocialPost('${safe(post.id)}')"
+                                        ${Date.now() - new Date(post.created_at).getTime() > 15 * 60 * 1000 ? "disabled" : ""}
+                                    >
+                                        <i data-lucide="pencil"></i>
+                                        <span>Edit post</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="social-post-menu-item"
+                                        onclick="toggleSocialPostSetting('${safe(post.id)}', 'is_pinned', ${!post.is_pinned})"
+                                    >
+                                        <i data-lucide="pin"></i>
+                                        <span>${post.is_pinned ? "Unpin from profile" : "Pin to profile"}</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="social-post-menu-item social-post-delete-item"
+                                        onclick="deleteSocialPost('${safe(post.id)}')"
+                                    >
+                                        <i data-lucide="trash-2"></i>
+                                        <span>Delete post</span>
+                                    </button>
+                                </div>
                             </div>
 
                         </div>
