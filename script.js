@@ -17780,10 +17780,10 @@ const postsWithCounts = posts.map(post => {
 
                 return `
 
-                    <article
+                                      <article
                         class="social-post-card"
+                        data-profile-post-media="${post.image_url || post.video_url ? "true" : "false"}"
                     >
-
                         <div
                             class="social-post-header"
                         >
@@ -25561,7 +25561,7 @@ function setPublicProfileTab(tab) {
     if (!postsContainer) return;
 
     const isMediaTab = tab === "media";
-
+postsContainer.classList.toggle("is-media-grid", isMediaTab);
     document.querySelectorAll(
         "#publicProfilePostsContainer [data-public-profile-tab]"
     ).forEach(button => {
@@ -25621,3 +25621,77 @@ function setPublicProfileTab(tab) {
 }
 
 window.setPublicProfileTab = setPublicProfileTab;
+/* =========================================================
+   PATRIODX — OWN PROFILE CONTENT TABS
+========================================================= */
+
+function setOwnProfileTab(tab) {
+    const postsContainer = document.getElementById("profilePosts");
+
+    if (!postsContainer) return;
+
+    const isMediaTab = tab === "media";
+
+    document.querySelectorAll(
+        "#ownProfileContent [data-own-profile-tab]"
+    ).forEach(button => {
+        const active = button.dataset.ownProfileTab === tab;
+
+        button.classList.toggle("is-active", active);
+        button.setAttribute(
+            "aria-selected",
+            active ? "true" : "false"
+        );
+    });
+
+    const cards = postsContainer.querySelectorAll(
+        ".social-post-card[data-profile-post-media]"
+    );
+
+    let visibleMediaCount = 0;
+
+    cards.forEach(card => {
+        const hasMedia =
+            card.dataset.profilePostMedia === "true";
+
+        card.hidden = isMediaTab && !hasMedia;
+
+        if (hasMedia) visibleMediaCount++;
+    });
+
+    postsContainer.classList.toggle(
+        "is-media-grid",
+        isMediaTab
+    );
+
+    let emptyState = postsContainer.querySelector(
+        ".own-profile-media-empty"
+    );
+
+    if (isMediaTab && visibleMediaCount === 0) {
+        if (!emptyState) {
+            emptyState = document.createElement("div");
+            emptyState.className =
+                "social-empty-state own-profile-media-empty";
+
+            emptyState.innerHTML = `
+                <div><i data-lucide="images"></i></div>
+                <h3>No media yet</h3>
+                <p>Your photos and videos will appear here.</p>
+            `;
+
+            postsContainer.appendChild(emptyState);
+
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        }
+
+        emptyState.hidden = false;
+
+    } else if (emptyState) {
+        emptyState.hidden = true;
+    }
+}
+
+window.setOwnProfileTab = setOwnProfileTab;

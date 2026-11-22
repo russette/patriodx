@@ -16,6 +16,7 @@
         rel="stylesheet"
         href="style.css"
     >
+<link rel="stylesheet" href="x-style.css">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="assets/patriodx-favicon.png">
 <link rel="apple-touch-icon" href="assets/patriodx-apple-icon.png">
@@ -1964,17 +1965,35 @@ body {
     </div>
 
 
-    <!-- USER POSTS -->
+      <!-- USER POSTS -->
 
     <div class="profile-posts">
 
-        <div class="section-heading">
+        <div class="public-profile-tabs own-profile-tabs" role="tablist" aria-label="Your profile content">
 
-            <div>
-                <h3 data-i18n="yourPosts">
-                    Your Posts
-                </h3>
-            </div>
+            <button
+                type="button"
+                class="public-profile-tab is-active"
+                data-own-profile-tab="posts"
+                role="tab"
+                aria-selected="true"
+                onclick="setOwnProfileTab('posts')"
+            >
+                <i data-lucide="grid-3x3"></i>
+                <span>Posts</span>
+            </button>
+
+            <button
+                type="button"
+                class="public-profile-tab"
+                data-own-profile-tab="media"
+                role="tab"
+                aria-selected="false"
+                onclick="setOwnProfileTab('media')"
+            >
+                <i data-lucide="images"></i>
+                <span>Media</span>
+            </button>
 
         </div>
 
@@ -1982,7 +2001,8 @@ body {
             id="profilePosts"
             class="social-feed"
         ></div>
- </div>
+
+    </div>
 </section>
 <!-- =========================================================
      PATRIODX SOCIAL
@@ -5534,6 +5554,7 @@ body {
 
 <!-- PATRIODX JAVASCRIPT -->
 <script src="script.js"></script>
+<script src="x-style.js"></script>
 <script>
 (function () {
     function createOfflineIndicator() {
@@ -6094,7 +6115,7 @@ body {
             >
 
             <button type="submit">
-                Post
+                Reply
             </button>
         </form>
 
