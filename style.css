@@ -25286,3 +25286,58 @@ body.dark-mode #profilePostViewer #profilePostViewerShare:hover {
         display: none !important;
     }
 }
+/* =========================================================
+   MOBILE HEADER PROFILE BUTTON
+========================================================= */
+
+/* Hidden on desktop */
+.mobile-header-profile-button {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+
+    .mobile-header-profile-button {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
+
+        padding: 0 !important;
+        border: none !important;
+        border-radius: 50% !important;
+
+        background: transparent !important;
+        color: inherit !important;
+
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+
+    .mobile-header-profile-button svg {
+        width: 22px !important;
+        height: 22px !important;
+    }
+
+    .mobile-header-profile-button:focus-visible {
+        outline: 2px solid #2563eb;
+        outline-offset: 3px;
+    }
+
+    body.dark-mode .mobile-header-profile-button {
+        color: #ffffff !important;
+    }
+}
+/* Keep core navigation out of the mobile More menu */
+@media (max-width: 768px) {
+    #patriodxSidebar .sidebar-link[data-page="home"],
+    #patriodxSidebar .sidebar-link[data-page="profile"],
+    #patriodxSidebar .sidebar-link[data-page="social"],
+    #patriodxSidebar .sidebar-link[data-page="messaging"] {
+        display: none !important;
+    }
+}

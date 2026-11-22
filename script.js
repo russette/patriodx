@@ -16347,6 +16347,45 @@ function updateNotificationUnreadBadge() {
     });
 }
 /* ---------------------------------------------------------
+MARK NOTIFICATIONS AS READ WHEN OPENING NOTIFICATIONS
+--------------------------------------------------------- */
+async function markNotificationsReadOnOpen() {
+
+    if (!currentUser) return;
+
+    const unreadNotifications =
+        notificationsCache.filter(
+            notification => notification.is_read !== true
+        );
+
+    if (!unreadNotifications.length) {
+        updateNotificationUnreadBadge();
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("notifications")
+        .update({ is_read: true })
+        .eq("user_id", currentUser.id)
+        .eq("is_read", false);
+
+    if (error) {
+        console.error(
+            "Failed to mark notifications as read:",
+            error
+        );
+        return;
+    }
+
+    notificationsCache =
+        notificationsCache.map(notification => ({
+            ...notification,
+            is_read: true
+        }));
+
+    renderNotifications();
+}
+/* ---------------------------------------------------------
 NOTIFICATION CLICK
 --------------------------------------------------------- */
 let mobileProfileReturnSection = "profile";
@@ -20316,9 +20355,14 @@ if (
         page = "patriodxAI";
     }
 
-    if (!PATRIODX_PAGES.includes(page)) {
-        page = "home";
-    }
+   if (!PATRIODX_PAGES.includes(page)) {
+    page = "home";
+}
+
+// Mark unread notifications as read when opening Notifications.
+if (page === "notifications") {
+    markNotificationsReadOnOpen();
+}
     // Restore normal mobile navigation when leaving a public profile.
 if (page !== "profile") {
     document.body.classList.remove("mobile-public-profile-view");
