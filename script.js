@@ -6042,9 +6042,6 @@ if (sharedProfileId) {
 console.log(
     "PATRIODX connected successfully."
 );
-
-hidePATRIODXSplash();
-
 }
 // =========================================================
 // LOGOUT

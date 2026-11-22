@@ -167,13 +167,14 @@
 
         <form id="authForm">
 
-         <div class="form-group" id="nameGroup" style="display:none;">
-    <label for="name">Business Name</label>
+<div class="form-group" id="nameGroup" style="display:none;">
+    <label for="name">Name</label>
 
     <input
         type="text"
         id="name"
-        placeholder="Your business name"
+        placeholder="Your full name"
+        autocomplete="name"
     >
 </div>
 
@@ -562,10 +563,10 @@ form.addEventListener("submit", async (event) => {
     const password =
         passwordInput.value;
 
-    const businessName =
-        document.getElementById("name")
-            .value
-            .trim();
+    const fullName =
+    document.getElementById("name")
+        .value
+        .trim();
 const username =
     usernameInput.value
         .trim()
@@ -644,13 +645,11 @@ const username =
 
         if (isSignUp) {
 
-            if (!businessName) {
-
-                throw new Error(
-                    "Please enter your business name."
-                );
-
-            }
+if (!fullName) {
+    throw new Error(
+        "Please enter your name."
+    );
+}
 if (!username) {
 
     throw new Error(
@@ -686,10 +685,10 @@ const { data, error } =
         password: password,
         options: {
             emailRedirectTo: emailRedirectTo,
-            data: {
-                business_name: businessName,
-                username: username
-            }
+          data: {
+    full_name: fullName,
+    username: username
+}
         }
     });
 

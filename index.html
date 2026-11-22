@@ -30,6 +30,12 @@
     rel="stylesheet"
 >
 <style>
+    html,
+body {
+    min-height: 100%;
+    margin: 0;
+    background: #f8f9fc;
+}
     #patriodxSplash {
         position: fixed;
         inset: 0;
@@ -70,15 +76,6 @@
         }
     }
 </style>
-<script>
-    window.patriodxSplashFallback = setTimeout(() => {
-        if (typeof hidePATRIODXSplash === "function") {
-            hidePATRIODXSplash();
-        } else {
-            document.getElementById("patriodxSplash")?.remove();
-        }
-    }, 30000);
-</script>
 </head>
 
 
@@ -89,6 +86,17 @@
         alt="PATRIODX"
     >
 </div>
+<script>
+    window.patriodxSplashTimer = setTimeout(() => {
+        const splash = document.getElementById("patriodxSplash");
+
+        if (splash) {
+            splash.classList.add("is-hidden");
+
+            setTimeout(() => splash.remove(), 500);
+        }
+    }, 4000);
+</script>
 <!-- =========================================================
      PATRIODX PLATFORM HEADER
 ========================================================= -->
