@@ -25010,37 +25010,33 @@ body.dark-mode .patriodx-offline-indicator {
         pointer-events: none !important;
     }
 }
-.patriodx-centered-logo img {
-    object-fit: contain !important;
-}
+/* PATRIODX — centered header logo sizing */
 .patriodx-centered-logo {
-    position: absolute !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-}
-
-.patriodx-centered-logo img {
-    width: 42px !important;
-    height: 42px !important;
-    object-fit: contain !important;
-}
-.patriodx-centered-logo {
-    position: absolute !important;
-    left: 50% !important;
-    top: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    height: 100% !important;
+    min-width: 0 !important;
 }
 
 .patriodx-centered-logo img {
     width: 54px !important;
     height: 54px !important;
-    max-width: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
     object-fit: contain !important;
+    flex-shrink: 0 !important;
+}
+
+@media (max-width: 768px) {
+    .patriodx-centered-logo img {
+        width: 54px !important;
+        height: 54px !important;
+    }
+}
+
+@media (max-width: 360px) {
+    .patriodx-centered-logo img {
+        width: 48px !important;
+        height: 48px !important;
+    }
 }
