@@ -25280,3 +25280,9 @@ body.dark-mode #profilePostViewer #profilePostViewerShare:hover {
         display: none !important;
     }
 }
+/* Hide duplicate Notifications entry in mobile More menu */
+@media (max-width: 768px) {
+    #patriodxSidebar .sidebar-link[data-page="notifications"] {
+        display: none !important;
+    }
+}

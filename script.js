@@ -16320,34 +16320,31 @@ updateNotificationUnreadBadge();
 
 function updateNotificationUnreadBadge() {
 
-    const badge =
-        document.getElementById(
-            "notificationUnreadBadge"
-        );
-
-    if (!badge) {
-        return;
-    }
-
     const unreadCount =
         notificationsCache.filter(
             notification =>
                 notification.is_read !== true
         ).length;
 
-    if (unreadCount <= 0) {
+    const badges = [
+        document.getElementById("notificationUnreadBadge"),
+        document.getElementById("mobileNotificationBadge")
+    ].filter(Boolean);
 
-        badge.style.display = "none";
+    badges.forEach(badge => {
 
-        return;
-    }
+        if (unreadCount <= 0) {
+            badge.style.display = "none";
+            return;
+        }
 
-    badge.textContent =
-        unreadCount > 99
-            ? "99+"
-            : unreadCount;
+        badge.textContent =
+            unreadCount > 99
+                ? "99+"
+                : unreadCount;
 
-    badge.style.display = "inline-flex";
+        badge.style.display = "inline-flex";
+    });
 }
 /* ---------------------------------------------------------
 NOTIFICATION CLICK
