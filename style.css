@@ -24983,3 +24983,13 @@ body.dark-mode .patriodx-offline-indicator {
         color: #f5f5f5 !important;
     }
 }
+/* =========================================================
+   PATRIODX — HIDE MOBILE NAV WHILE POST VIEWER IS OPEN
+========================================================= */
+
+@media (max-width: 768px) {
+    body:has(#profilePostViewer[aria-hidden="false"]) #mobileBottomNav {
+        display: none !important;
+        pointer-events: none !important;
+    }
+}
