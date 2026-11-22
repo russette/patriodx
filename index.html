@@ -1811,17 +1811,60 @@ body {
 
             </div>
 
-<button
-    type="button"
-    id="editProfileButton"
-    onclick="openProfileEditor()"
->
-    <i data-lucide="pencil"></i>
-    Edit Profile
-</button>
+<div class="own-profile-header-actions">
+
+    <button
+        type="button"
+        id="editProfileButton"
+        onclick="openProfileEditor()"
+    >
+        <i data-lucide="pencil"></i>
+        Edit Profile
+    </button>
+
+    <button
+        type="button"
+        id="ownProfileMoreButton"
+        class="own-profile-more-button"
+        aria-label="More profile options"
+        aria-haspopup="true"
+        aria-expanded="false"
+        title="More options"
+    >
+        <i data-lucide="more-horizontal"></i>
+    </button>
+
+</div>
         </div>
 
+<!-- OWN PROFILE OPTIONS MENU -->
+<div
+    id="ownProfileMenuBackdrop"
+    class="own-profile-menu-backdrop"
+    hidden
+>
+    <div
+        id="ownProfileMenu"
+        class="own-profile-menu"
+        role="menu"
+        aria-label="Your profile options"
+    >
+        <button type="button" data-own-profile-action="share">
+            <i data-lucide="share-2"></i>
+            <span>Share Profile</span>
+        </button>
 
+        <button type="button" data-own-profile-action="copy">
+            <i data-lucide="link"></i>
+            <span>Copy Profile Link</span>
+        </button>
+
+        <button type="button" data-own-profile-action="edit">
+            <i data-lucide="pencil"></i>
+            <span>Edit Profile</span>
+        </button>
+    </div>
+</div>
       <!-- PROFILE STATS -->
 <div class="profile-stats">
     <div>

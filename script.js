@@ -25695,3 +25695,178 @@ function setOwnProfileTab(tab) {
 }
 
 window.setOwnProfileTab = setOwnProfileTab;
+// =========================================================
+// PATRIODX — OWN PROFILE OPTIONS MENU
+// =========================================================
+
+function closeOwnProfileMenu() {
+    const backdrop = document.getElementById("ownProfileMenuBackdrop");
+    const button = document.getElementById("ownProfileMoreButton");
+
+    if (backdrop) backdrop.hidden = true;
+
+    if (button) {
+        button.setAttribute("aria-expanded", "false");
+    }
+}
+
+function openOwnProfileMenu() {
+    const backdrop = document.getElementById("ownProfileMenuBackdrop");
+    const button = document.getElementById("ownProfileMoreButton");
+
+    if (!backdrop || !button) return;
+
+    backdrop.hidden = false;
+    button.setAttribute("aria-expanded", "true");
+
+    requestAnimationFrame(() => {
+        const menu = document.getElementById("ownProfileMenu");
+
+        if (!menu) return;
+
+        if (window.matchMedia("(max-width: 768px)").matches) {
+            menu.style.position = "fixed";
+            menu.style.left = "0";
+            menu.style.right = "0";
+            menu.style.bottom = "0";
+            menu.style.top = "auto";
+        } else {
+            menu.style.position = "fixed";
+            menu.style.width = "280px";
+
+            const rect = button.getBoundingClientRect();
+            const menuRect = menu.getBoundingClientRect();
+
+            const left = Math.max(
+                12,
+                Math.min(
+                    rect.right - menuRect.width,
+                    window.innerWidth - menuRect.width - 12
+                )
+            );
+
+            let top = rect.bottom + 8;
+
+            if (top + menuRect.height > window.innerHeight - 12) {
+                top = rect.top - menuRect.height - 8;
+            }
+
+            menu.style.left = `${left}px`;
+            menu.style.top = `${Math.max(12, top)}px`;
+        }
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+    });
+}
+
+// Open and close using the three-dot button.
+document.addEventListener("click", function(event) {
+    const button = event.target.closest("#ownProfileMoreButton");
+
+    if (button) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const backdrop = document.getElementById("ownProfileMenuBackdrop");
+
+        if (backdrop && !backdrop.hidden) {
+            closeOwnProfileMenu();
+        } else {
+            openOwnProfileMenu();
+        }
+
+        return;
+    }
+
+    const backdrop = document.getElementById("ownProfileMenuBackdrop");
+
+    if (backdrop && !backdrop.hidden && event.target === backdrop) {
+        closeOwnProfileMenu();
+    }
+});
+
+// Handle own-profile menu actions.
+document.addEventListener("click", async function(event) {
+    const actionButton = event.target.closest(
+        "#ownProfileMenu [data-own-profile-action]"
+    );
+
+    if (!actionButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const action = actionButton.dataset.ownProfileAction;
+
+    if (action === "edit") {
+        closeOwnProfileMenu();
+        openProfileEditor();
+        return;
+    }
+
+    const profileId = currentUser?.id || currentProfile?.id;
+
+    if (!profileId) {
+        showPATRIODXToast("Your profile could not be identified.", "error");
+        return;
+    }
+
+    const profileUrl = new URL(window.location.href);
+
+    profileUrl.search = "";
+    profileUrl.hash = "";
+    profileUrl.searchParams.set("profile", profileId);
+
+    const shareData = {
+        title: "PATRIODX Profile",
+        text: "Check out my profile on PATRIODX.",
+        url: profileUrl.toString()
+    };
+
+    try {
+        if (action === "copy") {
+            await navigator.clipboard.writeText(shareData.url);
+
+            closeOwnProfileMenu();
+
+            showPATRIODXToast("Profile link copied!", "success");
+            return;
+        }
+
+        if (action === "share") {
+            closeOwnProfileMenu();
+
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(shareData.url);
+
+                showPATRIODXToast("Profile link copied!", "success");
+            }
+        }
+    } catch (error) {
+        if (error.name !== "AbortError") {
+            console.error("Own profile menu error:", error);
+
+            showPATRIODXToast(
+                "Could not complete this action.",
+                "error"
+            );
+        }
+    }
+});
+
+// Keep clicks inside the menu from closing it.
+document.getElementById("ownProfileMenu")
+    ?.addEventListener("click", function(event) {
+        event.stopPropagation();
+    });
+
+// Close with Escape.
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") {
+        closeOwnProfileMenu();
+    }
+});
