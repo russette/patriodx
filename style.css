@@ -25002,3 +25002,11 @@ body.dark-mode .patriodx-offline-indicator {
         z-index: 1000000 !important;
     }
 }
+/* PATRIODX — HIDE BOTTOM NAV WHEN POST VIEWER IS OPEN */
+@media (max-width: 768px) {
+    body:has(#profilePostViewer[aria-hidden="false"]) #mobileBottomNav {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+}
