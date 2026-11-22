@@ -609,8 +609,8 @@ setupHeaderSearch();
 // =========================================================
 // PATRIODX - MOBILE SCROLL-AWARE HEADER
 // =========================================================
-
 function setupPATRIODXMobileHeaderScroll() {
+
     const header = document.querySelector(
         ".patriodx-header.patriodx-clean-header"
     );
@@ -619,26 +619,17 @@ function setupPATRIODXMobileHeaderScroll() {
 
     const mobileQuery = window.matchMedia("(max-width: 768px)");
 
-    let lastScrollY = 0;
-    let activeScrollTarget = null;
+    let lastScrollY = window.scrollY;
+    let pendingScrollY = lastScrollY;
     let ticking = false;
-    let pendingScrollY = 0;
-
-    function getScrollPosition(target) {
-        if (
-            target === document ||
-            target === document.documentElement ||
-            target === document.body
-        ) {
-            return document.scrollingElement?.scrollTop || 0;
-        }
-
-        return target?.scrollTop || 0;
-    }
 
     function updateHeader() {
+
         if (!mobileQuery.matches) {
-            header.classList.remove("patriodx-scroll-header-hidden");
+            header.classList.remove(
+                "patriodx-scroll-header-hidden"
+            );
+
             ticking = false;
             return;
         }
@@ -646,47 +637,70 @@ function setupPATRIODXMobileHeaderScroll() {
         const difference = pendingScrollY - lastScrollY;
 
         if (pendingScrollY <= 12) {
-            header.classList.remove("patriodx-scroll-header-hidden");
-       } else if (difference > 0) {
-    // Any downward movement hides the header
-    header.classList.add("patriodx-scroll-header-hidden");
-} else if (difference < 0) {
-    // Any upward movement reveals the header
-    header.classList.remove("patriodx-scroll-header-hidden");
-}
+
+            header.classList.remove(
+                "patriodx-scroll-header-hidden"
+            );
+
+        } else if (difference > 2) {
+
+            // Scrolling down: hide the header.
+            header.classList.add(
+                "patriodx-scroll-header-hidden"
+            );
+
+        } else if (difference < -2) {
+
+            // Scrolling up: reveal the header immediately.
+            header.classList.remove(
+                "patriodx-scroll-header-hidden"
+            );
+        }
 
         lastScrollY = pendingScrollY;
         ticking = false;
     }
 
-   function handleScroll(event) {
-    if (!mobileQuery.matches) return;
+    function handleScroll() {
 
-    pendingScrollY = getScrollPosition(event.target);
+        if (!mobileQuery.matches) return;
 
-    if (ticking) return;
+        // Always track the actual page scroll position.
+        pendingScrollY = window.scrollY;
 
-    ticking = true;
-    window.requestAnimationFrame(updateHeader);
-}
+        if (ticking) return;
 
-    document.addEventListener("scroll", handleScroll, {
-        passive: true,
-        capture: true
-    });
+        ticking = true;
 
-     window.addEventListener("resize", () => {
-        if (!mobileQuery.matches) {
-            header.classList.remove("patriodx-scroll-header-hidden");
+        window.requestAnimationFrame(updateHeader);
+    }
+
+    document.addEventListener(
+        "scroll",
+        handleScroll,
+        {
+            passive: true,
+            capture: true
         }
+    );
+
+    window.addEventListener("resize", () => {
+
+        if (!mobileQuery.matches) {
+            header.classList.remove(
+                "patriodx-scroll-header-hidden"
+            );
+        }
+
+        lastScrollY = window.scrollY;
+        pendingScrollY = lastScrollY;
     });
 
-   lastScrollY = document.scrollingElement?.scrollTop || 0;
-pendingScrollY = lastScrollY;
+    lastScrollY = window.scrollY;
+    pendingScrollY = lastScrollY;
 
     updateHeader();
 }
-
 /* =========================================================
    PATRIODX POST IMAGE DOUBLE-TAP TO LIKE
 ========================================================= */
