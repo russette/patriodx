@@ -22635,40 +22635,74 @@ document.getElementById("mobileCreateLive")?.addEventListener("click", () => {
 /* =========================================================
 MOBILE MORE BUTTON — OPEN EXISTING SIDEBAR
 ========================================================= */
-
 function setupMobileMoreButton() {
-const moreButton = document.getElementById("mobileMoreButton");
-const sidebar = document.getElementById("patriodxSidebar");
+    const moreButton = document.getElementById("mobileMoreButton");
+    const sidebar = document.getElementById("patriodxSidebar");
 
-
-if (!moreButton || !sidebar || moreButton.dataset.moreReady === "true") {
-    return;
-}
-
-moreButton.dataset.moreReady = "true";
-
-moreButton.addEventListener("click", event => {
-    event.preventDefault();
-
-    const isOpen = sidebar.classList.contains("mobile-open");
-
-    sidebar.classList.toggle("mobile-open", !isOpen);
-document.body.classList.toggle("mobile-sidebar-open", !isOpen);
-moreButton.setAttribute("aria-expanded", String(!isOpen));
-    if (!isOpen && typeof lucide !== "undefined") {
-        lucide.createIcons();
+    if (
+        !moreButton ||
+        !sidebar ||
+        moreButton.dataset.moreReady === "true"
+    ) {
+        return;
     }
-});
 
-sidebar.querySelectorAll(".sidebar-link").forEach(link => {
-    link.addEventListener("click", () => {
-        sidebar.classList.remove("mobile-open");
-        document.body.classList.remove("mobile-sidebar-open");
-        moreButton.setAttribute("aria-expanded", "false");
+    moreButton.dataset.moreReady = "true";
+
+    // Create a close button for the full-screen menu.
+    let closeButton = sidebar.querySelector(".mobile-sidebar-close");
+
+    if (!closeButton) {
+        closeButton = document.createElement("button");
+        closeButton.type = "button";
+        closeButton.className = "mobile-sidebar-close";
+        closeButton.setAttribute("aria-label", "Close menu");
+        closeButton.innerHTML = `
+            <i data-lucide="x"></i>
+            <span>Close</span>
+        `;
+
+        sidebar.insertBefore(closeButton, sidebar.firstChild);
+    }
+
+    function setMenuOpen(open) {
+        sidebar.classList.toggle("mobile-open", open);
+        document.body.classList.toggle("mobile-sidebar-open", open);
+
+        moreButton.setAttribute("aria-expanded", String(open));
+
+        if (open && typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+    }
+
+    moreButton.addEventListener("click", event => {
+        event.preventDefault();
+
+        const isOpen = sidebar.classList.contains("mobile-open");
+        setMenuOpen(!isOpen);
     });
-});
 
+    closeButton.addEventListener("click", () => {
+        setMenuOpen(false);
+    });
 
+    // Close the menu after selecting a feature.
+    sidebar.querySelectorAll(".sidebar-link").forEach(link => {
+        link.addEventListener("click", () => {
+            setMenuOpen(false);
+        });
+    });
+
+    // Allow the phone's Escape key to close the menu.
+    document.addEventListener("keydown", event => {
+        if (
+            event.key === "Escape" &&
+            sidebar.classList.contains("mobile-open")
+        ) {
+            setMenuOpen(false);
+        }
+    });
 }
 
 /*

@@ -25163,3 +25163,114 @@ body.dark-mode #profilePostViewer #profilePostViewerCommentFocus:hover {
 body.dark-mode #profilePostViewer #profilePostViewerShare:hover {
     color: #00ba7c !important;
 }
+/* =========================================================
+   PATRIODX — FULL-SCREEN MOBILE FEATURE MENU
+========================================================= */
+
+@media (max-width: 768px) {
+
+    /* Remove the hamburger from the top header */
+    .mobile-menu-button {
+        display: none !important;
+    }
+
+    /* Full-screen navigation */
+    #patriodxSidebar {
+        position: fixed !important;
+        inset: 0 !important;
+
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+
+        padding: 20px 18px 90px !important;
+        box-sizing: border-box !important;
+
+        background: var(--card-bg, #ffffff) !important;
+        color: var(--text-color, #111827) !important;
+
+        z-index: 10002 !important;
+
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+
+        transform: translateX(100%) !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+
+        transition:
+            transform 0.25s ease,
+            visibility 0.25s ease !important;
+
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    #patriodxSidebar.mobile-open {
+        transform: translateX(0) !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+
+    /* Close button */
+    #patriodxSidebar .mobile-sidebar-close {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+
+        width: 100% !important;
+        min-height: 48px !important;
+
+        margin-bottom: 22px !important;
+        padding: 10px 12px !important;
+
+        border: none !important;
+        border-bottom: 1px solid var(--border-color, #e5e7eb) !important;
+        border-radius: 0 !important;
+
+        background: transparent !important;
+        color: var(--text-color, #111827) !important;
+
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+    }
+
+    #patriodxSidebar .mobile-sidebar-close svg {
+        width: 22px !important;
+        height: 22px !important;
+    }
+
+    /* Keep feature links readable */
+    #patriodxSidebar .sidebar-link {
+        min-height: 48px !important;
+        padding: 12px 14px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Remove the old drawer backdrop */
+    body.mobile-sidebar-open::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    /* Prevent the page behind the menu from scrolling */
+    body.mobile-sidebar-open {
+        overflow: hidden !important;
+    }
+}
+
+/* Dark mode */
+@media (max-width: 768px) {
+    body.dark-mode #patriodxSidebar {
+        background: var(--card-bg, #111318) !important;
+        color: var(--text-color, #f9fafb) !important;
+    }
+
+    body.dark-mode #patriodxSidebar .mobile-sidebar-close {
+        color: var(--text-color, #f9fafb) !important;
+        border-bottom-color: var(--border-color, #2a2f38) !important;
+    }
+}
