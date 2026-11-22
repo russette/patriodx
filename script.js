@@ -19545,29 +19545,13 @@ if ("IntersectionObserver" in window) {
                 .observe(video);
         });
 }
-// Make ONLY your own profile posts clickable.
-// Other users' public profile posts will not open the post viewer.
+// Make ALL public profile posts clickable in the shared viewer.
 postsElement
     .querySelectorAll(".social-post-card")
     .forEach((card, index) => {
-
         const post = posts[index];
         if (!post) return;
 
-        const isOwnProfile =
-            currentUser &&
-            profile.id === currentUser.id;
-
-        // Disable post opening on other users' profiles.
-        if (!isOwnProfile) {
-            card.style.cursor = "default";
-            card.removeAttribute("role");
-            card.removeAttribute("tabindex");
-            card.removeAttribute("aria-label");
-            return;
-        }
-
-        // Preserve existing behavior on your own profile.
         card.style.cursor = "pointer";
         card.setAttribute("role", "button");
         card.setAttribute("tabindex", "0");
@@ -19578,7 +19562,10 @@ postsElement
                 postId: post.id,
                 imageUrl: post.image_url || "",
                 videoUrl: post.video_url || "",
-                author: profile.display_name || "PATRIODX User",
+                author:
+                    profile.display_name ||
+                    profile.username ||
+                    "PATRIODX User",
                 authorProfile: profile,
                 profileUserId: profile.id,
                 isPublicProfilePost: true,
@@ -19616,7 +19603,6 @@ postsElement
             }
         });
     });
-
 // Handle likes on public profile posts
 postsElement
     .querySelectorAll(".public-profile-like-button")
@@ -19627,7 +19613,6 @@ postsElement
 
             const postId = this.dataset.postId;
             if (!postId || this.disabled) return;
-
             this.disabled = true;
 
             try {
@@ -20892,35 +20877,14 @@ if (commentsOpen) {
 
     return true;
 }
-    // 2. First Back: close the post and restore its profile.
-    if (viewerOpen) {
-        const previousUserId =
-            window.profileViewerPreviousProfileUserId ||
-            viewedProfileUserId ||
-            null;
+  // 2. First Back: close the post and restore its origin.
+if (viewerOpen) {
+    closeProfilePostViewer({
+        restoreOrigin: true
+    });
 
-        window.profileViewerHistoryEntryActive = false;
-
-        closeProfilePostViewer({
-            restoreOrigin: true
-        });
-
-        if (previousUserId) {
-            viewedProfileUserId = previousUserId;
-            document.body.classList.add("mobile-public-profile-view");
-
-            const publicCard =
-                document.getElementById("publicProfileCard");
-
-            const publicPosts =
-                document.getElementById("publicProfilePostsContainer");
-
-            if (publicCard) publicCard.style.display = "block";
-            if (publicPosts) publicPosts.style.display = "block";
-        }
-
-        return true;
-    }
+    return true;
+}
 
     // 3. Second Back: leave the public profile.
     const isPublicProfile = Boolean(
