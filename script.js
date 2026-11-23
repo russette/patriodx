@@ -26028,33 +26028,35 @@ document.addEventListener("keydown", function(event) {
         const imageHeight =
             cropImage.naturalHeight;
 
-        const baseScale = Math.max(
-            areaWidth / imageWidth,
-            areaHeight / imageHeight
-        );
+     const baseScale = Math.max(
+    areaWidth / imageWidth,
+    areaHeight / imageHeight
+);
 
-        cropState = {
-            areaWidth,
-            areaHeight,
-            imageWidth,
-            imageHeight,
-            scale: baseScale,
-            baseScale,
-            x: 0,
-            y: 0,
-            dragging: false,
-            pointerX: 0,
-            pointerY: 0
-        };
+const initialScale = baseScale * 1.5;
 
-        cropState.x =
-            (areaWidth - imageWidth * baseScale) / 2;
+cropState = {
+    areaWidth,
+    areaHeight,
+    imageWidth,
+    imageHeight,
+    scale: initialScale,
+    baseScale,
+    x: 0,
+    y: 0,
+    dragging: false,
+    pointerX: 0,
+    pointerY: 0
+};
 
-        cropState.y =
-            (areaHeight - imageHeight * baseScale) / 2;
+cropState.x =
+    (areaWidth - imageWidth * initialScale) / 2;
 
-        renderCropImage();
-    }
+cropState.y =
+    (areaHeight - imageHeight * initialScale) / 2;
+
+renderCropImage();
+}
 
     function openCropper(file, input, type) {
 

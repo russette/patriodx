@@ -26606,3 +26606,11 @@ body.dark-mode .profile-editor-cancel {
     background: #272b35 !important;
     border-color: #3a4050 !important;
 }
+/* PATRIODX — HIDE MOBILE BOTTOM NAV IN PROFILE EDITOR */
+@media (max-width: 768px) {
+    body.patriodx-profile-editor-open #mobileBottomNav {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+}
