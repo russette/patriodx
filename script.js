@@ -6005,16 +6005,36 @@ if (addAccountButton) {
     );
 }
   renderAll();
-
 await loadHomePosts();
 
-// Open a profile from a shared link.
+// Restore a public profile after refresh.
 const sharedProfileId = new URLSearchParams(
     window.location.search
 ).get("profile");
 
+let savedPublicProfileId = null;
+
+try {
+    savedPublicProfileId = sessionStorage.getItem(
+        "patriodxViewedPublicProfileId"
+    );
+} catch (error) {
+    console.warn("Could not read viewed profile:", error);
+}
+
 if (sharedProfileId) {
     await loadPublicProfile(sharedProfileId);
+} else if (
+    savedPublicProfileId &&
+    savedPublicProfileId !== String(currentUser.id)
+) {
+    await loadPublicProfile(savedPublicProfileId);
+} else if (
+    savedPublicProfileId === String(currentUser.id)
+) {
+    sessionStorage.removeItem(
+        "patriodxViewedPublicProfileId"
+    );
 }
 
 console.log(
@@ -9911,7 +9931,8 @@ renderedCards.forEach(card => {
         ].forEach(element => {
             if (element) element.style.display = "";
         });
-
+document.getElementById("ownProfileContent")
+    ?.style.removeProperty("display");
         document.querySelectorAll("#profile > .section-heading")
             .forEach(heading => heading.style.display = "");
 
@@ -18954,19 +18975,13 @@ if (window.matchMedia("(max-width: 768px)").matches) {
 }
 
 viewedProfileUserId = userId;
-// Hide your own profile while viewing another user.
-const ownProfileElements = [
-    document.getElementById("profileCover"),
-    document.getElementById("profileAvatar")?.closest(".profile-header"),
-    document.getElementById("profilePostCount")?.closest(".profile-stats"),
-    document.getElementById("profilePosts")?.closest(".profile-posts")
-];
+// Hide your ENTIRE own profile while viewing another user.
+const ownProfileContent =
+    document.getElementById("ownProfileContent");
 
-ownProfileElements.forEach(element => {
-    if (element) {
-        element.style.display = "none";
-    }
-});
+if (ownProfileContent) {
+    ownProfileContent.style.display = "none";
+}
 
 // Hide the "Your Profile" heading.
 const profileSection = document.getElementById("profile");
@@ -19014,7 +19029,15 @@ if (
 
     return;
 }
-
+// Remember the public profile across page refreshes.
+try {
+    sessionStorage.setItem(
+        "patriodxViewedPublicProfileId",
+        String(userId)
+    );
+} catch (error) {
+    console.warn("Could not save viewed profile:", error);
+}
 // Start independent profile requests together.
 const profileFollowStatusPromise =
     userId !== currentUser.id
@@ -20429,8 +20452,16 @@ if (
 if (page === "notifications") {
     markNotificationsReadOnOpen();
 }
-    // Restore normal mobile navigation when leaving a public profile.
+// Clear saved public profile when leaving the Profile section.
 if (page !== "profile") {
+    try {
+        sessionStorage.removeItem(
+            "patriodxViewedPublicProfileId"
+        );
+    } catch (error) {
+        console.warn("Could not clear viewed profile:", error);
+    }
+
     document.body.classList.remove("mobile-public-profile-view");
 }
 if (
