@@ -16931,7 +16931,9 @@ if (editProfileButton && profileEditor) {
         if (profileAvatarInput) {
             profileAvatarInput.value = "";
         }
-
+if (profileBannerInput) {
+    profileBannerInput.value = "";
+}
         /* Open editor */
 
         profileEditor.style.display = "block";
@@ -17225,6 +17227,88 @@ async function uploadProfileAvatar(file) {
 
     return data.publicUrl;
 }
+async function uploadProfileBanner(file) {
+
+    if (!file || !currentUser) {
+        return null;
+    }
+
+    const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif"
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+        throw new Error(
+            "Banner must be JPG, PNG, WEBP or GIF."
+        );
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+        throw new Error(
+            "Profile banner must be smaller than 5 MB."
+        );
+    }
+
+    const extensions = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "image/gif": "gif"
+    };
+
+    const filePath =
+        `${currentUser.id}/profile/banner-${crypto.randomUUID()}.${extensions[file.type]}`;
+
+    const { error } =
+        await supabaseClient
+            .storage
+            .from("patriodx-media")
+            .upload(filePath, file, {
+                cacheControl: "3600",
+                upsert: false,
+                contentType: file.type
+            });
+
+    if (error) {
+        console.error(
+            "Profile banner upload error:",
+            error
+        );
+
+        throw error;
+    }
+
+    const { data } =
+        supabaseClient
+            .storage
+            .from("patriodx-media")
+            .getPublicUrl(filePath);
+
+    return data.publicUrl;
+}
+
+
+function setPATRIODXProfileBanner(element, bannerUrl) {
+
+    if (!element) return;
+
+    const url =
+        typeof bannerUrl === "string"
+            ? bannerUrl.trim()
+            : "";
+
+    element.style.backgroundImage = url
+        ? `url("${url.replace(/["\\\r\n]/g, "")}")`
+        : "";
+
+    element.classList.toggle(
+        "has-banner-image",
+        Boolean(url)
+    );
+}
 
 function validatePATRIODXUsername(username) {
     if (!username) {
@@ -17275,7 +17359,30 @@ window.savePATRIODXProfile = async function(event) {
 
     const avatarInput =
         document.getElementById("profileAvatarInput");
+/* =========================================
+   PROFILE BANNER
+========================================= */
 
+let bannerUrl =
+    currentProfile?.banner_url || null;
+
+const bannerInput =
+    document.getElementById("profileBannerInput");
+
+const bannerFile =
+    bannerInput?.files?.[0] || null;
+
+if (bannerFile) {
+
+    bannerUrl =
+        await uploadProfileBanner(bannerFile);
+
+    if (!bannerUrl) {
+        throw new Error(
+            "Profile banner upload failed."
+        );
+    }
+}
     const saveButton =
         document.getElementById("saveProfileButton");
 
@@ -17372,11 +17479,12 @@ window.savePATRIODXProfile = async function(event) {
             await supabaseClient
                 .from("profiles")
                 .update({
-                    username: username,
-                    display_name: displayName,
-                    bio: bio,
-                    avatar_url: avatarUrl
-                })
+    username: username,
+    display_name: displayName,
+    bio: bio,
+    avatar_url: avatarUrl,
+    banner_url: bannerUrl
+})
                 .eq("id", currentUser.id)
                 .select("*")
                 .single();
@@ -17396,7 +17504,14 @@ renderMyProfile();
 if (avatarInput) {
     avatarInput.value = "";
 }
+if (bannerInput) {
+    bannerInput.value = "";
+}
 
+setPATRIODXProfileBanner(
+    document.getElementById("profileCover"),
+    currentProfile.banner_url
+);
 if (profileEditor) {
     profileEditor.style.display = "none";
 }
@@ -18955,7 +19070,8 @@ const badgeElement =
 
     const avatarElement =
         document.getElementById("publicProfileAvatar");
-
+const coverElement =
+    document.getElementById("publicProfileCover");
 
     if (nameElement) {
         nameElement.textContent =
@@ -18990,7 +19106,10 @@ if (badgeElement) {
             avatarElement.textContent = "👤";
         }
     }
-
+setPATRIODXProfileBanner(
+    coverElement,
+    profile.banner_url
+);
 let isFollowingProfile = false;
    // --------------------------------------
 // FOLLOW + MESSAGE BUTTONS

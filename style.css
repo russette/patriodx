@@ -21010,12 +21010,6 @@ body.dark-mode .mobile-sheet-close svg {
     width: 100% !important;
     margin-top: 2px !important;
 }
-/* PATRIODX — Remove profile cover banners */
-
-#profileCover,
-#publicProfileCover {
-    display: none !important;
-}
 
 /* Remove the space previously occupied by the cover */
 #profile .profile-header,
@@ -26022,4 +26016,93 @@ body.dark-mode .create-page-header button {
         height: 50px;
         min-width: 50px;
     }
+}
+/* =========================================
+   PATRIODX — PROFILE BANNER PHOTOS
+========================================= */
+
+#profile #profileCover,
+#profile #publicProfileCover {
+    display: block !important;
+    position: relative;
+    width: 100%;
+    background-color: #5b21b6;
+    background-image:
+        radial-gradient(
+            circle at 85% 20%,
+            rgba(196, 181, 253, 0.45),
+            transparent 40%
+        ),
+        linear-gradient(
+            120deg,
+            #5b21b6,
+            #7c3aed,
+            #a78bfa
+        );
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    overflow: hidden;
+}
+
+/* OWN PROFILE */
+
+#profile #ownProfileContent > #profileCover {
+    height: 150px;
+    min-height: 150px;
+    border-radius: 18px 18px 0 0;
+}
+
+#profile #ownProfileContent > .profile-header {
+    margin-top: 0 !important;
+    padding-top: 24px !important;
+    align-items: center !important;
+}
+
+#profile #ownProfileContent > .profile-header > .profile-avatar {
+    margin-top: -45px !important;
+}
+
+/* PUBLIC PROFILE */
+
+#profile #publicProfileCard > #publicProfileCover {
+    height: 190px;
+    min-height: 190px;
+}
+
+#profile #publicProfileCard > .profile-header {
+    margin-top: -52px !important;
+    padding-top: 0 !important;
+    align-items: flex-end !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+
+    #profile #ownProfileContent > #profileCover {
+        height: 115px;
+        min-height: 115px;
+    }
+
+    #profile #ownProfileContent > .profile-header {
+        padding-top: 16px !important;
+    }
+
+    #profile #ownProfileContent > .profile-header > .profile-avatar {
+        margin-top: -38px !important;
+    }
+
+    #profile #publicProfileCard > #publicProfileCover {
+        height: 145px;
+        min-height: 145px;
+    }
+
+    #profile #publicProfileCard > .profile-header {
+        margin-top: -40px !important;
+        padding-top: 0 !important;
+    }
+
 }
