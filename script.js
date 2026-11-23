@@ -16938,7 +16938,10 @@ if (chooseProfileBanner && profileBannerInput) {
 function renderMyProfile() {
 
     if (!currentProfile) return;
-
+setPATRIODXProfileBanner(
+    document.getElementById("profileCover"),
+    currentProfile.banner_url
+);
 
     const displayName =
         currentProfile.display_name ||
@@ -17339,17 +17342,7 @@ const bannerInput =
 
 const bannerFile =
     bannerInput?.files?.[0] || null;
-if (bannerFile) {
 
-    bannerUrl =
-        await uploadProfileBanner(bannerFile);
-
-    if (!bannerUrl) {
-        throw new Error(
-            "Profile banner upload failed."
-        );
-    }
-}
     const saveButton =
         document.getElementById("saveProfileButton");
 

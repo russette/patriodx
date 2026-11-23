@@ -26614,3 +26614,22 @@ body.dark-mode .profile-editor-cancel {
         pointer-events: none !important;
     }
 }
+/* PATRIODX — FIX PUBLIC PROFILE MEDIA FILTER */
+#publicProfilePosts.is-media-grid .social-post-card[hidden],
+#profilePosts.is-media-grid .social-post-card[hidden] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Keep media tiles inside the three-column grid */
+#publicProfilePosts.is-media-grid,
+#profilePosts.is-media-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    align-items: start !important;
+}
+
+/* Prevent hidden empty states from occupying grid space */
+#publicProfilePosts .public-profile-media-empty[hidden],
+#profilePosts .own-profile-media-empty[hidden] {
+    display: none !important;
+}
