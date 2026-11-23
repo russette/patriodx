@@ -25973,3 +25973,53 @@ body.dark-mode #publicProfilePostsContainer .public-profile-tab:hover {
         padding: 16px;
     }
 }
+/* PATRIODX CREATE PAGE — CLOSE BUTTON */
+
+.create-page-header button {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border: 1px solid var(--border-color, #dedede);
+    border-radius: 50%;
+    background: var(--card-bg, #ffffff);
+    color: var(--text-color, #171717);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.create-page-header button svg {
+    width: 23px;
+    height: 23px;
+    stroke-width: 2.5;
+}
+
+.create-page-header button:hover {
+    transform: scale(1.05);
+}
+
+/* DARK MODE */
+body.dark-mode .create-page-header button {
+    background: #20232b;
+    color: #ffffff;
+    border-color: #3a3f4b;
+}
+
+/* DESKTOP CREATE SIDEBAR LINK */
+.desktop-create-link {
+    display: flex;
+}
+
+/* MOBILE — KEEP CREATE IN BOTTOM NAV */
+@media (max-width: 768px) {
+    .desktop-create-link {
+        display: none !important;
+    }
+
+    .create-page-header button {
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
+    }
+}
