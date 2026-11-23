@@ -25862,3 +25862,114 @@ body.dark-mode #publicProfilePostsContainer .public-profile-tab:hover {
     background: rgba(0, 0, 0, 0.58) !important;
     color: #fff !important;
 }
+/* =========================================
+   PATRIODX — FULL-PAGE CREATE EXPERIENCE
+========================================= */
+
+.create-hub-page,
+.create-post-page {
+    width: 100%;
+    max-width: 850px;
+    min-height: calc(100vh - 100px);
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.create-page-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.create-page-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.create-page-header button {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 50%;
+    background: var(--card-bg, #fff);
+    color: var(--text-color, #171717);
+    cursor: pointer;
+}
+
+.create-hub-options {
+    display: grid;
+    gap: 16px;
+}
+
+.create-hub-option {
+    width: 100%;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 20px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 16px;
+    background: var(--card-bg, #fff);
+    color: var(--text-color, #171717);
+    text-align: left;
+    cursor: pointer;
+}
+
+.create-hub-option > span {
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 14px;
+    background: rgba(99, 102, 241, 0.12);
+    color: var(--primary-color, #6366f1);
+    font-size: 22px;
+}
+
+.create-hub-option > div {
+    flex: 1;
+    display: grid;
+    gap: 6px;
+}
+
+.create-hub-option strong {
+    font-size: 1rem;
+}
+
+.create-hub-option small {
+    color: var(--muted-color, #777);
+}
+
+.create-post-page .social-create-card {
+    width: 100%;
+    margin: 0;
+}
+
+.create-hub-option:hover {
+    border-color: var(--primary-color, #6366f1);
+}
+
+@media (max-width: 768px) {
+    .create-hub-page,
+    .create-post-page {
+        width: 100%;
+        max-width: none;
+        min-height: calc(100dvh - 70px);
+        padding: 18px 15px 100px;
+    }
+
+    .create-page-header {
+        margin-bottom: 24px;
+    }
+
+    .create-hub-option {
+        min-height: 88px;
+        padding: 16px;
+    }
+}

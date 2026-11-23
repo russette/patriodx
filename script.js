@@ -811,10 +811,6 @@ setupPATRIODXMobileHeaderScroll();
 // =========================================================
 
 function setupDarkMode() {
-
-    const button =
-        document.getElementById("themeToggle");
-
     const settingsToggle =
         document.getElementById("settingsDarkModeToggle");
 
@@ -831,23 +827,6 @@ function setupDarkMode() {
     function updateThemeUI() {
 
         const dark = isDarkMode();
-
-        if (button) {
-
-            button.innerHTML = dark
-                ? '<i data-lucide="sun"></i>'
-                : '<i data-lucide="moon"></i>';
-
-            button.setAttribute(
-                "aria-label",
-                dark ? "Switch to light mode" : "Switch to dark mode"
-            );
-
-            button.setAttribute(
-                "title",
-                dark ? "Switch to light mode" : "Switch to dark mode"
-            );
-        }
 
         if (settingsToggle) {
             settingsToggle.checked = dark;
@@ -918,14 +897,6 @@ function setupDarkMode() {
         );
     } else {
         systemTheme.addListener(handleSystemThemeChange);
-    }
-
-    // Header theme button
-    if (button) {
-
-        button.addEventListener("click", function() {
-            setDarkMode(!isDarkMode());
-        });
     }
 
     // Settings theme toggle
@@ -6004,12 +5975,6 @@ setupModalBehavior();
     setupForms();
 setupSettingsActivity();
 setupSocialCommentsRealtime();
-    document
-        .getElementById("logoutButton")
-        ?.addEventListener(
-            "click",
-            logoutUser
-        );
 const settingsLogoutButton =
     document.getElementById(
         "settingsLogoutButton"
@@ -6059,49 +6024,36 @@ console.log(
 // =========================================================
 // LOGOUT
 // =========================================================
-
 async function logoutUser() {
 
-    const button =
-        document.getElementById(
-            "logoutButton"
+    const button = document.getElementById("settingsLogoutButton");
+    const originalContent = button?.innerHTML;
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Logging out...";
+    }
+
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) {
+
+        console.error(error);
+
+        showPATRIODXToast(
+            "Could not log out. Please try again.",
+            "error"
         );
 
-    if (button) {
-
-        button.disabled = true;
-
-        button.textContent =
-            "Logging out...";
-    }
-
-    const { error } =
-        await supabaseClient
-            .auth
-            .signOut();
-
- if (error) {
-
-    console.error(error);
-
-    showPATRIODXToast(
-        "Could not log out. Please try again.",
-        "error"
-    );
-
-    if (button) {
-
-        button.disabled = false;
-
-        button.textContent =
-            "Logout";
-    }
+        if (button) {
+            button.disabled = false;
+            button.innerHTML = originalContent;
+        }
 
         return;
     }
 
-    window.location.href =
-        "auth.html";
+    window.location.href = "auth.html";
 }
 // =========================================================
 // PRODUCT MODAL — RESTORE MISSING FUNCTIONS
@@ -10230,13 +10182,15 @@ if (failedNotification) {
                     lucide.createIcons();
                 }
 
-                await loadSocialPosts();
+               await loadSocialPosts();
 
-                showPATRIODXToast(
-                    "Your post was published successfully!",
-                    "success"
-                );
+showPATRIODXToast(
+    "Your post was published successfully!",
+    "success"
+);
 
+window.patriodxCreateReturnPage = "social";
+navigatePATRIODX("social");
             } catch (error) {
 
                 console.error(
@@ -20273,6 +20227,8 @@ const PATRIODX_PAGES = [
     "dashboard",
     "profile",
     "social",
+    "createHub",
+"createPost",
     "saved",
     "messaging",
     "notifications",
@@ -22560,105 +22516,82 @@ if (
 /* =========================================================
 MOBILE CREATE SHEET — RELIABLE INITIALIZATION
 ========================================================= */
-
-function openMobileCreateSheet() {
-const sheet = document.getElementById("mobileCreateSheet");
-if (!sheet) {
-console.error("PATRIODX: Create sheet not found.");
-return;
-}
-
-
-sheet.style.display = "flex";
-document.body.classList.add("mobile-create-open");
-
-if (typeof lucide !== "undefined") {
-    lucide.createIcons();
-}
-
-
-}
-
-function closeMobileCreateSheet() {
-const sheet = document.getElementById("mobileCreateSheet");
-if (sheet) {
-sheet.style.display = "none";
-}
-
-
-document.body.classList.remove("mobile-create-open");
-
-
-}
-
 function setupMobileCreateSheet() {
-const createButton = document.getElementById("mobileCreateButton");
-const closeButton = document.getElementById("mobileCreateClose");
-const sheet = document.getElementById("mobileCreateSheet");
 
+    const createButton =
+        document.getElementById("mobileCreateButton");
 
-if (!createButton || !closeButton || !sheet) {
-    console.error("PATRIODX: Create controls are missing.", {
-        createButton: !!createButton,
-        closeButton: !!closeButton,
-        sheet: !!sheet
-    });
-    return;
+    const postButton =
+        document.getElementById("createHubPostButton");
+
+    const liveButton =
+        document.getElementById("createHubLiveButton");
+
+    if (
+        createButton &&
+        createButton.dataset.createReady !== "true"
+    ) {
+        createButton.dataset.createReady = "true";
+
+        createButton.addEventListener("click", event => {
+            event.preventDefault();
+
+            const currentPage = PATRIODX_PAGES.find(page => {
+                const element = document.getElementById(page);
+
+                return element &&
+                    window.getComputedStyle(element).display !== "none";
+            }) || "social";
+
+            window.patriodxCreateReturnPage =
+                ["createHub", "createPost"].includes(currentPage)
+                    ? "social"
+                    : currentPage;
+
+            navigatePATRIODX("createHub");
+        });
+    }
+
+    if (postButton && postButton.dataset.createReady !== "true") {
+        postButton.dataset.createReady = "true";
+
+        postButton.addEventListener("click", () => {
+            navigatePATRIODX("createPost");
+
+            setTimeout(() => {
+                document.getElementById("socialPostContent")
+                    ?.focus({ preventScroll: true });
+            }, 200);
+        });
+    }
+
+    if (liveButton && liveButton.dataset.createReady !== "true") {
+        liveButton.dataset.createReady = "true";
+
+        liveButton.addEventListener("click", () => {
+            navigatePATRIODX(
+                window.patriodxCreateReturnPage || "social"
+            );
+
+            openGoLiveModal();
+        });
+    }
+
+    const emptyCreateButton =
+        document.getElementById("socialEmptyCreatePostButton");
+
+    if (
+        emptyCreateButton &&
+        emptyCreateButton.dataset.createReady !== "true"
+    ) {
+        emptyCreateButton.dataset.createReady = "true";
+
+        emptyCreateButton.addEventListener("click", () => {
+            window.patriodxCreateReturnPage = "social";
+            navigatePATRIODX("createPost");
+        });
+    }
 }
-
-if (createButton.dataset.createReady === "true") return;
-
-createButton.dataset.createReady = "true";
-createButton.addEventListener("click", openMobileCreateSheet);
-closeButton.addEventListener("click", closeMobileCreateSheet);
-
-sheet.addEventListener("click", event => {
-    if (event.target === sheet) {
-        closeMobileCreateSheet();
-    }
-});
-
-document.getElementById("mobileCreatePost")?.addEventListener("click", () => {
-    closeMobileCreateSheet();
-
-    if (typeof navigatePATRIODX === "function") {
-        navigatePATRIODX("social");
-    }
-
-    setTimeout(() => {
-        const composer = document.getElementById("socialPostContent");
-
-        if (composer) {
-            composer.scrollIntoView({
-                behavior: "smooth",
-                block: "center"
-            });
-
-            composer.focus({ preventScroll: true });
-        }
-    }, 200);
-});
-document.getElementById("mobileCreateStory")?.addEventListener("click", () => {
-    closeMobileCreateSheet();
-    if (typeof openAddStoryModal === "function") {
-        openAddStoryModal();
-    } else {
-        document.getElementById("addStoryModal")?.style.setProperty("display", "flex");
-    }
-});
-
-document.getElementById("mobileCreateLive")?.addEventListener("click", () => {
-    closeMobileCreateSheet();
-    if (typeof openGoLiveModal === "function") {
-        openGoLiveModal();
-    } else {
-        document.getElementById("goLiveModal")?.style.setProperty("display", "flex");
-    }
-});
-
-
-}
-
 /* =========================================================
 MOBILE MORE BUTTON — OPEN EXISTING SIDEBAR
 ========================================================= */
@@ -22740,13 +22673,10 @@ function setupMobileMoreButton() {
  function setupPATRIODXMobileActions() {
 const createButton = document.getElementById("mobileCreateButton");
 const moreButton = document.getElementById("mobileMoreButton");
-const sheet = document.getElementById("mobileCreateSheet");
-
 
 console.log("PATRIODX mobile controls:", {
     createButton: !!createButton,
     moreButton: !!moreButton,
-    createSheet: !!sheet
 });
 
 setupMobileCreateSheet();

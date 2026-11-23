@@ -2078,24 +2078,6 @@ body {
     <!-- =====================================================
          STORIES
     ====================================================== -->
-<div class="social-live-entry">
-
-    <button
-        type="button"
-        class="social-live-button"
-        onclick="openGoLiveModal()"
-    >
-        <span class="social-live-dot"></span>
-
-        <span class="social-live-content">
-            <strong>Go Live</strong>
-            <small>Start a live broadcast on PATRIODX</small>
-        </span>
-
-        <i data-lucide="radio"></i>
-    </button>
-
-</div>
     <div class="chart-card social-stories-card">
 
         <div class="social-section-title">
@@ -2109,16 +2091,6 @@ body {
                     Share something that disappears after 24 hours.
                 </p>
             </div>
-
-           <button
-    type="button"
-    class="secondary-btn social-story-create-button"
-    id="createStoryButton"
-    onclick="openAddStoryModal()"
->
-    <i data-lucide="plus"></i>
-    Add Story
-</button>
         </div>
 
 
@@ -2159,132 +2131,6 @@ body {
         </div>
 
     </div>
-
-
-    <!-- =====================================================
-         CREATE POST
-    ====================================================== -->
-
-    <div class="chart-card social-create-card">
-
-        <div class="social-create-heading">
-
-            <div class="social-create-avatar">
-                <span id="socialCreateAvatar">
-                    <i data-lucide="user"></i>
-                </span>
-            </div>
-
-            <div>
-                <strong id="socialCreateName">
-                    PATRIODX
-                </strong>
-
-                <small>
-                    Create a post
-                </small>
-            </div>
-
-        </div>
-
-
-        <form id="socialPostForm">
-
-            <textarea
-                id="socialPostContent"
-                placeholder="What's happening with you?"
-                rows="4"
-                maxlength="2000"
-            ></textarea>
-
-
-            <!-- MEDIA PREVIEW -->
-
-            <div
-                id="socialMediaPreview"
-                class="social-media-preview"
-                style="display: none;"
-            ></div>
-
-
-            <!-- UPLOAD OPTIONS -->
-
-            <div class="social-create-toolbar">
-
-                <div class="social-upload-options">
-
-                    <label
-                        for="socialImageInput"
-                        class="social-upload-button"
-                        data-i18n="photo"
-                    >
-                        <i data-lucide="image"></i>
-                        <span>Photo</span>
-                    </label>
-
-
-                    <label
-                        for="socialVideoInput"
-                        class="social-upload-button"
-                        data-i18n="video"
-                    >
-                        <i data-lucide="video"></i>
-                        <span>Video</span>
-                    </label>
-
-
-                    <button
-                        type="button"
-                        class="social-create-option"
-                        id="socialTagButton"
-                    >
-                        <i data-lucide="tag"></i>
-                        <span>Tag</span>
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="social-create-option"
-                        id="socialMentionButton"
-                    >
-                        <i data-lucide="at-sign"></i>
-                        <span>Mention</span>
-                    </button>
-
-                </div>
-
-
-                <input
-                    type="file"
-                    id="socialImageInput"
-                    accept="image/*"
-                    hidden
-                >
-
-
-                <input
-                    type="file"
-                    id="socialVideoInput"
-                    accept="video/*"
-                    hidden
-                >
-
-
-                <button
-                    type="submit"
-                    id="socialPostButton"
-                >
-                    <i data-lucide="send"></i>
-                    <span data-i18n="post">Post</span>
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
-
 
     <!-- =====================================================
          SOCIAL FEED
@@ -2430,6 +2276,173 @@ body {
     </div>
 
 
+</section>
+<!-- CREATE HUB PAGE -->
+<section id="createHub" class="section create-hub-page">
+
+    <div class="create-page-header">
+        <button type="button" onclick="navigatePATRIODX('social')" aria-label="Back">
+            <i data-lucide="arrow-left"></i>
+        </button>
+        <h2>Create</h2>
+    </div>
+
+    <div class="create-hub-options">
+
+        <button type="button" id="createHubPostButton" class="create-hub-option">
+            <span><i data-lucide="square-pen"></i></span>
+            <div>
+                <strong>Create Post</strong>
+                <small>Share photos, videos and updates.</small>
+            </div>
+            <i data-lucide="chevron-right"></i>
+        </button>
+
+        <button type="button" id="createHubLiveButton" class="create-hub-option">
+            <span><i data-lucide="radio"></i></span>
+            <div>
+                <strong>Go Live</strong>
+                <small>Start a live broadcast.</small>
+            </div>
+            <i data-lucide="chevron-right"></i>
+        </button>
+
+    </div>
+
+</section>
+<!-- CREATE POST PAGE -->
+<section id="createPost" class="section create-post-page">
+
+    <div class="create-page-header">
+        <button type="button" onclick="navigatePATRIODX('social')" aria-label="Back">
+            <i data-lucide="arrow-left"></i>
+        </button>
+        <h2>Create Post</h2>
+    </div>
+
+    <!-- =====================================================
+         CREATE POST
+    ====================================================== -->
+
+    <div class="chart-card social-create-card">
+
+        <div class="social-create-heading">
+
+            <div class="social-create-avatar">
+                <span id="socialCreateAvatar">
+                    <i data-lucide="user"></i>
+                </span>
+            </div>
+
+            <div>
+                <strong id="socialCreateName">
+                    PATRIODX
+                </strong>
+
+                <small>
+                    Create a post
+                </small>
+            </div>
+
+        </div>
+
+
+        <form id="socialPostForm">
+
+            <textarea
+                id="socialPostContent"
+                placeholder="What's happening with you?"
+                rows="4"
+                maxlength="2000"
+            ></textarea>
+
+
+            <!-- MEDIA PREVIEW -->
+
+            <div
+                id="socialMediaPreview"
+                class="social-media-preview"
+                style="display: none;"
+            ></div>
+
+
+            <!-- UPLOAD OPTIONS -->
+
+            <div class="social-create-toolbar">
+
+                <div class="social-upload-options">
+
+                    <label
+                        for="socialImageInput"
+                        class="social-upload-button"
+                        data-i18n="photo"
+                    >
+                        <i data-lucide="image"></i>
+                        <span>Photo</span>
+                    </label>
+
+
+                    <label
+                        for="socialVideoInput"
+                        class="social-upload-button"
+                        data-i18n="video"
+                    >
+                        <i data-lucide="video"></i>
+                        <span>Video</span>
+                    </label>
+
+
+                    <button
+                        type="button"
+                        class="social-create-option"
+                        id="socialTagButton"
+                    >
+                        <i data-lucide="tag"></i>
+                        <span>Tag</span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="social-create-option"
+                        id="socialMentionButton"
+                    >
+                        <i data-lucide="at-sign"></i>
+                        <span>Mention</span>
+                    </button>
+
+                </div>
+
+
+                <input
+                    type="file"
+                    id="socialImageInput"
+                    accept="image/*"
+                    hidden
+                >
+
+
+                <input
+                    type="file"
+                    id="socialVideoInput"
+                    accept="video/*"
+                    hidden
+                >
+
+
+                <button
+                    type="submit"
+                    id="socialPostButton"
+                >
+                    <i data-lucide="send"></i>
+                    <span data-i18n="post">Post</span>
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
 </section>
 <!-- =========================================================
      PATRIODX SAVED POSTS
@@ -5918,117 +5931,6 @@ body {
         </div>
 
     </div>
-</div>
-    <!-- MOBILE CREATE SHEET -->
-<div
-    id="mobileCreateSheet"
-    class="mobile-action-overlay"
-    style="display:none;"
->
-
-    <div
-        class="mobile-action-sheet"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="mobileCreateTitle"
-    >
-
-        <div class="mobile-sheet-handle"></div>
-
-        <div class="mobile-sheet-header">
-
-            <div>
-                <p class="eyebrow">PATRIODX</p>
-
-                <h2 id="mobileCreateTitle">
-                    Create
-                </h2>
-
-                <p>
-                    Share something with your PATRIODX community.
-                </p>
-            </div>
-
-            <button
-                type="button"
-                class="mobile-sheet-close"
-                id="mobileCreateClose"
-                aria-label="Close Create menu"
-            >
-                <i data-lucide="x"></i>
-            </button>
-
-        </div>
-
-
-        <div class="mobile-action-list">
-
-            <!-- POST -->
-            <button
-                type="button"
-                class="mobile-action-item"
-                id="mobileCreatePost"
-            >
-                <span class="mobile-action-item-icon">
-                    <i data-lucide="square-pen"></i>
-                </span>
-
-                <span>
-                    <strong>Create Post</strong>
-                    <small>
-                        Share an update, photo or video.
-                    </small>
-                </span>
-
-                <i data-lucide="chevron-right"></i>
-            </button>
-
-
-            <!-- STORY -->
-            <button
-                type="button"
-                class="mobile-action-item"
-                id="mobileCreateStory"
-            >
-                <span class="mobile-action-item-icon">
-                    <i data-lucide="circle-play"></i>
-                </span>
-
-                <span>
-                    <strong>Add Story</strong>
-                    <small>
-                        Share something for 24 hours.
-                    </small>
-                </span>
-
-                <i data-lucide="chevron-right"></i>
-            </button>
-
-
-            <!-- LIVE -->
-            <button
-                type="button"
-                class="mobile-action-item"
-                id="mobileCreateLive"
-            >
-                <span class="mobile-action-item-icon">
-                    <i data-lucide="radio"></i>
-                </span>
-
-                <span>
-                    <strong>Go Live</strong>
-                    <small>
-                        Start a live broadcast on PATRIODX.
-                    </small>
-                </span>
-
-                <i data-lucide="chevron-right"></i>
-            </button>
-
-        </div>
-
-    </div>
-
 </div>
    <!-- PATRIODX PROFILE POST VIEWER -->
 <div
