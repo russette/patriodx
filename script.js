@@ -10167,45 +10167,42 @@ if (socialPostForm) {
                                     .select("id, username")
                                     .in("username", usernames);
 
-                            if (profileError) {
-                                throw profileError;
-                            }
+                       if (profileError) {
+    throw profileError;
+}
 
-                            const notifications = (
-                                taggedProfiles || []
-                            )
-                                .filter(profile =>
-                                    profile.id !== currentUser.id
-                                )
-                                .map(profile => ({
-                                    user_id: profile.id,
-                                    type: "tag",
-                                    title: "You were tagged",
-                                    message:
-                                        `${currentUser.username || "Someone"} tagged you in a post.`,
-                                    related_id: newPost.id,
-                                    is_read: false
-                                }));
+const notificationResults = await Promise.all(
+    (taggedProfiles || [])
+        .filter(profile =>
+            profile.id !== currentUser.id
+        )
+        .map(profile =>
+            supabaseClient.rpc(
+                "create_patriodx_notification",
+                {
+                    p_recipient_id: profile.id,
+                    p_type: "tag",
+                    p_activity_id: newPost.id
+                }
+            )
+        )
+);
 
-                            if (notifications.length > 0) {
+const failedNotification = notificationResults.find(
+    result => result.error
+);
 
-                                const { error: notificationError } =
-                                    await supabaseClient
-                                        .from("notifications")
-                                        .insert(notifications);
+if (failedNotification) {
+    console.error(
+        "Could not create tag notifications:",
+        failedNotification.error
+    );
 
-                                if (notificationError) {
-                                    console.error(
-                                        "Could not create tag notifications:",
-                                        notificationError
-                                    );
-
-                                    showPATRIODXToast(
-                                        "Your post was published, but some tag notifications could not be sent.",
-                                        "warning"
-                                    );
-                                }
-                            }
+    showPATRIODXToast(
+        "Your post was published, but some tag notifications could not be sent.",
+        "warning"
+    );
+}
                         }
 
                     } catch (notificationError) {
@@ -10868,9 +10865,10 @@ async function createPATRIODXComment(
             .insert(commentData)
             .select("*")
             .single();
-
     if (error) throw error;
-invalidateProfileViewerCommentsCache(postId);
+
+    invalidateProfileViewerCommentsCache(postId);
+
     // Send notification separately without delaying submission.
     if (!parentCommentId) {
         void (async () => {
@@ -10891,35 +10889,20 @@ invalidateProfileViewerCommentsCache(postId);
                     return;
                 }
 
-                const { data: commenterProfile } =
-                    await supabaseClient
-                        .from("profiles")
-                        .select("display_name, username")
-                        .eq("id", currentUser.id)
-                        .maybeSingle();
-
-                const commenterName =
-                    commenterProfile?.display_name ||
-                    commenterProfile?.username ||
-                    "PATRIODX User";
-
                 const { error: notificationError } =
-                    await supabaseClient
-                        .from("notifications")
-                        .insert({
-                            user_id: postData.user_id,
-                            sender_id: currentUser.id,
-                            type: "comment",
-                            title: `${commenterName} commented on your post`,
-                            message: cleanContent
-                        });
+                    await supabaseClient.rpc(
+                        "create_patriodx_notification",
+                        {
+                            p_recipient_id: postData.user_id,
+                            p_type: "comment",
+                            p_activity_id: savedComment.id
+                        }
+                    );
 
                 if (notificationError) {
-                    console.error(
-                        "Comment notification error:",
-                        notificationError
-                    );
+                    throw notificationError;
                 }
+
             } catch (notificationError) {
                 console.error(
                     "Comment notification failed:",
@@ -13458,161 +13441,77 @@ async function createConversationWithUser(
     if (!currentUser || !otherUserId) {
         return false;
     }
+
     if (otherUserId === currentUser.id) {
         return false;
     }
 
-    const { data: isBlocked, error: blockCheckError } =
-        await supabaseClient.rpc(
-            "is_blocked_from_current_user",
-            { other_user_id: otherUserId }
-        );
-
-    if (blockCheckError) {
-        console.error(
-            "Conversation block check error:",
-            blockCheckError
-        );
-
-        showPATRIODXToast(
-            "Could not verify whether this conversation is available.",
-            "error"
-        );
-
-        return false;
-    }
-
-    if (isBlocked) {
-        showPATRIODXToast(
-            "This conversation is unavailable.",
-            "info"
-        );
-
-        return false;
-    }
-    const { data: memberships, error: membershipError } =
-    await supabaseClient
-        .from("conversation_members")
-        .select("conversation_id, user_id")
-        .in("user_id", [currentUser.id, otherUserId]);
-
-if (membershipError) {
-    console.error(
-        "Could not check existing conversations:",
-        membershipError
-    );
-
-    showPATRIODXToast(
-        "Could not check existing conversations. " +
-        membershipError.message,
-        "error"
-    );
-
-    return false;
-}
-
-const participantsByConversation = new Map();
-
-(memberships || []).forEach(member => {
-    if (!participantsByConversation.has(member.conversation_id)) {
-        participantsByConversation.set(
-            member.conversation_id,
-            new Set()
-        );
-    }
-
-    participantsByConversation
-        .get(member.conversation_id)
-        .add(member.user_id);
-});
-
-const sharedConversationId = [
-    ...participantsByConversation.entries()
-].find(([, memberIds]) =>
-    memberIds.has(currentUser.id) &&
-    memberIds.has(otherUserId)
-)?.[0];
-
-if (sharedConversationId) {
-    if (newConversationModal) {
-        newConversationModal.style.display = "none";
-    }
-
-    if (conversationUserSearch) {
-        conversationUserSearch.value = "";
-    }
-
-    await openConversation(
-        sharedConversationId,
-        otherUserProfile
-    );
-
-    return true;
-}
- 
-    const conversationId = crypto.randomUUID();
-
-    const { error: conversationError } =
-        await supabaseClient
-            .from("conversations")
-            .insert({ id: conversationId });
-
-    if (conversationError) {
-        console.error("Could not create conversation:", conversationError);
-
-        showPATRIODXToast(
-            "Could not create conversation. " +
-            conversationError.message,
-            "error"
-        );
-
-        return false;
-    }
-
-      const { error: membersError } =
-        await supabaseClient
-            .from("conversation_members")
-            .insert([
+    try {
+        // Create or retrieve the conversation securely.
+        // The database handles blocking, duplicate prevention,
+        // and atomic participant creation.
+        const { data: conversationId, error } =
+            await supabaseClient.rpc(
+                "create_or_get_direct_conversation",
                 {
-                    conversation_id: conversationId,
-                    user_id: currentUser.id
-                },
-                {
-                    conversation_id: conversationId,
-                    user_id: otherUserId
+                    p_other_user_id: otherUserId
                 }
-            ]);
+            );
 
-    if (membersError) {
+        if (error) {
+            console.error(
+                "Could not create or retrieve conversation:",
+                error
+            );
+
+            showPATRIODXToast(
+                error.message?.includes("unavailable")
+                    ? "This conversation is unavailable."
+                    : "Could not start this conversation. Please try again.",
+                "error"
+            );
+
+            return false;
+        }
+
+        if (!conversationId) {
+            showPATRIODXToast(
+                "Could not start this conversation.",
+                "error"
+            );
+
+            return false;
+        }
+
+        if (newConversationModal) {
+            newConversationModal.style.display = "none";
+        }
+
+        if (conversationUserSearch) {
+            conversationUserSearch.value = "";
+        }
+
+        await openConversation(
+            conversationId,
+            otherUserProfile
+        );
+
+        return true;
+
+    } catch (error) {
         console.error(
-            "Could not add conversation members:",
-            membersError
+            "Unexpected conversation creation error:",
+            error
         );
 
         showPATRIODXToast(
-            "Could not add conversation members. " +
-            membersError.message,
+            "Something went wrong starting this conversation.",
             "error"
         );
 
         return false;
     }
-    if (newConversationModal) {
-        newConversationModal.style.display = "none";
-    }
-
-    if (conversationUserSearch) {
-        conversationUserSearch.value = "";
-    }
-
-  await openConversation(
-    conversationId,
-    otherUserProfile
-);
-    return true;
 }
-
-
 /* =========================================================
    LOAD CONVERSATIONS — PATRIODX
 ========================================================= */
@@ -15490,30 +15389,19 @@ optimisticRow.remove();
 
                     if (!recipient) return;
 
-                    const senderName =
-                        currentUser.user_metadata?.display_name ||
-                        currentUser.user_metadata?.username ||
-                        currentUser.email ||
-                        "PATRIODX User";
-
                     const { error: notificationError } =
-                        await supabaseClient
-                            .from("notifications")
-                            .insert({
-                                user_id: recipient.user_id,
-                                sender_id: currentUser.id,
-                                type: "message",
-                                title: senderName,
-                                message: attachmentFile && !content
-                                    ? "sent you an image."
-                                    : attachmentFile
-                                        ? "sent you a message with an image."
-                                        : "sent you a message.",
-                                related_id: conversationId,
-                                is_read: false
-                            });
+                        await supabaseClient.rpc(
+                            "create_patriodx_notification",
+                            {
+                                p_recipient_id: recipient.user_id,
+                                p_type: "message",
+                                p_activity_id: savedMessage.id
+                            }
+                        );
 
-                    if (notificationError) throw notificationError;
+                    if (notificationError) {
+                        throw notificationError;
+                    }
                 } catch (notificationError) {
                     console.error(
                         "Message notification failed:",

@@ -4903,8 +4903,10 @@ body {
 
 /* ---------- MOBILE BOTTOM NAV ---------- */
 
-.mobile-bottom-nav {
-    display: none;
+.container {
+    width: min(1200px, calc(100% - 280px));
+    margin-left: 250px;
+    margin-right: 30px;
 }
 
 
@@ -4926,9 +4928,11 @@ body {
         width: 220px;
     }
 
-    .container {
-        margin-left: 220px;
-    }
+   .container {
+    width: min(1200px, calc(100% - 250px));
+    margin-left: 220px;
+    margin-right: 30px;
+}
 }
 
 
@@ -25814,4 +25818,47 @@ body.dark-mode #publicProfilePostsContainer .public-profile-tab:hover {
         min-height: 52px;
         border-radius: 12px;
     }
+}
+/* PATRIODX — Show own-profile post menu in media grid */
+#profilePosts.is-media-grid .social-post-card {
+    position: relative;
+}
+
+#profilePosts.is-media-grid .social-post-header {
+    display: flex !important;
+    position: absolute !important;
+    top: 8px !important;
+    right: 8px !important;
+    left: auto !important;
+    width: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+    z-index: 20 !important;
+}
+
+#profilePosts.is-media-grid .social-post-header > :not(.social-post-menu-actions) {
+    display: none !important;
+}
+
+#profilePosts.is-media-grid .social-post-menu-actions {
+    display: flex !important;
+    position: relative !important;
+    flex: 0 0 40px !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    margin: 0 !important;
+    z-index: 21 !important;
+}
+
+#profilePosts.is-media-grid .social-post-menu-toggle {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    background: rgba(0, 0, 0, 0.58) !important;
+    color: #fff !important;
 }

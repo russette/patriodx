@@ -1,1 +1,0 @@
-Get-Clipboard -Raw | Set-Content .\script-editor-recovery.js -NoNewline
