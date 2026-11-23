@@ -16795,14 +16795,6 @@ const profilePosts =
 const profilePostCount =
     document.getElementById("profilePostCount");
 
-
-
-if (cancelProfileButton && profileEditor) {
-    cancelProfileButton.addEventListener("click", function () {
-        profileEditor.style.display = "none";
-    });
-}
-
 /* =========================================================
    LOAD PROFILE
 ========================================================= */
@@ -16893,75 +16885,52 @@ await loadMyFollowCounts();
 // Make the profile loader available immediately.
 window.loadMyProfile = loadMyProfile;
 /* =========================================================
-   PROFILE EDITOR
+   PATRIODX FULL-PAGE PROFILE EDITOR
 ========================================================= */
 
-if (editProfileButton && profileEditor) {
-
-    editProfileButton.addEventListener("click", function () {
-
-        if (!currentProfile) {
-
-            showPATRIODXToast(
-                "Your profile is still loading. Please try again.",
-                "warning"
-            );
-
-            return;
-        }
-        /* Fill the editor with the current profile */
-
-        if (profileUsernameInput) {
-            profileUsernameInput.value =
-                currentProfile.username || "";
-        }
-
-        if (profileDisplayNameInput) {
-            profileDisplayNameInput.value =
-                currentProfile.display_name || "";
-        }
-
-        if (profileBioInput) {
-            profileBioInput.value =
-                currentProfile.bio || "";
-        }
-
-        /* Clear old file selection */
-
-        if (profileAvatarInput) {
-            profileAvatarInput.value = "";
-        }
-if (profileBannerInput) {
-    profileBannerInput.value = "";
+if (editProfileButton) {
+    editProfileButton.addEventListener(
+        "click",
+        openProfileEditor
+    );
 }
-        /* Open editor */
 
-        profileEditor.style.display = "block";
+if (cancelProfileButton) {
+    cancelProfileButton.addEventListener(
+        "click",
+        closeProfileEditor
+    );
+}
 
-        profileEditor.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
+const profileEditorBack =
+    document.getElementById("profileEditorBack");
 
+if (profileEditorBack) {
+    profileEditorBack.addEventListener(
+        "click",
+        closeProfileEditor
+    );
+}
+
+/* Photo selection buttons */
+
+const chooseProfileAvatar =
+    document.getElementById("chooseProfileAvatar");
+
+const chooseProfileBanner =
+    document.getElementById("chooseProfileBanner");
+
+if (chooseProfileAvatar && profileAvatarInput) {
+    chooseProfileAvatar.addEventListener("click", () => {
+        profileAvatarInput.click();
     });
-
 }
 
-
-if (cancelProfileButton && profileEditor) {
-
-    cancelProfileButton.addEventListener("click", function () {
-
-        profileEditor.style.display = "none";
-
-        if (profileAvatarInput) {
-            profileAvatarInput.value = "";
-        }
-
+if (chooseProfileBanner && profileBannerInput) {
+    chooseProfileBanner.addEventListener("click", () => {
+        profileBannerInput.click();
     });
-
 }
-
 /* =========================================================
    USERNAME VALIDATION
 ========================================================= */
@@ -17362,7 +17331,6 @@ window.savePATRIODXProfile = async function(event) {
 /* =========================================
    PROFILE BANNER
 ========================================= */
-
 let bannerUrl =
     currentProfile?.banner_url || null;
 
@@ -17371,7 +17339,6 @@ const bannerInput =
 
 const bannerFile =
     bannerInput?.files?.[0] || null;
-
 if (bannerFile) {
 
     bannerUrl =
@@ -17428,7 +17395,17 @@ if (bannerFile) {
             saveButton.disabled = true;
             saveButton.textContent = "Saving...";
         }
+if (bannerFile) {
 
+    bannerUrl =
+        await uploadProfileBanner(bannerFile);
+
+    if (!bannerUrl) {
+        throw new Error(
+            "Profile banner upload failed."
+        );
+    }
+}
         /* =========================================
            CHECK USERNAME
         ========================================= */
@@ -17512,9 +17489,7 @@ setPATRIODXProfileBanner(
     document.getElementById("profileCover"),
     currentProfile.banner_url
 );
-if (profileEditor) {
-    profileEditor.style.display = "none";
-}
+closeProfileEditor();
 
 showPATRIODXToast(
     "Your PATRIODX profile has been updated!",
@@ -17540,7 +17515,7 @@ await loadMyProfilePosts();
 
     if (saveButton) {
         saveButton.disabled = false;
-        saveButton.textContent = "Save Profile";
+        saveButton.textContent = "Save Changes";
     }
 
 }
@@ -18083,64 +18058,82 @@ window.initializePATRIODXProfile =
     initializePATRIODXProfile;
 
 // ==========================================
-// PATRIODX PROFILE EDIT BUTTON
+// PATRIODX FULL-PAGE PROFILE EDITOR
 // ==========================================
 
 function openProfileEditor() {
 
-    const editor = document.getElementById("profileEditor");
-
-  if (!editor) {
-
-    showPATRIODXToast(
-        "Profile editor could not be found.",
-        "error"
-    );
-
-    return;
-}
-    if (currentProfile) {
-
-        const usernameInput =
-            document.getElementById("profileUsernameInput");
-
-        const displayNameInput =
-            document.getElementById("profileDisplayNameInput");
-
-        const bioInput =
-            document.getElementById("profileBioInput");
-
-        const avatarInput =
-            document.getElementById("profileAvatarInput");
-
-        if (usernameInput) {
-            usernameInput.value =
-                currentProfile.username || "";
-        }
-
-        if (displayNameInput) {
-            displayNameInput.value =
-                currentProfile.display_name || "";
-        }
-
-        if (bioInput) {
-            bioInput.value =
-                currentProfile.bio || "";
-        }
-
-        if (avatarInput) {
-            avatarInput.value = "";
-        }
+    if (!currentProfile) {
+        showPATRIODXToast(
+            "Your profile is still loading. Please try again.",
+            "warning"
+        );
+        return;
     }
 
-    editor.style.display = "block";
+    const editor =
+        document.getElementById("profileEditor");
 
-    editor.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
+    if (!editor) return;
+
+    // Move the editor outside the profile section.
+    // This allows it to cover the entire application.
+    if (editor.parentElement !== document.body) {
+        document.body.appendChild(editor);
+    }
+
+    profileUsernameInput.value =
+        currentProfile.username || "";
+
+    profileDisplayNameInput.value =
+        currentProfile.display_name || "";
+
+    profileBioInput.value =
+        currentProfile.bio || "";
+
+    if (profileAvatarInput) {
+        profileAvatarInput.value = "";
+    }
+
+    if (profileBannerInput) {
+        profileBannerInput.value = "";
+    }
+
+    // Restore existing profile photos in the editor.
+    const avatarPreview =
+        document.getElementById("profileAvatarPreview");
+
+    const bannerPreview =
+        document.getElementById("profileBannerPreview");
+
+    if (avatarPreview) {
+        avatarPreview.src =
+            currentProfile.avatar_url || "";
+
+        avatarPreview.style.display =
+            currentProfile.avatar_url ? "block" : "none";
+    }
+
+    if (bannerPreview) {
+        bannerPreview.src =
+            currentProfile.banner_url || "";
+
+        bannerPreview.style.display =
+            currentProfile.banner_url ? "block" : "none";
+    }
+
+    editor.style.display = "flex";
+
+    document.body.classList.add(
+        "patriodx-profile-editor-open"
+    );
+
+    document.body.style.overflow = "hidden";
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
 }
-
 
 function closeProfileEditor() {
 
@@ -18151,15 +18144,20 @@ function closeProfileEditor() {
         editor.style.display = "none";
     }
 
-    const avatarInput =
-        document.getElementById("profileAvatarInput");
+    document.body.classList.remove(
+        "patriodx-profile-editor-open"
+    );
 
-    if (avatarInput) {
-        avatarInput.value = "";
+    document.body.style.overflow = "";
+
+    if (profileAvatarInput) {
+        profileAvatarInput.value = "";
+    }
+
+    if (profileBannerInput) {
+        profileBannerInput.value = "";
     }
 }
-
-
 window.openProfileEditor = openProfileEditor;
 window.closeProfileEditor = closeProfileEditor;
 // ==========================================
@@ -25906,3 +25904,526 @@ document.addEventListener("keydown", function(event) {
         closeOwnProfileMenu();
     }
 });
+/* =========================================================
+   PATRIODX PROFILE PHOTO CROPPING
+========================================================= */
+
+(function setupPATRIODXProfileCropping() {
+
+    const avatarInput =
+        document.getElementById("profileAvatarInput");
+
+    const bannerInput =
+        document.getElementById("profileBannerInput");
+
+    const modal =
+        document.getElementById("profileImageCropModal");
+
+    const cropArea =
+        document.querySelector(".profile-image-crop-area");
+
+    const cropImage =
+        document.getElementById("profileCropImage");
+
+    const avatarPreview =
+        document.getElementById("profileAvatarPreview");
+
+    const bannerPreview =
+        document.getElementById("profileBannerPreview");
+
+    const zoomIn =
+        document.getElementById("profileCropZoomIn");
+
+    const zoomOut =
+        document.getElementById("profileCropZoomOut");
+
+    const applyButton =
+        document.getElementById("applyProfileCrop");
+
+    const cancelButton =
+        document.getElementById("cancelProfileCrop");
+
+    const closeButton =
+        document.getElementById("closeProfileCrop");
+
+    if (
+        !avatarInput ||
+        !bannerInput ||
+        !modal ||
+        !cropArea ||
+        !cropImage
+    ) {
+        console.error(
+            "PATRIODX photo cropper could not initialize."
+        );
+        return;
+    }
+
+    let cropState = null;
+    let activeInput = null;
+    let activePreview = null;
+    let activeType = null;
+    let sourceFile = null;
+    let objectUrl = null;
+
+    function clampImage() {
+
+        if (!cropState) return;
+
+        const width =
+            cropState.imageWidth * cropState.scale;
+
+        const height =
+            cropState.imageHeight * cropState.scale;
+
+        cropState.x = Math.min(
+            0,
+            Math.max(
+                cropState.areaWidth - width,
+                cropState.x
+            )
+        );
+
+        cropState.y = Math.min(
+            0,
+            Math.max(
+                cropState.areaHeight - height,
+                cropState.y
+            )
+        );
+    }
+
+    function renderCropImage() {
+
+        if (!cropState) return;
+
+        clampImage();
+
+        cropImage.style.width =
+            `${cropState.imageWidth * cropState.scale}px`;
+
+        cropImage.style.height =
+            `${cropState.imageHeight * cropState.scale}px`;
+
+        cropImage.style.left =
+            `${cropState.x}px`;
+
+        cropImage.style.top =
+            `${cropState.y}px`;
+    }
+
+    function initializeCrop() {
+
+        const areaWidth =
+            cropArea.clientWidth;
+
+        const areaHeight =
+            cropArea.clientHeight;
+
+        if (!areaWidth || !areaHeight) return;
+
+        const imageWidth =
+            cropImage.naturalWidth;
+
+        const imageHeight =
+            cropImage.naturalHeight;
+
+        const baseScale = Math.max(
+            areaWidth / imageWidth,
+            areaHeight / imageHeight
+        );
+
+        cropState = {
+            areaWidth,
+            areaHeight,
+            imageWidth,
+            imageHeight,
+            scale: baseScale,
+            baseScale,
+            x: 0,
+            y: 0,
+            dragging: false,
+            pointerX: 0,
+            pointerY: 0
+        };
+
+        cropState.x =
+            (areaWidth - imageWidth * baseScale) / 2;
+
+        cropState.y =
+            (areaHeight - imageHeight * baseScale) / 2;
+
+        renderCropImage();
+    }
+
+    function openCropper(file, input, type) {
+
+        if (!file || !file.type.startsWith("image/")) {
+            showPATRIODXToast(
+                "Please select a valid image.",
+                "warning"
+            );
+            input.value = "";
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            showPATRIODXToast(
+                "Please choose an image smaller than 5 MB.",
+                "warning"
+            );
+            input.value = "";
+            return;
+        }
+
+        sourceFile = file;
+        activeInput = input;
+        activeType = type;
+
+        activePreview =
+            type === "avatar"
+                ? avatarPreview
+                : bannerPreview;
+
+        cropArea.classList.toggle(
+            "is-avatar",
+            type === "avatar"
+        );
+
+        modal.style.display = "flex";
+
+        document.body.classList.add(
+            "patriodx-crop-active"
+        );
+
+        if (objectUrl) {
+            URL.revokeObjectURL(objectUrl);
+        }
+
+        objectUrl = URL.createObjectURL(file);
+
+        cropImage.onload = function() {
+
+            requestAnimationFrame(initializeCrop);
+
+        };
+
+        cropImage.onerror = function() {
+
+            showPATRIODXToast(
+                "This image could not be opened.",
+                "error"
+            );
+
+            cancelCrop();
+        };
+
+        cropImage.src = objectUrl;
+    }
+
+    function closeCropper() {
+
+        modal.style.display = "none";
+
+        document.body.classList.remove(
+            "patriodx-crop-active"
+        );
+
+        cropImage.onload = null;
+
+        cropState = null;
+        activeInput = null;
+        activePreview = null;
+        activeType = null;
+        sourceFile = null;
+
+        if (objectUrl) {
+            URL.revokeObjectURL(objectUrl);
+            objectUrl = null;
+        }
+    }
+
+    function cancelCrop() {
+
+        if (activeInput) {
+            activeInput.value = "";
+        }
+
+        closeCropper();
+    }
+
+    function zoomImage(multiplier) {
+
+        if (!cropState) return;
+
+        const oldScale = cropState.scale;
+
+        const newScale = Math.min(
+            cropState.baseScale * 4,
+            Math.max(
+                cropState.baseScale,
+                oldScale * multiplier
+            )
+        );
+
+        const centerX =
+            cropState.areaWidth / 2;
+
+        const centerY =
+            cropState.areaHeight / 2;
+
+        const ratio =
+            newScale / oldScale;
+
+        cropState.x =
+            centerX -
+            (centerX - cropState.x) * ratio;
+
+        cropState.y =
+            centerY -
+            (centerY - cropState.y) * ratio;
+
+        cropState.scale = newScale;
+
+        renderCropImage();
+    }
+
+    async function applyCrop() {
+
+        if (
+            !cropState ||
+            !activeInput ||
+            !activePreview ||
+            !sourceFile
+        ) {
+            return;
+        }
+
+        const canvas =
+            document.createElement("canvas");
+
+        const outputWidth =
+            activeType === "banner" ? 1500 : 800;
+
+        const outputHeight =
+            activeType === "banner" ? 500 : 800;
+
+        canvas.width = outputWidth;
+        canvas.height = outputHeight;
+
+        const context =
+            canvas.getContext("2d");
+
+        if (!context) {
+            showPATRIODXToast(
+                "Photo editing is unavailable in this browser.",
+                "error"
+            );
+            return;
+        }
+
+        const sourceX =
+            -cropState.x / cropState.scale;
+
+        const sourceY =
+            -cropState.y / cropState.scale;
+
+        const sourceWidth =
+            cropState.areaWidth / cropState.scale;
+
+        const sourceHeight =
+            cropState.areaHeight / cropState.scale;
+
+        context.drawImage(
+            cropImage,
+            sourceX,
+            sourceY,
+            sourceWidth,
+            sourceHeight,
+            0,
+            0,
+            outputWidth,
+            outputHeight
+        );
+
+        const outputType =
+            sourceFile.type === "image/png"
+                ? "image/png"
+                : "image/jpeg";
+
+        try {
+
+            const blob = await new Promise(resolve => {
+                canvas.toBlob(
+                    resolve,
+                    outputType,
+                    0.92
+                );
+            });
+
+            if (!blob) {
+                throw new Error("Photo processing failed.");
+            }
+
+            const extension =
+                outputType === "image/png" ? "png" : "jpg";
+
+            const croppedFile = new File(
+                [blob],
+                `patriodx-${activeType}-${Date.now()}.${extension}`,
+                {
+                    type: outputType,
+                    lastModified: Date.now()
+                }
+            );
+
+            const transfer =
+                new DataTransfer();
+
+            transfer.items.add(croppedFile);
+
+            activeInput.files =
+                transfer.files;
+
+            const previewUrl =
+                URL.createObjectURL(croppedFile);
+
+            activePreview.src = previewUrl;
+
+            activePreview.style.display =
+                "block";
+
+            activePreview.onload = function() {
+                URL.revokeObjectURL(previewUrl);
+                activePreview.onload = null;
+            };
+
+            closeCropper();
+
+            showPATRIODXToast(
+                "Photo crop applied. Save your profile to upload it.",
+                "success"
+            );
+
+        } catch (error) {
+
+            console.error(
+                "PATRIODX photo crop error:",
+                error
+            );
+
+            showPATRIODXToast(
+                "Could not process this photo. Please try again.",
+                "error"
+            );
+        }
+    }
+
+    avatarInput.addEventListener("change", function() {
+
+        if (this.files?.[0]) {
+            openCropper(
+                this.files[0],
+                this,
+                "avatar"
+            );
+        }
+
+    });
+
+    bannerInput.addEventListener("change", function() {
+
+        if (this.files?.[0]) {
+            openCropper(
+                this.files[0],
+                this,
+                "banner"
+            );
+        }
+
+    });
+
+    cropArea.addEventListener(
+        "pointerdown",
+        function(event) {
+
+            if (!cropState) return;
+
+            cropState.dragging = true;
+
+            cropState.pointerX = event.clientX;
+            cropState.pointerY = event.clientY;
+
+            cropArea.setPointerCapture(event.pointerId);
+
+        }
+    );
+
+    cropArea.addEventListener(
+        "pointermove",
+        function(event) {
+
+            if (!cropState?.dragging) return;
+
+            cropState.x +=
+                event.clientX - cropState.pointerX;
+
+            cropState.y +=
+                event.clientY - cropState.pointerY;
+
+            cropState.pointerX = event.clientX;
+            cropState.pointerY = event.clientY;
+
+            renderCropImage();
+
+        }
+    );
+
+    cropArea.addEventListener(
+        "pointerup",
+        function() {
+
+            if (cropState) {
+                cropState.dragging = false;
+            }
+
+        }
+    );
+
+    cropArea.addEventListener(
+        "pointercancel",
+        function() {
+
+            if (cropState) {
+                cropState.dragging = false;
+            }
+
+        }
+    );
+
+    zoomIn?.addEventListener(
+        "click",
+        () => zoomImage(1.15)
+    );
+
+    zoomOut?.addEventListener(
+        "click",
+        () => zoomImage(1 / 1.15)
+    );
+
+    applyButton?.addEventListener(
+        "click",
+        applyCrop
+    );
+
+    cancelButton?.addEventListener(
+        "click",
+        cancelCrop
+    );
+
+    closeButton?.addEventListener(
+        "click",
+        cancelCrop
+    );
+
+})();

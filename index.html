@@ -1902,133 +1902,200 @@ body {
 ></div>
 </div>
     </div>
+<!-- PATRIODX FULL-PAGE PROFILE EDITOR -->
+<div id="profileEditor" class="profile-editor" style="display:none;">
 
+    <div class="profile-editor-topbar">
+        <button
+            type="button"
+            id="profileEditorBack"
+            aria-label="Return to profile"
+        >
+            <i data-lucide="arrow-left"></i>
+        </button>
 
-    <!-- EDIT PROFILE -->
+        <h2>Edit Profile</h2>
 
-    <div
-        id="profileEditor"
-        class="chart-card profile-editor"
-        style="display:none;"
-    >
+        <span></span>
+    </div>
 
-        <div class="section-heading">
+    <form id="profileForm">
 
-            <div>
+        <!-- PROFILE PHOTOS -->
+        <section class="profile-editor-section">
 
-                <h3 data-i18n="editYourProfile">
-                    Edit Your Profile
-                </h3>
+            <h3>Profile Photos</h3>
 
-                <p data-i18n="customizeProfile">
-                    Customize how people see you on PATRIODX.
-                </p>
+            <!-- BANNER -->
+            <div class="profile-editor-banner">
+
+                <img
+                    id="profileBannerPreview"
+                    alt="Profile banner preview"
+                >
+
+                <button
+                    type="button"
+                    class="profile-photo-edit-button"
+                    id="chooseProfileBanner"
+                >
+                    <i data-lucide="camera"></i>
+                    Edit Banner
+                </button>
+
+                <input
+                    type="file"
+                    id="profileBannerInput"
+                    accept="image/jpeg,image/png,image/webp"
+                    hidden
+                >
 
             </div>
 
-        </div>
+            <!-- AVATAR -->
+            <div class="profile-editor-avatar-row">
 
+                <div class="profile-editor-avatar">
 
-     <form id="profileForm">
-            <label data-i18n="username">
-                Username
-            </label>
+                    <img
+                        id="profileAvatarPreview"
+                        alt="Profile picture preview"
+                    >
+
+                </div>
+
+                <div>
+                    <strong>Profile Picture</strong>
+
+                    <button
+                        type="button"
+                        class="profile-photo-edit-button"
+                        id="chooseProfileAvatar"
+                    >
+                        <i data-lucide="camera"></i>
+                        Change Photo
+                    </button>
+
+                    <input
+                        type="file"
+                        id="profileAvatarInput"
+                        accept="image/jpeg,image/png,image/webp"
+                        hidden
+                    >
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- PROFILE INFORMATION -->
+        <section class="profile-editor-section">
+
+            <h3>Profile Information</h3>
+
+            <label for="profileUsernameInput">Username</label>
 
             <input
                 type="text"
                 id="profileUsernameInput"
-                placeholder="username"
-                data-i18n-placeholder="usernamePlaceholder"
+                placeholder="Username"
                 maxlength="30"
                 autocomplete="off"
                 required
             >
 
-            <small data-i18n="uniqueUsername">
-                Your unique PATRIODX username.
-            </small>
-
-
-            <label data-i18n="displayName">
-                Display Name
-            </label>
+            <label for="profileDisplayNameInput">Display Name</label>
 
             <input
                 type="text"
                 id="profileDisplayNameInput"
                 placeholder="Your name"
-                data-i18n-placeholder="yourName"
                 maxlength="80"
                 required
             >
 
-
-            <label data-i18n="bio">
-                Bio
-            </label>
+            <label for="profileBioInput">Bio</label>
 
             <textarea
                 id="profileBioInput"
                 placeholder="Tell people about yourself..."
-                data-i18n-placeholder="bioPlaceholder"
                 maxlength="300"
                 rows="4"
             ></textarea>
 
-<label for="profileAvatarInput">
-    Profile Picture
-</label>
+        </section>
 
-<input
-    type="file"
-    id="profileAvatarInput"
-    accept="image/*"
+        <!-- ACTIONS -->
+        <div class="profile-editor-actions">
+
+            <button
+                type="button"
+                id="cancelProfileButton"
+                class="profile-editor-cancel"
+            >
+                Cancel
+            </button>
+
+            <button
+                type="submit"
+                id="saveProfileButton"
+            >
+                Save Changes
+            </button>
+
+        </div>
+
+    </form>
+</div>
+
+<!-- PHOTO CROPPING WINDOW -->
+<div
+    id="profileImageCropModal"
+    class="profile-image-crop-modal"
+    style="display:none;"
 >
+    <div class="profile-image-crop-card">
 
-<small>
-    Upload a profile picture for your PATRIODX account.
-</small>
-           <label for="profileBannerInput">
-    Profile Banner Photo
-</label>
+        <div class="profile-image-crop-header">
+            <h3>Adjust Photo</h3>
 
-<input
-    type="file"
-    id="profileBannerInput"
-    accept="image/*"
->
+            <button
+                type="button"
+                id="closeProfileCrop"
+                aria-label="Close crop editor"
+            >
+                <i data-lucide="x"></i>
+            </button>
+        </div>
 
-<small>
-    Upload a wide image for the top of your profile.
-    Recommended size: 1500 × 500 pixels.
-</small>
+        <div class="profile-image-crop-area">
+            <img id="profileCropImage" alt="Photo being cropped">
+        </div>
 
+        <div class="profile-image-crop-controls">
+            <button type="button" id="profileCropZoomOut">
+                <i data-lucide="minus"></i>
+            </button>
 
-            <div class="profile-editor-actions">
+            <button type="button" id="profileCropZoomIn">
+                <i data-lucide="plus"></i>
+            </button>
+        </div>
 
-                <button
-                    type="submit"
-                    id="saveProfileButton"
-                    data-i18n="saveProfile"
-                >
-                    Save Profile
-                </button>
+        <div class="profile-image-crop-actions">
 
-              <button
-    type="button"
-    id="cancelProfileButton"
-    onclick="closeProfileEditor()"
->
-    Cancel
-</button>
+            <button type="button" id="cancelProfileCrop">
+                Cancel
+            </button>
 
-            </div>
+            <button type="button" id="applyProfileCrop">
+                Apply Crop
+            </button>
 
-        </form>
+        </div>
 
     </div>
-
-
+</div>
       <!-- USER POSTS -->
 
     <div class="profile-posts">
