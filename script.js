@@ -7819,7 +7819,18 @@ async function recordPATRIODXStoryView(story) {
     }
 
     try {
+const {
+    data: { user: authUser },
+    error: authError
+} = await supabaseClient.auth.getUser();
 
+console.log("PATRIODX STORY VIEW DIAGNOSTIC:", {
+    authUserId: authUser?.id,
+    currentUserId: currentUser.id,
+    storyId: story.id,
+    storyOwnerId: story.user_id,
+    authError
+});
         const { error } =
             await supabaseClient
                .from("story_views")
