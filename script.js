@@ -26082,10 +26082,19 @@ renderCropImage();
         activeInput = input;
         activeType = type;
 
-        activePreview =
-            type === "avatar"
-                ? avatarPreview
-                : bannerPreview;
+        activePreview = document.getElementById(
+    type === "avatar"
+        ? "profileAvatarPreview"
+        : "profileBannerPreview"
+);
+
+if (!activePreview) {
+    showPATRIODXToast(
+        "Photo preview could not be found. Please try again.",
+        "error"
+    );
+    return;
+}
 
         cropArea.classList.toggle(
             "is-avatar",
@@ -26290,15 +26299,15 @@ renderCropImage();
             const previewUrl =
                 URL.createObjectURL(croppedFile);
 
-            activePreview.src = previewUrl;
+          const previewElement = activePreview;
 
-            activePreview.style.display =
-                "block";
+previewElement.src = previewUrl;
+previewElement.style.display = "block";
 
-            activePreview.onload = function() {
-                URL.revokeObjectURL(previewUrl);
-                activePreview.onload = null;
-            };
+previewElement.onload = function() {
+    URL.revokeObjectURL(previewUrl);
+    previewElement.onload = null;
+};
 
             closeCropper();
 
