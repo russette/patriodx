@@ -7807,7 +7807,6 @@ storyButton.appendChild(nameElement);
 /* =========================================================
    PATRIODX STORY VIEWER
 ========================================================= */
-
 async function recordPATRIODXStoryView(story) {
 
     if (!currentUser || !story) {
@@ -7819,32 +7818,44 @@ async function recordPATRIODXStoryView(story) {
     }
 
     try {
-const {
-    data: { user: authUser },
-    error: authError
-} = await supabaseClient.auth.getUser();
 
-console.log("PATRIODX STORY VIEW DIAGNOSTIC:", {
-    authUserId: authUser?.id,
-    currentUserId: currentUser.id,
-    storyId: story.id,
-    storyOwnerId: story.user_id,
-    authError
-});
+        // Check whether this viewer has already viewed this story.
+        const { data: existingView, error: checkError } =
+            await supabaseClient
+                .from("story_views")
+                .select("id")
+                .eq("story_id", story.id)
+                .eq("viewer_id", currentUser.id)
+                .maybeSingle();
+
+        if (checkError) {
+            console.error(
+                "Could not check existing story view:",
+                checkError
+            );
+            return;
+        }
+
+        // Do not insert an existing view.
+        if (existingView) {
+            return;
+        }
+
         const { error } =
             await supabaseClient
-               .from("story_views")
-.insert({
-    story_id: story.id,
-    viewer_id: currentUser.id
-});
+                .from("story_views")
+                .insert({
+                    story_id: story.id,
+                    viewer_id: currentUser.id
+                });
 
-      if (error && error.code !== "23505") {
-    console.error(
-        "Could not record story view:",
-        error
-    );
-}
+        if (error && error.code !== "23505") {
+            console.error(
+                "Could not record story view:",
+                error
+            );
+        }
+
     } catch (error) {
 
         console.error(
@@ -7854,7 +7865,6 @@ console.log("PATRIODX STORY VIEW DIAGNOSTIC:", {
 
     }
 }
-
 
 function openPATRIODXStoryViewer(index) {
 
