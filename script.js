@@ -7822,25 +7822,18 @@ async function recordPATRIODXStoryView(story) {
 
         const { error } =
             await supabaseClient
-                .from("story_views")
-                .upsert(
-                    {
-                        story_id: story.id,
-                        viewer_id: currentUser.id
-                    },
-                    {
-                        onConflict:
-                            "story_id,viewer_id"
-                    }
-                );
+               .from("story_views")
+.insert({
+    story_id: story.id,
+    viewer_id: currentUser.id
+});
 
-        if (error) {
-            console.error(
-                "Could not record story view:",
-                error
-            );
-        }
-
+      if (error && error.code !== "23505") {
+    console.error(
+        "Could not record story view:",
+        error
+    );
+}
     } catch (error) {
 
         console.error(
