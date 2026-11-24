@@ -1761,14 +1761,28 @@ body {
         <i data-lucide="images"></i>
         <span>Media</span>
     </button>
-
+<button
+    type="button"
+    class="public-profile-tab"
+    data-public-profile-tab="reposts"
+    role="tab"
+    aria-selected="false"
+    onclick="setPublicProfileTab('reposts')"
+>
+    <i data-lucide="repeat-2"></i>
+    <span>Reposts</span>
+</button>
 </div>
 
             <div
                 id="publicProfilePosts"
                 class="social-feed"
             ></div>
-
+<div
+    id="publicProfileReposts"
+    class="social-feed"
+    hidden
+></div>
         </div>
 
 <div id="ownProfileContent" class="profile-page-card">
@@ -2126,14 +2140,28 @@ body {
                 <i data-lucide="images"></i>
                 <span>Media</span>
             </button>
-
+<button
+    type="button"
+    class="public-profile-tab"
+    data-own-profile-tab="reposts"
+    role="tab"
+    aria-selected="false"
+    onclick="setOwnProfileTab('reposts')"
+>
+    <i data-lucide="repeat-2"></i>
+    <span>Reposts</span>
+</button>
         </div>
 
         <div
             id="profilePosts"
             class="social-feed"
         ></div>
-
+<div
+    id="profileReposts"
+    class="social-feed"
+    hidden
+></div>
     </div>
 
 </div>
@@ -6078,7 +6106,18 @@ body {
     <i data-lucide="message-circle"></i>
     <span>Comment</span>
 </button>
-
+<button
+    type="button"
+    id="profilePostViewerRepost"
+    class="profile-post-viewer-action-button social-repost-button"
+    data-post-repost-button
+    aria-label="Repost"
+    aria-pressed="false"
+    title="Repost"
+>
+    <i data-lucide="repeat-2"></i>
+    <span>Repost</span>
+</button>
 <button
     type="button"
     id="profilePostViewerShare"

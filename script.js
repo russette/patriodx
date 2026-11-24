@@ -7578,6 +7578,613 @@ async function getLikedSocialPostIds(postIds) {
     );
 }
 /* =========================================================
+   PATRIODX — POST REPOST SYSTEM
+========================================================= */
+
+const patriodxPendingPostReposts = new Set();
+
+async function getPostRepostState(postIds) {
+    const ids = [
+        ...new Set((postIds || []).filter(Boolean).map(String))
+    ];
+
+    const result = {
+        counts: new Map(),
+        repostedIds: new Set()
+    };
+
+    if (!ids.length) return result;
+
+    const { data, error } = await supabaseClient
+        .from("post_reposts")
+        .select("post_id, user_id")
+        .in("post_id", ids);
+
+    if (error) throw error;
+
+    (data || []).forEach(row => {
+        const postId = String(row.post_id);
+
+        result.counts.set(
+            postId,
+            (result.counts.get(postId) || 0) + 1
+        );
+
+        if (
+            currentUser &&
+            row.user_id === currentUser.id
+        ) {
+            result.repostedIds.add(postId);
+        }
+    });
+
+    return result;
+}
+
+async function refreshPostRepostButtons(postIds) {
+    const ids = [
+        ...new Set((postIds || []).filter(Boolean).map(String))
+    ];
+
+    if (!ids.length) return;
+
+    try {
+        const state = await getPostRepostState(ids);
+
+        document.querySelectorAll(
+            "[data-post-repost-button]"
+        ).forEach(button => {
+            const postId = String(button.dataset.postId || "");
+
+            if (!ids.includes(postId)) return;
+
+            const count = state.counts.get(postId) || 0;
+            const reposted = state.repostedIds.has(postId);
+
+            button.dataset.reposted = String(reposted);
+            button.classList.toggle("is-reposted", reposted);
+            button.setAttribute(
+                "aria-pressed",
+                String(reposted)
+            );
+
+            button.setAttribute(
+                "aria-label",
+                reposted ? "Undo repost" : "Repost"
+            );
+
+            button.title = reposted
+                ? "Undo repost"
+                : "Repost";
+
+                       let repostIcon = button.querySelector(
+                'i[data-lucide="repeat-2"]'
+            );
+
+            if (!repostIcon) {
+                repostIcon = document.createElement("i");
+                repostIcon.setAttribute("data-lucide", "repeat-2");
+                button.prepend(repostIcon);
+            }
+
+            let countElement = button.querySelector(
+                ".social-repost-count"
+            );
+
+            if (!countElement) {
+                countElement = document.createElement("span");
+                countElement.className = "social-repost-count";
+                button.appendChild(countElement);
+            }
+
+            countElement.textContent = count > 0
+                ? String(count)
+                : "";
+        });
+
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+
+    } catch (error) {
+        console.error("Could not refresh reposts:", error);
+    }
+}
+
+async function togglePostRepost(postId) {
+    if (!currentUser) {
+        showPATRIODXToast(
+            "Please log in to repost.",
+            "warning"
+        );
+        return;
+    }
+
+    if (
+        !postId ||
+        patriodxPendingPostReposts.has(String(postId))
+    ) {
+        return;
+    }
+
+    postId = String(postId);
+    patriodxPendingPostReposts.add(postId);
+
+    const buttons = [
+        ...document.querySelectorAll("[data-post-repost-button]")
+    ].filter(button => button.dataset.postId === postId);
+
+    buttons.forEach(button => {
+        button.disabled = true;
+    });
+
+    try {
+        const { data: existing, error: lookupError } =
+            await supabaseClient
+                .from("post_reposts")
+                .select("id")
+                .eq("post_id", postId)
+                .eq("user_id", currentUser.id)
+                .maybeSingle();
+
+        if (lookupError) throw lookupError;
+
+        if (existing) {
+            const { error } = await supabaseClient
+                .from("post_reposts")
+                .delete()
+                .eq("post_id", postId)
+                .eq("user_id", currentUser.id);
+
+            if (error) throw error;
+
+            showPATRIODXToast(
+                "Repost removed.",
+                "success"
+            );
+
+        } else {
+            const { error } = await supabaseClient
+                .from("post_reposts")
+                .insert({
+                    post_id: postId,
+                    user_id: currentUser.id
+                });
+
+            if (error) throw error;
+
+            showPATRIODXToast(
+                "Post reposted.",
+                "success"
+            );
+        }
+
+        await refreshPostRepostButtons([postId]);
+
+    } catch (error) {
+        console.error("Post repost error:", error);
+
+        showPATRIODXToast(
+            "Could not update repost. Please try again.",
+            "error"
+        );
+
+    } finally {
+        patriodxPendingPostReposts.delete(postId);
+
+        buttons.forEach(button => {
+            button.disabled = false;
+        });
+    }
+}
+
+document.addEventListener("click", function (event) {
+    const button = event.target.closest(
+        "[data-post-repost-button]"
+    );
+
+    if (!button) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    togglePostRepost(button.dataset.postId);
+});
+/* =========================================================
+   PATRIODX — LOAD PROFILE REPOSTS
+========================================================= */
+
+async function loadProfileReposts(
+    profileUserId,
+    targetContainerId,
+    repostingProfile,
+    isPublicProfile = false
+) {
+    const container = document.getElementById(
+        targetContainerId
+    );
+
+    if (!container || !profileUserId) return;
+
+    container.innerHTML = `
+        <div class="social-empty-state">
+            <p>Loading reposts...</p>
+        </div>
+    `;
+
+    try {
+        const { data: repostRows, error: repostError } =
+            await supabaseClient
+                .from("post_reposts")
+                .select("post_id, user_id, created_at")
+                .eq("user_id", profileUserId)
+                .order("created_at", { ascending: false });
+
+        if (repostError) throw repostError;
+
+        if (!repostRows || !repostRows.length) {
+            container.innerHTML = `
+                <div class="social-empty-state">
+                    <div><i data-lucide="repeat-2"></i></div>
+                    <h3>No reposts yet</h3>
+                    <p>Reposts will appear here.</p>
+                </div>
+            `;
+
+            if (window.lucide) window.lucide.createIcons();
+            return;
+        }
+
+        const postIds = [
+            ...new Set(repostRows.map(row => String(row.post_id)))
+        ];
+
+        const { data: fetchedPosts, error: postsError } =
+            await supabaseClient
+                .from("posts")
+                .select("*")
+                .in("id", postIds);
+
+        if (postsError) throw postsError;
+
+        const postMap = new Map(
+            (fetchedPosts || []).map(post => [
+                String(post.id),
+                post
+            ])
+        );
+
+        // Preserve the original repost order.
+        const repostedPosts = repostRows
+            .map(row => ({
+                repost: row,
+                post: postMap.get(String(row.post_id))
+            }))
+            .filter(item => item.post);
+
+        if (!repostedPosts.length) {
+            container.innerHTML = `
+                <div class="social-empty-state">
+                    <h3>No available reposts</h3>
+                    <p>The original posts are no longer available.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const originalUserIds = [
+            ...new Set(
+                repostedPosts
+                    .map(item => item.post.user_id)
+                    .filter(Boolean)
+            )
+        ];
+
+        const { data: authors, error: authorsError } =
+            await supabaseClient
+                .from("profiles")
+                .select(`
+                    id,
+                    username,
+                    display_name,
+                    avatar_url,
+                    is_verified,
+                    is_owner,
+                    verification_expires_at
+                `)
+                .in("id", originalUserIds);
+
+        if (authorsError) throw authorsError;
+
+        const authorMap = new Map(
+            (authors || []).map(author => [
+                String(author.id),
+                author
+            ])
+        );
+
+        const visiblePostIds = repostedPosts.map(
+            item => String(item.post.id)
+        );
+
+        const [countsMap, likedIds] = await Promise.all([
+            getSocialCountsBatch(visiblePostIds),
+            getLikedSocialPostIds(visiblePostIds)
+        ]);
+
+              let ownerProfile = repostingProfile;
+
+        if (!ownerProfile && profileUserId) {
+            const { data: fetchedOwner, error: ownerError } =
+                await supabaseClient
+                    .from("profiles")
+                    .select("id, username, display_name")
+                    .eq("id", profileUserId)
+                    .maybeSingle();
+
+            if (ownerError) throw ownerError;
+
+            ownerProfile = fetchedOwner;
+        }
+
+        const ownerName =
+            ownerProfile?.display_name ||
+            ownerProfile?.username ||
+            "PATRIODX User";
+        container.innerHTML = repostedPosts.map(item => {
+            const post = item.post;
+            const author = authorMap.get(String(post.user_id)) || {};
+
+            const postId = escapeHTML(String(post.id));
+
+            const authorName = escapeHTML(
+                author.display_name ||
+                author.username ||
+                "PATRIODX User"
+            );
+
+            const username = author.username
+                ? "@" + escapeHTML(
+                    author.username.replace(/^@/, "")
+                )
+                : "";
+
+            const avatar = author.avatar_url
+                ? `
+                    <img
+                        src="${escapeHTML(author.avatar_url)}"
+                        alt="Profile"
+                        loading="lazy"
+                    >
+                `
+                : '<i data-lucide="user"></i>';
+
+            const counts = countsMap.get(String(post.id)) || {
+                likes: 0,
+                comments: 0
+            };
+
+            const liked = likedIds.has(String(post.id));
+
+            const image = post.image_url
+                ? `
+                    <img
+                        src="${escapeHTML(post.image_url)}"
+                        class="social-post-image"
+                        alt="Post image"
+                        loading="lazy"
+                    >
+                `
+                : "";
+
+            const video = post.video_url
+                ? `
+                    <div class="social-media-wrapper">
+                        <video
+                            src="${escapeHTML(post.video_url)}"
+                            class="social-post-video"
+                            controls
+                            muted
+                            playsinline
+                            loop
+                            preload="metadata"
+                        ></video>
+                    </div>
+                `
+                : "";
+
+            return `
+                <article
+                    class="social-post-card"
+                    data-profile-repost-card
+                    data-post-id="${postId}"
+                    data-profile-post-media="${
+                        post.image_url || post.video_url
+                            ? "true"
+                            : "false"
+                    }"
+                >
+
+                    <div class="social-post-reposted-by">
+                        <i data-lucide="repeat-2"></i>
+                        Reposted by ${escapeHTML(ownerName)}
+                    </div>
+
+                    <div class="social-post-header">
+
+                        <div class="social-post-avatar">
+                            ${avatar}
+                        </div>
+
+                        <div>
+                            <div class="social-post-author">
+                                ${authorName}
+                                ${
+                                    typeof getPATRIODXBadge === "function"
+                                        ? getPATRIODXBadge(author)
+                                        : ""
+                                }
+                            </div>
+
+                            <div class="social-post-username">
+                                ${username}
+                            </div>
+
+                            <div class="social-post-date">
+                                ${formatDate(post.created_at)}
+                            </div>
+                        </div>
+                    </div>
+
+                    ${
+                        post.content
+                            ? `
+                                <div class="social-post-content">
+                                    ${renderClickableMentions(post.content)}
+                                </div>
+                            `
+                            : ""
+                    }
+
+                    ${image}
+                    ${video}
+
+                    <div
+                        class="social-post-stats"
+                        data-profile-post-stats="${postId}"
+                    >
+                        <span class="social-like-stat">
+                            <i data-lucide="heart"></i>
+                            <strong>${counts.likes}</strong>
+                            <span>Likes</span>
+                        </span>
+
+                        <span class="social-comment-stat">
+                            <i data-lucide="message-circle"></i>
+                            <strong>${counts.comments}</strong>
+                            <span>Comments</span>
+                        </span>
+                    </div>
+
+                    <div class="social-post-actions-bar">
+
+                        <button
+                            type="button"
+                            class="social-action-button social-like-button profile-own-like-button ${liked ? "liked" : ""}"
+                            data-post-id="${postId}"
+                            aria-label="${liked ? "Unlike post" : "Like post"}"
+                        >
+                            <i data-lucide="heart"></i>
+                            <span>${liked ? "Liked" : "Like"}</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="social-action-button social-repost-button"
+                            data-post-repost-button
+                            data-post-id="${postId}"
+                            aria-label="Repost"
+                            aria-pressed="false"
+                            title="Repost"
+                        >
+                            <i data-lucide="repeat-2"></i>
+                            <span>Repost</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="social-action-button profile-own-comment-button"
+                            data-post-id="${postId}"
+                        >
+                            <i data-lucide="message-circle"></i>
+                            <span>Comment</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="social-action-button"
+                            onclick="shareSocialPost('${postId}')"
+                        >
+                            <i data-lucide="share-2"></i>
+                            <span>Share</span>
+                        </button>
+
+                    </div>
+                </article>
+            `;
+        }).join("");
+
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+
+        void refreshPostRepostButtons(visiblePostIds);
+
+        // Open the original post, not the reposting user's post.
+        container.querySelectorAll(
+            "[data-profile-repost-card]"
+        ).forEach(card => {
+            const post = postMap.get(card.dataset.postId);
+
+            if (!post) return;
+
+            const author = authorMap.get(
+                String(post.user_id)
+            ) || {};
+
+            function openOriginalPost() {
+                openProfilePostViewer({
+                    postId: post.id,
+                    imageUrl: post.image_url || "",
+                    videoUrl: post.video_url || "",
+                    author:
+                        author.display_name ||
+                        author.username ||
+                        "PATRIODX User",
+                    authorProfile: author,
+                    profileUserId: author.id,
+                    isPublicProfilePost: true,
+                    caption: post.content || "",
+                    createdAt: post.created_at || null,
+                    sourceSection: "profile"
+                });
+            }
+
+            card.style.cursor = "pointer";
+card.tabIndex = 0;
+card.setAttribute("aria-label", "Open original post");
+
+card.addEventListener("click", event => {
+    if (event.target.closest("video, button, a")) {
+        return;
+    }
+
+                openOriginalPost();
+            });
+
+            card.addEventListener("keydown", event => {
+                if (
+                    event.target === card &&
+                    (event.key === "Enter" || event.key === " ")
+                ) {
+                    event.preventDefault();
+                    openOriginalPost();
+                }
+            });
+        });
+
+    } catch (error) {
+        console.error("Could not load profile reposts:", error);
+
+        container.innerHTML = `
+            <div class="social-empty-state">
+                <h3>Could not load reposts</h3>
+                <p>Please try again.</p>
+            </div>
+        `;
+    }
+}
+/* =========================================================
    LOAD SOCIAL POSTS
 ========================================================= */
 
@@ -9769,7 +10376,17 @@ const author =
                 : ""
         }
     </button>
-
+    <button
+        type="button"
+        class="social-action-button social-repost-button"
+        data-post-repost-button
+        data-post-id="${post.id}"
+        aria-label="Repost"
+        aria-pressed="false"
+        title="Repost"
+    >
+        <i data-lucide="repeat-2"></i>
+    </button>
     <button
         type="button"
         class="social-action-button"
@@ -9849,6 +10466,10 @@ state.hasMore =
     fetchedPostCount === PATRIODX_FEED_PAGE_SIZE;
 state.loading = false;
 observePATRIODXFeedVideos(socialFeed);
+// Load repost counts and the current user's repost state.
+void refreshPostRepostButtons(
+    postsWithCounts.map(post => post.id)
+);
 // Collect only the cards rendered in this batch.
 const renderedCards = postsWithCounts
     .map(post =>
@@ -17949,7 +18570,18 @@ ${video}
         <i data-lucide="heart"></i>
         <span>${post.liked ? "Liked" : "Like"}</span>
     </button>
-
+    <button
+        type="button"
+        class="social-action-button social-repost-button"
+        data-post-repost-button
+        data-post-id="${safe(post.id)}"
+        aria-label="Repost"
+        aria-pressed="false"
+        title="Repost"
+    >
+        <i data-lucide="repeat-2"></i>
+        <span>Repost</span>
+    </button>
     <button
         type="button"
         class="social-action-button profile-own-comment-button"
@@ -18004,6 +18636,10 @@ if ("IntersectionObserver" in window) {
             profileVideoObserver.observe(video);
         });
 }
+// Load repost counts and current user's repost state.
+void refreshPostRepostButtons(
+    postsWithCounts.map(post => post.id)
+);
     // Make your profile posts clickable
     profilePosts
         .querySelectorAll(".social-post-card")
@@ -19657,7 +20293,18 @@ let liked = false;
         <i data-lucide="heart"></i>
         <span>${liked ? "Liked" : "Like"}</span>
     </button>
-
+    <button
+        type="button"
+        class="social-action-button social-repost-button"
+        data-post-repost-button
+        data-post-id="${escapeHTML(post.id)}"
+        aria-label="Repost"
+        aria-pressed="false"
+        title="Repost"
+    >
+        <i data-lucide="repeat-2"></i>
+        <span>Repost</span>
+    </button>
     <button
         type="button"
         class="social-action-button public-profile-comment-button"
@@ -19695,6 +20342,10 @@ if (
 }
 
 postsElement.innerHTML = renderedPosts;
+// Load repost counts and current user's repost state.
+void refreshPostRepostButtons(
+    posts.map(post => post.id)
+);
 setPublicProfileTab("posts");
 // Load all profile post statistics in ONE database request.
 supabaseClient
@@ -23140,7 +23791,17 @@ window.currentProfileViewerPostData = postData;
     window.profileViewerRequestId = requestId;
 
     window.currentProfileViewerPostId = postId;
+// Connect the viewer Repost button to the currently open post.
+const viewerRepostButton = document.getElementById(
+    "profilePostViewerRepost"
+);
 
+if (viewerRepostButton) {
+    viewerRepostButton.dataset.postId = String(postId);
+}
+
+// Load the current repost count and active state.
+void refreshPostRepostButtons([postId]);
     // Clear the previous post before displaying the new one.
     mediaContainer.replaceChildren();
     authorContainer.replaceChildren();
@@ -25780,16 +26441,31 @@ async function unblockPATRIODXUser(userId, button) {
 /* =========================================================
    PATRIODX — PUBLIC PROFILE CONTENT TABS
 ========================================================= */
-
 function setPublicProfileTab(tab) {
     const postsContainer = document.getElementById(
         "publicProfilePosts"
     );
 
-    if (!postsContainer) return;
+    const repostsContainer = document.getElementById(
+        "publicProfileReposts"
+    );
+
+    if (!postsContainer || !repostsContainer) return;
 
     const isMediaTab = tab === "media";
-postsContainer.classList.toggle("is-media-grid", isMediaTab);
+    const isRepostsTab = tab === "reposts";
+
+    postsContainer.hidden = isRepostsTab;
+    postsContainer.style.display = isRepostsTab ? "none" : "";
+
+    repostsContainer.hidden = !isRepostsTab;
+    repostsContainer.style.display = isRepostsTab ? "" : "none";
+
+    postsContainer.classList.toggle(
+        "is-media-grid",
+        isMediaTab
+    );
+
     document.querySelectorAll(
         "#publicProfilePostsContainer [data-public-profile-tab]"
     ).forEach(button => {
@@ -25802,6 +26478,18 @@ postsContainer.classList.toggle("is-media-grid", isMediaTab);
             active ? "true" : "false"
         );
     });
+
+    if (isRepostsTab) {
+        if (viewedProfileUserId) {
+            void loadProfileReposts(
+                viewedProfileUserId,
+                "publicProfileReposts",
+                null,
+                true
+            );
+        }
+        return;
+    }
 
     const cards = postsContainer.querySelectorAll(
         ".social-post-card[data-profile-post-media]"
@@ -25842,7 +26530,6 @@ postsContainer.classList.toggle("is-media-grid", isMediaTab);
         }
 
         emptyState.hidden = false;
-
     } else if (emptyState) {
         emptyState.hidden = true;
     }
@@ -25852,18 +26539,31 @@ window.setPublicProfileTab = setPublicProfileTab;
 /* =========================================================
    PATRIODX — OWN PROFILE CONTENT TABS
 ========================================================= */
-
 function setOwnProfileTab(tab) {
-    const postsContainer = document.getElementById("profilePosts");
+    const postsContainer = document.getElementById(
+        "profilePosts"
+    );
 
-    if (!postsContainer) return;
+    const repostsContainer = document.getElementById(
+        "profileReposts"
+    );
+
+    if (!postsContainer || !repostsContainer) return;
 
     const isMediaTab = tab === "media";
+    const isRepostsTab = tab === "reposts";
+
+    postsContainer.hidden = isRepostsTab;
+    postsContainer.style.display = isRepostsTab ? "none" : "";
+
+    repostsContainer.hidden = !isRepostsTab;
+    repostsContainer.style.display = isRepostsTab ? "" : "none";
 
     document.querySelectorAll(
-"#ownProfilePostsContent [data-own-profile-tab]"
+        "#ownProfilePostsContent [data-own-profile-tab]"
     ).forEach(button => {
-        const active = button.dataset.ownProfileTab === tab;
+        const active =
+            button.dataset.ownProfileTab === tab;
 
         button.classList.toggle("is-active", active);
         button.setAttribute(
@@ -25871,6 +26571,23 @@ function setOwnProfileTab(tab) {
             active ? "true" : "false"
         );
     });
+
+    postsContainer.classList.toggle(
+        "is-media-grid",
+        isMediaTab
+    );
+
+    if (isRepostsTab) {
+        if (currentUser) {
+            void loadProfileReposts(
+                currentUser.id,
+                "profileReposts",
+                currentProfile,
+                false
+            );
+        }
+        return;
+    }
 
     const cards = postsContainer.querySelectorAll(
         ".social-post-card[data-profile-post-media]"
@@ -25886,11 +26603,6 @@ function setOwnProfileTab(tab) {
 
         if (hasMedia) visibleMediaCount++;
     });
-
-    postsContainer.classList.toggle(
-        "is-media-grid",
-        isMediaTab
-    );
 
     let emptyState = postsContainer.querySelector(
         ".own-profile-media-empty"
@@ -25916,7 +26628,6 @@ function setOwnProfileTab(tab) {
         }
 
         emptyState.hidden = false;
-
     } else if (emptyState) {
         emptyState.hidden = true;
     }
