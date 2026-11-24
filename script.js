@@ -13345,9 +13345,17 @@ async function refreshBothPostStats(postId) {
         `#public-profile-stats-${postId} .public-profile-like-count`
     );
 
-    const viewerLikeCount = document.getElementById(
-        "profilePostViewerLikeCount"
-    );
+   const viewerLikeCount = document.getElementById(
+    "profilePostViewerLikeCount"
+);
+
+const viewerLikeActionCount = document.getElementById(
+    "profilePostViewerLikeActionCount"
+);
+
+const viewerCommentActionCount = document.getElementById(
+    "profilePostViewerCommentCount"
+);
 
     try {
         const counts = await getSocialCounts(postId);
@@ -13381,11 +13389,22 @@ document.querySelectorAll("[data-profile-post-stats]").forEach(element => {
             publicProfileLikeCount.textContent = counts.likes;
         }
 
-        if (viewerLikeCount &&
-            window.currentProfileViewerPostId === postId) {
-            viewerLikeCount.textContent =
-                `${counts.likes} ${counts.likes === 1 ? "like" : "likes"}`;
-        }
+      if (
+    String(window.currentProfileViewerPostId) === String(postId)
+) {
+    if (viewerLikeCount) {
+        viewerLikeCount.textContent =
+            `${counts.likes} ${counts.likes === 1 ? "like" : "likes"}`;
+    }
+
+    if (viewerLikeActionCount) {
+        viewerLikeActionCount.textContent = counts.likes;
+    }
+
+    if (viewerCommentActionCount) {
+        viewerCommentActionCount.textContent = counts.comments;
+    }
+}
 
         if (window.lucide) {
             window.lucide.createIcons();
@@ -24480,18 +24499,46 @@ const commentsRequest = getProfileViewerCommentsData(
     postId,
     options.forceRefresh === true
 );
-if (!options.commentsOnly && likeCount && likeButton) {
+try {
+    const stats = await getSocialCounts(postId);
 
-    likeCount.textContent = "Loading likes...";
+    if (
+        commentsRequestId !== window.profileViewerCommentsRequestId ||
+        String(postId) !== String(window.currentProfileViewerPostId)
+    ) {
+        return false;
+    }
 
-    try {
-        const [stats, liked] = await Promise.all([
-            getSocialCounts(postId),
-            hasLikedSocialPost(postId)
-        ]);
+    const likeActionCount = document.getElementById(
+        "profilePostViewerLikeActionCount"
+    );
 
+    const commentActionCount = document.getElementById(
+        "profilePostViewerCommentCount"
+    );
+
+    if (likeActionCount) {
+        likeActionCount.textContent = stats.likes;
+    }
+
+    if (commentActionCount) {
+        commentActionCount.textContent = stats.comments;
+    }
+
+    if (likeCount) {
         likeCount.textContent =
             `${stats.likes} ${stats.likes === 1 ? "like" : "likes"}`;
+    }
+
+    if (!options.commentsOnly && likeButton) {
+        const liked = await hasLikedSocialPost(postId);
+
+        if (
+            commentsRequestId !== window.profileViewerCommentsRequestId ||
+            String(postId) !== String(window.currentProfileViewerPostId)
+        ) {
+            return false;
+        }
 
         likeButton.classList.toggle("liked", liked);
         likeButton.setAttribute(
@@ -24499,17 +24546,29 @@ if (!options.commentsOnly && likeCount && likeButton) {
             liked ? "Unlike post" : "Like post"
         );
         likeButton.title = liked ? "Unlike post" : "Like post";
-        likeButton.innerHTML = '<i data-lucide="heart"></i>';
+    }
 
-        if (window.lucide) lucide.createIcons();
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
 
-   } catch (error) {
-    console.error("PATRIODX: Could not load post likes:", error);
+} catch (error) {
+    console.error("PATRIODX: Could not load post action counts:", error);
+
+    const likeActionCount = document.getElementById(
+        "profilePostViewerLikeActionCount"
+    );
+
+    const commentActionCount = document.getElementById(
+        "profilePostViewerCommentCount"
+    );
+
+    if (likeActionCount) likeActionCount.textContent = "—";
+    if (commentActionCount) commentActionCount.textContent = "—";
 
     if (likeCount) {
-        likeCount.textContent = "Likes could not be loaded.";
+        likeCount.textContent = "Post counts could not be loaded.";
     }
-}
 }
 try {
     const {
@@ -24877,10 +24936,13 @@ const liked = !wasLiked;
         }
 
         button.classList.toggle("liked", liked);
-        const label = button.querySelector("span");
-if (label) {
-    label.textContent = liked ? "Liked" : "Like";
-}
+        const actionCount = document.getElementById(
+            "profilePostViewerLikeActionCount"
+        );
+
+        if (actionCount) {
+            actionCount.textContent = stats.likes;
+        }
         button.setAttribute(
             "aria-label",
             liked ? "Unlike post" : "Like post"

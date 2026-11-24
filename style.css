@@ -27101,3 +27101,80 @@ body.dark-mode #profilePostViewer #profilePostViewerRepost.is-reposted svg {
     color: #34d399 !important;
     stroke: #34d399 !important;
 }
+/* =========================================================
+   PATRIODX — CONSISTENT ICON-ONLY POST ACTIONS
+========================================================= */
+
+/* Hide action labels, but preserve numeric counts. */
+#socialFeed .social-post-actions-bar .social-action-button > span:not(.social-action-count):not(.social-repost-count),
+#profilePosts .social-post-actions-bar .social-action-button > span:not(.social-action-count):not(.social-repost-count),
+#publicProfilePostsContainer .social-post-actions-bar .social-action-button > span:not(.social-action-count):not(.social-repost-count) {
+    display: none !important;
+}
+
+#profilePostViewer .profile-post-viewer-action-button > span:not(.social-repost-count):not(.profile-post-viewer-action-count) {
+    display: none !important;
+}
+
+/* Keep Like and Comment counts beside their icons. */
+#profilePostViewer .profile-post-viewer-action-count {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    font-weight: 500 !important;
+    margin-left: 2px !important;
+}
+/* Hide the old separate Like count; counts now sit beside icons. */
+#profilePostViewer .profile-post-viewer-like-count {
+    display: none !important;
+}
+#profilePostViewer #profilePostViewerRepost .social-repost-count {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+}
+
+/* Keep repost count visible on post cards. */
+.social-post-actions-bar .social-repost-button .social-repost-count {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Reposted state — light mode. */
+#socialFeed .social-post-actions-bar .social-repost-button.is-reposted,
+#profilePosts .social-post-actions-bar .social-repost-button.is-reposted,
+#publicProfilePostsContainer .social-post-actions-bar .social-repost-button.is-reposted,
+#profilePostViewer #profilePostViewerRepost.is-reposted {
+    color: #16a36a !important;
+}
+
+/* Reposted icon — light mode. */
+#socialFeed .social-post-actions-bar .social-repost-button.is-reposted svg,
+#profilePosts .social-post-actions-bar .social-repost-button.is-reposted svg,
+#publicProfilePostsContainer .social-post-actions-bar .social-repost-button.is-reposted svg,
+#profilePostViewer #profilePostViewerRepost.is-reposted svg {
+    color: #16a36a !important;
+    stroke: #16a36a !important;
+}
+
+/* Reposted state — dark mode. */
+body.dark-mode #socialFeed .social-post-actions-bar .social-repost-button.is-reposted,
+body.dark-mode #profilePosts .social-post-actions-bar .social-repost-button.is-reposted,
+body.dark-mode #publicProfilePostsContainer .social-post-actions-bar .social-repost-button.is-reposted,
+body.dark-mode #profilePostViewer #profilePostViewerRepost.is-reposted {
+    color: #34d399 !important;
+}
+
+/* Reposted icon — dark mode. */
+body.dark-mode #socialFeed .social-post-actions-bar .social-repost-button.is-reposted svg,
+body.dark-mode #profilePosts .social-post-actions-bar .social-repost-button.is-reposted svg,
+body.dark-mode #publicProfilePostsContainer .social-post-actions-bar .social-repost-button.is-reposted svg,
+body.dark-mode #profilePostViewer #profilePostViewerRepost.is-reposted svg {
+    color: #34d399 !important;
+    stroke: #34d399 !important;
+}
