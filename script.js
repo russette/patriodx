@@ -18964,8 +18964,10 @@ window.patriodxPublicProfileReturnScrollY =
 if (publicProfileReturnSection !== "messaging") {
     window.patriodxChatProfileReturnConversationId = null;
 }
+// Identify the public profile BEFORE navigating to the Profile section.
+viewedProfileUserId = userId;
 
-// Make the Profile section visible before displaying the user.
+// Make the Profile section visible.
 if (typeof navigatePATRIODX === "function") {
     navigatePATRIODX("profile");
 }
@@ -18973,8 +18975,6 @@ if (typeof navigatePATRIODX === "function") {
 if (window.matchMedia("(max-width: 768px)").matches) {
     document.body.classList.add("mobile-public-profile-view");
 }
-
-viewedProfileUserId = userId;
 // Hide your ENTIRE own profile while viewing another user.
 const ownProfileContent =
     document.getElementById("ownProfileContent");
@@ -20479,12 +20479,17 @@ if (
         publicPosts.style.setProperty("display", "none", "important");
     }
 
-  // Restore the complete own profile when returning to it.
-const ownProfileContent =
-    document.getElementById("ownProfileContent");
+ // Restore your own profile ONLY when viewing your own profile.
+if (
+    !viewedProfileUserId ||
+    String(viewedProfileUserId) === String(currentUser.id)
+) {
+    const ownProfileContent =
+        document.getElementById("ownProfileContent");
 
-if (ownProfileContent) {
-    ownProfileContent.style.removeProperty("display");
+    if (ownProfileContent) {
+        ownProfileContent.style.removeProperty("display");
+    }
 }
 
     document.querySelectorAll("#profile > .section-heading").forEach(heading => {
