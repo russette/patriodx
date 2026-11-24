@@ -18781,6 +18781,8 @@ let patriodxFollowDirectoryType = "followers";
 let patriodxFollowDirectoryScrollPosition = 0;
 let patriodxFollowDirectoryOpener = null;
 let patriodxFollowDirectoryIsOwnProfile = false;
+// Preserve the directory when opening another user's profile.
+window.patriodxFollowDirectoryReturnState = null;
 function openPATRIODXFollowDirectory(type, isOwnProfile = false) {
     if (!currentUser) return;
 
@@ -18818,9 +18820,8 @@ directory.inert = false;
 
     updatePATRIODXFollowDirectoryTabs();
 
-    loadPATRIODXFollowDirectory();
+     return loadPATRIODXFollowDirectory();
 }
-
 function closePATRIODXFollowDirectory() {
     const directory = document.getElementById(
         "patriodxFollowDirectory"
@@ -19039,8 +19040,27 @@ async function loadPATRIODXFollowDirectory() {
             `;
             return;
         }
+        // Load current user's follow relationships in one query.
+        const { data: myFollowRows, error: myFollowError } =
+            await supabaseClient
+                .from("profile_follows")
+                .select("following_id")
+                .eq("follower_id", currentUser.id)
+                .in(
+                    "following_id",
+                    orderedProfiles.map(profile => profile.id)
+                );
 
-        list.innerHTML = orderedProfiles.map(profile => {
+        if (myFollowError) {
+            throw myFollowError;
+        }
+
+        const myFollowingIds = new Set(
+            (myFollowRows || []).map(row =>
+                String(row.following_id)
+            )
+        );
+            list.innerHTML = orderedProfiles.map(profile => {
             const avatar = profile.avatar_url
                 ? `
                     <img
@@ -19051,11 +19071,16 @@ async function loadPATRIODXFollowDirectory() {
                 `
                 : `<i data-lucide="user"></i>`;
 
+            const isFollowing = myFollowingIds.has(
+                String(profile.id)
+            );
+
             return `
-                <button
-                    type="button"
+                <div
                     class="patriodx-follow-directory-row"
                     data-follow-directory-user="${safe(profile.id)}"
+                    role="button"
+                    tabindex="0"
                 >
                     <span class="patriodx-follow-directory-avatar">
                         ${avatar}
@@ -19080,14 +19105,27 @@ async function loadPATRIODXFollowDirectory() {
                         </span>
                     </span>
 
+                    <button
+                        type="button"
+                        class="patriodx-follow-directory-follow"
+                        data-follow-directory-follow="${safe(profile.id)}"
+                        data-following="${isFollowing ? "true" : "false"}"
+                        aria-label="${isFollowing ? "Unfollow" : "Follow"} ${escapeHTML(profile.display_name || "user")}"
+                    >
+                        <i data-lucide="${
+                            isFollowing
+                                ? "user-round-check"
+                                : "user-round-plus"
+                        }"></i>
+                    </button>
+
                     <i
                         data-lucide="chevron-right"
                         class="patriodx-follow-directory-chevron"
                     ></i>
-                </button>
+                </div>
             `;
         }).join("");
-
         if (typeof lucide !== "undefined") {
             lucide.createIcons();
         }
@@ -19150,23 +19188,151 @@ document.addEventListener("click", async function(event) {
         closePATRIODXFollowDirectory();
         return;
     }
+    // Follow/unfollow directly from the directory.
+    const followButton = event.target.closest(
+        "[data-follow-directory-follow]"
+    );
 
+    if (followButton) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (followButton.disabled || !currentUser) return;
+
+        const userId = followButton.dataset.followDirectoryFollow;
+        const isFollowing =
+            followButton.dataset.following === "true";
+
+        if (!userId || userId === currentUser.id) return;
+
+        followButton.disabled = true;
+
+        try {
+            if (!isFollowing) {
+                const { data: isBlocked, error: blockError } =
+                    await supabaseClient.rpc(
+                        "is_blocked_from_current_user",
+                        { other_user_id: userId }
+                    );
+
+                if (blockError) throw blockError;
+
+                if (isBlocked) {
+                    showPATRIODXToast(
+                        "You cannot follow this account.",
+                        "info"
+                    );
+                    return;
+                }
+
+                const { error } = await supabaseClient
+                    .from("profile_follows")
+                    .insert({
+                        follower_id: currentUser.id,
+                        following_id: userId
+                    });
+
+                if (error) throw error;
+
+            } else {
+                const { error } = await supabaseClient
+                    .from("profile_follows")
+                    .delete()
+                    .eq("follower_id", currentUser.id)
+                    .eq("following_id", userId);
+
+                if (error) throw error;
+            }
+
+            // Update the icon only after Supabase succeeds.
+            const newFollowingState = !isFollowing;
+
+            followButton.dataset.following =
+                String(newFollowingState);
+
+            followButton.setAttribute(
+                "aria-label",
+                newFollowingState ? "Unfollow user" : "Follow user"
+            );
+
+            followButton.innerHTML = `
+                <i data-lucide="${
+                    newFollowingState
+                        ? "user-round-check"
+                        : "user-round-plus"
+                }"></i>
+            `;
+
+            if (typeof lucide !== "undefined") {
+                lucide.createIcons();
+            }
+
+            void loadMyFollowCounts();
+
+        } catch (error) {
+            console.error(
+                "Directory follow action failed:",
+                error
+            );
+
+            showPATRIODXToast(
+                "Could not update this follow. Please try again.",
+                "error"
+            );
+
+        } finally {
+            followButton.disabled = false;
+        }
+
+        return;
+    }
     const userRow = event.target.closest(
         "[data-follow-directory-user]"
     );
 
-    if (userRow) {
+       if (userRow) {
         const targetUserId =
             userRow.dataset.followDirectoryUser;
 
+        if (!targetUserId) return;
+
+        const directoryList = document.getElementById(
+            "patriodxFollowDirectoryList"
+        );
+
+        // Save the exact directory state before leaving it.
+        window.patriodxFollowDirectoryReturnState = {
+            directoryProfileId: patriodxFollowDirectoryUserId,
+            type: patriodxFollowDirectoryType,
+            scrollTop: directoryList
+                ? directoryList.scrollTop
+                : 0,
+            isOwnProfile: patriodxFollowDirectoryIsOwnProfile
+        };
+
         closePATRIODXFollowDirectory();
 
-        if (targetUserId) {
-            await loadPublicProfile(targetUserId);
-        }
+        await loadPublicProfile(targetUserId);
     }
 });
+// Allow keyboard navigation on directory user rows.
+document.addEventListener("keydown", function(event) {
+    const row = event.target.closest(
+        ".patriodx-follow-directory-row[role='button']"
+    );
 
+    if (!row) return;
+
+    // Let the follow button handle its own keyboard interaction.
+    if (event.target.closest("[data-follow-directory-follow]")) {
+        return;
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        row.click();
+    }
+});
 setupPublicProfileFollowLists();
 // ------------------------------------------
 // LOAD OWN FOLLOW COUNTS
@@ -19400,40 +19566,41 @@ async function isFollowingUser(userId) {
 // ------------------------------------------
 // FOLLOW USER
 // ------------------------------------------
-
-async function followUser(userId) {
+async function followUser(userId, options = {}) {
+    const updateProfileUI = options.updateProfileUI !== false;
 
     if (!currentUser) {
-
         showPATRIODXToast(
             "Please sign in first.",
             "warning"
         );
-
-        return;
+        return false;
     }
 
     if (userId === currentUser.id) {
-        return;
+        return false;
     }
-const { data: isBlocked, error: blockCheckError } =
-    await supabaseClient.rpc(
-        "is_blocked_from_current_user",
-        { other_user_id: userId }
-    );
 
-if (blockCheckError) {
-    console.error("Follow block check error:", blockCheckError);
-    showPATRIODXToast("Could not verify this account.", "error");
-    return;
-}
+    const { data: isBlocked, error: blockCheckError } =
+        await supabaseClient.rpc(
+            "is_blocked_from_current_user",
+            { other_user_id: userId }
+        );
 
-if (isBlocked) {
-    showPATRIODXToast("You cannot follow this account.", "info");
-    return;
-}
-    const button =
-        document.getElementById("publicProfileFollowButton");
+    if (blockCheckError) {
+        console.error("Follow block check error:", blockCheckError);
+        showPATRIODXToast("Could not verify this account.", "error");
+        return false;
+    }
+
+    if (isBlocked) {
+        showPATRIODXToast("You cannot follow this account.", "info");
+        return false;
+    }
+
+    const button = updateProfileUI
+        ? document.getElementById("publicProfileFollowButton")
+        : null;
 
     if (button) {
         button.disabled = true;
@@ -19448,7 +19615,6 @@ if (isBlocked) {
         });
 
     if (error) {
-
         console.error("Follow error:", error);
 
         if (button) {
@@ -19456,138 +19622,124 @@ if (isBlocked) {
             button.textContent = "Follow";
         }
 
-        if (error.code === "23505") {
+        showPATRIODXToast(
+            error.code === "23505"
+                ? "You are already following this user."
+                : "Could not follow this user.",
+            error.code === "23505" ? "info" : "error"
+        );
 
-            showPATRIODXToast(
-                "You are already following this user.",
-                "info"
-            );
-
-        } else {
-
-            showPATRIODXToast(
-                "Could not follow this user.",
-                "error"
-            );
-        }
-
-        return;
+        return false;
     }
 
-  // Update the Follow button immediately without reloading the profile.
-if (button) {
-    button.textContent = "Following";
-    button.disabled = false;
-
-    button.onclick = function () {
-        unfollowUser(userId);
-    };
-}
-// Immediately show the Message button after a successful follow.
-const messageButton = document.getElementById(
-    "publicProfileMessageButton"
-);
-
-if (messageButton) {
-    messageButton.style.display = "inline-flex";
-    messageButton.disabled = false;
-
-    messageButton.onclick = async function () {
-
-        messageButton.disabled = true;
-
-        try {
-            const opened = await createConversationWithUser(userId);
-
-            if (
-                opened &&
-                typeof navigatePATRIODX === "function"
-            ) {
-                window.patriodxMessageReturnToPublicProfile = true;
-                navigatePATRIODX("messaging");
-            }
-
-        } catch (error) {
-            console.error("Could not start conversation:", error);
-
-            showPATRIODXToast(
-                "Could not open this conversation. Please try again.",
-                "error"
-            );
-
-        } finally {
-            messageButton.disabled = false;
+    if (updateProfileUI) {
+        if (button) {
+            button.textContent = "Following";
+            button.disabled = false;
+            button.onclick = function() {
+                unfollowUser(userId);
+            };
         }
-    };
+
+        const messageButton = document.getElementById(
+            "publicProfileMessageButton"
+        );
+
+        if (messageButton) {
+            messageButton.style.display = "inline-flex";
+            messageButton.disabled = false;
+
+            messageButton.onclick = async function() {
+                messageButton.disabled = true;
+
+                try {
+                    const opened =
+                        await createConversationWithUser(userId);
+
+                    if (
+                        opened &&
+                        typeof navigatePATRIODX === "function"
+                    ) {
+                        window.patriodxMessageReturnToPublicProfile = true;
+                        navigatePATRIODX("messaging");
+                    }
+                } catch (error) {
+                    console.error(
+                        "Could not start conversation:",
+                        error
+                    );
+
+                    showPATRIODXToast(
+                        "Could not open this conversation. Please try again.",
+                        "error"
+                    );
+                } finally {
+                    messageButton.disabled = false;
+                }
+            };
+        }
+    }
+
+    await loadMyFollowCounts().catch(error => {
+        console.error("Follow count refresh failed:", error);
+    });
+
+    return true;
 }
-// Refresh your own follow totals in the background.
-loadMyFollowCounts().catch(error => {
-    console.error("Follow count refresh failed:", error);
-});
-}
+
 
 // ------------------------------------------
 // UNFOLLOW USER
 // ------------------------------------------
 
-async function unfollowUser(userId) {
+async function unfollowUser(userId, options = {}) {
+    const updateProfileUI = options.updateProfileUI !== false;
 
     if (!currentUser) {
-        return;
+        return false;
     }
-const { data: isBlocked, error: blockCheckError } =
-    await supabaseClient.rpc(
-        "is_blocked_from_current_user",
-        { other_user_id: userId }
-    );
 
-if (blockCheckError) {
-    console.error("Unfollow block check error:", blockCheckError);
-    showPATRIODXToast("Could not verify this account.", "error");
-    return;
-}
-
-if (isBlocked) {
-    showPATRIODXToast("This account is unavailable.", "info");
-    return;
-}
-    const button =
-        document.getElementById(
-            "publicProfileFollowButton"
+    const { data: isBlocked, error: blockCheckError } =
+        await supabaseClient.rpc(
+            "is_blocked_from_current_user",
+            { other_user_id: userId }
         );
+
+    if (blockCheckError) {
+        console.error("Unfollow block check error:", blockCheckError);
+        showPATRIODXToast("Could not verify this account.", "error");
+        return false;
+    }
+
+    if (isBlocked) {
+        showPATRIODXToast(
+            "This account is unavailable.",
+            "info"
+        );
+        return false;
+    }
+
+    const button = updateProfileUI
+        ? document.getElementById("publicProfileFollowButton")
+        : null;
 
     if (button) {
-
         button.disabled = true;
         button.textContent = "Unfollowing...";
-
     }
 
-    const { error } =
-        await supabaseClient
-            .from("profile_follows")
-            .delete()
-            .eq(
-                "follower_id",
-                currentUser.id
-            )
-            .eq(
-                "following_id",
-                userId
-            );
+    const { error } = await supabaseClient
+        .from("profile_follows")
+        .delete()
+        .eq("follower_id", currentUser.id)
+        .eq("following_id", userId);
 
     if (error) {
-
-        console.error(
-            "Unfollow error:",
-            error
-        );
+        console.error("Unfollow error:", error);
 
         if (button) {
-
             button.disabled = false;
             button.textContent = "Following";
-
         }
 
         showPATRIODXToast(
@@ -19595,13 +19747,17 @@ if (isBlocked) {
             "error"
         );
 
-        return;
+        return false;
     }
 
-   await loadPublicProfile(userId);
-await loadMyFollowCounts();
-}
+    if (updateProfileUI) {
+        await loadPublicProfile(userId);
+    }
 
+    await loadMyFollowCounts();
+
+    return true;
+}
 // ------------------------------------------
 // LOAD PUBLIC PROFILE
 // ------------------------------------------
@@ -22880,7 +23036,38 @@ function savePATRIODXRecentSearch(profile) {
         JSON.stringify(recent.slice(0, 10))
     );
 }
+async function getGlobalSearchFollowStates(profiles) {
+    if (!currentUser || !profiles || !profiles.length) {
+        return new Set();
+    }
 
+    const profileIds = profiles
+        .map(profile => profile.id)
+        .filter(id => id && id !== currentUser.id);
+
+    if (!profileIds.length) {
+        return new Set();
+    }
+
+    const { data, error } = await supabaseClient
+        .from("profile_follows")
+        .select("following_id")
+        .eq("follower_id", currentUser.id)
+        .in("following_id", profileIds);
+
+    if (error) {
+        console.error(
+            "Global search follow-status error:",
+            error
+        );
+
+        throw error;
+    }
+
+    return new Set(
+        (data || []).map(row => String(row.following_id))
+    );
+}
 async function renderPATRIODXRecentSearches() {
     const results = document.getElementById("globalSearchResults");
     if (!results) return;
@@ -22935,48 +23122,102 @@ if (recent.length) {
         return;
     }
 
-    results.innerHTML = `
-        <div class="global-search-recent-heading">
-            <strong>Recent</strong>
-            <button type="button" id="clearPATRIODXRecentSearches">
-                Clear all
-            </button>
-        </div>
+let followingIds = new Set();
 
-        ${recent.map(profile => `
-            <button
-                type="button"
+try {
+    followingIds = await getGlobalSearchFollowStates(recent);
+} catch (error) {
+    console.error(
+        "Recent-search follow status failed:",
+        error
+    );
+}
+
+results.innerHTML = `
+    <div class="global-search-recent-heading">
+        <strong>Recent</strong>
+        <button type="button" id="clearPATRIODXRecentSearches">
+            Clear all
+        </button>
+    </div>
+
+    ${recent.map(profile => {
+        const name =
+            profile.display_name ||
+            profile.username ||
+            "PATRIODX User";
+
+        const isFollowing = followingIds.has(
+            String(profile.id)
+        );
+
+        const isOwnProfile =
+            currentUser &&
+            String(profile.id) === String(currentUser.id);
+
+        return `
+            <div
                 class="global-search-result"
-                onclick="openGlobalSearchProfile('${profile.id}')"
+                data-global-search-profile="${escapeHTML(profile.id)}"
+                role="button"
+                tabindex="0"
             >
                 <span class="global-search-result-avatar">
                     ${profile.avatar_url
                         ? `<img src="${escapeHTML(profile.avatar_url)}" alt="">`
                         : `<span>${escapeHTML(
-                            (profile.display_name || profile.username || "U")
-                                .charAt(0).toUpperCase()
+                            name.charAt(0).toUpperCase()
                         )}</span>`
                     }
                 </span>
 
                 <span class="global-search-result-content">
                     <span class="global-search-result-name">
-                        ${escapeHTML(profile.display_name || profile.username)}
+                        ${escapeHTML(name)}
                     </span>
+
                     <span class="global-search-result-username">
-                        @${escapeHTML(profile.username)}
+                        ${profile.username
+                            ? "@" + escapeHTML(profile.username)
+                            : ""
+                        }
                     </span>
                 </span>
+
+                ${
+                    !isOwnProfile
+                        ? `
+                            <button
+                                type="button"
+                                class="global-search-follow-button"
+                                data-global-search-follow="${escapeHTML(profile.id)}"
+                                data-following="${isFollowing}"
+                                aria-label="${isFollowing ? "Unfollow" : "Follow"} ${escapeHTML(name)}"
+                            >
+                                <i data-lucide="${
+                                    isFollowing
+                                        ? "user-round-check"
+                                        : "user-round-plus"
+                                }"></i>
+                            </button>
+                        `
+                        : ""
+                }
 
                 <button
                     type="button"
                     class="global-search-remove-recent"
-                    data-remove-recent="${profile.id}"
+                    data-remove-recent="${escapeHTML(profile.id)}"
                     aria-label="Remove recent search"
                 >×</button>
-            </button>
-        `).join("")}
-    `;
+            </div>
+        `;
+    }).join("")}
+`;
+
+if (typeof lucide !== "undefined") {
+    lucide.createIcons();
+}
 
     document.getElementById("clearPATRIODXRecentSearches")
         ?.addEventListener("click", () => {
@@ -23013,7 +23254,130 @@ function setupGlobalSearch() {
     }
 
     input.dataset.ready = "true";
+// Handle Follow / Unfollow and profile clicks in Search results.
+results.addEventListener("click", async event => {
+    const target = event.target instanceof Element
+        ? event.target
+        : null;
 
+    if (!target) return;
+
+    const followButton = target.closest(
+        "[data-global-search-follow]"
+    );
+
+    if (followButton) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (followButton.disabled) return;
+
+        const userId =
+            followButton.dataset.globalSearchFollow;
+
+        const wasFollowing =
+            followButton.dataset.following === "true";
+
+        const matchingButtons = Array.from(
+            results.querySelectorAll(
+                "[data-global-search-follow]"
+            )
+        ).filter(button =>
+            button.dataset.globalSearchFollow === userId
+        );
+
+        matchingButtons.forEach(button => {
+            button.disabled = true;
+        });
+
+        try {
+            const success = wasFollowing
+                ? await unfollowUser(userId, {
+                    updateProfileUI: false
+                })
+                : await followUser(userId, {
+                    updateProfileUI: false
+                });
+
+            if (!success) return;
+
+            const isNowFollowing = !wasFollowing;
+
+            matchingButtons.forEach(button => {
+                button.dataset.following =
+                    String(isNowFollowing);
+
+                button.setAttribute(
+                    "aria-label",
+                    `${isNowFollowing ? "Unfollow" : "Follow"} user`
+                );
+
+                button.innerHTML = `
+                    <i data-lucide="${
+                        isNowFollowing
+                            ? "user-round-check"
+                            : "user-round-plus"
+                    }"></i>
+                `;
+            });
+
+            if (typeof lucide !== "undefined") {
+                lucide.createIcons();
+            }
+
+        } catch (error) {
+            console.error(
+                "Global search follow action failed:",
+                error
+            );
+
+            showPATRIODXToast(
+                "Could not update follow status. Please try again.",
+                "error"
+            );
+
+        } finally {
+            matchingButtons.forEach(button => {
+                button.disabled = false;
+            });
+        }
+
+        return;
+    }
+
+    const row = target.closest(
+        "[data-global-search-profile]"
+    );
+
+    if (row) {
+        openGlobalSearchProfile(
+            row.dataset.globalSearchProfile
+        );
+    }
+});
+
+// Allow keyboard users to open a search result.
+results.addEventListener("keydown", event => {
+    const target = event.target instanceof Element
+        ? event.target
+        : null;
+
+    if (!target || target.closest("button")) return;
+
+    const row = target.closest(
+        '[data-global-search-profile][role="button"]'
+    );
+
+    if (!row) return;
+
+    if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+
+        openGlobalSearchProfile(
+            row.dataset.globalSearchProfile
+        );
+    }
+});
     input.addEventListener("focus", () => {
         if (input.value.trim().length < 2) {
             renderPATRIODXRecentSearches();
@@ -23101,66 +23465,102 @@ async function performGlobalSearch(query) {
         return;
     }
 
+let followingIds;
 
-    results.innerHTML =
-        data.map(profile => {
+try {
+    followingIds = await getGlobalSearchFollowStates(data);
+} catch (error) {
+    results.innerHTML = `
+        <div class="global-search-empty">
+            Could not load follow status. Please try again.
+        </div>
+    `;
+    return;
+}
 
-            const name =
-                profile.display_name ||
-                profile.username ||
-                "PATRIODX User";
+results.innerHTML = data.map(profile => {
+    const name =
+        profile.display_name ||
+        profile.username ||
+        "PATRIODX User";
 
-            const username =
-                profile.username
-                    ? "@" + profile.username
-                    : "";
+    const username =
+        profile.username
+            ? "@" + profile.username
+            : "";
 
-            const avatar =
-                profile.avatar_url
+    const avatar = profile.avatar_url
+        ? `
+            <img
+                src="${safe(profile.avatar_url)}"
+                alt=""
+            >
+        `
+        : `
+            <span>
+                ${escapeHTML(name.charAt(0).toUpperCase())}
+            </span>
+        `;
+
+    const isFollowing = followingIds.has(
+        String(profile.id)
+    );
+
+    const isOwnProfile =
+        String(profile.id) === String(currentUser.id);
+
+    return `
+        <div
+            class="global-search-result"
+            data-global-search-profile="${escapeHTML(profile.id)}"
+            role="button"
+            tabindex="0"
+        >
+            <span class="global-search-result-avatar">
+                ${avatar}
+            </span>
+
+            <span class="global-search-result-content">
+                <span class="global-search-result-name">
+                    ${escapeHTML(name)}
+                    ${
+                        typeof getPATRIODXBadge === "function"
+                            ? getPATRIODXBadge(profile)
+                            : ""
+                    }
+                </span>
+
+                <span class="global-search-result-username">
+                    ${escapeHTML(username)}
+                </span>
+            </span>
+
+            ${
+                !isOwnProfile
                     ? `
-                        <img
-                            src="${safe(profile.avatar_url)}"
-                            alt=""
+                        <button
+                            type="button"
+                            class="global-search-follow-button"
+                            data-global-search-follow="${escapeHTML(profile.id)}"
+                            data-following="${isFollowing}"
+                            aria-label="${isFollowing ? "Unfollow" : "Follow"} ${escapeHTML(name)}"
                         >
+                            <i data-lucide="${
+                                isFollowing
+                                    ? "user-round-check"
+                                    : "user-round-plus"
+                            }"></i>
+                        </button>
                     `
-                    : `
-                        <span>
-                            ${name.charAt(0).toUpperCase()}
-                        </span>
-                    `;
+                    : ""
+            }
+        </div>
+    `;
+}).join("");
 
-            return `
-                <button
-                    type="button"
-                    class="global-search-result"
-                    onclick="openGlobalSearchProfile('${profile.id}')"
-                >
-
-                    <span class="global-search-result-avatar">
-                        ${avatar}
-                    </span>
-
-                    <span class="global-search-result-content">
-
-                       <span class="global-search-result-name">
-    ${escapeHTML(name)}
-    ${
-        typeof getPATRIODXBadge === "function"
-            ? getPATRIODXBadge(profile)
-            : ""
-    }
-</span>
-
-                        <span class="global-search-result-username">
-                            ${escapeHTML(username)}
-                        </span>
-
-                    </span>
-
-                </button>
-            `;
-
-        }).join("");
+if (typeof lucide !== "undefined") {
+    lucide.createIcons();
+}
 
 
     results.style.display = "block";
@@ -25656,14 +26056,63 @@ document.body.classList.remove("mobile-public-profile-view");
             void openProfilePostViewer(returnPostData);
         });
 
-    } else {
-        requestAnimationFrame(() => {
-            window.scrollTo({
-                top: returnScrollY,
-                left: 0,
-                behavior: "instant"
+       } else {
+        const directoryReturnState =
+            window.patriodxFollowDirectoryReturnState;
+
+        if (directoryReturnState) {
+            window.patriodxFollowDirectoryReturnState = null;
+
+            requestAnimationFrame(async () => {
+                try {
+                    // Restore the profile that owned the directory.
+                    if (!directoryReturnState.isOwnProfile) {
+                        await loadPublicProfile(
+                            directoryReturnState.directoryProfileId
+                        );
+                    }
+
+                    // Reopen the original directory and active tab.
+                    await openPATRIODXFollowDirectory(
+                        directoryReturnState.type,
+                        directoryReturnState.isOwnProfile
+                    );
+
+                    // Restore its internal scroll position.
+                    requestAnimationFrame(() => {
+                        const directoryList =
+                            document.getElementById(
+                                "patriodxFollowDirectoryList"
+                            );
+
+                        if (directoryList) {
+                            directoryList.scrollTop =
+                                directoryReturnState.scrollTop;
+                        }
+                    });
+
+                } catch (error) {
+                    console.error(
+                        "Follow directory restoration failed:",
+                        error
+                    );
+
+                    showPATRIODXToast(
+                        "Could not restore your connections list.",
+                        "error"
+                    );
+                }
             });
-        });
+
+        } else {
+            requestAnimationFrame(() => {
+                window.scrollTo({
+                    top: returnScrollY,
+                    left: 0,
+                    behavior: "instant"
+                });
+            });
+        }
     }
 
 }

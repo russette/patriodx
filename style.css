@@ -27190,3 +27190,197 @@ body.dark-mode #profilePostViewer #profilePostViewerRepost.is-reposted svg {
     white-space: nowrap !important;
     flex-shrink: 0 !important;
 }
+/* =========================================================
+   PATRIODX — FOLLOW DIRECTORY RELATIONSHIP ICONS
+========================================================= */
+
+.patriodx-follow-directory-row {
+    cursor: pointer;
+}
+
+.patriodx-follow-directory-row:focus-visible {
+    outline: 2px solid #7c3aed;
+    outline-offset: -2px;
+}
+
+/* Follow / following icon button */
+.patriodx-follow-directory-follow {
+    display: inline-flex;
+    flex: 0 0 38px;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+    min-height: 38px;
+    padding: 0;
+
+    border: 0;
+    border-radius: 50%;
+
+    background: transparent;
+    color: var(--text-color, #374151);
+
+    box-shadow: none;
+    cursor: pointer;
+
+    transition:
+        color 0.18s ease,
+        background 0.18s ease,
+        opacity 0.18s ease;
+}
+
+.patriodx-follow-directory-follow:hover {
+    background: rgba(124, 58, 237, 0.09);
+    color: #7c3aed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Following: purple check icon */
+.patriodx-follow-directory-follow[data-following="true"] {
+    color: #7c3aed;
+}
+
+.patriodx-follow-directory-follow[data-following="true"] svg {
+    color: #7c3aed;
+    stroke: #7c3aed;
+}
+
+/* Not following: normal theme text color */
+.patriodx-follow-directory-follow[data-following="false"] {
+    color: var(--text-color, #374151);
+}
+
+/* Icon dimensions */
+.patriodx-follow-directory-follow svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+}
+
+/* Prevent repeated clicks while updating */
+.patriodx-follow-directory-follow:disabled {
+    opacity: 0.45;
+    cursor: wait;
+    pointer-events: none;
+}
+
+/* Keep the right chevron visible */
+.patriodx-follow-directory-chevron {
+    flex: 0 0 17px;
+    margin-left: 0;
+}
+
+/* Dark mode */
+body.dark-mode .patriodx-follow-directory-follow {
+    color: #f1f5f9;
+}
+
+body.dark-mode
+.patriodx-follow-directory-follow[data-following="true"] {
+    color: #a78bfa;
+}
+
+body.dark-mode
+.patriodx-follow-directory-follow[data-following="true"] svg {
+    color: #a78bfa;
+    stroke: #a78bfa;
+}
+
+body.dark-mode .patriodx-follow-directory-follow:hover {
+    background: rgba(167, 139, 250, 0.13);
+    color: #c4b5fd;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .patriodx-follow-directory-row {
+        gap: 9px;
+    }
+
+    .patriodx-follow-directory-follow {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+        min-height: 36px;
+    }
+}
+/* PATRIODX — GLOBAL SEARCH FOLLOW BUTTONS */
+
+.global-search-result-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.global-search-result[role="button"] {
+    cursor: pointer;
+}
+
+.global-search-result[role="button"]:focus-visible {
+    outline: 2px solid #7c3aed;
+    outline-offset: -2px;
+}
+
+.global-search-follow-button {
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+    margin-left: auto;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    box-shadow: none;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.global-search-follow-button svg {
+    width: 21px;
+    height: 21px;
+    stroke-width: 2;
+}
+
+.global-search-follow-button[data-following="true"] {
+    color: #7c3aed;
+}
+
+body.dark-mode .global-search-follow-button[data-following="true"] {
+    color: #a78bfa;
+}
+
+.global-search-follow-button:hover {
+    background: rgba(124, 58, 237, 0.09);
+    color: #7c3aed;
+}
+
+body.dark-mode .global-search-follow-button:hover {
+    background: rgba(167, 139, 250, 0.13);
+    color: #c4b5fd;
+}
+
+.global-search-follow-button:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+.global-search-remove-recent {
+    flex: 0 0 32px;
+}
+
+@media (max-width: 768px) {
+    .global-search-follow-button {
+        width: 40px;
+        height: 40px;
+        flex-basis: 40px;
+    }
+}
