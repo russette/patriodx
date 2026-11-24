@@ -25110,12 +25110,9 @@ body #messaging .message-row.theirs .message-bubble.theirs {
     height: 21px !important;
     stroke-width: 1.8 !important;
 }
-
 #profilePostViewer .profile-post-viewer-action-button span {
-    display: inline !important;
-    font-size: 13px !important;
+    display: none !important;
 }
-
 /* Like */
 #profilePostViewer #profilePostViewerLike:hover,
 #profilePostViewer #profilePostViewerLike.liked {
@@ -27039,4 +27036,68 @@ body.dark-mode .social-repost-button.is-reposted {
     .own-profile-tabs .public-profile-tab {
         min-height: 46px;
     }
+}
+/* PATRIODX — MOBILE POST ACTIONS: FOUR BUTTONS IN ONE ROW */
+@media (max-width: 768px) {
+    #socialFeed .social-post-actions-bar,
+    #profilePosts .social-post-actions-bar,
+    #publicProfilePostsContainer .social-post-actions-bar {
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        align-items: center !important;
+        justify-content: stretch !important;
+        gap: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    #socialFeed .social-post-actions-bar .social-action-button,
+    #profilePosts .social-post-actions-bar .social-action-button,
+    #publicProfilePostsContainer .social-post-actions-bar .social-action-button {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 3px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        padding: 7px 1px !important;
+        font-size: 11px !important;
+        white-space: nowrap !important;
+        box-sizing: border-box !important;
+    }
+
+    #socialFeed .social-post-actions-bar .social-action-button span,
+    #profilePosts .social-post-actions-bar .social-action-button span,
+    #publicProfilePostsContainer .social-post-actions-bar .social-action-button span {
+        white-space: nowrap !important;
+        min-width: 0 !important;
+    }
+
+    #socialFeed .social-post-actions-bar .social-action-button svg,
+    #profilePosts .social-post-actions-bar .social-action-button svg,
+    #publicProfilePostsContainer .social-post-actions-bar .social-action-button svg {
+        flex: 0 0 15px !important;
+        width: 15px !important;
+        height: 15px !important;
+    }
+}
+/* PATRIODX — VIEWER REPOST ACTIVE STATE */
+#profilePostViewer #profilePostViewerRepost.is-reposted {
+    color: #16a36a !important;
+}
+
+#profilePostViewer #profilePostViewerRepost.is-reposted svg {
+    color: #16a36a !important;
+    stroke: #16a36a !important;
+}
+
+body.dark-mode #profilePostViewer #profilePostViewerRepost.is-reposted,
+body.dark-mode #profilePostViewer #profilePostViewerRepost.is-reposted svg {
+    color: #34d399 !important;
+    stroke: #34d399 !important;
 }

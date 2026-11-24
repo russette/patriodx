@@ -7657,9 +7657,9 @@ async function refreshPostRepostButtons(postIds) {
                 ? "Undo repost"
                 : "Repost";
 
-                       let repostIcon = button.querySelector(
-                'i[data-lucide="repeat-2"]'
-            );
+                   let repostIcon = button.querySelector(
+    '[data-lucide="repeat-2"]'
+);
 
             if (!repostIcon) {
                 repostIcon = document.createElement("i");
