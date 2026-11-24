@@ -9933,6 +9933,8 @@ renderedCards.forEach(card => {
         });
 document.getElementById("ownProfileContent")
     ?.style.removeProperty("display");
+    document.getElementById("ownProfilePostsContent")
+    ?.style.removeProperty("display");
         document.querySelectorAll("#profile > .section-heading")
             .forEach(heading => heading.style.display = "");
 
@@ -18982,7 +18984,16 @@ const ownProfileContent =
 if (ownProfileContent) {
     ownProfileContent.style.display = "none";
 }
+const ownProfilePostsContent =
+    document.getElementById("ownProfilePostsContent");
 
+if (ownProfilePostsContent) {
+    ownProfilePostsContent.style.setProperty(
+        "display",
+        "none",
+        "important"
+    );
+}
 // Hide the "Your Profile" heading.
 const profileSection = document.getElementById("profile");
 
@@ -20491,7 +20502,12 @@ if (
         ownProfileContent.style.removeProperty("display");
     }
 }
+const ownProfilePostsContent =
+    document.getElementById("ownProfilePostsContent");
 
+if (ownProfilePostsContent) {
+    ownProfilePostsContent.style.removeProperty("display");
+}
     document.querySelectorAll("#profile > .section-heading").forEach(heading => {
         heading.style.removeProperty("display");
     });
@@ -23427,7 +23443,16 @@ if (ownProfileContent) {
         "important"
     );
 }
+const ownProfilePostsContent =
+    document.getElementById("ownProfilePostsContent");
 
+if (ownProfilePostsContent) {
+    ownProfilePostsContent.style.setProperty(
+        "display",
+        "none",
+        "important"
+    );
+}
             // Hide "Your Profile" headings
             document.querySelectorAll("#profile > .section-heading").forEach(heading => {
                 heading.style.display = "none";
@@ -24751,7 +24776,12 @@ const ownProfileContent =
 if (ownProfileContent) {
     ownProfileContent.style.removeProperty("display");
 }
+const ownProfilePostsContent =
+    document.getElementById("ownProfilePostsContent");
 
+if (ownProfilePostsContent) {
+    ownProfilePostsContent.style.removeProperty("display");
+}
 // Restore the Your Profile heading.
 const profileSection = document.getElementById("profile");
 
@@ -25685,7 +25715,7 @@ function setOwnProfileTab(tab) {
     const isMediaTab = tab === "media";
 
     document.querySelectorAll(
-        "#ownProfileContent [data-own-profile-tab]"
+"#ownProfilePostsContent [data-own-profile-tab]"
     ).forEach(button => {
         const active = button.dataset.ownProfileTab === tab;
 
