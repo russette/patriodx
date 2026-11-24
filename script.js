@@ -20479,18 +20479,13 @@ if (
         publicPosts.style.setProperty("display", "none", "important");
     }
 
-    const ownProfileElements = [
-        document.getElementById("profileCover"),
-        document.getElementById("profileAvatar")?.closest(".profile-header"),
-        document.getElementById("profilePostCount")?.closest(".profile-stats"),
-        document.getElementById("profilePosts")?.closest(".profile-posts")
-    ];
+  // Restore the complete own profile when returning to it.
+const ownProfileContent =
+    document.getElementById("ownProfileContent");
 
-    ownProfileElements.forEach(element => {
-        if (element) {
-            element.style.removeProperty("display");
-        }
-    });
+if (ownProfileContent) {
+    ownProfileContent.style.removeProperty("display");
+}
 
     document.querySelectorAll("#profile > .section-heading").forEach(heading => {
         heading.style.removeProperty("display");
@@ -23416,17 +23411,17 @@ const returningToPublicProfile =
             // Make sure we are in public profile mode
             document.body.classList.add("mobile-public-profile-view");
 
-            // Hide YOUR own profile elements
-            const ownProfileElements = [
-                document.getElementById("profileCover"),
-                document.getElementById("profileAvatar")?.closest(".profile-header"),
-                document.getElementById("profilePostCount")?.closest(".profile-stats"),
-                document.getElementById("profilePosts")?.closest(".profile-posts")
-            ];
+          // Keep the entire own profile hidden while viewing another user's profile.
+const ownProfileContent =
+    document.getElementById("ownProfileContent");
 
-            ownProfileElements.forEach(el => {
-                if (el) el.style.display = "none";
-            });
+if (ownProfileContent) {
+    ownProfileContent.style.setProperty(
+        "display",
+        "none",
+        "important"
+    );
+}
 
             // Hide "Your Profile" headings
             document.querySelectorAll("#profile > .section-heading").forEach(heading => {
@@ -24744,19 +24739,13 @@ document.getElementById("publicProfileBackButton")
             publicPosts.style.display = "none";
         }
 
-       // Restore your own profile elements.
-const ownProfileElements = [
-    document.getElementById("profileCover"),
-    document.getElementById("profileAvatar")?.closest(".profile-header"),
-    document.getElementById("profilePostCount")?.closest(".profile-stats"),
-    document.getElementById("profilePosts")?.closest(".profile-posts")
-];
+ // Restore the complete own profile.
+const ownProfileContent =
+    document.getElementById("ownProfileContent");
 
-ownProfileElements.forEach(element => {
-    if (element) {
-        element.style.display = "";
-    }
-});
+if (ownProfileContent) {
+    ownProfileContent.style.removeProperty("display");
+}
 
 // Restore the Your Profile heading.
 const profileSection = document.getElementById("profile");
