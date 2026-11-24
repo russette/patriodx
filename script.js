@@ -9954,23 +9954,25 @@ document.getElementById("ownProfileContent")
         return;
     }
 
-    // ANOTHER USER'S AVATAR → THEIR PUBLIC PROFILE
-    if (typeof loadPublicProfile !== "function") return;
+   // ANOTHER USER'S AVATAR → THEIR PUBLIC PROFILE
+if (typeof loadPublicProfile !== "function") return;
 
-    if (window.matchMedia("(max-width: 768px)").matches) {
-        mobileProfileReturnSection = "social";
-        mobileProfileReturnScrollY = window.scrollY;
+// Always preserve the exact Social origin on mobile and desktop.
+mobileProfileReturnSection = "social";
+mobileProfileReturnScrollY = window.scrollY;
 
-        window.patriodxChatProfileReturnConversationId = null;
-        window.patriodxAuthorProfileReturnPostData = null;
-    }
+window.patriodxPublicProfileReturnSection = "social";
+window.patriodxPublicProfileReturnScrollY = window.scrollY;
 
-    void loadPublicProfile(userId).then(() => {
-        document.getElementById("publicProfileCard")?.scrollIntoView({
-            behavior: "auto",
-            block: "start"
-        });
+window.patriodxChatProfileReturnConversationId = null;
+window.patriodxAuthorProfileReturnPostData = null;
+
+void loadPublicProfile(userId).then(() => {
+    document.getElementById("publicProfileCard")?.scrollIntoView({
+        behavior: "auto",
+        block: "start"
     });
+});
 });
 
         element.addEventListener("keydown", function (event) {
@@ -18218,7 +18220,7 @@ let patriodxFollowDirectoryRequestId = 0;
 let patriodxFollowDirectoryUserId = null;
 let patriodxFollowDirectoryType = "followers";
 let patriodxFollowDirectoryScrollPosition = 0;
-
+let patriodxFollowDirectoryOpener = null;
 function openPATRIODXFollowDirectory(type) {
     if (!viewedProfileUserId || !currentUser) return;
 
@@ -18235,7 +18237,9 @@ function openPATRIODXFollowDirectory(type) {
         ["mutual", "followers", "following"].includes(type)
             ? type
             : "followers";
+patriodxFollowDirectoryOpener = document.activeElement;
 
+directory.inert = false;
     directory.hidden = false;
     directory.setAttribute("aria-hidden", "false");
 
@@ -18259,8 +18263,16 @@ function closePATRIODXFollowDirectory() {
 
     ++patriodxFollowDirectoryRequestId;
 
-    directory.hidden = true;
+    // Restore focus before hiding the directory.
+    const opener = patriodxFollowDirectoryOpener;
+
+    if (opener && document.contains(opener)) {
+        opener.focus({ preventScroll: true });
+    }
+
+    directory.inert = true;
     directory.setAttribute("aria-hidden", "true");
+    directory.hidden = true;
 
     document.body.classList.remove(
         "patriodx-follow-directory-open"
@@ -18272,8 +18284,9 @@ function closePATRIODXFollowDirectory() {
         0,
         patriodxFollowDirectoryScrollPosition
     );
-}
 
+    patriodxFollowDirectoryOpener = null;
+}
 function updatePATRIODXFollowDirectoryTabs() {
     document.querySelectorAll(
         "[data-follow-directory-tab]"
