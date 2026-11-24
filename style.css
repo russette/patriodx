@@ -26930,3 +26930,7 @@ body.dark-mode .patriodx-follow-directory-spinner {
         padding-left: 14px;
     }
 }
+.patriodx-follow-directory.is-own-profile
+.patriodx-follow-directory-tabs {
+    grid-template-columns: repeat(2, 1fr);
+}

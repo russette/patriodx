@@ -18221,9 +18221,18 @@ let patriodxFollowDirectoryUserId = null;
 let patriodxFollowDirectoryType = "followers";
 let patriodxFollowDirectoryScrollPosition = 0;
 let patriodxFollowDirectoryOpener = null;
-function openPATRIODXFollowDirectory(type) {
-    if (!viewedProfileUserId || !currentUser) return;
+let patriodxFollowDirectoryIsOwnProfile = false;
+function openPATRIODXFollowDirectory(type, isOwnProfile = false) {
+    if (!currentUser) return;
 
+    const targetUserId = isOwnProfile
+        ? currentUser.id
+        : viewedProfileUserId;
+
+    if (!targetUserId) return;
+
+    patriodxFollowDirectoryIsOwnProfile = isOwnProfile;
+    patriodxFollowDirectoryUserId = targetUserId;
     const directory = document.getElementById(
         "patriodxFollowDirectory"
     );
@@ -18231,9 +18240,8 @@ function openPATRIODXFollowDirectory(type) {
     if (!directory) return;
 
     patriodxFollowDirectoryScrollPosition = window.scrollY;
-    patriodxFollowDirectoryUserId = viewedProfileUserId;
 
-    patriodxFollowDirectoryType =
+ patriodxFollowDirectoryType =
         ["mutual", "followers", "following"].includes(type)
             ? type
             : "followers";
@@ -18288,14 +18296,33 @@ function closePATRIODXFollowDirectory() {
     patriodxFollowDirectoryOpener = null;
 }
 function updatePATRIODXFollowDirectoryTabs() {
+    const directory = document.getElementById(
+        "patriodxFollowDirectory"
+    );
+
+    directory?.classList.toggle(
+        "is-own-profile",
+        patriodxFollowDirectoryIsOwnProfile
+    );
+
     document.querySelectorAll(
         "[data-follow-directory-tab]"
     ).forEach(tab => {
+
+        const isMutual =
+            tab.dataset.followDirectoryTab === "mutual";
+
+        tab.style.display =
+            patriodxFollowDirectoryIsOwnProfile && isMutual
+                ? "none"
+                : "";
+
         const active =
             tab.dataset.followDirectoryTab ===
             patriodxFollowDirectoryType;
 
         tab.classList.toggle("is-active", active);
+
         tab.setAttribute(
             "aria-selected",
             active ? "true" : "false"
@@ -18770,18 +18797,19 @@ async function loadMyProfileFollowList(type) {
             });
         });
 }
-// Connect own-profile Followers and Following buttons.
+// Connect own-profile Followers and Following buttons
+// to the full-screen directory.
 document.getElementById("profileFollowersButton")?.addEventListener(
     "click",
     function() {
-        loadMyProfileFollowList("followers");
+        openPATRIODXFollowDirectory("followers", true);
     }
 );
 
 document.getElementById("profileFollowingButton")?.addEventListener(
     "click",
     function() {
-        loadMyProfileFollowList("following");
+        openPATRIODXFollowDirectory("following", true);
     }
 );
 // ------------------------------------------
@@ -24920,7 +24948,7 @@ if (profileSection) {
 
         // Clear the previous user's follow-list state.
 viewedProfileUserId = null;
-profileFollowListRequestId++;
+publicProfileRequestId++;
 
 const followList = document.getElementById(
     "publicProfileFollowList"
@@ -25512,7 +25540,7 @@ if (followList) {
 }
 
 viewedProfileUserId = null;
-profileFollowListRequestId++;
+publicProfileRequestId++;
 
 showPATRIODXToast(
     "User blocked successfully.",
