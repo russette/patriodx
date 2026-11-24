@@ -23307,12 +23307,12 @@ try {
 
         const avatar = document.createElement("img");
         avatar.className = "profile-post-viewer-author-avatar";
-       avatar.src = profile.avatar_url || "assets/patriodx-icon-192.png";
+        avatar.src = profile.avatar_url || "assets/default-avatar.png";
         avatar.alt = "";
 
         avatar.onerror = function () {
             this.onerror = null;
-          this.src = "assets/patriodx-icon-192.png";
+            this.src = "assets/default-avatar.png";
         };
 
         const identity = document.createElement("div");
