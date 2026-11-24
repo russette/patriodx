@@ -18211,257 +18211,362 @@ async function getProfileFollowCounts(userId) {
     };
 }
 // ------------------------------------------
-// LOAD FOLLOWERS / FOLLOWING LIST
+// PATRIODX FULL-SCREEN PUBLIC PROFILE CONNECTIONS
 // ------------------------------------------
-let profileFollowListRequestId = 0;
-async function loadProfileFollowList(userId, type) {
-const requestId = ++profileFollowListRequestId;
-const requestedUserId = userId;
-const requestedType = type;
-    const list =
-        document.getElementById(
-            "publicProfileFollowList"
+
+let patriodxFollowDirectoryRequestId = 0;
+let patriodxFollowDirectoryUserId = null;
+let patriodxFollowDirectoryType = "followers";
+let patriodxFollowDirectoryScrollPosition = 0;
+
+function openPATRIODXFollowDirectory(type) {
+    if (!viewedProfileUserId || !currentUser) return;
+
+    const directory = document.getElementById(
+        "patriodxFollowDirectory"
+    );
+
+    if (!directory) return;
+
+    patriodxFollowDirectoryScrollPosition = window.scrollY;
+    patriodxFollowDirectoryUserId = viewedProfileUserId;
+
+    patriodxFollowDirectoryType =
+        ["mutual", "followers", "following"].includes(type)
+            ? type
+            : "followers";
+
+    directory.hidden = false;
+    directory.setAttribute("aria-hidden", "false");
+
+    document.body.classList.add(
+        "patriodx-follow-directory-open"
+    );
+
+    document.body.style.overflow = "hidden";
+
+    updatePATRIODXFollowDirectoryTabs();
+
+    loadPATRIODXFollowDirectory();
+}
+
+function closePATRIODXFollowDirectory() {
+    const directory = document.getElementById(
+        "patriodxFollowDirectory"
+    );
+
+    if (!directory || directory.hidden) return;
+
+    ++patriodxFollowDirectoryRequestId;
+
+    directory.hidden = true;
+    directory.setAttribute("aria-hidden", "true");
+
+    document.body.classList.remove(
+        "patriodx-follow-directory-open"
+    );
+
+    document.body.style.overflow = "";
+
+    window.scrollTo(
+        0,
+        patriodxFollowDirectoryScrollPosition
+    );
+}
+
+function updatePATRIODXFollowDirectoryTabs() {
+    document.querySelectorAll(
+        "[data-follow-directory-tab]"
+    ).forEach(tab => {
+        const active =
+            tab.dataset.followDirectoryTab ===
+            patriodxFollowDirectoryType;
+
+        tab.classList.toggle("is-active", active);
+        tab.setAttribute(
+            "aria-selected",
+            active ? "true" : "false"
         );
+    });
+}
 
-    if (!list || !userId) return;
+async function loadPATRIODXFollowDirectory() {
+    const requestId = ++patriodxFollowDirectoryRequestId;
 
-    list.style.display = "block";
+    const list = document.getElementById(
+        "patriodxFollowDirectoryList"
+    );
+
+    const targetId = patriodxFollowDirectoryUserId;
+    const type = patriodxFollowDirectoryType;
+
+    if (!list || !targetId || !currentUser) return;
 
     list.innerHTML = `
-        <div class="social-empty-state">
+        <div class="patriodx-follow-directory-state">
+            <span class="patriodx-follow-directory-spinner"></span>
             <p>Loading...</p>
         </div>
     `;
 
-    const column =
-        type === "followers"
-            ? "following_id"
-            : "follower_id";
+    try {
+        let userIds = [];
 
-    const userColumn =
-        type === "followers"
-            ? "follower_id"
-            : "following_id";
+        if (type === "mutual") {
+            const [
+                targetFollowingResult,
+                myFollowingResult
+            ] = await Promise.all([
+                supabaseClient
+                    .from("profile_follows")
+                    .select("following_id")
+                    .eq("follower_id", targetId),
 
-    const {
-        data: followRows,
-        error: followError
-    } = await supabaseClient
-        .from("profile_follows")
-        .select(userColumn)
-        .eq(column, userId);
-if (
-    requestId !== profileFollowListRequestId ||
-    requestedUserId !== viewedProfileUserId
-) {
-    return;
-}
-    if (followError) {
+                supabaseClient
+                    .from("profile_follows")
+                    .select("following_id")
+                    .eq("follower_id", currentUser.id)
+            ]);
 
-        console.error(
-            "Follow list error:",
-            followError
+            if (targetFollowingResult.error) {
+                throw targetFollowingResult.error;
+            }
+
+            if (myFollowingResult.error) {
+                throw myFollowingResult.error;
+            }
+
+            const myFollowing = new Set(
+                (myFollowingResult.data || []).map(
+                    row => String(row.following_id)
+                )
+            );
+
+            userIds = (
+                targetFollowingResult.data || []
+            )
+                .map(row => row.following_id)
+                .filter(id => myFollowing.has(String(id)));
+
+        } else {
+            const isFollowers = type === "followers";
+
+            const column = isFollowers
+                ? "following_id"
+                : "follower_id";
+
+            const userColumn = isFollowers
+                ? "follower_id"
+                : "following_id";
+
+            const { data, error } = await supabaseClient
+                .from("profile_follows")
+                .select(userColumn)
+                .eq(column, targetId);
+
+            if (error) throw error;
+
+            userIds = (data || [])
+                .map(row => row[userColumn])
+                .filter(Boolean);
+        }
+
+        userIds = [
+            ...new Set(userIds.map(id => String(id)))
+        ];
+
+        if (
+            requestId !== patriodxFollowDirectoryRequestId ||
+            targetId !== patriodxFollowDirectoryUserId ||
+            type !== patriodxFollowDirectoryType
+        ) return;
+
+        if (!userIds.length) {
+            const emptyMessage = {
+                mutual: "No mutual connections yet.",
+                followers: "No followers yet.",
+                following: "Not following anyone yet."
+            };
+
+            list.innerHTML = `
+                <div class="patriodx-follow-directory-state">
+                    <p>${emptyMessage[type]}</p>
+                </div>
+            `;
+
+            return;
+        }
+
+        const {
+            data: profiles,
+            error: profileError
+        } = await supabaseClient
+            .from("profiles")
+            .select(`
+                id,
+                username,
+                display_name,
+                avatar_url,
+                is_verified,
+                is_owner,
+                verification_expires_at
+            `)
+            .in("id", userIds);
+
+        if (profileError) throw profileError;
+
+        if (
+            requestId !== patriodxFollowDirectoryRequestId ||
+            targetId !== patriodxFollowDirectoryUserId ||
+            type !== patriodxFollowDirectoryType
+        ) return;
+
+        const profileMap = new Map(
+            (profiles || []).map(profile => [
+                String(profile.id),
+                profile
+            ])
         );
 
-        list.innerHTML = `
-            <div class="social-empty-state">
-                <p>Could not load this list.</p>
-            </div>
-        `;
-
-        return;
-    }
-
-    const userIds =
-        (followRows || [])
-            .map(row => row[userColumn])
+        const orderedProfiles = userIds
+            .map(id => profileMap.get(id))
             .filter(Boolean);
 
-    if (userIds.length === 0) {
+        if (!orderedProfiles.length) {
+            list.innerHTML = `
+                <div class="patriodx-follow-directory-state">
+                    <p>No profiles found.</p>
+                </div>
+            `;
+            return;
+        }
 
-        list.innerHTML = `
-            <div class="social-empty-state">
-                <p>
-                    ${
-                        type === "followers"
-                            ? "No followers yet."
-                            : "Not following anyone yet."
-                    }
-                </p>
-            </div>
-        `;
-
-        return;
-    }
-
-    const {
-        data: profiles,
-        error: profileError
-    } = await supabaseClient
-        .from("profiles")
-      .select(
-    "id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at"
-)
-        .in("id", userIds);
-if (
-    requestId !== profileFollowListRequestId ||
-    requestedUserId !== viewedProfileUserId
-) {
-    return;
-}
-    if (profileError) {
-
-        console.error(
-            "Follow list profile error:",
-            profileError
-        );
-
-        list.innerHTML = `
-            <div class="social-empty-state">
-                <p>Could not load profiles.</p>
-            </div>
-        `;
-
-        return;
-    }
-
-    if (!profiles || profiles.length === 0) {
-
-        list.innerHTML = `
-            <div class="social-empty-state">
-                <p>No profiles found.</p>
-            </div>
-        `;
-
-        return;
-    }
-
-    list.innerHTML =
-        profiles.map(profile => {
-
-            const avatar =
-                profile.avatar_url
-                    ? `
-                        <img
-                            src="${safe(profile.avatar_url)}"
-                            alt="Profile"
-                        >
-                    `
-                    : `
-                        <i data-lucide="user"></i>
-                    `;
+        list.innerHTML = orderedProfiles.map(profile => {
+            const avatar = profile.avatar_url
+                ? `
+                    <img
+                        src="${safe(profile.avatar_url)}"
+                        alt=""
+                        loading="lazy"
+                    >
+                `
+                : `<i data-lucide="user"></i>`;
 
             return `
                 <button
                     type="button"
-                    class="profile-follow-list-item"
-                    data-user-id="${profile.id}"
+                    class="patriodx-follow-directory-row"
+                    data-follow-directory-user="${safe(profile.id)}"
                 >
-
-                    <div class="profile-follow-list-avatar">
+                    <span class="patriodx-follow-directory-avatar">
                         ${avatar}
-                    </div>
+                    </span>
 
-                    <div class="profile-follow-list-info">
-
-                       <strong>
-    ${escapeHTML(
-        profile.display_name ||
-        "PATRIODX User"
-    )}
-    ${getPATRIODXBadge(profile)}
-</strong>
+                    <span class="patriodx-follow-directory-user-info">
+                        <strong>
+                            ${escapeHTML(
+                                profile.display_name || "PATRIODX User"
+                            )}
+                            ${getPATRIODXBadge(profile)}
+                        </strong>
 
                         <span>
                             ${
                                 profile.username
-                                    ? "@" +
-                                      escapeHTML(
-                                          profile.username
-                                      )
+                                    ? "@" + escapeHTML(
+                                        profile.username.replace(/^@/, "")
+                                    )
                                     : ""
                             }
                         </span>
+                    </span>
 
-                    </div>
-
+                    <i
+                        data-lucide="chevron-right"
+                        class="patriodx-follow-directory-chevron"
+                    ></i>
                 </button>
             `;
-
         }).join("");
 
-    if (typeof lucide !== "undefined") {
-        lucide.createIcons();
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+
+    } catch (error) {
+        console.error(
+            "PATRIODX follow directory error:",
+            error
+        );
+
+        if (requestId === patriodxFollowDirectoryRequestId) {
+            list.innerHTML = `
+                <div class="patriodx-follow-directory-state">
+                    <p>Could not load this list. Please try again.</p>
+                </div>
+            `;
+        }
     }
-
-    list
-        .querySelectorAll(
-            ".profile-follow-list-item"
-        )
-        .forEach(item => {
-
-            item.addEventListener(
-                "click",
-                function() {
-
-                    const targetUserId =
-                        this.getAttribute(
-                            "data-user-id"
-                        );
-
-                    loadPublicProfile(
-                        targetUserId
-                    );
-
-                }
-            );
-
-        });
 }
-// ------------------------------------------
-// FOLLOWER / FOLLOWING BUTTONS
-// ------------------------------------------
 
 function setupPublicProfileFollowLists() {
+    const followersButton = document.getElementById(
+        "publicProfileFollowersButton"
+    );
 
-    const followersButton =
-        document.getElementById(
-            "publicProfileFollowersButton"
-        );
-
-    const followingButton =
-        document.getElementById(
-            "publicProfileFollowingButton"
-        );
+    const followingButton = document.getElementById(
+        "publicProfileFollowingButton"
+    );
 
     if (followersButton) {
-
-        followersButton.onclick =
-            function() {
-
-                if (!viewedProfileUserId) return;
-
-                loadProfileFollowList(
-                    viewedProfileUserId,
-                    "followers"
-                );
-            };
+        followersButton.onclick = function() {
+            openPATRIODXFollowDirectory("followers");
+        };
     }
 
     if (followingButton) {
-
-        followingButton.onclick =
-            function() {
-
-                if (!viewedProfileUserId) return;
-
-                loadProfileFollowList(
-                    viewedProfileUserId,
-                    "following"
-                );
-            };
+        followingButton.onclick = function() {
+            openPATRIODXFollowDirectory("following");
+        };
     }
 }
+
+document.addEventListener("click", async function(event) {
+    const tab = event.target.closest(
+        "[data-follow-directory-tab]"
+    );
+
+    if (tab) {
+        patriodxFollowDirectoryType =
+            tab.dataset.followDirectoryTab;
+
+        updatePATRIODXFollowDirectoryTabs();
+        await loadPATRIODXFollowDirectory();
+        return;
+    }
+
+    if (event.target.closest(
+        "[data-follow-directory-close]"
+    )) {
+        closePATRIODXFollowDirectory();
+        return;
+    }
+
+    const userRow = event.target.closest(
+        "[data-follow-directory-user]"
+    );
+
+    if (userRow) {
+        const targetUserId =
+            userRow.dataset.followDirectoryUser;
+
+        closePATRIODXFollowDirectory();
+
+        if (targetUserId) {
+            await loadPublicProfile(targetUserId);
+        }
+    }
+});
 
 setupPublicProfileFollowLists();
 // ------------------------------------------

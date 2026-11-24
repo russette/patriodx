@@ -6201,6 +6201,67 @@ body {
 
     </section>
 </div>
+<!-- PATRIODX FULL-SCREEN FOLLOW DIRECTORY -->
+<section
+    id="patriodxFollowDirectory"
+    class="patriodx-follow-directory"
+    aria-label="Profile connections"
+    aria-hidden="true"
+    hidden
+>
+    <header class="patriodx-follow-directory-header">
+        <button
+            type="button"
+            class="patriodx-follow-directory-back"
+            data-follow-directory-close
+            aria-label="Back to profile"
+        >
+            <i data-lucide="arrow-left"></i>
+        </button>
+
+        <h2>Connections</h2>
+
+        <span></span>
+    </header>
+
+    <div
+        class="patriodx-follow-directory-tabs"
+        role="tablist"
+        aria-label="Profile connections"
+    >
+        <button
+            type="button"
+            role="tab"
+            aria-selected="false"
+            data-follow-directory-tab="mutual"
+        >
+            Mutual
+        </button>
+
+        <button
+            type="button"
+            role="tab"
+            aria-selected="false"
+            data-follow-directory-tab="followers"
+        >
+            Followers
+        </button>
+
+        <button
+            type="button"
+            role="tab"
+            aria-selected="false"
+            data-follow-directory-tab="following"
+        >
+            Following
+        </button>
+    </div>
+
+    <div
+        id="patriodxFollowDirectoryList"
+        class="patriodx-follow-directory-list"
+    ></div>
+</section>
 </body>
 </html>
 
