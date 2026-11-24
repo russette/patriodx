@@ -8049,67 +8049,52 @@ async function loadProfileReposts(
                     ${image}
                     ${video}
 
-                    <div
-                        class="social-post-stats"
-                        data-profile-post-stats="${postId}"
-                    >
-                        <span class="social-like-stat">
-                            <i data-lucide="heart"></i>
-                            <strong>${counts.likes}</strong>
-                            <span>Likes</span>
-                        </span>
+                <div class="social-post-actions-bar">
 
-                        <span class="social-comment-stat">
-                            <i data-lucide="message-circle"></i>
-                            <strong>${counts.comments}</strong>
-                            <span>Comments</span>
-                        </span>
-                    </div>
+    <button
+        type="button"
+        class="social-action-button social-like-button profile-own-like-button ${liked ? "liked" : ""}"
+        data-post-id="${postId}"
+        aria-label="${liked ? "Unlike post" : "Like post"}"
+    >
+        <i data-lucide="heart"></i>
+        <span class="social-action-count" data-action-count="likes">${counts.likes}</span>
+        <span class="social-action-label">${liked ? "Liked" : "Like"}</span>
+    </button>
 
-                    <div class="social-post-actions-bar">
+    <button
+        type="button"
+        class="social-action-button social-repost-button"
+        data-post-repost-button
+        data-post-id="${postId}"
+        aria-label="Repost"
+        aria-pressed="false"
+        title="Repost"
+    >
+        <i data-lucide="repeat-2"></i>
+        <span>Repost</span>
+    </button>
 
-                        <button
-                            type="button"
-                            class="social-action-button social-like-button profile-own-like-button ${liked ? "liked" : ""}"
-                            data-post-id="${postId}"
-                            aria-label="${liked ? "Unlike post" : "Like post"}"
-                        >
-                            <i data-lucide="heart"></i>
-                            <span>${liked ? "Liked" : "Like"}</span>
-                        </button>
+    <button
+        type="button"
+        class="social-action-button profile-own-comment-button"
+        data-post-id="${postId}"
+    >
+        <i data-lucide="message-circle"></i>
+        <span class="social-action-count" data-action-count="comments">${counts.comments}</span>
+        <span class="social-action-label">Comment</span>
+    </button>
 
-                        <button
-                            type="button"
-                            class="social-action-button social-repost-button"
-                            data-post-repost-button
-                            data-post-id="${postId}"
-                            aria-label="Repost"
-                            aria-pressed="false"
-                            title="Repost"
-                        >
-                            <i data-lucide="repeat-2"></i>
-                            <span>Repost</span>
-                        </button>
+    <button
+        type="button"
+        class="social-action-button"
+        onclick="shareSocialPost('${postId}')"
+    >
+        <i data-lucide="share-2"></i>
+        <span>Share</span>
+    </button>
 
-                        <button
-                            type="button"
-                            class="social-action-button profile-own-comment-button"
-                            data-post-id="${postId}"
-                        >
-                            <i data-lucide="message-circle"></i>
-                            <span>Comment</span>
-                        </button>
-
-                        <button
-                            type="button"
-                            class="social-action-button"
-                            onclick="shareSocialPost('${postId}')"
-                        >
-                            <i data-lucide="share-2"></i>
-                            <span>Share</span>
-                        </button>
-
-                    </div>
+</div>
                 </article>
             `;
         }).join("");
@@ -10354,11 +10339,7 @@ const author =
         title="Like"
     >
         <i data-lucide="heart"></i>
-        ${
-            Number(post.likes) > 0
-                ? `<span class="social-action-count">${Number(post.likes)}</span>`
-                : ""
-        }
+       <span class="social-action-count" data-action-count="likes">${Number(post.likes) || 0}</span>
     </button>
 
     <button
@@ -10370,11 +10351,7 @@ const author =
         title="Comment"
     >
         <i data-lucide="message-circle"></i>
-        ${
-            Number(post.comments) > 0
-                ? `<span class="social-action-count">${Number(post.comments)}</span>`
-                : ""
-        }
+       <span class="social-action-count" data-action-count="comments">${Number(post.comments) || 0}</span>
     </button>
     <button
         type="button"
@@ -11075,98 +11052,56 @@ async function refreshSocialPostStats(postId) {
 
     try {
         const stats = await getSocialCounts(postId);
-// OWN PROFILE POSTS
-document.querySelectorAll("[data-profile-post-stats]").forEach(element => {
-    if (element.dataset.profilePostStats !== String(postId)) return;
 
-    element.innerHTML = `
-        <span>
-            <i data-lucide="heart"></i> ${stats.likes}
-        </span>
-        <span>
-            <i data-lucide="message-circle"></i> ${stats.comments}
-        </span>
-    `;
-});
-        // SOCIAL FEED
-        const socialStats = document.getElementById(
-            `social-stats-${postId}`
-        );
-
-        if (socialStats) {
-            socialStats.innerHTML = `
-                <span>
-                    <i data-lucide="heart"></i> ${stats.likes}
-                </span>
-                <span>
-                    <i data-lucide="message-circle"></i> ${stats.comments}
-                </span>
-            `;
-        }
-
-        // HOME FEED
-        const homeStats = document
-            .getElementById(`home-post-${postId}`)
-            ?.querySelector(".social-post-stats");
-
-        if (homeStats) {
-            homeStats.innerHTML = `
-                <span>
-                    <i data-lucide="heart"></i> ${stats.likes}
-                </span>
-                <span>
-                    <i data-lucide="message-circle"></i> ${stats.comments}
-                </span>
-            `;
-        }
-
-        // YOUR OWN PROFILE
+        // Update Like and Comment counts inside post action buttons.
         document.querySelectorAll(
-            "[data-profile-post-stats]"
-        ).forEach(element => {
-            if (element.dataset.profilePostStats !== String(postId)) {
+            ".social-post-actions-bar button[data-post-id]"
+        ).forEach(button => {
+            if (String(button.dataset.postId) !== String(postId)) {
                 return;
             }
 
-            const values = element.querySelectorAll("strong");
+            const count = button.querySelector(
+                "[data-action-count]"
+            );
 
-            if (values[0]) {
-                values[0].textContent = stats.likes;
+            if (!count) return;
+
+            if (count.dataset.actionCount === "likes") {
+                count.textContent = stats.likes;
             }
 
-            if (values[1]) {
-                values[1].textContent = stats.comments;
+            if (count.dataset.actionCount === "comments") {
+                count.textContent = stats.comments;
             }
         });
 
-        // OTHER USERS' PUBLIC PROFILES
-        const publicStats = document.getElementById(
-            `public-profile-stats-${postId}`
-        );
-
-        if (publicStats) {
-            const likes = publicStats.querySelector(
-                ".public-profile-like-count"
-            );
-
-            const comments = publicStats.querySelector(
-                ".public-profile-comment-count"
-            );
-
-            if (likes) likes.textContent = stats.likes;
-            if (comments) comments.textContent = stats.comments;
-        }
-
-        // OPEN POST VIEWER
+        // Update the open post viewer.
         if (
-            window.currentProfileViewerPostId === postId
+            String(window.currentProfileViewerPostId) === String(postId)
         ) {
             const viewerLikes = document.getElementById(
+                "profilePostViewerLikeActionCount"
+            );
+
+            const viewerComments = document.getElementById(
+                "profilePostViewerCommentCount"
+            );
+
+            const legacyViewerLikes = document.getElementById(
                 "profilePostViewerLikeCount"
             );
 
             if (viewerLikes) {
-                viewerLikes.textContent =
+                viewerLikes.textContent = stats.likes;
+            }
+
+            if (viewerComments) {
+                viewerComments.textContent = stats.comments;
+            }
+
+            if (legacyViewerLikes) {
+                legacyViewerLikes.textContent =
                     `${stats.likes} ${stats.likes === 1 ? "like" : "likes"}`;
             }
         }
@@ -13333,78 +13268,61 @@ window.refreshHomePostStats = refreshHomePostStats;
 async function refreshBothPostStats(postId) {
     if (!postId) return null;
 
-    const socialElement = document.getElementById(
-        `social-stats-${postId}`
-    );
-
-    const homeElement = document.querySelector(
-        `#home-post-${postId} .social-post-stats`
-    );
-
-    const publicProfileLikeCount = document.querySelector(
-        `#public-profile-stats-${postId} .public-profile-like-count`
-    );
-
-   const viewerLikeCount = document.getElementById(
-    "profilePostViewerLikeCount"
-);
-
-const viewerLikeActionCount = document.getElementById(
-    "profilePostViewerLikeActionCount"
-);
-
-const viewerCommentActionCount = document.getElementById(
-    "profilePostViewerCommentCount"
-);
-
     try {
         const counts = await getSocialCounts(postId);
 
-        const markup = `
-            <span>
-                <i data-lucide="heart"></i> ${counts.likes}
-            </span>
-            <span>
-                <i data-lucide="message-circle"></i> ${counts.comments}
-            </span>
-        `;
+        // Update Like and Comment counts inside post action buttons.
+        document.querySelectorAll(
+            ".social-post-actions-bar button[data-post-id]"
+        ).forEach(button => {
+            if (String(button.dataset.postId) !== String(postId)) {
+                return;
+            }
 
-        if (socialElement) {
-            socialElement.innerHTML = markup;
+            const count = button.querySelector(
+                "[data-action-count]"
+            );
+
+            if (!count) return;
+
+            if (count.dataset.actionCount === "likes") {
+                count.textContent = counts.likes;
+            }
+
+            if (count.dataset.actionCount === "comments") {
+                count.textContent = counts.comments;
+            }
+        });
+
+        // Update the open post viewer.
+        if (
+            String(window.currentProfileViewerPostId) === String(postId)
+        ) {
+            const viewerLikeCount = document.getElementById(
+                "profilePostViewerLikeCount"
+            );
+
+            const viewerLikeActionCount = document.getElementById(
+                "profilePostViewerLikeActionCount"
+            );
+
+            const viewerCommentActionCount = document.getElementById(
+                "profilePostViewerCommentCount"
+            );
+
+            if (viewerLikeCount) {
+                viewerLikeCount.textContent =
+                    `${counts.likes} ${counts.likes === 1 ? "like" : "likes"}`;
+            }
+
+            if (viewerLikeActionCount) {
+                viewerLikeActionCount.textContent = counts.likes;
+            }
+
+            if (viewerCommentActionCount) {
+                viewerCommentActionCount.textContent = counts.comments;
+            }
         }
-
-        if (homeElement) {
-            homeElement.innerHTML = markup;
-        }
-// OWN PROFILE
-document.querySelectorAll("[data-profile-post-stats]").forEach(element => {
-    if (element.dataset.profilePostStats !== String(postId)) return;
-
-    const values = element.querySelectorAll("strong");
-
-    if (values[0]) values[0].textContent = counts.likes;
-    if (values[1]) values[1].textContent = counts.comments;
-});
-        if (publicProfileLikeCount) {
-            publicProfileLikeCount.textContent = counts.likes;
-        }
-
-      if (
-    String(window.currentProfileViewerPostId) === String(postId)
-) {
-    if (viewerLikeCount) {
-        viewerLikeCount.textContent =
-            `${counts.likes} ${counts.likes === 1 ? "like" : "likes"}`;
-    }
-
-    if (viewerLikeActionCount) {
-        viewerLikeActionCount.textContent = counts.likes;
-    }
-
-    if (viewerCommentActionCount) {
-        viewerCommentActionCount.textContent = counts.comments;
-    }
-}
 
         if (window.lucide) {
             window.lucide.createIcons();
@@ -18559,27 +18477,9 @@ ${post.is_pinned ? `
 ${image}
 
 ${video}
-
-<!-- OWN PROFILE POST STATISTICS -->
-<div
-    class="social-post-stats profile-own-post-stats"
-    data-profile-post-stats="${safe(post.id)}"
->
-    <span class="social-like-stat">
-        <i data-lucide="heart"></i>
-        <strong>${Number(post.likes) || 0}</strong>
-        <span>Likes</span>
-    </span>
-
-    <span class="social-comment-stat">
-        <i data-lucide="message-circle"></i>
-        <strong>${Number(post.comments) || 0}</strong>
-        <span>Comments</span>
-    </span>
-</div>
-
 <!-- POST ACTIONS -->
 <div class="social-post-actions-bar">
+
     <button
         type="button"
         class="social-action-button social-like-button profile-own-like-button ${post.liked ? "liked" : ""}"
@@ -18587,8 +18487,10 @@ ${video}
         aria-label="${post.liked ? "Unlike post" : "Like post"}"
     >
         <i data-lucide="heart"></i>
-        <span>${post.liked ? "Liked" : "Like"}</span>
+        <span class="social-action-count" data-action-count="likes">${Number(post.likes) || 0}</span>
+        <span class="social-action-label">${post.liked ? "Liked" : "Like"}</span>
     </button>
+
     <button
         type="button"
         class="social-action-button social-repost-button"
@@ -18601,13 +18503,15 @@ ${video}
         <i data-lucide="repeat-2"></i>
         <span>Repost</span>
     </button>
+
     <button
         type="button"
         class="social-action-button profile-own-comment-button"
         data-post-id="${safe(post.id)}"
     >
         <i data-lucide="message-circle"></i>
-        <span>Comment</span>
+        <span class="social-action-count" data-action-count="comments">${Number(post.comments) || 0}</span>
+        <span class="social-action-label">Comment</span>
     </button>
 
     <button
@@ -18618,8 +18522,8 @@ ${video}
         <i data-lucide="share-2"></i>
         <span>Share</span>
     </button>
-</div>
 
+</div>
 </article>
 
                 `;
@@ -20283,23 +20187,6 @@ let liked = false;
 
                     ${media}
 
-                    <div
-                        class="public-profile-post-stats"
-                        id="public-profile-stats-${escapeHTML(post.id)}"
-                    >
-                        <span>
-                            <i data-lucide="heart"></i>
-                            <span class="public-profile-like-count">${stats.likes}</span>
-                            <span>likes</span>
-                        </span>
-
-                        <span>
-    <i data-lucide="message-circle"></i>
-    <span class="public-profile-comment-count">${stats.comments}</span>
-    <span>comments</span>
-</span>
-                    </div>
-
                    <div class="social-post-actions-bar public-profile-post-actions">
 
     <button
@@ -20310,8 +20197,10 @@ let liked = false;
         title="${liked ? "Unlike" : "Like"}"
     >
         <i data-lucide="heart"></i>
-        <span>${liked ? "Liked" : "Like"}</span>
+        <span class="social-action-count" data-action-count="likes">${stats.likes}</span>
+        <span class="social-action-label">${liked ? "Liked" : "Like"}</span>
     </button>
+
     <button
         type="button"
         class="social-action-button social-repost-button"
@@ -20324,6 +20213,7 @@ let liked = false;
         <i data-lucide="repeat-2"></i>
         <span>Repost</span>
     </button>
+
     <button
         type="button"
         class="social-action-button public-profile-comment-button"
@@ -20332,7 +20222,8 @@ let liked = false;
         title="Comment"
     >
         <i data-lucide="message-circle"></i>
-        <span>Comment</span>
+        <span class="social-action-count" data-action-count="comments">${stats.comments}</span>
+        <span class="social-action-label">Comment</span>
     </button>
 
     <button
@@ -20390,27 +20281,27 @@ supabaseClient
 
         (data || []).forEach(stats => {
 
-            const statsElement = document.getElementById(
-                `public-profile-stats-${stats.post_id}`
-            );
+          const postCard = postsElement.querySelector(
+    `.public-profile-like-button[data-post-id="${stats.post_id}"]`
+)?.closest("article");
 
-            if (!statsElement) return;
+if (!postCard) return;
 
-            const likesElement = statsElement.querySelector(
-                ".public-profile-like-count"
-            );
+const likesElement = postCard.querySelector(
+    '.social-action-count[data-action-count="likes"]'
+);
 
-            const commentsElement = statsElement.querySelector(
-                ".public-profile-comment-count"
-            );
+const commentsElement = postCard.querySelector(
+    '.social-action-count[data-action-count="comments"]'
+);
 
-            if (likesElement) {
-                likesElement.textContent = stats.likes;
-            }
+if (likesElement) {
+    likesElement.textContent = stats.likes;
+}
 
-            if (commentsElement) {
-                commentsElement.textContent = stats.comments;
-            }
+if (commentsElement) {
+    commentsElement.textContent = stats.comments;
+}
 
             const likeButton = postsElement.querySelector(
                 `.public-profile-like-button[data-post-id="${stats.post_id}"]`
@@ -20432,7 +20323,7 @@ supabaseClient
                     ? "Unlike"
                     : "Like";
 
-                const label = likeButton.querySelector("span");
+               const label = likeButton.querySelector(".social-action-label");
 
                 if (label) {
                     label.textContent = stats.liked

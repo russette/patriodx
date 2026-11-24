@@ -19586,7 +19586,6 @@ html[data-theme="dark"] #messaging {
         white-space: pre-wrap;
     }
 }
-.public-profile-post-stats,
 .public-profile-post-actions {
     display: flex;
     flex-wrap: wrap;
@@ -19595,13 +19594,6 @@ html[data-theme="dark"] #messaging {
     padding: 12px;
     max-width: 100%;
     box-sizing: border-box;
-}
-
-.public-profile-post-stats > span {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    overflow-wrap: anywhere;
 }
 
 .public-profile-post-actions button {
@@ -19622,7 +19614,6 @@ html[data-theme="dark"] #messaging {
 }
 
 @media (max-width: 600px) {
-    .public-profile-post-stats,
     .public-profile-post-actions {
         gap: 8px;
         padding: 10px;
@@ -25110,8 +25101,17 @@ body #messaging .message-row.theirs .message-bubble.theirs {
     height: 21px !important;
     stroke-width: 1.8 !important;
 }
-#profilePostViewer .profile-post-viewer-action-button span {
+/* Hide text labels, but preserve action counts. */
+#profilePostViewer .profile-post-viewer-action-button > span:not(.profile-post-viewer-action-count):not(.social-repost-count) {
     display: none !important;
+}
+
+/* Keep Like, Comment and Repost counts visible. */
+#profilePostViewer .profile-post-viewer-action-button .profile-post-viewer-action-count,
+#profilePostViewer .profile-post-viewer-action-button .social-repost-count {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 /* Like */
 #profilePostViewer #profilePostViewerLike:hover,
@@ -25379,7 +25379,6 @@ body.dark-mode #profilePostViewer #profilePostViewerShare:hover {
 #profilePosts.is-media-grid .profile-own-post-stats,
 #publicProfilePosts.is-media-grid .social-post-header,
 #publicProfilePosts.is-media-grid .social-post-content,
-#publicProfilePosts.is-media-grid .public-profile-post-stats,
 #publicProfilePosts.is-media-grid .public-profile-post-actions {
     display: none !important;
 }
@@ -27177,4 +27176,17 @@ body.dark-mode #publicProfilePostsContainer .social-post-actions-bar .social-rep
 body.dark-mode #profilePostViewer #profilePostViewerRepost.is-reposted svg {
     color: #34d399 !important;
     stroke: #34d399 !important;
+}
+/* PATRIODX — ENSURE LIKE AND COMMENT COUNTS REMAIN VISIBLE */
+#socialFeed .social-action-count,
+#profilePosts .social-action-count,
+#publicProfilePostsContainer .social-action-count {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
 }
