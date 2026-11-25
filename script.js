@@ -1,4 +1,4 @@
-﻿const profileViewerCommentsCache = new Map();
+const profileViewerCommentsCache = new Map();
 const PAYSTACK_PUBLIC_KEY =
     "pk_live_e1462983063e834b226acdca9492e980762a6ddd";
 const SUPABASE_URL = "https://saerujjsfzyxkyacbvgr.supabase.co";
@@ -531,78 +531,52 @@ function setupNavigation() {
 ========================================================= */
 
 function setupHeaderSearch() {
+    const searchButton = document.getElementById("headerSearchButton");
+    const searchPanel = document.getElementById("globalSearchPanel");
+    const searchInput = document.getElementById("globalSearchInput");
+    const closeButton = document.getElementById("closeGlobalSearch");
 
-    const searchButton =
-        document.getElementById(
-            "headerSearchButton"
-        );
+    if (!searchButton || !searchPanel || !searchInput || !closeButton) return;
 
-    const searchPanel =
-        document.getElementById(
-            "globalSearchPanel"
-        );
+    searchButton.addEventListener("click", async function() {
+        searchPanel.style.display = "block";
 
-    const searchInput =
-        document.getElementById(
-            "globalSearchInput"
-        );
+        const discovery = document.getElementById("patriodxSearchDiscovery");
+        const results = document.getElementById("globalSearchResults");
 
-    const closeButton =
-        document.getElementById(
-            "closeGlobalSearch"
-        );
-
-    if (
-        !searchButton ||
-        !searchPanel ||
-        !searchInput ||
-        !closeButton
-    ) {
-        return;
-    }
-
-    searchButton.addEventListener(
-        "click",
-        function() {
-
-            searchPanel.style.display =
-                "block";
-
-            searchInput.focus();
-
-            if (
-                typeof lucide !==
-                "undefined"
-            ) {
-
-                lucide.createIcons();
-
-            }
+        if (results) {
+            results.innerHTML = "";
+            results.style.display = "none";
         }
-    );
-closeButton.addEventListener(
-    "click",
-    function(event) {
 
+        if (discovery) discovery.style.display = "block";
+
+        if (typeof renderPATRIODXSearchDiscovery === "function") {
+            await renderPATRIODXSearchDiscovery();
+        }
+
+        searchInput.focus();
+
+        if (typeof lucide !== "undefined") lucide.createIcons();
+    });
+
+    closeButton.addEventListener("click", function(event) {
         event.preventDefault();
         event.stopPropagation();
 
         searchPanel.style.display = "none";
-
         searchInput.value = "";
 
-        const results = document.getElementById(
-            "globalSearchResults"
-        );
+        const results = document.getElementById("globalSearchResults");
+        const discovery = document.getElementById("patriodxSearchDiscovery");
 
         if (results) {
             results.style.display = "none";
             results.innerHTML = "";
         }
 
-    }
-);
-
+        if (discovery) discovery.style.display = "none";
+    });
 }
 
 setupHeaderSearch();
@@ -5962,6 +5936,7 @@ async function startPATRIODX() {
 
     // Load stories after restoring the signed-in user.
     await loadPATRIODXStories();
+    await setupPATRIODXGlobalPresence();
     setupNotifications();
     loadPlan();
 
@@ -7583,6 +7558,36 @@ async function getLikedSocialPostIds(postIds) {
 
 const patriodxPendingPostReposts = new Set();
 
+function formatPATRIODXCount(value) {
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) return "0";
+
+    const absolute = Math.abs(number);
+    const sign = number < 0 ? "-" : "";
+
+    if (absolute < 1000) {
+        return String(Math.trunc(number));
+    }
+
+    let divisor;
+    let suffix;
+
+    if (absolute >= 1e9) {
+        divisor = 1e9;
+        suffix = "B";
+    } else if (absolute >= 1e6) {
+        divisor = 1e6;
+        suffix = "M";
+    } else {
+        divisor = 1e3;
+        suffix = "K";
+    }
+
+    const rounded = Math.round((absolute / divisor) * 10) / 10;
+
+    return sign + String(rounded) + suffix;
+}
 async function getPostRepostState(postIds) {
     const ids = [
         ...new Set((postIds || []).filter(Boolean).map(String))
@@ -8095,7 +8100,7 @@ async function loadProfileReposts(
         aria-label="${liked ? "Unlike post" : "Like post"}"
     >
         <i data-lucide="heart"></i>
-        <span class="social-action-count" data-action-count="likes">${counts.likes}</span>
+        <span class="social-action-count" data-action-count="likes">${formatPATRIODXCount(counts.likes)}</span>
         <span class="social-action-label">${liked ? "Liked" : "Like"}</span>
     </button>
 
@@ -8118,7 +8123,7 @@ async function loadProfileReposts(
         data-post-id="${postId}"
     >
         <i data-lucide="message-circle"></i>
-        <span class="social-action-count" data-action-count="comments">${counts.comments}</span>
+        <span class="social-action-count" data-action-count="comments">${formatPATRIODXCount(counts.comments)}</span>
         <span class="social-action-label">Comment</span>
     </button>
 
@@ -9594,6 +9599,7 @@ if (inactiveState.observer) {
 
     if (!loadMore) {
         await loadPATRIODXStories();
+    await setupPATRIODXGlobalPresence();
 
         socialFeed.innerHTML = `
             <div class="social-empty-state">
@@ -10376,7 +10382,7 @@ const author =
         title="Like"
     >
         <i data-lucide="heart"></i>
-       <span class="social-action-count" data-action-count="likes">${Number(post.likes) || 0}</span>
+       <span class="social-action-count" data-action-count="likes">${formatPATRIODXCount(Number(post.likes) || 0)}</span>
     </button>
 
     <button
@@ -10388,7 +10394,7 @@ const author =
         title="Comment"
     >
         <i data-lucide="message-circle"></i>
-       <span class="social-action-count" data-action-count="comments">${Number(post.comments) || 0}</span>
+       <span class="social-action-count" data-action-count="comments">${formatPATRIODXCount(Number(post.comments) || 0)}</span>
     </button>
     <button
         type="button"
@@ -11105,11 +11111,11 @@ async function refreshSocialPostStats(postId) {
             if (!count) return;
 
             if (count.dataset.actionCount === "likes") {
-                count.textContent = stats.likes;
+                count.textContent = formatPATRIODXCount(stats.likes);
             }
 
             if (count.dataset.actionCount === "comments") {
-                count.textContent = stats.comments;
+                count.textContent = formatPATRIODXCount(stats.comments);
             }
         });
 
@@ -11130,16 +11136,16 @@ async function refreshSocialPostStats(postId) {
             );
 
             if (viewerLikes) {
-                viewerLikes.textContent = stats.likes;
+                viewerLikes.textContent = formatPATRIODXCount(stats.likes);
             }
 
             if (viewerComments) {
-                viewerComments.textContent = stats.comments;
+                viewerComments.textContent = formatPATRIODXCount(stats.comments);
             }
 
             if (legacyViewerLikes) {
                 legacyViewerLikes.textContent =
-                    `${stats.likes} ${stats.likes === 1 ? "like" : "likes"}`;
+                    `${formatPATRIODXCount(stats.likes)} ${stats.likes === 1 ? "like" : "likes"}`;
             }
         }
 
@@ -13147,12 +13153,12 @@ ${profile?.username ? `
                     <div class="social-post-stats">
                         <span>
                             <i data-lucide="heart"></i>
-                            ${Number(post.likes) || 0} likes
+                            ${formatPATRIODXCount(Number(post.likes) || 0)} likes
                         </span>
 
                         <span>
                             <i data-lucide="message-circle"></i>
-                            ${Number(post.comments) || 0} comments
+                            ${formatPATRIODXCount(Number(post.comments) || 0)} comments
                         </span>
                     </div>
 
@@ -13281,10 +13287,10 @@ try {
 
     statsElement.innerHTML = `
         <span>
-            <i data-lucide="heart"></i> ${counts.likes}
+            <i data-lucide="heart"></i> ${formatPATRIODXCount(counts.likes)}
         </span>
         <span>
-            <i data-lucide="message-circle"></i> ${counts.comments}
+            <i data-lucide="message-circle"></i> ${formatPATRIODXCount(counts.comments)}
         </span>
     `;
 
@@ -13323,11 +13329,11 @@ async function refreshBothPostStats(postId) {
             if (!count) return;
 
             if (count.dataset.actionCount === "likes") {
-                count.textContent = counts.likes;
+                count.textContent = formatPATRIODXCount(counts.likes);
             }
 
             if (count.dataset.actionCount === "comments") {
-                count.textContent = counts.comments;
+                count.textContent = formatPATRIODXCount(counts.comments);
             }
         });
 
@@ -13349,15 +13355,15 @@ async function refreshBothPostStats(postId) {
 
             if (viewerLikeCount) {
                 viewerLikeCount.textContent =
-                    `${counts.likes} ${counts.likes === 1 ? "like" : "likes"}`;
+                    `${formatPATRIODXCount(counts.likes)} ${counts.likes === 1 ? "like" : "likes"}`;
             }
 
             if (viewerLikeActionCount) {
-                viewerLikeActionCount.textContent = counts.likes;
+                viewerLikeActionCount.textContent = formatPATRIODXCount(counts.likes);
             }
 
             if (viewerCommentActionCount) {
-                viewerCommentActionCount.textContent = counts.comments;
+                viewerCommentActionCount.textContent = formatPATRIODXCount(counts.comments);
             }
         }
 
@@ -17387,6 +17393,56 @@ function setupNotificationFilters() {
    INITIALIZE NOTIFICATIONS
 --------------------------------------------------------- */
 
+let patriodxNotificationsChannel = null;
+let patriodxNotificationsUserId = null;
+
+function setupPATRIODXNotificationsRealtime() {
+    if (!currentUser || !supabaseClient) return;
+
+    const userId = String(currentUser.id);
+
+    if (
+        patriodxNotificationsChannel &&
+        patriodxNotificationsUserId === userId
+    ) {
+        return;
+    }
+
+    if (patriodxNotificationsChannel) {
+        supabaseClient
+            .removeChannel(patriodxNotificationsChannel)
+            .catch(error => {
+                console.error("Notification channel cleanup error:", error);
+            });
+
+        patriodxNotificationsChannel = null;
+    }
+
+    patriodxNotificationsUserId = userId;
+
+    patriodxNotificationsChannel = supabaseClient
+        .channel("patriodx-notifications-" + userId)
+        .on(
+            "postgres_changes",
+            {
+                event: "*",
+                schema: "public",
+                table: "notifications",
+                filter: "user_id=eq." + userId
+            },
+            function () {
+                loadNotifications();
+            }
+        )
+        .subscribe(status => {
+            if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+                console.error(
+                    "PATRIODX notification realtime subscription:",
+                    status
+                );
+            }
+        });
+}
 function setupNotifications() {
 
     setupNotificationActions();
@@ -17394,6 +17450,8 @@ function setupNotifications() {
     setupNotificationFilters();
 
     loadNotifications();
+
+    setupPATRIODXNotificationsRealtime();
 }
 
 
@@ -18593,7 +18651,7 @@ ${video}
         aria-label="${post.liked ? "Unlike post" : "Like post"}"
     >
         <i data-lucide="heart"></i>
-        <span class="social-action-count" data-action-count="likes">${Number(post.likes) || 0}</span>
+        <span class="social-action-count" data-action-count="likes">${formatPATRIODXCount(Number(post.likes) || 0)}</span>
         <span class="social-action-label">${post.liked ? "Liked" : "Like"}</span>
     </button>
 
@@ -18616,7 +18674,7 @@ ${video}
         data-post-id="${safe(post.id)}"
     >
         <i data-lucide="message-circle"></i>
-        <span class="social-action-count" data-action-count="comments">${Number(post.comments) || 0}</span>
+        <span class="social-action-count" data-action-count="comments">${formatPATRIODXCount(Number(post.comments) || 0)}</span>
         <span class="social-action-label">Comment</span>
     </button>
 
@@ -19544,11 +19602,11 @@ async function loadMyFollowCounts() {
         document.getElementById("profileFollowingCount");
 
     if (followersElement) {
-        followersElement.textContent = counts.followers;
+        followersElement.textContent = formatPATRIODXCount(counts.followers);
     }
 
     if (followingElement) {
-        followingElement.textContent = counts.following;
+        followingElement.textContent = formatPATRIODXCount(counts.following);
     }
 }
 
@@ -20339,11 +20397,11 @@ profileFollowCountsPromise
             document.getElementById("publicProfileFollowingCount");
 
         if (followerCount) {
-            followerCount.textContent = counts.followers;
+            followerCount.textContent = formatPATRIODXCount(counts.followers);
         }
 
         if (followingCount) {
-            followingCount.textContent = counts.following;
+            followingCount.textContent = formatPATRIODXCount(counts.following);
         }
 
     })
@@ -20546,7 +20604,7 @@ let liked = false;
         title="${liked ? "Unlike" : "Like"}"
     >
         <i data-lucide="heart"></i>
-        <span class="social-action-count" data-action-count="likes">${stats.likes}</span>
+        <span class="social-action-count" data-action-count="likes">${formatPATRIODXCount(stats.likes)}</span>
         <span class="social-action-label">${liked ? "Liked" : "Like"}</span>
     </button>
 
@@ -20571,7 +20629,7 @@ let liked = false;
         title="Comment"
     >
         <i data-lucide="message-circle"></i>
-        <span class="social-action-count" data-action-count="comments">${stats.comments}</span>
+        <span class="social-action-count" data-action-count="comments">${formatPATRIODXCount(stats.comments)}</span>
         <span class="social-action-label">Comment</span>
     </button>
 
@@ -20645,11 +20703,11 @@ const commentsElement = postCard.querySelector(
 );
 
 if (likesElement) {
-    likesElement.textContent = stats.likes;
+    likesElement.textContent = formatPATRIODXCount(stats.likes);
 }
 
 if (commentsElement) {
-    commentsElement.textContent = stats.comments;
+    commentsElement.textContent = formatPATRIODXCount(stats.comments);
 }
 
             const likeButton = postsElement.querySelector(
@@ -23605,6 +23663,303 @@ results.addEventListener("keydown", event => {
         }
     });
 }
+let patriodxGlobalPresenceChannel = null;
+let patriodxGlobalPresenceUserId = null;
+let patriodxGlobalPresenceState = {};
+
+async function setupPATRIODXGlobalPresence() {
+    if (!currentUser || !supabaseClient) return;
+
+    const userId = String(currentUser.id);
+
+    if (
+        patriodxGlobalPresenceChannel &&
+        patriodxGlobalPresenceUserId === userId
+    ) {
+        return;
+    }
+
+    if (patriodxGlobalPresenceChannel) {
+        await supabaseClient.removeChannel(patriodxGlobalPresenceChannel);
+        patriodxGlobalPresenceChannel = null;
+    }
+
+    patriodxGlobalPresenceUserId = userId;
+
+    patriodxGlobalPresenceChannel = supabaseClient.channel(
+        "patriodx-global-presence",
+        {
+            config: {
+                presence: {
+                    key: userId
+                }
+            }
+        }
+    );
+
+    patriodxGlobalPresenceChannel.on(
+        "presence",
+        { event: "sync" },
+        function() {
+            patriodxGlobalPresenceState =
+                patriodxGlobalPresenceChannel.presenceState();
+
+            if (typeof renderPATRIODXActiveUsers === "function") {
+                renderPATRIODXActiveUsers();
+            }
+        }
+    );
+
+    patriodxGlobalPresenceChannel.subscribe(async function(status) {
+        if (status === "SUBSCRIBED") {
+            await patriodxGlobalPresenceChannel.track({
+                user_id: userId,
+                online_at: new Date().toISOString()
+            });
+
+            patriodxGlobalPresenceState =
+                patriodxGlobalPresenceChannel.presenceState();
+        }
+    });
+}
+
+async function renderPATRIODXActiveUsers() {
+    const container = document.getElementById("patriodxDiscoveryActiveUsers");
+
+    if (!container || !currentUser) return;
+
+    if (!patriodxGlobalPresenceChannel) {
+        container.innerHTML =
+            '<p class="patriodx-discovery-muted">Connecting to active users...</p>';
+        return;
+    }
+
+    const presence = patriodxGlobalPresenceChannel.presenceState();
+    const activeIds = Object.keys(presence)
+        .filter(id => String(id) !== String(currentUser.id));
+
+    if (!activeIds.length) {
+        container.innerHTML =
+            '<p class="patriodx-discovery-muted">No other users are online right now.</p>';
+        return;
+    }
+
+    try {
+        const { data, error } = await supabaseClient
+            .from("profiles")
+            .select("id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at")
+            .in("id", activeIds);
+
+        if (error) throw error;
+
+        container.innerHTML = (data || []).map(profile => {
+            const name = profile.display_name || profile.username || "PATRIODX User";
+            const avatar = profile.avatar_url
+                ? `<img src="${safe(profile.avatar_url)}" alt="">`
+                : `<span>${escapeHTML(name.charAt(0).toUpperCase())}</span>`;
+
+            return `
+                <button type="button"
+                    class="patriodx-active-user"
+                    data-discovery-profile="${escapeHTML(profile.id)}">
+                    <span class="patriodx-discovery-avatar">
+                        ${avatar}
+                        <span class="patriodx-online-indicator"></span>
+                    </span>
+                    <span>${escapeHTML(name)}</span>
+                </button>
+            `;
+        }).join("") || '<p class="patriodx-discovery-muted">No other users are online right now.</p>';
+
+        if (typeof lucide !== "undefined") lucide.createIcons();
+    } catch (error) {
+        console.error("Active users loading error:", error);
+        container.innerHTML =
+            '<p class="patriodx-discovery-muted">Active users could not be loaded.</p>';
+    }
+}
+async function renderPATRIODXSearchDiscovery() {
+    const panel = document.getElementById("globalSearchPanel");
+    const results = document.getElementById("globalSearchResults");
+
+    if (!panel || !results || !currentUser) return;
+
+    let discovery = document.getElementById("patriodxSearchDiscovery");
+
+    if (!discovery) {
+        discovery = document.createElement("div");
+        discovery.id = "patriodxSearchDiscovery";
+        discovery.className = "patriodx-search-discovery";
+        results.parentNode.insertBefore(discovery, results);
+    }
+
+    discovery.innerHTML = `
+        <section class="patriodx-discovery-section">
+            <h3>Discover PATRIODX</h3>
+            <p>Find people and explore what's happening.</p>
+        </section>
+        <section class="patriodx-discovery-section">
+            <h3>Recent searches</h3>
+            <div id="patriodxDiscoveryRecent"></div>
+        </section>
+        <section class="patriodx-discovery-section">
+            <h3>Active now</h3>
+            <div id="patriodxDiscoveryActiveUsers" class="patriodx-active-users">
+                <span class="patriodx-discovery-loading">Loading active users...</span>
+            </div>
+        </section>
+        <section class="patriodx-discovery-section">
+            <h3>People to discover</h3>
+            <div id="patriodxDiscoveryPeople" class="patriodx-discovery-people">
+                <span class="patriodx-discovery-loading">Loading people...</span>
+            </div>
+        </section>
+        <section class="patriodx-discovery-section">
+            <h3>Explore posts</h3>
+            <div id="patriodxDiscoveryPosts" class="patriodx-discovery-grid">
+                <span class="patriodx-discovery-loading">Loading posts...</span>
+            </div>
+        </section>
+    `;
+
+    const recentContainer = document.getElementById("patriodxDiscoveryRecent");
+    const peopleContainer = document.getElementById("patriodxDiscoveryPeople");
+    const postsContainer = document.getElementById("patriodxDiscoveryPosts");
+    renderPATRIODXActiveUsers();
+
+    let recent = [];
+
+    try {
+        recent = typeof getPATRIODXRecentSearches === "function"
+            ? getPATRIODXRecentSearches()
+            : JSON.parse(localStorage.getItem("patriodxRecentSearches") || "[]");
+    } catch (error) {
+        recent = [];
+    }
+
+    if (recentContainer) {
+        recentContainer.innerHTML = recent.length
+            ? recent.slice(0, 6).map(profile => `
+                <button type="button"
+                    class="patriodx-discovery-recent"
+                    data-discovery-profile="${escapeHTML(profile.id)}">
+                    <i data-lucide="clock-3"></i>
+                    <span>${escapeHTML(profile.display_name || profile.username || "PATRIODX User")}</span>
+                    <small>${escapeHTML(profile.username ? "@" + profile.username : "")}</small>
+                </button>
+            `).join("")
+            : `<p class="patriodx-discovery-muted">Your recent searches will appear here.</p>`;
+    }
+
+    try {
+        const { data: profiles, error } = await supabaseClient
+            .from("profiles")
+            .select("id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at")
+            .neq("id", currentUser.id)
+            .limit(12);
+
+        if (error) throw error;
+
+        const candidates = profiles || [];
+        let following = new Set();
+
+        try {
+            following = await getGlobalSearchFollowStates(candidates);
+        } catch (error) {
+            console.warn("Could not load discovery follow states:", error);
+        }
+
+        const suggestions = candidates.filter(profile =>
+            !following.has(String(profile.id))
+        ).slice(0, 8);
+
+        if (peopleContainer) {
+            peopleContainer.innerHTML = suggestions.length
+                ? suggestions.map(profile => {
+                    const name = profile.display_name || profile.username || "PATRIODX User";
+                    const avatar = profile.avatar_url
+                        ? `<img src="${safe(profile.avatar_url)}" alt="">`
+                        : `<span>${escapeHTML(name.charAt(0).toUpperCase())}</span>`;
+
+                    return `
+                        <article class="patriodx-discovery-person">
+                            <button type="button"
+                                class="patriodx-discovery-person-profile"
+                                data-discovery-profile="${escapeHTML(profile.id)}">
+                                <span class="patriodx-discovery-avatar">${avatar}</span>
+                                <span class="patriodx-discovery-person-info">
+                                    <strong>${escapeHTML(name)}</strong>
+                                    <small>${escapeHTML(profile.username ? "@" + profile.username : "")}</small>
+                                </span>
+                            </button>
+                            <button type="button"
+                                class="global-search-follow-button"
+                                data-global-search-follow="${escapeHTML(profile.id)}"
+                                data-following="false"
+                                aria-label="Follow ${escapeHTML(name)}">
+                                <i data-lucide="user-round-plus"></i>
+                            </button>
+                        </article>
+                    `;
+                }).join("")
+                : `<p class="patriodx-discovery-muted">No suggested accounts right now.</p>`;
+        }
+    } catch (error) {
+        console.error("Search discovery profiles error:", error);
+        if (peopleContainer) {
+            peopleContainer.innerHTML = `<p class="patriodx-discovery-muted">People could not be loaded.</p>`;
+        }
+    }
+
+    try {
+        const { data: posts, error } = await supabaseClient
+            .from("posts")
+            .select("*")
+            .order("created_at", { ascending: false })
+            .limit(30);
+
+        if (error) throw error;
+
+        const imagePosts = (posts || []).map(post => {
+            const media = post.media_url ||
+                post.image_url ||
+                post.image ||
+                post.media;
+
+            const mediaUrl = typeof media === "string"
+                ? media
+                : Array.isArray(media)
+                    ? media[0]
+                    : "";
+
+            return { post, mediaUrl };
+        }).filter(item =>
+            item.mediaUrl &&
+            typeof item.mediaUrl === "string" &&
+            /^https?:\/\//i.test(item.mediaUrl)
+        ).slice(0, 12);
+
+        if (postsContainer) {
+            postsContainer.innerHTML = imagePosts.length
+                ? imagePosts.map(({ post, mediaUrl }) => `
+                    <button type="button"
+                        class="patriodx-discovery-post"
+                        data-discovery-post="${escapeHTML(post.id)}"
+                        aria-label="Open discovery post">
+                        <img src="${safe(mediaUrl)}" alt="" loading="lazy">
+                    </button>
+                `).join("")
+                : `<p class="patriodx-discovery-muted">No public photos to explore yet.</p>`;
+        }
+    } catch (error) {
+        console.error("Search discovery posts error:", error);
+        if (postsContainer) {
+            postsContainer.innerHTML = `<p class="patriodx-discovery-muted">Posts could not be loaded.</p>`;
+        }
+    }
+
+    if (typeof lucide !== "undefined") lucide.createIcons();
+}
 async function performGlobalSearch(query) {
 
     const results =
@@ -23786,6 +24141,19 @@ async function openGlobalSearchProfile(profileId) {
 
     try {
 
+        const { data: searchedProfile, error: profileError } =
+            await supabaseClient
+                .from("profiles")
+                .select("id, username, display_name, avatar_url")
+                .eq("id", profileId)
+                .single();
+
+        if (profileError) throw profileError;
+
+        if (searchedProfile && typeof savePATRIODXRecentSearch === "function") {
+            savePATRIODXRecentSearch(searchedProfile);
+        }
+
         await loadPublicProfile(profileId);
 
     } catch (error) {
@@ -23801,7 +24169,55 @@ async function openGlobalSearchProfile(profileId) {
         );
     }
 }
+document.addEventListener("click", async function(event) {
+    const profileButton = event.target.closest("[data-discovery-profile]");
+    if (profileButton) {
+        const profileId = profileButton.getAttribute("data-discovery-profile");
+        if (profileId) {
+            await openGlobalSearchProfile(profileId);
+        }
+        return;
+    }
+
+    const postButton = event.target.closest("[data-discovery-post]");
+    if (postButton) {
+        const postId = postButton.getAttribute("data-discovery-post");
+
+        try {
+            const { data, error } = await supabaseClient
+                .from("posts")
+                .select("*")
+                .eq("id", postId)
+                .single();
+
+            if (error) throw error;
+
+            if (typeof openProfilePostViewer === "function") {
+                openProfilePostViewer(data);
+            }
+        } catch (error) {
+            console.error("Could not open discovery post:", error);
+            showPATRIODXToast("Could not open this post.", "error");
+        }
+    }
+});
 setupGlobalSearch();
+// Keep discovery visible before a query and hide it during active results.
+(function setupPATRIODXDiscoveryVisibility() {
+    const input = document.getElementById("globalSearchInput");
+    if (!input || input.dataset.discoveryVisibilityReady === "true") return;
+
+    input.dataset.discoveryVisibilityReady = "true";
+
+    input.addEventListener("input", function() {
+        const discovery = document.getElementById("patriodxSearchDiscovery");
+
+        if (discovery) {
+            discovery.style.display = input.value.trim().length < 2 ? "block" : "none";
+        }
+    });
+})();
+
 async function submitPATRIODXStory(event) {
 
     event.preventDefault();
@@ -23943,6 +24359,7 @@ if (file.size > 50 * 1024 * 1024) {
 
         if (typeof loadPATRIODXStories === "function") {
             await loadPATRIODXStories();
+    await setupPATRIODXGlobalPresence();
         }
 
     } catch (error) {
@@ -25002,16 +25419,16 @@ try {
     );
 
     if (likeActionCount) {
-        likeActionCount.textContent = stats.likes;
+        likeActionCount.textContent = formatPATRIODXCount(stats.likes);
     }
 
     if (commentActionCount) {
-        commentActionCount.textContent = stats.comments;
+        commentActionCount.textContent = formatPATRIODXCount(stats.comments);
     }
 
     if (likeCount) {
         likeCount.textContent =
-            `${stats.likes} ${stats.likes === 1 ? "like" : "likes"}`;
+            `${formatPATRIODXCount(stats.likes)} ${stats.likes === 1 ? "like" : "likes"}`;
     }
 
     if (!options.commentsOnly && likeButton) {
@@ -25416,7 +25833,7 @@ const liked = !wasLiked;
 
         if (likeCount) {
             likeCount.textContent =
-                `${stats.likes} ${stats.likes === 1 ? "like" : "likes"}`;
+                `${formatPATRIODXCount(stats.likes)} ${stats.likes === 1 ? "like" : "likes"}`;
         }
 
         button.classList.toggle("liked", liked);
@@ -25425,7 +25842,7 @@ const liked = !wasLiked;
         );
 
         if (actionCount) {
-            actionCount.textContent = stats.likes;
+            actionCount.textContent = formatPATRIODXCount(stats.likes);
         }
         button.setAttribute(
             "aria-label",

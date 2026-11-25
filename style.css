@@ -27554,3 +27554,264 @@ body.dark-mode .notification-avatar-fallback {
         height: 43px;
     }
 }
+/* PATRIODX — FULL-SCREEN GLOBAL SEARCH */
+#globalSearchPanel {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 15000 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    padding: 24px clamp(16px, 4vw, 64px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    background: var(--card-bg, #fff) !important;
+    color: var(--text-color, #111827) !important;
+}
+
+#globalSearchPanel .global-search-panel-inner {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+#globalSearchResults {
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto 0;
+    box-sizing: border-box;
+}
+
+body.dark-mode #globalSearchPanel {
+    background: #111827 !important;
+    color: #f9fafb !important;
+}
+
+body.dark-mode #globalSearchPanel .global-search-panel-inner {
+    background: #1f2937;
+}
+
+body:has(#globalSearchPanel[style*="display: block"]) {
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    #globalSearchPanel {
+        padding: 14px 14px 30px !important;
+    }
+
+    #globalSearchPanel .global-search-panel-inner {
+        padding: 10px 12px;
+    }
+
+    #globalSearchResults {
+        margin-top: 16px;
+    }
+}
+
+
+/* PATRIODX — SEARCH FOLLOWING ICON */
+.global-search-follow-button[data-following="true"] {
+    color: #7c3aed !important;
+}
+
+.global-search-follow-button[data-following="true"] svg {
+    color: #7c3aed !important;
+    stroke: #7c3aed !important;
+}
+
+body.dark-mode .global-search-follow-button[data-following="true"],
+body.dark-mode .global-search-follow-button[data-following="true"] svg {
+    color: #7c3aed !important;
+    stroke: #7c3aed !important;
+}
+
+
+/* PATRIODX — SEARCH DISCOVERY */
+.patriodx-search-discovery {
+    width: 100%;
+    max-width: 900px;
+    margin: 28px auto 0;
+}
+
+.patriodx-discovery-section {
+    margin-bottom: 30px;
+}
+
+.patriodx-discovery-section h3 {
+    margin: 0 0 8px;
+    font-size: 19px;
+    font-weight: 750;
+    color: var(--text-color, #111827);
+}
+
+.patriodx-discovery-section > p,
+.patriodx-discovery-muted,
+.patriodx-discovery-loading {
+    color: var(--secondary-text, #6b7280);
+    font-size: 13px;
+}
+
+.patriodx-discovery-people {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 10px;
+}
+
+.patriodx-discovery-person {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 14px;
+}
+
+.patriodx-discovery-person-profile {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.patriodx-discovery-avatar,
+.patriodx-discovery-avatar img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--input-bg, #f3f4f6);
+}
+
+.patriodx-discovery-person-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 3px;
+}
+
+.patriodx-discovery-person-info strong,
+.patriodx-discovery-person-info small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.patriodx-discovery-person-info small {
+    color: var(--secondary-text, #6b7280);
+}
+
+.patriodx-discovery-recent {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 11px 4px;
+    border: 0;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.patriodx-discovery-recent small {
+    margin-left: auto;
+    color: var(--secondary-text, #6b7280);
+}
+
+.patriodx-discovery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 5px;
+}
+
+.patriodx-discovery-post {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 5px;
+    background: var(--input-bg, #f3f4f6);
+    cursor: pointer;
+}
+
+.patriodx-discovery-post img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@media (max-width: 600px) {
+    .patriodx-discovery-people {
+        grid-template-columns: 1fr;
+    }
+
+    .patriodx-discovery-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+/* PATRIODX — GLOBAL ACTIVE USERS */
+.patriodx-active-users {
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    padding: 8px 2px 14px;
+}
+
+.patriodx-active-user {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    min-width: 66px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-color, #111827);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.patriodx-active-user .patriodx-discovery-avatar {
+    position: relative;
+    width: 54px;
+    height: 54px;
+}
+
+.patriodx-online-indicator {
+    position: absolute;
+    right: 0;
+    bottom: 1px;
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--card-bg, #fff);
+    border-radius: 50%;
+    background: #22c55e;
+}
+
+body.dark-mode .patriodx-online-indicator {
+    border-color: #111827;
+}
