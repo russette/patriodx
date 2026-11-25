@@ -25232,9 +25232,67 @@ if (dateContainer) window.patriodxViewerDateElement = dateContainer;
         return;
     }
 
-    const postId = postData.postId;
-    if (!postId) return;
+const postId = postData.postId;
+if (!postId) return;
+
 window.currentProfileViewerPostData = postData;
+
+// Load the private, deduplicated aggregate view count.
+const viewsElement = document.getElementById(
+    "profilePostViewerViews"
+);
+
+if (viewsElement) {
+    viewsElement.textContent = "Loading views...";
+
+    if (!currentUser?.id) {
+        viewsElement.textContent = "Sign in to count views";
+    } else {
+        supabaseClient
+            .rpc("record_post_view", {
+                p_post_id: postId
+            })
+            .then(({ data, error }) => {
+                // Ignore results from a post that is no longer open.
+                if (
+                    String(postId) !==
+                    String(window.currentProfileViewerPostId)
+                ) {
+                    return;
+                }
+
+                if (error) {
+                    console.error(
+                        "PATRIODX: Could not record post view:",
+                        error
+                    );
+
+                    viewsElement.textContent = "Views unavailable";
+                    return;
+                }
+
+                const totalViews = Number(data);
+
+                viewsElement.textContent =
+                    `${formatPATRIODXCount(totalViews)} ${
+                        totalViews === 1 ? "view" : "views"
+                    }`;
+            })
+            .catch(error => {
+                console.error(
+                    "PATRIODX: Post view request failed:",
+                    error
+                );
+
+                if (
+                    String(postId) ===
+                    String(window.currentProfileViewerPostId)
+                ) {
+                    viewsElement.textContent = "Views unavailable";
+                }
+            });
+    }
+}
     // Prevent an older request from replacing a newer post.
     const requestId = (window.profileViewerRequestId || 0) + 1;
     window.profileViewerRequestId = requestId;
