@@ -28175,3 +28175,109 @@ body.patriodx-search-open {
         flex-basis: 95px;
     }
 }
+/* PATRIODX — Clickable links inside posts */
+.social-post-link {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin: 4px 14px 12px;
+    padding: 11px 13px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 10px;
+    background: rgba(124, 58, 237, 0.06);
+    color: var(--primary-color, #7c3aed);
+    min-width: 0;
+}
+
+.social-post-link i,
+.social-post-link svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.social-post-link a {
+    color: var(--primary-color, #7c3aed);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+}
+
+.social-post-link a:hover {
+    text-decoration: underline;
+}
+
+body.dark-mode .social-post-link {
+    border-color: var(--border-color, #374151);
+    background: rgba(139, 92, 246, 0.12);
+}
+/* PATRIODX — Profile website link */
+.profile-website-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    max-width: 100%;
+    margin-top: 8px;
+    color: var(--primary-color, #7c3aed);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.profile-website-link:not([hidden])::before {
+    content: "↗";
+    font-size: 16px;
+}
+
+.profile-website-link:hover {
+    text-decoration: underline;
+}
+
+/* PATRIODX — Create post link input */
+.social-post-link-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: 12px;
+    padding: 11px 13px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 10px;
+    background: var(--card-background, #fff);
+    box-sizing: border-box;
+}
+
+.social-post-link-input i,
+.social-post-link-input svg {
+    width: 19px;
+    height: 19px;
+    flex-shrink: 0;
+    color: var(--primary-color, #7c3aed);
+}
+
+.social-post-link-input input {
+    width: 100%;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text-color, #1f2937);
+    font: inherit;
+    font-size: 14px;
+}
+
+.social-post-link-input input::placeholder {
+    color: var(--secondary-text, #9ca3af);
+}
+
+body.dark-mode .social-post-link-input {
+    background: var(--card-background, #1f2937);
+    border-color: var(--border-color, #374151);
+}
+
+body.dark-mode .social-post-link-input input {
+    color: var(--text-color, #f9fafb);
+}

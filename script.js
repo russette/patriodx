@@ -10459,7 +10459,7 @@ const author =
                                 `
                                 : ""
                         }
-
+${renderPATRIODXPostLink(post.link_url)}
 
                         <!-- MEDIA -->
 
@@ -10817,14 +10817,24 @@ if (socialPostForm) {
                     .getElementById("socialPostContent")
                     .value
                     .trim();
+const linkUrl = normalizePATRIODXLink(
+    document.getElementById("socialPostLink")?.value
+);
 
-            if (!content && !selectedSocialFile) {
-                showPATRIODXToast(
-                    "Please write something or select a photo/video.",
-                    "warning"
-                );
-                return;
-            }
+if (linkUrl === null) {
+    showPATRIODXToast(
+        "Please enter a valid post link.",
+        "warning"
+    );
+    return;
+}
+           if (!content && !selectedSocialFile && !linkUrl) {
+    showPATRIODXToast(
+        "Please write something, add a link, or select a photo/video.",
+        "warning"
+    );
+    return;
+}
 
             const button =
                 document.getElementById("socialPostButton");
@@ -10864,11 +10874,13 @@ if (socialPostForm) {
                             business_id:
                                 currentBusiness?.id || null,
 
-                            content: content || null,
+                           content: content || null,
 
-                            image_url: imageUrl,
+link_url: linkUrl || null,
 
-                            video_url: videoUrl
+image_url: imageUrl,
+
+video_url: videoUrl
                         })
                         .select("id")
                         .single();
@@ -10948,7 +10960,7 @@ if (failedNotification) {
                 document
                     .getElementById("socialPostContent")
                     .value = "";
-
+document.getElementById("socialPostLink").value = "";
                 clearSocialMedia();
 
                 button.disabled = false;
@@ -13244,7 +13256,7 @@ ${profile?.username ? `
                             `
                             : ""
                     }
-
+${renderPATRIODXPostLink(post.link_url)}
                     ${image}
                     ${video}
 
@@ -17617,7 +17629,14 @@ const profileDisplayNameInput =
 
 const profileBioInput =
     document.getElementById("profileBioInput");
+const profileWebsiteInput =
+    document.getElementById("profileWebsiteInput");
 
+const profileWebsite =
+    document.getElementById("profileWebsite");
+
+const publicProfileWebsite =
+    document.getElementById("publicProfileWebsite");
 const profileAvatarInput =
     document.getElementById("profileAvatarInput");
 
@@ -17639,7 +17658,63 @@ const profilePosts =
 
 const profilePostCount =
     document.getElementById("profilePostCount");
+function normalizePATRIODXLink(value) {
+    const raw = String(value || "").trim();
 
+    if (!raw) return "";
+
+    try {
+        const url = new URL(
+            /^https?:\/\//i.test(raw)
+                ? raw
+                : `https://${raw}`
+        );
+
+        if (!["http:", "https:"].includes(url.protocol)) {
+            return null;
+        }
+
+        return url.href;
+    } catch {
+        return null;
+    }
+}
+
+function renderPATRIODXWebsite(element, value) {
+    if (!element) return;
+
+    const url = normalizePATRIODXLink(value);
+
+    if (!url) {
+        element.hidden = true;
+        element.removeAttribute("href");
+        element.textContent = "";
+        return;
+    }
+
+    element.href = url;
+    element.textContent = url.replace(/^https?:\/\//i, "");
+    element.target = "_blank";
+    element.rel = "noopener noreferrer";
+    element.hidden = false;
+}
+function renderPATRIODXPostLink(value) {
+    const url = normalizePATRIODXLink(value);
+
+    if (!url) return "";
+
+    return `
+        <div class="social-post-link">
+            <i data-lucide="link"></i>
+            <a
+                href="${escapeHTML(url)}"
+                target="_blank"
+                rel="noopener noreferrer"
+                onclick="event.stopPropagation()"
+            >${escapeHTML(url)}</a>
+        </div>
+    `;
+}
 /* =========================================================
    LOAD PROFILE
 ========================================================= */
@@ -17833,7 +17908,10 @@ if (profileBio) {
     profileBio.textContent =
         bio;
 }
-
+renderPATRIODXWebsite(
+    profileWebsite,
+    currentProfile?.website_url
+);
 
 if (profileAvatar) {
 
@@ -18200,7 +18278,17 @@ const bannerFile =
     const bio =
         bioInput.value.trim();
 
+const websiteUrl = normalizePATRIODXLink(
+    profileWebsiteInput?.value
+);
 
+if (websiteUrl === null) {
+    showPATRIODXToast(
+        "Please enter a valid website link.",
+        "warning"
+    );
+    return;
+}
     if (
         username.length < 3 ||
         username.length > 30 ||
@@ -18293,10 +18381,11 @@ if (bannerFile) {
         const { data, error } =
             await supabaseClient
                 .from("profiles")
-                .update({
+               .update({
     username: username,
     display_name: displayName,
     bio: bio,
+    website_url: websiteUrl || null,
     avatar_url: avatarUrl,
     banner_url: bannerUrl
 })
@@ -18735,7 +18824,7 @@ ${post.is_pinned ? `
                                 `
                                 : ""
                         }
-
+${renderPATRIODXPostLink(post.link_url)}
 ${image}
 
 ${video}
@@ -18929,7 +19018,10 @@ function openProfileEditor() {
 
     profileBioInput.value =
         currentProfile.bio || "";
-
+if (profileWebsiteInput) {
+    profileWebsiteInput.value =
+        currentProfile.website_url || "";
+}
     if (profileAvatarInput) {
         profileAvatarInput.value = "";
     }
@@ -20327,7 +20419,10 @@ if (badgeElement) {
         bioElement.textContent =
             profile.bio || "No bio yet.";
     }
-
+renderPATRIODXWebsite(
+    publicProfileWebsite,
+    profile.website_url
+);
 
     if (avatarElement) {
 
@@ -20689,6 +20784,7 @@ let liked = false;
                     <div class="social-post-content">
     ${renderClickableMentions(post.content || "")}
 </div>
+${renderPATRIODXPostLink(post.link_url)}
 
                     ${media}
 
@@ -22266,9 +22362,9 @@ if (viewerOpen) {
         window.patriodxPublicProfileReturnSection ||
         mobileProfileReturnSection;
 
-    if (!returnSection || returnSection === "profile") {
-        return false;
-    }
+   if (!returnSection) {
+    return false;
+}
 
     const conversationId =
         window.patriodxChatProfileReturnConversationId || null;
@@ -24473,10 +24569,39 @@ if (typeof lucide !== "undefined") {
 async function openGlobalSearchProfile(profileId) {
     if (!profileId) return;
 
-    const searchPanel = document.getElementById("globalSearchPanel");
+    const searchPanel =
+        document.getElementById("globalSearchPanel");
 
+    // Save the exact Search state before leaving it.
     capturePATRIODXSearchState();
 
+    // Identify the page underneath the Search overlay.
+    const searchOriginSection = window.location.hash
+        .replace("#", "")
+        .trim();
+
+    const returnSection =
+        searchOriginSection ||
+        (typeof currentSection !== "undefined"
+            ? currentSection
+            : "home");
+
+    const returnScroll =
+        window.patriodxSearchBackgroundScrollY || 0;
+
+    // Explicitly preserve the Search origin for public-profile navigation.
+    mobileProfileReturnSection = returnSection;
+    mobileProfileReturnScrollY = returnScroll;
+
+    window.patriodxPublicProfileReturnSection =
+        returnSection;
+
+    window.patriodxPublicProfileReturnScrollY =
+        returnScroll;
+
+    window.patriodxChatProfileReturnConversationId = null;
+
+    // Hide Search while the public profile is displayed.
     if (searchPanel) {
         searchPanel.style.display = "none";
     }
@@ -24484,12 +24609,14 @@ async function openGlobalSearchProfile(profileId) {
     unlockPATRIODXSearchBackground();
 
     try {
-        const { data: searchedProfile, error: profileError } =
-            await supabaseClient
-                .from("profiles")
-                .select("id, username, display_name, avatar_url")
-                .eq("id", profileId)
-                .single();
+        const {
+            data: searchedProfile,
+            error: profileError
+        } = await supabaseClient
+            .from("profiles")
+            .select("id, username, display_name, avatar_url")
+            .eq("id", profileId)
+            .single();
 
         if (profileError) throw profileError;
 
@@ -24503,8 +24630,16 @@ async function openGlobalSearchProfile(profileId) {
         await loadPublicProfile(profileId);
 
     } catch (error) {
-        console.error("Could not open searched profile:", error);
-        showPATRIODXToast("Could not open this profile.", "error");
+        console.error(
+            "Could not open searched profile:",
+            error
+        );
+
+        showPATRIODXToast(
+            "Could not open this profile.",
+            "error"
+        );
+
         restorePATRIODXSearchState();
     }
 }

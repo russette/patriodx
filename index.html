@@ -1616,7 +1616,14 @@ body {
                     >
                         Bio
                     </p>
-
+<a
+    id="publicProfileWebsite"
+    class="profile-website-link"
+    href="#"
+    target="_blank"
+    rel="noopener noreferrer"
+    hidden
+></a>
                 </div>
 
               <div class="public-profile-actions">
@@ -1826,7 +1833,14 @@ body {
                 >
                     Tell people about yourself.
                 </p>
-
+<a
+    id="profileWebsite"
+    class="profile-website-link"
+    href="#"
+    target="_blank"
+    rel="noopener noreferrer"
+    hidden
+></a>
             </div>
 
 <div class="own-profile-header-actions">
@@ -2036,7 +2050,14 @@ body {
                 maxlength="300"
                 rows="4"
             ></textarea>
+<label for="profileWebsiteInput">Website Link</label>
 
+<input
+    type="url"
+    id="profileWebsiteInput"
+    placeholder="https://example.com"
+    autocomplete="url"
+>
         </section>
 
         <!-- ACTIONS -->
@@ -2458,7 +2479,15 @@ body {
                 rows="4"
                 maxlength="2000"
             ></textarea>
-
+<div class="social-post-link-input">
+    <i data-lucide="link"></i>
+    <input
+        type="url"
+        id="socialPostLink"
+        placeholder="Add a link (https://example.com)"
+        autocomplete="url"
+    >
+</div>
 
             <!-- MEDIA PREVIEW -->
 
