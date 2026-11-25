@@ -595,6 +595,16 @@ function setupHeaderSearch() {
     });
 }
 setupHeaderSearch();
+
+// ================================================
+// PATRIODX — SEARCH BACKGROUND UNLOCK
+// ================================================
+
+function unlockPATRIODXSearchBackground() {
+    document.documentElement.classList.remove("patriodx-search-open");
+    document.body.classList.remove("patriodx-search-open");
+}
+
 // ================================================
 // PATRIODX — SEARCH STATE PRESERVATION
 // ================================================
@@ -24572,18 +24582,24 @@ setupGlobalSearch();
 
     input.dataset.discoveryVisibilityReady = "true";
 
-    function showRecentSearches() {
-        const discovery = document.getElementById("patriodxSearchDiscovery");
-        const results = document.getElementById("globalSearchResults");
+function showRecentSearches() {
+    const discovery = document.getElementById("patriodxSearchDiscovery");
+    const results = document.getElementById("globalSearchResults");
 
-        if (discovery) {
-            discovery.style.display = "none";
-        }
+    if (input.value.trim().length >= 2) return;
 
-        if (results && input.value.trim().length < 2) {
-            results.style.display = "block";
-        }
+    if (discovery) {
+        discovery.style.display = "none";
     }
+
+    if (results) {
+        results.style.display = "block";
+    }
+
+    if (typeof renderPATRIODXRecentSearches === "function") {
+        renderPATRIODXRecentSearches();
+    }
+}
 
     input.addEventListener("focus", showRecentSearches);
 
