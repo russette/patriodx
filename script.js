@@ -19,6 +19,146 @@ let currentBusiness = null;
 let currentPlan = "free";
 let currentProfile = null; 
 let editingProductId = null;
+/* =========================================================
+   PATRIODX — UNIVERSAL POST VIEW TRACKER
+   Counts a unique view after 50% visibility for 1 second.
+========================================================= */
+
+(function setupPATRIODXPostViewTracking() {
+
+    if (!("IntersectionObserver" in window)) return;
+
+    const observedPosts = new WeakSet();
+    const pendingViews = new Map();
+
+    function getPostId(element) {
+        return (
+            element.dataset.postViewId ||
+            element.dataset.postId ||
+            element.dataset.discoveryPost ||
+            element.id?.match(/^(?:social|home)-post-(.+)$/)?.[1] ||
+            null
+        );
+    }
+
+    function recordVisiblePost(postId) {
+        if (!postId || !currentUser?.id) return;
+
+        supabaseClient
+            .rpc("record_post_view", {
+                p_post_id: postId
+            })
+            .then(({ error }) => {
+                if (error) {
+                    console.error(
+                        "PATRIODX: Automatic post view failed:",
+                        error
+                    );
+                }
+            })
+            .catch(error => {
+                console.error(
+                    "PATRIODX: Post view tracking error:",
+                    error
+                );
+            });
+    }
+
+    const observer = new IntersectionObserver(entries => {
+
+        entries.forEach(entry => {
+            const element = entry.target;
+            const postId = getPostId(element);
+
+            if (!postId) return;
+
+            if (
+                entry.isIntersecting &&
+                entry.intersectionRatio >= 0.5
+            ) {
+                if (pendingViews.has(element)) return;
+
+                const timer = setTimeout(() => {
+                    pendingViews.delete(element);
+
+                    if (
+                        element.isConnected &&
+                        currentUser?.id
+                    ) {
+                        recordVisiblePost(postId);
+                    }
+                }, 1000);
+
+                pendingViews.set(element, timer);
+
+            } else {
+                const timer = pendingViews.get(element);
+
+                if (timer) {
+                    clearTimeout(timer);
+                    pendingViews.delete(element);
+                }
+            }
+        });
+
+    }, {
+        threshold: [0, 0.5]
+    });
+
+    function observePostElements(root = document) {
+
+        const selector = [
+            ".social-post-card",
+            ".patriodx-discovery-post[data-discovery-post]"
+        ].join(",");
+
+        if (root.matches?.(selector)) {
+            register(root);
+        }
+
+        root.querySelectorAll?.(selector).forEach(register);
+    }
+
+    function register(element) {
+        if (observedPosts.has(element)) return;
+        if (!getPostId(element)) return;
+
+        observedPosts.add(element);
+        observer.observe(element);
+    }
+
+    function startTracking() {
+        observePostElements();
+
+        const mutations = new MutationObserver(records => {
+            records.forEach(record => {
+                record.addedNodes.forEach(node => {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        observePostElements(node);
+                    }
+                });
+            });
+        });
+
+        mutations.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
+        window.patriodxPostViewObserver = observer;
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener(
+            "DOMContentLoaded",
+            startTracking,
+            { once: true }
+        );
+    } else {
+        startTracking();
+    }
+
+})();
 let socialFeedMode = "latest";
 
 // =========================================================
@@ -8134,10 +8274,11 @@ async function loadProfileReposts(
                 : "";
 
             return `
-                <article
-                    class="social-post-card"
-                    data-profile-repost-card
-                    data-post-id="${postId}"
+               <article
+    class="social-post-card"
+    data-profile-repost-card
+    data-post-id="${postId}"
+    data-post-view-id="${postId}"
                     data-profile-post-media="${
                         post.image_url || post.video_url
                             ? "true"
@@ -10276,10 +10417,11 @@ const author =
 
 
                 return `
-                    <article
-                        class="social-post-card"
-                        id="social-post-${post.id}"
-                    >
+                  <article
+    class="social-post-card"
+    id="social-post-${post.id}"
+    data-post-view-id="${post.id}"
+>
 
                         <!-- POST HEADER -->
 
@@ -12564,7 +12706,10 @@ try {
         const author = profile?.display_name || profile?.username || "PATRIODX User";
 
         return `
-            <article class="social-post-card saved-post-card">
+            <article
+    class="social-post-card saved-post-card"
+    data-post-view-id="${safe(post.id)}"
+>
                 <div class="social-post-header">
                     <div class="social-post-avatar">
                         ${profile?.avatar_url
@@ -13125,10 +13270,11 @@ const postsWithCounts = posts.map(post => {
                 : "";
 
             return `
-                <article
-                    class="social-post-card home-feed-post"
-                    id="home-post-${post.id}"
-                >
+               <article
+    class="social-post-card home-feed-post"
+    id="home-post-${post.id}"
+    data-post-view-id="${post.id}"
+>
                     <header class="social-post-header">
                        <div
     class="social-post-avatar"
@@ -18652,11 +18798,11 @@ const postsWithCounts = posts.map(post => {
     : "";
 
                 return `
-
-                                      <article
-                        class="social-post-card"
-                        data-profile-post-media="${post.image_url || post.video_url ? "true" : "false"}"
-                    >
+<article
+    class="social-post-card"
+    data-post-view-id="${post.id}"
+    data-profile-post-media="${post.image_url || post.video_url ? "true" : "false"}"
+>
                         <div
                             class="social-post-header"
                         >
@@ -20699,10 +20845,11 @@ let stats = { likes: 0, comments: 0 };
 let liked = false;
 
           return `
-    <article
-        class="social-post-card"
-        data-profile-post-media="${post.image_url || post.video_url ? "true" : "false"}"
-    >
+   <article
+    class="social-post-card"
+    data-post-view-id="${post.id}"
+    data-profile-post-media="${post.image_url || post.video_url ? "true" : "false"}"
+>
                     <div class="social-post-header">
                         <div class="social-post-avatar">
                             ${
@@ -24202,9 +24349,10 @@ async function renderPATRIODXSearchDiscovery() {
 
             return `
                 <button type="button"
-                    class="patriodx-discovery-post"
-                    data-discovery-post="${escapeHTML(post.id)}"
-                    aria-label="Open post">
+    class="patriodx-discovery-post"
+    data-discovery-post="${escapeHTML(post.id)}"
+    data-post-view-id="${escapeHTML(post.id)}"
+    aria-label="Open post">
 
                     <img
                         src="${safe(item.mediaUrl)}"
