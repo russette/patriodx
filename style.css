@@ -27815,3 +27815,115 @@ body.dark-mode .global-search-follow-button[data-following="true"] svg {
 body.dark-mode .patriodx-online-indicator {
     border-color: #111827;
 }
+/* =========================================
+   PATRIODX SEARCH — ISOLATED FULL-SCREEN VIEW
+========================================= */
+
+html.patriodx-search-open,
+body.patriodx-search-open {
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+}
+
+body.patriodx-search-open {
+    touch-action: none;
+}
+
+#globalSearchPanel {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    z-index: 15000 !important;
+}
+
+#globalSearchPanel .global-search-panel-inner {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+#globalSearchPanel .patriodx-search-discovery,
+#globalSearchPanel #globalSearchResults {
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+}
+
+/* =========================================
+   PATRIODX DISCOVER — HORIZONTAL POST CAROUSEL
+========================================= */
+
+.patriodx-discovery-carousel {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: flex-start;
+    gap: 10px;
+
+    width: 100%;
+    max-width: 100%;
+
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+
+    padding: 4px 2px 14px;
+
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: none;
+
+    touch-action: pan-x;
+}
+
+.patriodx-discovery-carousel .patriodx-discovery-post {
+    display: block;
+    flex: 0 0 190px !important;
+    width: 190px !important;
+    min-width: 190px !important;
+    max-width: 190px !important;
+
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+
+    scroll-snap-align: start;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+}
+
+.patriodx-discovery-carousel .patriodx-discovery-post img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+    .patriodx-discovery-carousel .patriodx-discovery-post {
+        flex-basis: 68vw !important;
+        width: 68vw !important;
+        min-width: 68vw !important;
+        max-width: 230px !important;
+    }
+}
+
+/* Keep Search content theme-aware */
+#globalSearchPanel,
+#globalSearchPanel .patriodx-discovery-section {
+    color: var(--text-color, inherit);
+}
+
+#globalSearchPanel .patriodx-discovery-section p {
+    color: var(--secondary-text, inherit);
+}

@@ -1,4 +1,4 @@
-const profileViewerCommentsCache = new Map();
+﻿const profileViewerCommentsCache = new Map();
 const PAYSTACK_PUBLIC_KEY =
     "pk_live_e1462983063e834b226acdca9492e980762a6ddd";
 const SUPABASE_URL = "https://saerujjsfzyxkyacbvgr.supabase.co";
@@ -529,7 +529,6 @@ function setupNavigation() {
 /* =========================================================
    HEADER SEARCH
 ========================================================= */
-
 function setupHeaderSearch() {
     const searchButton = document.getElementById("headerSearchButton");
     const searchPanel = document.getElementById("globalSearchPanel");
@@ -539,7 +538,10 @@ function setupHeaderSearch() {
     if (!searchButton || !searchPanel || !searchInput || !closeButton) return;
 
     searchButton.addEventListener("click", async function() {
+        window.patriodxSearchBackgroundScrollY = window.scrollY;
+
         searchPanel.style.display = "block";
+        searchInput.value = "";
 
         const discovery = document.getElementById("patriodxSearchDiscovery");
         const results = document.getElementById("globalSearchResults");
@@ -551,11 +553,14 @@ function setupHeaderSearch() {
 
         if (discovery) discovery.style.display = "block";
 
+        document.documentElement.classList.add("patriodx-search-open");
+        document.body.classList.add("patriodx-search-open");
+
         if (typeof renderPATRIODXSearchDiscovery === "function") {
             await renderPATRIODXSearchDiscovery();
         }
 
-        searchInput.focus();
+        // Do not autofocus: Discover must appear before Recent searches.
 
         if (typeof lucide !== "undefined") lucide.createIcons();
     });
@@ -576,10 +581,93 @@ function setupHeaderSearch() {
         }
 
         if (discovery) discovery.style.display = "none";
+
+        document.documentElement.classList.remove("patriodx-search-open");
+        document.body.classList.remove("patriodx-search-open");
+
+        window.patriodxSearchReturnState = null;
+
+        window.scrollTo({
+            top: window.patriodxSearchBackgroundScrollY || 0,
+            left: 0,
+            behavior: "instant"
+        });
     });
 }
-
 setupHeaderSearch();
+// ================================================
+// PATRIODX — SEARCH STATE PRESERVATION
+// ================================================
+
+function capturePATRIODXSearchState() {
+    const panel = document.getElementById("globalSearchPanel");
+    const results = document.getElementById("globalSearchResults");
+    const discovery = document.getElementById("patriodxSearchDiscovery");
+    const carousel = document.getElementById("patriodxDiscoveryPosts");
+    const input = document.getElementById("globalSearchInput");
+
+    if (!panel) return;
+
+    window.patriodxSearchReturnState = {
+        scrollY: window.patriodxSearchBackgroundScrollY || 0,
+        panelScrollTop: panel.scrollTop,
+        carouselScrollLeft: carousel ? carousel.scrollLeft : 0,
+        inputValue: input ? input.value : "",
+        resultsHTML: results ? results.innerHTML : "",
+        resultsDisplay: results ? results.style.display : "none",
+        discoveryDisplay: discovery ? discovery.style.display : "block"
+    };
+}
+
+function restorePATRIODXSearchState() {
+    const state = window.patriodxSearchReturnState;
+
+    if (!state) return;
+
+    const panel = document.getElementById("globalSearchPanel");
+    const results = document.getElementById("globalSearchResults");
+    const discovery = document.getElementById("patriodxSearchDiscovery");
+    const carousel = document.getElementById("patriodxDiscoveryPosts");
+    const input = document.getElementById("globalSearchInput");
+
+    if (!panel) return;
+
+    panel.style.display = "block";
+
+    if (input) {
+        input.value = state.inputValue;
+    }
+
+    if (results) {
+        results.innerHTML = state.resultsHTML;
+        results.style.display = state.resultsDisplay;
+    }
+
+    if (discovery) {
+        discovery.style.display = state.discoveryDisplay;
+    }
+
+    document.documentElement.classList.add("patriodx-search-open");
+    document.body.classList.add("patriodx-search-open");
+
+    requestAnimationFrame(() => {
+        panel.scrollTop = state.panelScrollTop;
+
+        if (carousel) {
+            carousel.scrollLeft = state.carouselScrollLeft;
+        }
+
+        window.scrollTo({
+            top: state.scrollY,
+            left: 0,
+            behavior: "instant"
+        });
+
+        if (typeof lucide !== "undefined") {
+            lucide.createIcons();
+        }
+    });
+}
 // =========================================================
 // PATRIODX - MOBILE SCROLL-AWARE HEADER
 // =========================================================
@@ -22215,12 +22303,17 @@ if (viewerOpen) {
                     error
                 );
             }
-        } else {
+              } else {
             window.scrollTo({
                 top: returnScroll,
                 left: 0,
                 behavior: "instant"
             });
+        }
+
+        // Restore the original Search overlay after returning from a profile.
+        if (window.patriodxSearchReturnState) {
+            restorePATRIODXSearchState();
         }
     });
 
@@ -23793,65 +23886,38 @@ async function renderPATRIODXSearchDiscovery() {
         results.parentNode.insertBefore(discovery, results);
     }
 
-    discovery.innerHTML = `
-        <section class="patriodx-discovery-section">
-            <h3>Discover PATRIODX</h3>
-            <p>Find people and explore what's happening.</p>
-        </section>
-        <section class="patriodx-discovery-section">
-            <h3>Recent searches</h3>
-            <div id="patriodxDiscoveryRecent"></div>
-        </section>
-        <section class="patriodx-discovery-section">
-            <h3>Active now</h3>
-            <div id="patriodxDiscoveryActiveUsers" class="patriodx-active-users">
-                <span class="patriodx-discovery-loading">Loading active users...</span>
-            </div>
-        </section>
-        <section class="patriodx-discovery-section">
-            <h3>People to discover</h3>
-            <div id="patriodxDiscoveryPeople" class="patriodx-discovery-people">
-                <span class="patriodx-discovery-loading">Loading people...</span>
-            </div>
-        </section>
-        <section class="patriodx-discovery-section">
-            <h3>Explore posts</h3>
-            <div id="patriodxDiscoveryPosts" class="patriodx-discovery-grid">
-                <span class="patriodx-discovery-loading">Loading posts...</span>
-            </div>
-        </section>
-    `;
+  discovery.innerHTML = `
+    <section class="patriodx-discovery-section">
+        <h3>Discover PATRIODX</h3>
+        <p>Find people and explore what's happening.</p>
+    </section>
 
-    const recentContainer = document.getElementById("patriodxDiscoveryRecent");
-    const peopleContainer = document.getElementById("patriodxDiscoveryPeople");
-    const postsContainer = document.getElementById("patriodxDiscoveryPosts");
-    renderPATRIODXActiveUsers();
+    <section class="patriodx-discovery-section">
+        <h3>Active now</h3>
+        <div id="patriodxDiscoveryActiveUsers" class="patriodx-active-users">
+            <span class="patriodx-discovery-loading">Loading active users...</span>
+        </div>
+    </section>
 
-    let recent = [];
+    <section class="patriodx-discovery-section">
+        <h3>People to discover</h3>
+        <div id="patriodxDiscoveryPeople" class="patriodx-discovery-people">
+            <span class="patriodx-discovery-loading">Loading people...</span>
+        </div>
+    </section>
 
-    try {
-        recent = typeof getPATRIODXRecentSearches === "function"
-            ? getPATRIODXRecentSearches()
-            : JSON.parse(localStorage.getItem("patriodxRecentSearches") || "[]");
-    } catch (error) {
-        recent = [];
-    }
+    <section class="patriodx-discovery-section">
+        <h3>Explore posts</h3>
+        <div id="patriodxDiscoveryPosts" class="patriodx-discovery-carousel">
+            <span class="patriodx-discovery-loading">Loading posts...</span>
+        </div>
+    </section>
+`;
+   const peopleContainer = document.getElementById("patriodxDiscoveryPeople");
+const postsContainer = document.getElementById("patriodxDiscoveryPosts");
 
-    if (recentContainer) {
-        recentContainer.innerHTML = recent.length
-            ? recent.slice(0, 6).map(profile => `
-                <button type="button"
-                    class="patriodx-discovery-recent"
-                    data-discovery-profile="${escapeHTML(profile.id)}">
-                    <i data-lucide="clock-3"></i>
-                    <span>${escapeHTML(profile.display_name || profile.username || "PATRIODX User")}</span>
-                    <small>${escapeHTML(profile.username ? "@" + profile.username : "")}</small>
-                </button>
-            `).join("")
-            : `<p class="patriodx-discovery-muted">Your recent searches will appear here.</p>`;
-    }
-
-    try {
+renderPATRIODXActiveUsers();
+     try {
         const { data: profiles, error } = await supabaseClient
             .from("profiles")
             .select("id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at")
@@ -24113,34 +24179,20 @@ if (typeof lucide !== "undefined") {
 
     results.style.display = "block";
 }
-
 async function openGlobalSearchProfile(profileId) {
-
     if (!profileId) return;
 
-    const searchPanel =
-        document.getElementById("globalSearchPanel");
+    const searchPanel = document.getElementById("globalSearchPanel");
 
-    const results =
-        document.getElementById("globalSearchResults");
-
-    const input =
-        document.getElementById("globalSearchInput");
+    capturePATRIODXSearchState();
 
     if (searchPanel) {
         searchPanel.style.display = "none";
     }
 
-    if (results) {
-        results.style.display = "none";
-    }
-
-    if (input) {
-        input.value = "";
-    }
+    unlockPATRIODXSearchBackground();
 
     try {
-
         const { data: searchedProfile, error: profileError } =
             await supabaseClient
                 .from("profiles")
@@ -24150,23 +24202,19 @@ async function openGlobalSearchProfile(profileId) {
 
         if (profileError) throw profileError;
 
-        if (searchedProfile && typeof savePATRIODXRecentSearch === "function") {
+        if (
+            searchedProfile &&
+            typeof savePATRIODXRecentSearch === "function"
+        ) {
             savePATRIODXRecentSearch(searchedProfile);
         }
 
         await loadPublicProfile(profileId);
 
     } catch (error) {
-
-        console.error(
-            "Global search profile error:",
-            error
-        );
-
-        showPATRIODXToast(
-            "Could not open this profile. Please try again.",
-            "error"
-        );
+        console.error("Could not open searched profile:", error);
+        showPATRIODXToast("Could not open this profile.", "error");
+        restorePATRIODXSearchState();
     }
 }
 document.addEventListener("click", async function(event) {
@@ -24179,41 +24227,90 @@ document.addEventListener("click", async function(event) {
         return;
     }
 
-    const postButton = event.target.closest("[data-discovery-post]");
-    if (postButton) {
-        const postId = postButton.getAttribute("data-discovery-post");
+const postButton = event.target.closest("[data-discovery-post]");
 
-        try {
-            const { data, error } = await supabaseClient
-                .from("posts")
-                .select("*")
-                .eq("id", postId)
-                .single();
+if (postButton) {
+    const postId = postButton.getAttribute("data-discovery-post");
 
-            if (error) throw error;
+    try {
+        const { data, error } = await supabaseClient
+            .from("posts")
+            .select("*")
+            .eq("id", postId)
+            .single();
 
-            if (typeof openProfilePostViewer === "function") {
-                openProfilePostViewer(data);
-            }
-        } catch (error) {
-            console.error("Could not open discovery post:", error);
-            showPATRIODXToast("Could not open this post.", "error");
+        if (error) throw error;
+
+        const { data: authorProfile } = await supabaseClient
+            .from("profiles")
+            .select("id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at")
+            .eq("id", data.user_id)
+            .maybeSingle();
+
+        capturePATRIODXSearchState();
+
+        const searchPanel = document.getElementById("globalSearchPanel");
+
+        if (searchPanel) {
+            searchPanel.style.display = "none";
         }
+
+        unlockPATRIODXSearchBackground();
+
+        if (typeof openProfilePostViewer === "function") {
+            openProfilePostViewer({
+                postId: data.id,
+                imageUrl: data.image_url || data.media_url || data.image || "",
+                videoUrl: data.video_url || "",
+                author: authorProfile?.display_name ||
+                    authorProfile?.username ||
+                    "PATRIODX User",
+                authorProfile: authorProfile || null,
+                profileUserId: authorProfile?.id || data.user_id || null,
+                caption: data.content || "",
+                createdAt: data.created_at || null,
+                sourceSection: "discover"
+            });
+        }
+    } catch (error) {
+        console.error("Could not open discovery post:", error);
+        showPATRIODXToast("Could not open this post.", "error");
     }
+
+    return;
+}
 });
 setupGlobalSearch();
 // Keep discovery visible before a query and hide it during active results.
 (function setupPATRIODXDiscoveryVisibility() {
     const input = document.getElementById("globalSearchInput");
-    if (!input || input.dataset.discoveryVisibilityReady === "true") return;
+
+    if (!input || input.dataset.discoveryVisibilityReady === "true") {
+        return;
+    }
 
     input.dataset.discoveryVisibilityReady = "true";
+
+    function showRecentSearches() {
+        const discovery = document.getElementById("patriodxSearchDiscovery");
+        const results = document.getElementById("globalSearchResults");
+
+        if (discovery) {
+            discovery.style.display = "none";
+        }
+
+        if (results && input.value.trim().length < 2) {
+            results.style.display = "block";
+        }
+    }
+
+    input.addEventListener("focus", showRecentSearches);
 
     input.addEventListener("input", function() {
         const discovery = document.getElementById("patriodxSearchDiscovery");
 
         if (discovery) {
-            discovery.style.display = input.value.trim().length < 2 ? "block" : "none";
+            discovery.style.display = "none";
         }
     });
 })();
@@ -25120,6 +25217,8 @@ function closeProfilePostViewer(options = {}) {
     }
 const returningToPublicProfile =
     Boolean(window.profileViewerPreviousProfileUserId);
+    const returningToSearch =
+    window.profileViewerPreviousSection === "discover";
     // Invalidate pending requests
     window.profileViewerRequestId = (window.profileViewerRequestId || 0) + 1;
     window.currentProfileViewerPostId = null;
@@ -25208,16 +25307,20 @@ if (ownProfilePostsContent) {
             } finally {
                 window.patriodxPreservePublicProfileOnNavigation = false;
             }
-
-            // Restore scroll position
-            requestAnimationFrame(() => {
-                window.scrollTo({
-                    top: window.profileViewerSavedScrollY || 0,
-                    left: 0,
-                    behavior: "instant"
-                });
-            });
+// Restore scroll position
+requestAnimationFrame(() => {
+    window.scrollTo({
+        top: window.profileViewerSavedScrollY || 0,
+        left: 0,
+        behavior: "instant"
+    });
+});
         }
+    }
+
+    // Restore Search when returning from an Explore post.
+    if (returningToSearch && options.restoreOrigin === true) {
+        restorePATRIODXSearchState();
     }
 
    // Direct notification post viewers return to Notifications.
