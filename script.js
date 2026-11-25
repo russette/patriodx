@@ -16736,19 +16736,21 @@ function renderNotifications() {
         ? formatRelativeTime(notification.created_at)
         : "";
 
-
-                       const sender =
+            const sender =
                 window.notificationSenderProfiles?.[
                     notification.sender_id
                 ];
-
-            const senderAvatar =
-                sender?.avatar_url || "assets/default-avatar.png";
 
             const senderName =
                 sender?.display_name ||
                 sender?.username ||
                 "PATRIODX User";
+
+            const senderAvatar =
+                sender?.avatar_url || "";
+
+            const senderInitial =
+                senderName.charAt(0).toUpperCase();
 
             const badgeHTML =
                 sender && typeof getPATRIODXBadge === "function"
@@ -16773,16 +16775,30 @@ function renderNotifications() {
                             openNotificationSenderProfile(this.dataset.senderId);
                         "
                     >
-                        <img
-                            class="notification-avatar"
-                            src="${safe(senderAvatar)}"
-                            alt=""
-                            loading="lazy"
-                            onerror="
-                                this.onerror = null;
-                                this.src = 'assets/default-avatar.png';
-                            "
-                        />
+                                             <div class="notification-avatar">
+                            ${
+                                senderAvatar
+                                    ? `
+                                        <img
+                                            src="${safe(senderAvatar)}"
+                                            alt=""
+                                            loading="lazy"
+                                            onerror="
+                                                this.style.display='none';
+                                                this.nextElementSibling.style.display='flex';
+                                            "
+                                        />
+                                    `
+                                    : ""
+                            }
+
+                            <span
+                                class="notification-avatar-fallback"
+                                style="display:${senderAvatar ? "none" : "flex"};"
+                            >
+                                <i data-lucide="user"></i>
+                            </span>
+                        </div>
 
                         <span class="notification-avatar-activity">
                             <i data-lucide="${icon}"></i>
