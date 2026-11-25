@@ -23886,103 +23886,175 @@ async function renderPATRIODXSearchDiscovery() {
         results.parentNode.insertBefore(discovery, results);
     }
 
-  discovery.innerHTML = `
-    <section class="patriodx-discovery-section">
-        <h3>Discover PATRIODX</h3>
-        <p>Find people and explore what's happening.</p>
-    </section>
+    discovery.innerHTML = `
+        <div class="patriodx-discovery-tabs" role="tablist">
+            <button type="button"
+                class="patriodx-discovery-tab is-active"
+                data-discovery-tab="discover"
+                role="tab"
+                aria-selected="true">
+                Discover
+            </button>
 
-    <section class="patriodx-discovery-section">
-        <h3>Active now</h3>
-        <div id="patriodxDiscoveryActiveUsers" class="patriodx-active-users">
-            <span class="patriodx-discovery-loading">Loading active users...</span>
+            <button type="button"
+                class="patriodx-discovery-tab"
+                data-discovery-tab="trending"
+                role="tab"
+                aria-selected="false">
+                Trending Posts
+            </button>
+
+            <button type="button"
+                class="patriodx-discovery-tab"
+                data-discovery-tab="people"
+                role="tab"
+                aria-selected="false">
+                People
+            </button>
+
+            <button type="button"
+                class="patriodx-discovery-tab"
+                data-discovery-tab="explore"
+                role="tab"
+                aria-selected="false">
+                Explore
+            </button>
         </div>
-    </section>
 
-    <section class="patriodx-discovery-section">
-        <h3>People to discover</h3>
-        <div id="patriodxDiscoveryPeople" class="patriodx-discovery-people">
-            <span class="patriodx-discovery-loading">Loading people...</span>
+        <div class="patriodx-discovery-tab-panels">
+
+            <section class="patriodx-discovery-tab-panel is-active"
+                data-discovery-panel="discover"
+                role="tabpanel">
+
+                <div id="patriodxDiscoverGrid"
+                    class="patriodx-discovery-grid">
+                    <span class="patriodx-discovery-loading">
+                        Loading...
+                    </span>
+                </div>
+
+                <div id="patriodxDiscoverTrending"
+                    class="patriodx-discovery-trending-row">
+                </div>
+
+                <div id="patriodxDiscoverPeople"
+                    class="patriodx-discovery-people-row">
+                </div>
+
+                <div id="patriodxDiscoverMoreGrid"
+                    class="patriodx-discovery-grid">
+                </div>
+
+            </section>
+
+            <section class="patriodx-discovery-tab-panel"
+                data-discovery-panel="trending"
+                role="tabpanel"
+                hidden>
+
+                <div id="patriodxTrendingPosts"
+                    class="patriodx-discovery-trending-grid">
+                    <span class="patriodx-discovery-loading">
+                        Loading...
+                    </span>
+                </div>
+
+            </section>
+
+            <section class="patriodx-discovery-tab-panel"
+                data-discovery-panel="people"
+                role="tabpanel"
+                hidden>
+
+                <div id="patriodxDiscoveryPeople"
+                    class="patriodx-discovery-people">
+                    <span class="patriodx-discovery-loading">
+                        Loading...
+                    </span>
+                </div>
+
+            </section>
+
+            <section class="patriodx-discovery-tab-panel"
+                data-discovery-panel="explore"
+                role="tabpanel"
+                hidden>
+
+                <div id="patriodxDiscoveryPosts"
+                    class="patriodx-discovery-explore-grid">
+                    <span class="patriodx-discovery-loading">
+                        Loading...
+                    </span>
+                </div>
+
+            </section>
+
         </div>
-    </section>
+    `;
 
-    <section class="patriodx-discovery-section">
-        <h3>Explore posts</h3>
-        <div id="patriodxDiscoveryPosts" class="patriodx-discovery-carousel">
-            <span class="patriodx-discovery-loading">Loading posts...</span>
-        </div>
-    </section>
-`;
-   const peopleContainer = document.getElementById("patriodxDiscoveryPeople");
-const postsContainer = document.getElementById("patriodxDiscoveryPosts");
+    // TAB SWITCHING
+    if (discovery.dataset.tabsReady !== "true") {
+        discovery.dataset.tabsReady = "true";
 
-renderPATRIODXActiveUsers();
-     try {
-        const { data: profiles, error } = await supabaseClient
-            .from("profiles")
-            .select("id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at")
-            .neq("id", currentUser.id)
-            .limit(12);
+        discovery.addEventListener("click", function(event) {
+            const tab = event.target.closest("[data-discovery-tab]");
 
-        if (error) throw error;
+            if (!tab || !discovery.contains(tab)) return;
 
-        const candidates = profiles || [];
-        let following = new Set();
+            const selectedTab = tab.dataset.discoveryTab;
 
-        try {
-            following = await getGlobalSearchFollowStates(candidates);
-        } catch (error) {
-            console.warn("Could not load discovery follow states:", error);
-        }
+            discovery.querySelectorAll("[data-discovery-tab]")
+                .forEach(button => {
+                    const active =
+                        button.dataset.discoveryTab === selectedTab;
 
-        const suggestions = candidates.filter(profile =>
-            !following.has(String(profile.id))
-        ).slice(0, 8);
+                    button.classList.toggle("is-active", active);
+                    button.setAttribute(
+                        "aria-selected",
+                        active ? "true" : "false"
+                    );
+                });
 
-        if (peopleContainer) {
-            peopleContainer.innerHTML = suggestions.length
-                ? suggestions.map(profile => {
-                    const name = profile.display_name || profile.username || "PATRIODX User";
-                    const avatar = profile.avatar_url
-                        ? `<img src="${safe(profile.avatar_url)}" alt="">`
-                        : `<span>${escapeHTML(name.charAt(0).toUpperCase())}</span>`;
+            discovery.querySelectorAll("[data-discovery-panel]")
+                .forEach(section => {
+                    const active =
+                        section.dataset.discoveryPanel === selectedTab;
 
-                    return `
-                        <article class="patriodx-discovery-person">
-                            <button type="button"
-                                class="patriodx-discovery-person-profile"
-                                data-discovery-profile="${escapeHTML(profile.id)}">
-                                <span class="patriodx-discovery-avatar">${avatar}</span>
-                                <span class="patriodx-discovery-person-info">
-                                    <strong>${escapeHTML(name)}</strong>
-                                    <small>${escapeHTML(profile.username ? "@" + profile.username : "")}</small>
-                                </span>
-                            </button>
-                            <button type="button"
-                                class="global-search-follow-button"
-                                data-global-search-follow="${escapeHTML(profile.id)}"
-                                data-following="false"
-                                aria-label="Follow ${escapeHTML(name)}">
-                                <i data-lucide="user-round-plus"></i>
-                            </button>
-                        </article>
-                    `;
-                }).join("")
-                : `<p class="patriodx-discovery-muted">No suggested accounts right now.</p>`;
-        }
-    } catch (error) {
-        console.error("Search discovery profiles error:", error);
-        if (peopleContainer) {
-            peopleContainer.innerHTML = `<p class="patriodx-discovery-muted">People could not be loaded.</p>`;
-        }
+                    section.classList.toggle("is-active", active);
+                    section.hidden = !active;
+                });
+        });
     }
 
+    const discoverGrid =
+        document.getElementById("patriodxDiscoverGrid");
+
+    const discoverMoreGrid =
+        document.getElementById("patriodxDiscoverMoreGrid");
+
+    const trendingRow =
+        document.getElementById("patriodxDiscoverTrending");
+
+    const discoverPeople =
+        document.getElementById("patriodxDiscoverPeople");
+
+    const peopleContainer =
+        document.getElementById("patriodxDiscoveryPeople");
+
+    const exploreContainer =
+        document.getElementById("patriodxDiscoveryPosts");
+
+    const trendingContainer =
+        document.getElementById("patriodxTrendingPosts");
+
+    // LOAD REAL POSTS
     try {
         const { data: posts, error } = await supabaseClient
             .from("posts")
             .select("*")
             .order("created_at", { ascending: false })
-            .limit(30);
+            .limit(60);
 
         if (error) throw error;
 
@@ -24003,28 +24075,237 @@ renderPATRIODXActiveUsers();
             item.mediaUrl &&
             typeof item.mediaUrl === "string" &&
             /^https?:\/\//i.test(item.mediaUrl)
-        ).slice(0, 12);
+        );
 
-        if (postsContainer) {
-            postsContainer.innerHTML = imagePosts.length
-                ? imagePosts.map(({ post, mediaUrl }) => `
-                    <button type="button"
-                        class="patriodx-discovery-post"
-                        data-discovery-post="${escapeHTML(post.id)}"
-                        aria-label="Open discovery post">
-                        <img src="${safe(mediaUrl)}" alt="" loading="lazy">
-                    </button>
-                `).join("")
-                : `<p class="patriodx-discovery-muted">No public photos to explore yet.</p>`;
+        let countsMap = new Map();
+
+        try {
+            countsMap = await getSocialCountsBatch(
+                imagePosts.map(item => item.post.id)
+            );
+        } catch (countError) {
+            console.warn(
+                "Could not load discovery engagement counts:",
+                countError
+            );
         }
+
+        const renderPostTile = (item, showCount = false) => {
+            const post = item.post;
+            const counts = countsMap.get(String(post.id));
+
+            return `
+                <button type="button"
+                    class="patriodx-discovery-post"
+                    data-discovery-post="${escapeHTML(post.id)}"
+                    aria-label="Open post">
+
+                    <img
+                        src="${safe(item.mediaUrl)}"
+                        alt=""
+                        loading="lazy">
+
+                    ${showCount ? `
+                        <span class="patriodx-discovery-post-count">
+                            <i data-lucide="heart"></i>
+                            ${Number(counts?.likes || 0).toLocaleString()}
+                        </span>
+                    ` : ""}
+
+                </button>
+            `;
+        };
+
+        // TRENDING POSTS: ranked by engagement
+        const trendingPosts = [...imagePosts].sort((a, b) => {
+            const aCounts = countsMap.get(String(a.post.id));
+            const bCounts = countsMap.get(String(b.post.id));
+
+            const aScore =
+                Number(aCounts?.likes || 0) +
+                Number(aCounts?.comments || 0) * 2;
+
+            const bScore =
+                Number(bCounts?.likes || 0) +
+                Number(bCounts?.comments || 0) * 2;
+
+            return bScore - aScore;
+        });
+
+        // DISCOVER: recommended recent posts
+        if (discoverGrid) {
+            discoverGrid.innerHTML = imagePosts.length
+                ? imagePosts.slice(0, 6)
+                    .map(item => renderPostTile(item, true))
+                    .join("")
+                : `<p class="patriodx-discovery-muted">No posts available yet.</p>`;
+        }
+
+        // DISCOVER: trending preview row
+        if (trendingRow) {
+            trendingRow.innerHTML = trendingPosts.length
+                ? trendingPosts.slice(0, 4)
+                    .map(item => renderPostTile(item, true))
+                    .join("")
+                : "";
+        }
+
+        // DISCOVER: additional post previews
+        if (discoverMoreGrid) {
+            discoverMoreGrid.innerHTML = imagePosts.length > 6
+                ? imagePosts.slice(6, 18)
+                    .map(item => renderPostTile(item, true))
+                    .join("")
+                : "";
+        }
+
+        // TRENDING POSTS TAB
+        if (trendingContainer) {
+            trendingContainer.innerHTML = trendingPosts.length
+                ? trendingPosts
+                    .slice(0, 24)
+                    .map(item => renderPostTile(item, true))
+                    .join("")
+                : `<p class="patriodx-discovery-muted">No trending posts yet.</p>`;
+        }
+
+        // EXPLORE: complete image grid
+        if (exploreContainer) {
+            exploreContainer.innerHTML = imagePosts.length
+                ? imagePosts
+                    .map(item => renderPostTile(item))
+                    .join("")
+                : `<p class="patriodx-discovery-muted">No photos to explore yet.</p>`;
+        }
+
     } catch (error) {
         console.error("Search discovery posts error:", error);
-        if (postsContainer) {
-            postsContainer.innerHTML = `<p class="patriodx-discovery-muted">Posts could not be loaded.</p>`;
+
+        [
+            discoverGrid,
+            trendingRow,
+            discoverMoreGrid,
+            trendingContainer,
+            exploreContainer
+        ].forEach(container => {
+            if (container) {
+                container.innerHTML = `
+                    <p class="patriodx-discovery-muted">
+                        Posts could not be loaded.
+                    </p>
+                `;
+            }
+        });
+    }
+
+    // LOAD PEOPLE TO FOLLOW
+    try {
+        const { data: profiles, error } = await supabaseClient
+            .from("profiles")
+            .select(
+                "id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at"
+            )
+            .neq("id", currentUser.id)
+            .limit(30);
+
+        if (error) throw error;
+
+        const candidates = profiles || [];
+
+        let following = new Set();
+
+        try {
+            following = await getGlobalSearchFollowStates(candidates);
+        } catch (error) {
+            console.warn("Could not load follow states:", error);
+        }
+
+        const suggestions = candidates.filter(profile =>
+            !following.has(String(profile.id))
+        ).slice(0, 12);
+
+        const renderPerson = profile => {
+            const name =
+                profile.display_name ||
+                profile.username ||
+                "PATRIODX User";
+
+            const avatar = profile.avatar_url
+                ? `<img src="${safe(profile.avatar_url)}" alt="" loading="lazy">`
+                : `<span>${escapeHTML(name.charAt(0).toUpperCase())}</span>`;
+
+            const badge =
+                typeof getPATRIODXBadge === "function"
+                    ? getPATRIODXBadge(profile)
+                    : "";
+
+            return `
+                <article class="patriodx-discovery-person">
+
+                    <button type="button"
+                        class="patriodx-discovery-person-profile"
+                        data-discovery-profile="${escapeHTML(profile.id)}">
+
+                        <span class="patriodx-discovery-avatar">
+                            ${avatar}
+                        </span>
+
+                        <strong>
+                            ${escapeHTML(name)}
+                            ${badge}
+                        </strong>
+
+                        <small>
+                            ${escapeHTML(
+                                profile.username
+                                    ? "@" + profile.username
+                                    : ""
+                            )}
+                        </small>
+
+                    </button>
+
+                    <button type="button"
+                        class="global-search-follow-button"
+                        data-global-search-follow="${escapeHTML(profile.id)}"
+                        data-following="false"
+                        aria-label="Follow ${escapeHTML(name)}">
+
+                        <i data-lucide="user-round-plus"></i>
+
+                    </button>
+
+                </article>
+            `;
+        };
+
+        const peopleHTML = suggestions.length
+            ? suggestions.map(renderPerson).join("")
+            : `<p class="patriodx-discovery-muted">No suggestions available.</p>`;
+
+        if (peopleContainer) {
+            peopleContainer.innerHTML = peopleHTML;
+        }
+
+        if (discoverPeople) {
+            discoverPeople.innerHTML = suggestions
+                .slice(0, 6)
+                .map(renderPerson)
+                .join("");
+        }
+
+    } catch (error) {
+        console.error("Search discovery profiles error:", error);
+
+        if (peopleContainer) {
+            peopleContainer.innerHTML =
+                `<p class="patriodx-discovery-muted">People could not be loaded.</p>`;
         }
     }
 
-    if (typeof lucide !== "undefined") lucide.createIcons();
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
 }
 async function performGlobalSearch(query) {
 

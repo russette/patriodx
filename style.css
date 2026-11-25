@@ -27927,3 +27927,251 @@ body.patriodx-search-open {
 #globalSearchPanel .patriodx-discovery-section p {
     color: var(--secondary-text, inherit);
 }
+/* PATRIODX — DISCOVER HORIZONTAL TABS */
+
+#globalSearchPanel .patriodx-discovery-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 4px;
+    width: 100%;
+    margin: 12px 0 18px;
+    padding: 4px;
+    border-radius: 12px;
+    background: var(--card-background, rgba(128, 128, 128, 0.10));
+}
+
+#globalSearchPanel .patriodx-discovery-tab {
+    min-width: 0;
+    padding: 10px 3px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--secondary-text, #888);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: center;
+    cursor: pointer;
+}
+
+#globalSearchPanel .patriodx-discovery-tab.is-active {
+    background: var(--background-color, var(--card-bg, #fff));
+    color: var(--text-color, inherit);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
+}
+
+#globalSearchPanel .patriodx-discovery-tab-panels {
+    width: 100%;
+    min-width: 0;
+}
+
+#globalSearchPanel .patriodx-discovery-tab-panel {
+    width: 100%;
+    min-width: 0;
+}
+
+#globalSearchPanel .patriodx-discovery-tab-panel[hidden] {
+    display: none !important;
+}
+
+#globalSearchPanel .patriodx-discovery-tab-panel > h3 {
+    margin: 0 0 12px;
+}
+
+#globalSearchPanel .patriodx-discovery-tab-panel > p {
+    margin-top: 0;
+}
+
+@media (max-width: 380px) {
+    #globalSearchPanel .patriodx-discovery-tab {
+        font-size: 11px;
+        padding: 9px 2px;
+    }
+}
+/* PATRIODX — SEARCH DISCOVERY DESIGN */
+
+#globalSearchPanel .patriodx-discovery-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    margin: 12px 0 18px;
+    padding: 4px;
+    border-radius: 14px;
+    background: var(--card-background, rgba(128,128,128,.10));
+}
+
+#globalSearchPanel .patriodx-discovery-tab {
+    min-width: 0;
+    padding: 11px 3px;
+    border: 0;
+    border-radius: 11px;
+    background: transparent;
+    color: var(--secondary-text, #888);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+#globalSearchPanel .patriodx-discovery-tab.is-active {
+    background: #7045ff;
+    color: #fff;
+}
+
+#globalSearchPanel .patriodx-discovery-tab-panel[hidden] {
+    display: none !important;
+}
+
+#globalSearchPanel .patriodx-discovery-grid,
+#globalSearchPanel .patriodx-discovery-explore-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+}
+
+#globalSearchPanel .patriodx-discovery-post {
+    position: relative;
+    display: block;
+    width: 100%;
+    min-width: 0;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+    border-radius: 9px;
+    background: var(--card-background, #222);
+    cursor: pointer;
+}
+
+#globalSearchPanel .patriodx-discovery-post img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#globalSearchPanel .patriodx-discovery-post-count {
+    position: absolute;
+    right: 7px;
+    bottom: 7px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 7px;
+    border-radius: 20px;
+    background: rgba(0,0,0,.62);
+    color: #fff;
+    font-size: 11px;
+}
+
+#globalSearchPanel .patriodx-discovery-trending-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin: 16px 0;
+}
+
+#globalSearchPanel .patriodx-discovery-trending-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+#globalSearchPanel .patriodx-discovery-people-row,
+#globalSearchPanel .patriodx-discovery-people {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    overflow-x: auto;
+    padding: 12px 2px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+#globalSearchPanel .patriodx-discovery-person {
+    display: flex;
+    flex: 0 0 110px;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    scroll-snap-align: start;
+}
+
+#globalSearchPanel .patriodx-discovery-person-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-color, inherit);
+    text-align: center;
+    cursor: pointer;
+}
+
+#globalSearchPanel .patriodx-discovery-avatar {
+    display: grid;
+    width: 76px;
+    height: 76px;
+    place-items: center;
+    overflow: hidden;
+    border: 2px solid #7045ff;
+    border-radius: 50%;
+}
+
+#globalSearchPanel .patriodx-discovery-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#globalSearchPanel .patriodx-discovery-person-profile strong {
+    max-width: 105px;
+    overflow: hidden;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#globalSearchPanel .patriodx-discovery-person-profile small {
+    font-size: 11px;
+    color: var(--secondary-text, #888);
+}
+
+#globalSearchPanel .patriodx-discovery-person .global-search-follow-button {
+    width: 100%;
+    min-height: 34px;
+    border: 1px solid #7045ff;
+    border-radius: 20px;
+    background: transparent;
+    color: var(--text-color, inherit);
+}
+
+#globalSearchPanel .patriodx-discovery-muted {
+    color: var(--secondary-text, #888);
+    font-size: 13px;
+    padding: 12px;
+}
+
+@media(max-width: 480px) {
+    #globalSearchPanel .patriodx-discovery-tab {
+        font-size: 10px;
+    }
+
+    #globalSearchPanel .patriodx-discovery-grid {
+        gap: 4px;
+    }
+
+    #globalSearchPanel .patriodx-discovery-trending-row {
+        gap: 5px;
+    }
+
+    #globalSearchPanel .patriodx-discovery-person {
+        flex-basis: 95px;
+    }
+}
