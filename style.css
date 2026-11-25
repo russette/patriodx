@@ -27384,3 +27384,119 @@ body.dark-mode .global-search-follow-button:hover {
         flex-basis: 40px;
     }
 }
+/* PATRIODX — MOBILE FOLLOW DIRECTORY SWIPE */
+@media (max-width: 768px) {
+    #patriodxFollowDirectoryList {
+        touch-action: pan-y;
+        overscroll-behavior-y: contain;
+    }
+}
+/* =========================================================
+   PATRIODX — X-STYLE NOTIFICATION AVATARS
+========================================================= */
+
+.notification-item {
+    align-items: flex-start;
+    gap: 13px;
+    padding: 16px;
+}
+
+.notification-avatar-button {
+    position: relative;
+    flex: 0 0 46px;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+}
+
+.notification-avatar {
+    display: block;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #e5e7eb;
+}
+
+.notification-avatar-activity {
+    position: absolute;
+    right: -3px;
+    bottom: -3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 21px;
+    height: 21px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    background: #7c3aed;
+    color: #ffffff;
+}
+
+.notification-avatar-activity svg {
+    width: 12px;
+    height: 12px;
+    stroke-width: 2.5;
+}
+
+.notification-avatar-button:focus-visible {
+    outline: 2px solid #7c3aed;
+    outline-offset: 3px;
+}
+
+.notification-content {
+    min-width: 0;
+    flex: 1;
+}
+
+.notification-text {
+    overflow-wrap: anywhere;
+}
+
+.notification-text strong {
+    font-weight: 650;
+}
+
+body.dark-mode .notification-avatar {
+    background: #334155;
+}
+
+body.dark-mode .notification-avatar-activity {
+    border-color: #111827;
+}
+
+body.dark-mode .notification-text {
+    color: #f8fafc;
+}
+
+@media (max-width: 768px) {
+
+    .notification-item {
+        gap: 12px;
+        padding: 14px 12px;
+    }
+
+    .notification-avatar-button,
+    .notification-avatar {
+        width: 43px;
+        height: 43px;
+    }
+
+    .notification-avatar-button {
+        flex-basis: 43px;
+    }
+
+    .notification-avatar-activity {
+        width: 19px;
+        height: 19px;
+    }
+
+    .notification-avatar-activity svg {
+        width: 11px;
+        height: 11px;
+    }
+}

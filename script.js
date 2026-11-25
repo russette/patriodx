@@ -7743,7 +7743,23 @@ async function togglePostRepost(postId) {
                 "success"
             );
 
-        } else {
+              } else {
+
+            const {
+                data: originalPost,
+                error: postError
+            } = await supabaseClient
+                .from("posts")
+                .select("user_id")
+                .eq("id", postId)
+                .maybeSingle();
+
+            if (postError) throw postError;
+
+            if (!originalPost) {
+                throw new Error("Original post not found.");
+            }
+
             const { error } = await supabaseClient
                 .from("post_reposts")
                 .insert({
@@ -7752,6 +7768,27 @@ async function togglePostRepost(postId) {
                 });
 
             if (error) throw error;
+
+            if (originalPost.user_id !== currentUser.id) {
+
+                const {
+                    error: notificationError
+                } = await supabaseClient.rpc(
+                    "create_patriodx_notification",
+                    {
+                        p_recipient_id: originalPost.user_id,
+                        p_type: "repost",
+                        p_activity_id: postId
+                    }
+                );
+
+                if (notificationError) {
+                    console.error(
+                        "Repost notification failed:",
+                        notificationError
+                    );
+                }
+            }
 
             showPATRIODXToast(
                 "Post reposted.",
@@ -16540,9 +16577,9 @@ if (senderIds.length > 0) {
     const { data: profiles, error: profilesError } =
         await supabaseClient
             .from("profiles")
-            .select(
-                "id, username, display_name, is_verified, is_owner, verification_expires_at"
-            )
+.select(
+    "id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at"
+)
             .in("id", senderIds);
 
     if (profilesError) {
@@ -16691,12 +16728,32 @@ function renderNotifications() {
                 icon = "user-plus";
             }
 
-
+            if (notification.type === "repost") {
+                icon = "repeat-2";
+            }
           const createdAt =
     notification.created_at
         ? formatRelativeTime(notification.created_at)
         : "";
 
+
+                       const sender =
+                window.notificationSenderProfiles?.[
+                    notification.sender_id
+                ];
+
+            const senderAvatar =
+                sender?.avatar_url || "assets/default-avatar.png";
+
+            const senderName =
+                sender?.display_name ||
+                sender?.username ||
+                "PATRIODX User";
+
+            const badgeHTML =
+                sender && typeof getPATRIODXBadge === "function"
+                    ? getPATRIODXBadge(sender)
+                    : "";
 
             return `
                 <div
@@ -16706,45 +16763,52 @@ function renderNotifications() {
                     onclick="handleNotificationClick('${notification.id}')"
                 >
 
-                    <div class="notification-icon">
-                        <i data-lucide="${icon}"></i>
-                    </div>
+                    <button
+                        type="button"
+                        class="notification-avatar-button"
+                        data-sender-id="${safe(sender?.id || "")}"
+                        aria-label="View ${safe(senderName)}'s profile"
+                        onclick="
+                            event.stopPropagation();
+                            openNotificationSenderProfile(this.dataset.senderId);
+                        "
+                    >
+                        <img
+                            class="notification-avatar"
+                            src="${safe(senderAvatar)}"
+                            alt=""
+                            loading="lazy"
+                            onerror="
+                                this.onerror = null;
+                                this.src = 'assets/default-avatar.png';
+                            "
+                        />
 
+                        <span class="notification-avatar-activity">
+                            <i data-lucide="${icon}"></i>
+                        </span>
+                    </button>
 
                     <div class="notification-content">
 
                         <p class="notification-text">
-
                             <strong>
-   ${
-    safe(notification.title ||
-    "PATRIODX Notification")
-}
-    ${
-        window.notificationSenderProfiles?.[notification.sender_id] &&
-        typeof getPATRIODXBadge === "function"
-            ? getPATRIODXBadge(
-                window.notificationSenderProfiles[notification.sender_id]
-            )
-            : ""
-    }
-</strong>
+                                ${safe(notification.title || "PATRIODX Notification")}
+                                ${badgeHTML}
+                            </strong>
 
                             ${
                                 notification.message
                                     ? `<br>${safe(notification.message)}`
                                     : ""
                             }
-
                         </p>
-
 
                         <span class="notification-time">
                             ${createdAt}
                         </span>
 
                     </div>
-
 
                     ${
                         isUnread
@@ -16837,12 +16901,37 @@ async function markNotificationsReadOnOpen() {
 
     renderNotifications();
 }
+
 /* ---------------------------------------------------------
 NOTIFICATION CLICK
 --------------------------------------------------------- */
 let mobileProfileReturnSection = "profile";
 let mobileProfileReturnScrollY = 0;
 let mobilePostViewerReturnSection = "profile";
+async function openNotificationSenderProfile(userId) {
+
+    if (!userId || !currentUser) return;
+
+    mobileProfileReturnSection = "notifications";
+
+    if (typeof navigatePATRIODX === "function") {
+        navigatePATRIODX("profile");
+    }
+
+    if (typeof loadPublicProfile === "function") {
+        await loadPublicProfile(userId);
+
+        const profileCard =
+            document.getElementById("publicProfileCard");
+
+        if (profileCard) {
+            profileCard.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    }
+}
 async function handleNotificationClick(notificationId) {
 
 
@@ -16872,7 +16961,8 @@ LIKE / COMMENT — OPEN THE POST IN THE EXISTING VIEWER
 if (
     type === "like" ||
     type === "comment" ||
-    type === "tag"
+    type === "tag" ||
+    type === "repost"
 ) {
     mobilePostViewerReturnSection = "notifications";
 const postId = notification.related_id;
@@ -18781,6 +18871,7 @@ let patriodxFollowDirectoryType = "followers";
 let patriodxFollowDirectoryScrollPosition = 0;
 let patriodxFollowDirectoryOpener = null;
 let patriodxFollowDirectoryIsOwnProfile = false;
+let patriodxFollowDirectoryTouchStart = null;
 // Preserve the directory when opening another user's profile.
 window.patriodxFollowDirectoryReturnState = null;
 function openPATRIODXFollowDirectory(type, isOwnProfile = false) {
@@ -19074,7 +19165,8 @@ async function loadPATRIODXFollowDirectory() {
             const isFollowing = myFollowingIds.has(
                 String(profile.id)
             );
-
+const isCurrentUser =
+    String(profile.id) === String(currentUser.id);
             return `
                 <div
                     class="patriodx-follow-directory-row"
@@ -19105,19 +19197,21 @@ async function loadPATRIODXFollowDirectory() {
                         </span>
                     </span>
 
-                    <button
-                        type="button"
-                        class="patriodx-follow-directory-follow"
-                        data-follow-directory-follow="${safe(profile.id)}"
-                        data-following="${isFollowing ? "true" : "false"}"
-                        aria-label="${isFollowing ? "Unfollow" : "Follow"} ${escapeHTML(profile.display_name || "user")}"
-                    >
-                        <i data-lucide="${
-                            isFollowing
-                                ? "user-round-check"
-                                : "user-round-plus"
-                        }"></i>
-                    </button>
+                   ${!isCurrentUser ? `
+    <button
+        type="button"
+        class="patriodx-follow-directory-follow"
+        data-follow-directory-follow="${safe(profile.id)}"
+        data-following="${isFollowing ? "true" : "false"}"
+        aria-label="${isFollowing ? "Unfollow" : "Follow"} ${escapeHTML(profile.display_name || "user")}"
+    >
+        <i data-lucide="${
+            isFollowing
+                ? "user-round-check"
+                : "user-round-plus"
+        }"></i>
+    </button>
+` : ""}
 
                     <i
                         data-lucide="chevron-right"
@@ -19333,6 +19427,89 @@ document.addEventListener("keydown", function(event) {
         row.click();
     }
 });
+// Mobile swipe navigation between Following, Followers and Mutual.
+document.addEventListener("touchstart", function(event) {
+    const list = event.target.closest(
+        "#patriodxFollowDirectoryList"
+    );
+
+    const directory = document.getElementById(
+        "patriodxFollowDirectory"
+    );
+
+    if (!list || !directory || directory.hidden) {
+        patriodxFollowDirectoryTouchStart = null;
+        return;
+    }
+
+    if (event.touches.length !== 1) {
+        patriodxFollowDirectoryTouchStart = null;
+        return;
+    }
+
+    patriodxFollowDirectoryTouchStart = {
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY
+    };
+}, { passive: true });
+
+document.addEventListener("touchend", async function(event) {
+    const start = patriodxFollowDirectoryTouchStart;
+    patriodxFollowDirectoryTouchStart = null;
+
+    const directory = document.getElementById(
+        "patriodxFollowDirectory"
+    );
+
+    if (!start || !directory || directory.hidden) return;
+    if (!window.matchMedia("(max-width: 768px)").matches) return;
+
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+
+    const deltaX = touch.clientX - start.x;
+    const deltaY = touch.clientY - start.y;
+
+    // Ignore vertical scrolling and short movements.
+    if (
+        Math.abs(deltaX) < 55 ||
+        Math.abs(deltaX) < Math.abs(deltaY) * 1.25
+    ) {
+        return;
+    }
+
+    const visibleTabs = Array.from(
+        document.querySelectorAll(
+            "[data-follow-directory-tab]"
+        )
+    ).filter(tab =>
+        tab.getClientRects().length > 0 &&
+        getComputedStyle(tab).display !== "none"
+    );
+
+    const currentIndex = visibleTabs.findIndex(
+        tab =>
+            tab.dataset.followDirectoryTab ===
+            patriodxFollowDirectoryType
+    );
+
+    if (currentIndex === -1) return;
+
+    // Swipe left = next tab; swipe right = previous tab.
+    const nextIndex = deltaX < 0
+        ? currentIndex + 1
+        : currentIndex - 1;
+
+    if (nextIndex < 0 || nextIndex >= visibleTabs.length) {
+        return;
+    }
+
+    patriodxFollowDirectoryType =
+        visibleTabs[nextIndex].dataset.followDirectoryTab;
+
+    updatePATRIODXFollowDirectoryTabs();
+    await loadPATRIODXFollowDirectory();
+}, { passive: true });
 setupPublicProfileFollowLists();
 // ------------------------------------------
 // LOAD OWN FOLLOW COUNTS
