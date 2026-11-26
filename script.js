@@ -8758,7 +8758,254 @@ async function recordPATRIODXStoryView(story) {
 
     }
 }
+/* =========================================================
+   PATRIODX — STORY VIEWER LIST
+========================================================= */
 
+async function setupPATRIODXStoryViewers(story) {
+
+    const viewer = document.getElementById(
+        "patriodxStoryViewer"
+    );
+
+    if (!viewer || !story || !currentUser) return;
+
+    let controls = document.getElementById(
+        "storyViewerInsights"
+    );
+
+    if (!controls) {
+
+        controls = document.createElement("div");
+        controls.id = "storyViewerInsights";
+        controls.className = "story-viewer-insights";
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.id = "storyViewerViewsButton";
+        button.className = "story-viewer-views-button";
+
+        const panel = document.createElement("div");
+        panel.id = "storyViewerViewsPanel";
+        panel.className = "story-viewer-views-panel";
+        panel.hidden = true;
+
+        const heading = document.createElement("div");
+        heading.className = "story-viewer-views-heading";
+
+        const title = document.createElement("strong");
+        title.textContent = "Story viewers";
+
+        const close = document.createElement("button");
+        close.type = "button";
+        close.setAttribute("aria-label", "Close viewers");
+        close.innerHTML = '<i data-lucide="x"></i>';
+
+        close.addEventListener("click", () => {
+            panel.hidden = true;
+            resumePATRIODXStoryProgress();
+        });
+
+        heading.append(title, close);
+
+        const list = document.createElement("div");
+        list.id = "storyViewerViewsList";
+        list.className = "story-viewer-views-list";
+
+        panel.append(heading, list);
+        controls.append(button, panel);
+        viewer.appendChild(controls);
+
+        button.addEventListener("click", async () => {
+
+            if (panel.hidden) {
+                panel.hidden = false;
+                pausePATRIODXStoryProgress();
+                await loadPATRIODXStoryViewers(
+                    button.dataset.storyId
+                );
+            } else {
+                panel.hidden = true;
+                resumePATRIODXStoryProgress();
+            }
+
+        });
+    }
+
+    const button = document.getElementById(
+        "storyViewerViewsButton"
+    );
+
+    const panel = document.getElementById(
+        "storyViewerViewsPanel"
+    );
+
+    const list = document.getElementById(
+        "storyViewerViewsList"
+    );
+
+    if (!button || !panel || !list) return;
+
+    panel.hidden = true;
+    list.innerHTML = "";
+
+    const isOwner = story.user_id === currentUser.id;
+
+    controls.style.display = isOwner ? "block" : "none";
+
+    if (!isOwner) return;
+
+    button.dataset.storyId = story.id;
+    button.textContent = "Loading viewers...";
+
+    const { data, error } = await supabaseClient
+        .from("story_views")
+        .select("viewer_id")
+        .eq("story_id", story.id);
+
+    if (error) {
+        console.error("Could not load story viewers:", error);
+        button.textContent = "Viewers unavailable";
+        return;
+    }
+
+    const total = (data || []).length;
+
+    button.textContent =
+        `${total.toLocaleString()} ${total === 1 ? "view" : "views"}`;
+}
+
+
+/* =========================================================
+   LOAD STORY VIEWERS AND THEIR PROFILES
+========================================================= */
+
+async function loadPATRIODXStoryViewers(storyId) {
+
+    const list = document.getElementById(
+        "storyViewerViewsList"
+    );
+
+    if (!list || !storyId) return;
+
+    list.innerHTML = `
+        <div class="story-viewers-loading">
+            Loading viewers...
+        </div>
+    `;
+
+    const { data: views, error } = await supabaseClient
+        .from("story_views")
+        .select("viewer_id")
+        .eq("story_id", storyId);
+
+    if (error) {
+        console.error("Story viewer list error:", error);
+
+        list.textContent = "Could not load viewers.";
+        return;
+    }
+
+    const viewerIds = [
+        ...new Set(
+            (views || []).map(view => view.viewer_id)
+        )
+    ];
+
+    if (!viewerIds.length) {
+        list.innerHTML = `
+            <div class="story-viewers-empty">
+                Nobody has viewed this story yet.
+            </div>
+        `;
+        return;
+    }
+
+    const { data: profiles, error: profileError } =
+        await supabaseClient
+            .from("profiles")
+            .select(
+                "id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at"
+            )
+            .in("id", viewerIds);
+
+    if (profileError) {
+        console.error("Story viewer profiles error:", profileError);
+
+        list.textContent = "Could not load viewer profiles.";
+        return;
+    }
+
+    list.innerHTML = "";
+
+    (profiles || []).forEach(profile => {
+
+        const name =
+            profile.display_name ||
+            profile.username ||
+            "PATRIODX User";
+
+        const row = document.createElement("button");
+
+        row.type = "button";
+        row.className = "story-viewer-person";
+
+        const avatar = document.createElement("span");
+        avatar.className = "story-viewer-person-avatar";
+
+        if (profile.avatar_url) {
+
+            const image = document.createElement("img");
+
+            image.src = profile.avatar_url;
+            image.alt = name;
+
+            avatar.appendChild(image);
+
+        } else {
+
+            avatar.textContent = name.charAt(0).toUpperCase();
+        }
+
+        const details = document.createElement("span");
+        details.className = "story-viewer-person-details";
+
+        const displayName = document.createElement("strong");
+        displayName.textContent = name;
+
+        const username = document.createElement("small");
+        username.textContent = profile.username
+            ? `@${profile.username}`
+            : "PATRIODX User";
+
+        details.append(displayName, username);
+
+        row.append(avatar, details);
+
+        if (typeof getPATRIODXBadge === "function") {
+            displayName.insertAdjacentHTML(
+                "beforeend",
+                getPATRIODXBadge(profile)
+            );
+        }
+
+        row.addEventListener("click", async () => {
+
+            if (typeof loadPublicProfile !== "function") return;
+
+            closePATRIODXStoryViewer();
+
+            await loadPublicProfile(profile.id);
+
+        });
+
+        list.appendChild(row);
+    });
+
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+}
 function openPATRIODXStoryViewer(index) {
 
     const viewer =
@@ -8974,16 +9221,227 @@ video.addEventListener("loadedmetadata", function () {
 
         startPATRIODXStoryProgress(5);
     }
-
+    await setupPATRIODXStoryActions(story);
     await recordPATRIODXStoryView(
         story
     );
-
+await setupPATRIODXStoryViewers(story);
     if (typeof lucide !== "undefined") {
         lucide.createIcons();
     }
 }
+/* =========================================================
+   PATRIODX STORY LIKE, REPLY AND SHARE
+========================================================= */
 
+async function setupPATRIODXStoryActions(story) {
+
+    const viewer = document.getElementById("patriodxStoryViewer");
+
+    if (!viewer || !story || !currentUser) return;
+
+    let actions = document.getElementById("patriodxStoryActions");
+
+    if (!actions) {
+        actions = document.createElement("div");
+        actions.id = "patriodxStoryActions";
+        actions.className = "patriodx-story-actions";
+        viewer.appendChild(actions);
+    }
+
+    actions.innerHTML = "";
+
+    // LIKE
+    if (story.user_id !== currentUser.id) {
+
+        const likeButton = document.createElement("button");
+        likeButton.type = "button";
+        likeButton.className = "patriodx-story-like-button";
+        likeButton.textContent = "♡ Like";
+        likeButton.disabled = true;
+
+        const count = document.createElement("span");
+        count.className = "patriodx-story-like-count";
+        count.textContent = "Loading...";
+
+        actions.append(likeButton, count);
+
+        try {
+
+            const [
+                { count: likeCount, error: countError },
+                { data: existingLike, error: likeError }
+            ] = await Promise.all([
+
+                supabaseClient
+                    .from("story_likes")
+                    .select("*", { count: "exact", head: true })
+                    .eq("story_id", story.id),
+
+                supabaseClient
+                    .from("story_likes")
+                    .select("id")
+                    .eq("story_id", story.id)
+                    .eq("user_id", currentUser.id)
+                    .maybeSingle()
+            ]);
+
+            if (countError) throw countError;
+            if (likeError) throw likeError;
+
+            let liked = !!existingLike;
+
+            count.textContent = `${likeCount || 0} likes`;
+
+            const updateButton = () => {
+                likeButton.textContent = liked ? "♥ Liked" : "♡ Like";
+                likeButton.classList.toggle("is-liked", liked);
+            };
+
+            updateButton();
+            likeButton.disabled = false;
+
+            likeButton.addEventListener("click", async () => {
+
+                if (likeButton.disabled) return;
+
+                likeButton.disabled = true;
+
+                try {
+
+                    if (liked) {
+
+                        const { error } = await supabaseClient
+                            .from("story_likes")
+                            .delete()
+                            .eq("story_id", story.id)
+                            .eq("user_id", currentUser.id);
+
+                        if (error) throw error;
+
+                        liked = false;
+
+                        count.textContent =
+                            `${Math.max(0, (Number.parseInt(count.textContent) || 0) - 1)} likes`;
+
+                    } else {
+
+                        const { error } = await supabaseClient
+                            .from("story_likes")
+                            .insert({
+                                story_id: story.id,
+                                user_id: currentUser.id
+                            });
+
+                        if (error) throw error;
+
+                        liked = true;
+
+                        count.textContent =
+                            `${(Number.parseInt(count.textContent) || 0) + 1} likes`;
+                    }
+
+                    updateButton();
+
+                } catch (error) {
+
+                    console.error("Story like error:", error);
+
+                    showPATRIODXToast(
+                        "Could not update story like.",
+                        "error"
+                    );
+
+                } finally {
+                    likeButton.disabled = false;
+                }
+            });
+
+        } catch (error) {
+
+            console.error("Could not load story likes:", error);
+            count.textContent = "Likes unavailable";
+        }
+    }
+
+    // REPLY
+    if (story.user_id !== currentUser.id) {
+
+        const replyForm = document.createElement("form");
+        replyForm.className = "patriodx-story-reply-form";
+
+        replyForm.innerHTML = `
+            <input type="text"
+                   maxlength="1000"
+                   placeholder="Reply to story..."
+                   aria-label="Reply to story"
+                   required>
+
+            <button type="submit">Send</button>
+        `;
+
+        replyForm.addEventListener("submit", async event => {
+
+            event.preventDefault();
+
+            const input = replyForm.querySelector("input");
+            const button = replyForm.querySelector("button");
+            const replyText = input.value.trim();
+
+            if (!replyText) return;
+
+            button.disabled = true;
+            button.textContent = "Sending...";
+
+            try {
+
+                const opened = await createConversationWithUser(
+                    story.user_id,
+                    story.profile
+                );
+
+                if (!opened || !activeConversationId) {
+                    throw new Error("Could not open conversation.");
+                }
+
+                const storyMessage =
+                    createPATRIODXStoryMessageContent(story, replyText);
+
+                document.getElementById("storyViewerClose")?.click();
+
+                messageInput.value = storyMessage;
+                messageForm.requestSubmit();
+
+            } catch (error) {
+
+                console.error("Story reply failed:", error);
+
+                showPATRIODXToast(
+                    "Could not reply to this story.",
+                    "error"
+                );
+
+                button.disabled = false;
+                button.textContent = "Send";
+            }
+        });
+
+        actions.appendChild(replyForm);
+    }
+
+    // SHARE
+    const shareButton = document.createElement("button");
+
+    shareButton.type = "button";
+    shareButton.className = "patriodx-story-share-button";
+    shareButton.textContent = "↗ Share";
+
+    shareButton.addEventListener("click", () => {
+        openPATRIODXStoryShareDialog(story);
+    });
+
+    actions.appendChild(shareButton);
+}
 function startPATRIODXStoryProgress(duration) {
     const progress = document.getElementById("storyViewerProgress");
 
@@ -15092,7 +15550,393 @@ const patriodxReactionCache = window.patriodxReactionCache ||
 
 const patriodxAttachmentCache = window.patriodxAttachmentCache ||
     (window.patriodxAttachmentCache = new Map());
+/* =========================================================
+   PATRIODX — SHARED STORY MESSAGES
+========================================================= */
 
+const PATRIODX_STORY_MESSAGE_PREFIX = "PATRIODX_STORY_SHARE:";
+
+function createPATRIODXStoryMessageContent(story, replyText = "") {
+    return PATRIODX_STORY_MESSAGE_PREFIX + JSON.stringify({
+        story_id: story.id,
+        creator_id: story.user_id,
+        creator_name:
+            story.name ||
+            story.profile?.display_name ||
+            story.profile?.username ||
+            "PATRIODX User",
+        creator_avatar: story.profile?.avatar_url || "",
+        media_url: story.media_url,
+        media_type: story.media_type,
+        reply_text: replyText
+    });
+}
+
+function parsePATRIODXStoryMessage(content) {
+    if (
+        typeof content !== "string" ||
+        !content.startsWith(PATRIODX_STORY_MESSAGE_PREFIX)
+    ) {
+        return null;
+    }
+
+    try {
+        const data = JSON.parse(
+            content.slice(PATRIODX_STORY_MESSAGE_PREFIX.length)
+        );
+
+        return data.story_id ? data : null;
+
+    } catch (error) {
+        console.error("Invalid shared story message:", error);
+        return null;
+    }
+}
+
+function renderPATRIODXMessageContent(message) {
+    const story = parsePATRIODXStoryMessage(message.content);
+
+    if (!story) {
+        return `<div class="message-content">${safe(message.content)}</div>`;
+    }
+
+    const preview = story.media_type?.toLowerCase().startsWith("video")
+        ? `<div class="patriodx-shared-story-video">▶ Video story</div>`
+        : `<img src="${safe(story.media_url)}"
+                alt="Shared story"
+                loading="lazy">`;
+
+    return `
+        <div class="patriodx-shared-story-card">
+
+            <button type="button"
+                    class="patriodx-shared-story-open"
+                    data-open-shared-story="${safe(story.story_id)}">
+
+                <div class="patriodx-shared-story-heading">
+
+                    ${
+                        story.creator_avatar
+                            ? `<img src="${safe(story.creator_avatar)}"
+                                    alt=""
+                                    class="patriodx-shared-story-avatar">`
+                            : ""
+                    }
+
+                    <strong>${safe(story.creator_name)}</strong>
+
+                </div>
+
+                <div class="patriodx-shared-story-preview">
+                    ${preview}
+                </div>
+
+                <span class="patriodx-shared-story-label">
+                    Shared a story · View story
+                </span>
+
+            </button>
+
+            ${
+                story.reply_text
+                    ? `<div class="patriodx-shared-story-reply">
+                           ${safe(story.reply_text)}
+                       </div>`
+                    : ""
+            }
+
+        </div>
+    `;
+}
+
+async function openPATRIODXSharedStory(storyId) {
+
+    const { data: story, error } = await supabaseClient
+        .from("stories")
+        .select("*")
+        .eq("id", storyId)
+        .gt("expires_at", new Date().toISOString())
+        .maybeSingle();
+
+    if (error || !story) {
+        showPATRIODXToast(
+            "This story is no longer available.",
+            "info"
+        );
+        return;
+    }
+
+    const { data: profile, error: profileError } =
+        await supabaseClient
+            .from("profiles")
+            .select("id, username, display_name, avatar_url, is_verified, is_owner, verification_expires_at")
+            .eq("id", story.user_id)
+            .maybeSingle();
+
+    if (profileError || !profile) {
+        showPATRIODXToast(
+            "Could not load the story creator.",
+            "error"
+        );
+        return;
+    }
+
+    const storyData = {
+        ...story,
+        profile,
+        name: profile.display_name || profile.username || "PATRIODX User"
+    };
+
+    const existingIndex = patriodxStoryViewerStories.findIndex(
+        item => item.id === story.id
+    );
+
+    if (existingIndex >= 0) {
+        openPATRIODXStoryViewer(existingIndex);
+        return;
+    }
+
+    patriodxStoryViewerStories.push(storyData);
+
+    openPATRIODXStoryViewer(
+        patriodxStoryViewerStories.length - 1
+    );
+}
+/* =========================================================
+   PATRIODX — SEND STORY TO A CONVERSATION
+========================================================= */
+
+async function sendPATRIODXStoryToConversation(
+    story,
+    conversationId,
+    profile,
+    replyText = ""
+) {
+    if (!story || !conversationId || !currentUser) return;
+
+    const storyMessage = createPATRIODXStoryMessageContent(
+        story,
+        replyText
+    );
+
+    // Close the story viewer before opening Messaging.
+    document.getElementById("storyViewerClose")?.click();
+
+    const opened = await openConversation(
+        conversationId,
+        profile
+    );
+
+    if (!opened || !activeConversationId) return;
+
+    messageInput.value = storyMessage;
+
+    if (messageForm) {
+        messageForm.requestSubmit();
+    }
+}
+
+
+/* =========================================================
+   PATRIODX — STORY SHARE RECIPIENTS
+========================================================= */
+
+async function openPATRIODXStoryShareDialog(story) {
+
+    if (!currentUser || !story) return;
+
+    document.getElementById(
+        "patriodxStoryShareDialog"
+    )?.remove();
+
+    const { data: memberships, error: membershipError } =
+        await supabaseClient
+            .from("conversation_members")
+            .select("conversation_id")
+            .eq("user_id", currentUser.id);
+
+    if (membershipError) {
+        console.error("Could not load conversations:", membershipError);
+        showPATRIODXToast("Could not load conversations.", "error");
+        return;
+    }
+
+    const conversationIds = [
+        ...new Set((memberships || []).map(item => item.conversation_id))
+    ];
+
+    if (!conversationIds.length) {
+        showPATRIODXToast(
+            "Start a conversation before sharing a story.",
+            "info"
+        );
+        return;
+    }
+
+    const { data: allMembers, error: membersError } =
+        await supabaseClient
+            .from("conversation_members")
+            .select("conversation_id, user_id")
+            .in("conversation_id", conversationIds);
+
+    if (membersError) {
+        console.error("Could not load conversation members:", membersError);
+        showPATRIODXToast("Could not load recipients.", "error");
+        return;
+    }
+
+    const recipients = (allMembers || []).filter(
+        member => member.user_id !== currentUser.id
+    );
+
+    const recipientIds = [
+        ...new Set(recipients.map(item => item.user_id))
+    ];
+
+    if (!recipientIds.length) {
+        showPATRIODXToast("No conversations available.", "info");
+        return;
+    }
+
+    const { data: profiles, error: profilesError } =
+        await supabaseClient
+            .from("profiles")
+            .select("id, username, display_name, avatar_url")
+            .in("id", recipientIds);
+
+    if (profilesError) {
+        console.error("Could not load recipient profiles:", profilesError);
+        showPATRIODXToast("Could not load recipients.", "error");
+        return;
+    }
+
+    const profileMap = new Map(
+        (profiles || []).map(profile => [profile.id, profile])
+    );
+
+    const dialog = document.createElement("div");
+
+    dialog.id = "patriodxStoryShareDialog";
+    dialog.className = "patriodx-story-share-overlay";
+
+    const uniqueRecipients = new Map();
+
+    recipients.forEach(member => {
+        if (!uniqueRecipients.has(member.user_id)) {
+            uniqueRecipients.set(member.user_id, member.conversation_id);
+        }
+    });
+
+    const recipientRows = [...uniqueRecipients.entries()]
+        .map(([userId, conversationId]) => {
+            const profile = profileMap.get(userId);
+
+            if (!profile) return "";
+
+            const name =
+                profile.display_name ||
+                profile.username ||
+                "PATRIODX User";
+
+            return `
+                <button type="button"
+                    class="patriodx-story-share-recipient"
+                    data-share-conversation="${safe(conversationId)}"
+                    data-share-user="${safe(userId)}">
+
+                    ${
+                        profile.avatar_url
+                            ? `<img src="${safe(profile.avatar_url)}" alt="">`
+                            : `<span class="patriodx-story-share-avatar-placeholder">👤</span>`
+                    }
+
+                    <span>${safe(name)}</span>
+
+                    <span class="patriodx-story-share-send">Send</span>
+                </button>
+            `;
+        })
+        .filter(Boolean)
+        .join("");
+
+    dialog.innerHTML = `
+        <div class="patriodx-story-share-panel">
+
+            <div class="patriodx-story-share-header">
+                <strong>Share story</strong>
+
+                <button type="button"
+                    data-close-story-share
+                    aria-label="Close">×</button>
+            </div>
+
+            <div class="patriodx-story-share-list">
+                ${
+                    recipientRows ||
+                    `<p class="patriodx-story-share-empty">
+                        No conversations available.
+                    </p>`
+                }
+            </div>
+
+        </div>
+    `;
+
+    document.body.appendChild(dialog);
+
+    dialog.addEventListener("click", async event => {
+
+        if (
+            event.target === dialog ||
+            event.target.closest("[data-close-story-share]")
+        ) {
+            dialog.remove();
+            return;
+        }
+
+        const button = event.target.closest(
+            "[data-share-conversation]"
+        );
+
+        if (!button) return;
+
+        const conversationId = button.dataset.shareConversation;
+        const userId = button.dataset.shareUser;
+        const profile = profileMap.get(userId);
+
+        if (!conversationId || !profile) return;
+
+        button.disabled = true;
+        button.querySelector(".patriodx-story-share-send").textContent =
+            "Sending...";
+
+        dialog.remove();
+
+        await sendPATRIODXStoryToConversation(
+            story,
+            conversationId,
+            profile
+        );
+    });
+}
+// Open shared stories from both loaded and realtime messages.
+if (!document.documentElement.dataset.storyMessageHandler) {
+
+    document.documentElement.dataset.storyMessageHandler = "true";
+
+    document.addEventListener("click", event => {
+
+        const button = event.target.closest(
+            "[data-open-shared-story]"
+        );
+
+        if (!button) return;
+
+        openPATRIODXSharedStory(
+            button.dataset.openSharedStory
+        );
+    });
+}
 async function loadMessages(conversationId) {
     if (!messageList || !currentUser || !conversationId) return;
 
@@ -15190,9 +16034,9 @@ async function loadMessages(conversationId) {
                  data-message-id="${safe(message.id)}">
                 <div class="message-bubble ${mine ? "mine" : "theirs"}">
                     ${
-                        message.content
-                            ? `<div class="message-content">${safe(message.content)}</div>`
-                            : ""
+                      message.content
+    ? renderPATRIODXMessageContent(message)
+    : ""
                     }
 
                     ${attachmentHTML}
@@ -16371,9 +17215,9 @@ function subscribeToMessages(conversationId) {
                 row.innerHTML = `
                     <div class="message-bubble ${mine ? "mine" : "theirs"}">
                         ${
-                            message.content
-                                ? `<div class="message-content">${safe(message.content)}</div>`
-                                : ""
+                           message.content
+    ? renderPATRIODXMessageContent(message)
+    : ""
                         }
                         <span class="message-time">${safe(formatMessageTime(message.created_at))}</span>
                     </div>
