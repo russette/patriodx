@@ -8886,13 +8886,43 @@ async function recordPATRIODXStoryView(story) {
             return;
         }
 
-        const { error } =
-            await supabaseClient
-                .from("story_views")
-                .insert({
-                    story_id: story.id,
-                    viewer_id: currentUser.id
-                });
+     const [
+    { data: authData, error: authError },
+    { data: blockedResult, error: blockedError },
+    { data: storyRecord, error: storyError }
+] = await Promise.all([
+    supabaseClient.auth.getUser(),
+
+    supabaseClient.rpc(
+        "is_story_blocked_for_current_user",
+        { target_story_id: story.id }
+    ),
+
+    supabaseClient
+        .from("stories")
+        .select("id, user_id, expires_at")
+        .eq("id", story.id)
+        .maybeSingle()
+]);
+
+console.log("STORY VIEW DIAGNOSTICS:", {
+    currentUserId: currentUser.id,
+    authenticatedUserId: authData?.user?.id,
+    authError,
+    storyId: story.id,
+    storyRecord,
+    storyError,
+    blockedResult,
+    blockedError
+});
+
+const { error } =
+    await supabaseClient
+        .from("story_views")
+        .insert({
+            story_id: story.id,
+            viewer_id: currentUser.id
+        });
 
         if (error && error.code !== "23505") {
             console.error(
@@ -9988,14 +10018,25 @@ function resumePATRIODXStoryProgress() {
 
 function showPreviousPATRIODXStory() {
 
-    if (
-        patriodxStoryViewerIndex <= 0
-    ) {
+    const currentStory =
+        patriodxStoryViewerStories[patriodxStoryViewerIndex];
 
-        return;
+    const isViewingOwnStory =
+        currentStory?.user_id === currentUser.id;
+
+    let previousIndex = patriodxStoryViewerIndex - 1;
+
+    while (
+        previousIndex >= 0 &&
+        !isViewingOwnStory &&
+        patriodxStoryViewerStories[previousIndex].user_id === currentUser.id
+    ) {
+        previousIndex--;
     }
 
-    patriodxStoryViewerIndex--;
+    if (previousIndex < 0) return;
+
+    patriodxStoryViewerIndex = previousIndex;
 
     renderPATRIODXStoryViewer();
 }
@@ -10003,21 +10044,33 @@ function showPreviousPATRIODXStory() {
 
 function showNextPATRIODXStory() {
 
-    if (
-        patriodxStoryViewerIndex >=
-        patriodxStoryViewerStories.length - 1
+    const currentStory =
+        patriodxStoryViewerStories[patriodxStoryViewerIndex];
+
+    const isViewingOwnStory =
+        currentStory?.user_id === currentUser.id;
+
+    let nextIndex = patriodxStoryViewerIndex + 1;
+
+    while (
+        nextIndex < patriodxStoryViewerStories.length &&
+        !isViewingOwnStory &&
+        patriodxStoryViewerStories[nextIndex].user_id === currentUser.id
     ) {
+        nextIndex++;
+    }
+
+    if (nextIndex >= patriodxStoryViewerStories.length) {
 
         closePATRIODXStoryViewer();
 
         return;
     }
 
-    patriodxStoryViewerIndex++;
+    patriodxStoryViewerIndex = nextIndex;
 
     renderPATRIODXStoryViewer();
 }
-
 
 function closePATRIODXStoryViewer() {
 
@@ -16182,7 +16235,8 @@ async function sendPATRIODXStoryToConversation(
     story,
     conversationId,
     profile,
-    replyText = ""
+    replyText = "",
+    conversationAlreadyOpen = false
 ) {
     if (!story || !conversationId || !currentUser) return;
 
@@ -16191,18 +16245,14 @@ async function sendPATRIODXStoryToConversation(
         replyText
     );
 
-    // Close the story viewer without triggering another click handler.
     closePATRIODXStoryViewer();
 
-    // Switch to Messaging before opening the conversation.
     navigatePATRIODX("messaging");
 
-    await openConversation(
-        conversationId,
-        profile
-    );
+    if (!conversationAlreadyOpen) {
+        await openConversation(conversationId, profile);
+    }
 
-    // Confirm that the requested conversation actually opened.
     if (activeConversationId !== conversationId) {
         showPATRIODXToast(
             "Could not open the selected conversation.",
@@ -16220,182 +16270,289 @@ async function sendPATRIODXStoryToConversation(
 /* =========================================================
    PATRIODX — STORY SHARE RECIPIENTS
 ========================================================= */
-
 async function openPATRIODXStoryShareDialog(story) {
-
     if (!currentUser || !story) return;
 
-    document.getElementById(
-        "patriodxStoryShareDialog"
-    )?.remove();
+    document.getElementById("patriodxStoryShareDialog")?.remove();
+pausePATRIODXStoryProgress();
+    // Load people I follow and people who follow me.
+    const [
+        { data: followingRows, error: followingError },
+        { data: followerRows, error: followerError }
+    ] = await Promise.all([
+        supabaseClient
+            .from("profile_follows")
+            .select("following_id")
+            .eq("follower_id", currentUser.id),
 
-    const { data: memberships, error: membershipError } =
-        await supabaseClient
-            .from("conversation_members")
-            .select("conversation_id")
-            .eq("user_id", currentUser.id);
+        supabaseClient
+            .from("profile_follows")
+            .select("follower_id")
+            .eq("following_id", currentUser.id)
+    ]);
 
-    if (membershipError) {
-        console.error("Could not load conversations:", membershipError);
-        showPATRIODXToast("Could not load conversations.", "error");
-        return;
-    }
-
-    const conversationIds = [
-        ...new Set((memberships || []).map(item => item.conversation_id))
-    ];
-
-    if (!conversationIds.length) {
-        showPATRIODXToast(
-            "Start a conversation before sharing a story.",
-            "info"
+    if (followingError || followerError) {
+        console.error(
+            "Could not load story share friends:",
+            followingError || followerError
         );
+
+        showPATRIODXToast(
+            "Could not load your friends.",
+            "error"
+        );
+        resumePATRIODXStoryProgress();
         return;
     }
 
-    const { data: allMembers, error: membersError } =
-        await supabaseClient
-            .from("conversation_members")
-            .select("conversation_id, user_id")
-            .in("conversation_id", conversationIds);
-
-    if (membersError) {
-        console.error("Could not load conversation members:", membersError);
-        showPATRIODXToast("Could not load recipients.", "error");
-        return;
-    }
-
-    const recipients = (allMembers || []).filter(
-        member => member.user_id !== currentUser.id
+    // Friends must follow each other.
+    const followingIds = new Set(
+        (followingRows || []).map(row => String(row.following_id))
     );
 
-    const recipientIds = [
-        ...new Set(recipients.map(item => item.user_id))
+    const friendIds = [
+        ...new Set(
+            (followerRows || [])
+                .map(row => String(row.follower_id))
+                .filter(id => followingIds.has(id))
+        )
     ];
 
-    if (!recipientIds.length) {
-        showPATRIODXToast("No conversations available.", "info");
+    if (!friendIds.length) {
+        showPATRIODXToast(
+            "You don't have any mutual friends to share with yet.",
+            "info"
+        );
+        resumePATRIODXStoryProgress();
         return;
     }
 
+    // Load only mutual friends' profiles.
     const { data: profiles, error: profilesError } =
         await supabaseClient
             .from("profiles")
             .select("id, username, display_name, avatar_url")
-            .in("id", recipientIds);
+            .in("id", friendIds);
 
     if (profilesError) {
-        console.error("Could not load recipient profiles:", profilesError);
-        showPATRIODXToast("Could not load recipients.", "error");
+        console.error(
+            "Could not load friend profiles:",
+            profilesError
+        );
+
+        showPATRIODXToast(
+            "Could not load your friends.",
+            "error"
+        );
+        resumePATRIODXStoryProgress();
         return;
     }
 
-    const profileMap = new Map(
-        (profiles || []).map(profile => [profile.id, profile])
+    const friends = (profiles || []).filter(
+        profile => profile.id !== currentUser.id
     );
 
     const dialog = document.createElement("div");
-
     dialog.id = "patriodxStoryShareDialog";
     dialog.className = "patriodx-story-share-overlay";
 
-    const uniqueRecipients = new Map();
+    dialog.innerHTML = `
+        <section class="patriodx-story-share-panel">
 
-    recipients.forEach(member => {
-        if (!uniqueRecipients.has(member.user_id)) {
-            uniqueRecipients.set(member.user_id, member.conversation_id);
-        }
-    });
+            <header class="patriodx-story-share-header">
+                <button
+                    type="button"
+                    class="patriodx-story-share-back"
+                    data-close-story-share
+                    aria-label="Back to story"
+                >
+                    <i data-lucide="arrow-left"></i>
+                </button>
 
-    const recipientRows = [...uniqueRecipients.entries()]
-        .map(([userId, conversationId]) => {
-            const profile = profileMap.get(userId);
+                <div>
+                    <strong>Share story</strong>
+                    <span>Choose a friend</span>
+                </div>
+            </header>
 
-            if (!profile) return "";
+            <div class="patriodx-story-share-search">
+                <i data-lucide="search"></i>
+                <input
+                    type="search"
+                    id="patriodxStoryShareSearch"
+                    placeholder="Search friends..."
+                    autocomplete="off"
+                >
+            </div>
 
-            const name =
+            <div class="patriodx-story-share-list"
+                 id="patriodxStoryShareFriends">
+
+            </div>
+
+        </section>
+    `;
+
+    const list = dialog.querySelector(
+        "#patriodxStoryShareFriends"
+    );
+
+    const searchInput = dialog.querySelector(
+        "#patriodxStoryShareSearch"
+    );
+
+    if (!friends.length) {
+        list.innerHTML = `
+            <p class="patriodx-story-share-empty">
+                No friends available.
+            </p>
+        `;
+    } else {
+        friends.sort((a, b) => {
+            const nameA = a.display_name || a.username || "";
+            const nameB = b.display_name || b.username || "";
+
+            return nameA.localeCompare(nameB);
+        });
+
+        friends.forEach(profile => {
+            const button = document.createElement("button");
+
+            button.type = "button";
+            button.className = "patriodx-story-share-recipient";
+            button.dataset.shareUser = profile.id;
+
+            const avatar = document.createElement("span");
+            avatar.className = "patriodx-story-share-avatar-placeholder";
+
+            if (profile.avatar_url) {
+                const image = document.createElement("img");
+                image.src = profile.avatar_url;
+                image.alt = "";
+                avatar.appendChild(image);
+            } else {
+                avatar.innerHTML = '<i data-lucide="user"></i>';
+            }
+
+            const information = document.createElement("span");
+            information.className = "patriodx-story-share-friend-info";
+
+            const name = document.createElement("strong");
+            name.textContent =
                 profile.display_name ||
                 profile.username ||
-                "PATRIODX User";
+                "PATRIODX user";
 
-            return `
-                <button type="button"
-                    class="patriodx-story-share-recipient"
-                    data-share-conversation="${safe(conversationId)}"
-                    data-share-user="${safe(userId)}">
+            const username = document.createElement("small");
+            username.textContent = profile.username
+                ? `@${profile.username}`
+                : "";
 
-                    ${
-                        profile.avatar_url
-                            ? `<img src="${safe(profile.avatar_url)}" alt="">`
-                            : `<span class="patriodx-story-share-avatar-placeholder">👤</span>`
-                    }
+            information.append(name, username);
 
-                    <span>${safe(name)}</span>
+            const send = document.createElement("span");
+            send.className = "patriodx-story-share-send";
+            send.textContent = "Send";
 
-                    <span class="patriodx-story-share-send">Send</span>
-                </button>
-            `;
-        })
-        .filter(Boolean)
-        .join("");
-
-    dialog.innerHTML = `
-        <div class="patriodx-story-share-panel">
-
-            <div class="patriodx-story-share-header">
-                <strong>Share story</strong>
-
-                <button type="button"
-                    data-close-story-share
-                    aria-label="Close">×</button>
-            </div>
-
-            <div class="patriodx-story-share-list">
-                ${
-                    recipientRows ||
-                    `<p class="patriodx-story-share-empty">
-                        No conversations available.
-                    </p>`
-                }
-            </div>
-
-        </div>
-    `;
+            button.append(avatar, information, send);
+            list.appendChild(button);
+        });
+    }
 
     document.body.appendChild(dialog);
 
-    dialog.addEventListener("click", async event => {
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
 
-        if (
-            event.target === dialog ||
-            event.target.closest("[data-close-story-share]")
-        ) {
-            dialog.remove();
+    // Search only within mutual friends.
+    searchInput.addEventListener("input", function () {
+        const query = this.value.trim().toLowerCase();
+
+        list.querySelectorAll(
+            ".patriodx-story-share-recipient"
+        ).forEach(button => {
+            const profile = friends.find(
+                item => String(item.id) === button.dataset.shareUser
+            );
+
+            if (!profile) return;
+
+            const searchable = [
+                profile.display_name,
+                profile.username
+            ].filter(Boolean).join(" ").toLowerCase();
+
+            button.style.display = searchable.includes(query)
+                ? "flex"
+                : "none";
+        });
+    });
+
+    // Back closes only the Share page.
+    // The story viewer remains open underneath.
+    dialog.addEventListener("click", async function (event) {
+        const backButton = event.target.closest(
+            "[data-close-story-share]"
+        );
+
+     if (backButton) {
+    dialog.remove();
+    resumePATRIODXStoryProgress();
+    return;
+}
+        const friendButton = event.target.closest(
+            "[data-share-user]"
+        );
+
+        if (!friendButton || friendButton.disabled) return;
+
+        const userId = friendButton.dataset.shareUser;
+
+        const profile = friends.find(
+            item => String(item.id) === String(userId)
+        );
+
+        if (!profile) return;
+
+        friendButton.disabled = true;
+
+        const sendLabel = friendButton.querySelector(
+            ".patriodx-story-share-send"
+        );
+
+        if (sendLabel) {
+            sendLabel.textContent = "Opening...";
+        }
+
+        // Create or retrieve the direct conversation.
+        const conversationCreated =
+            await createConversationWithUser(
+                profile.id,
+                profile
+            );
+
+        if (!conversationCreated || !activeConversationId) {
+            friendButton.disabled = false;
+
+            if (sendLabel) {
+                sendLabel.textContent = "Send";
+            }
+
             return;
         }
 
-        const button = event.target.closest(
-            "[data-share-conversation]"
-        );
+        const conversationId = activeConversationId;
 
-        if (!button) return;
-
-        const conversationId = button.dataset.shareConversation;
-        const userId = button.dataset.shareUser;
-        const profile = profileMap.get(userId);
-
-        if (!conversationId || !profile) return;
-
-        button.disabled = true;
-        button.querySelector(".patriodx-story-share-send").textContent =
-            "Sending...";
-
+        // Close the Share page, then send the story.
         dialog.remove();
 
         await sendPATRIODXStoryToConversation(
             story,
             conversationId,
-            profile
+            profile,
+            "",
+            true
         );
     });
 }

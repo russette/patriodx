@@ -29044,3 +29044,181 @@ body.dark-mode .patriodx-story-share-recipient:hover {
     overscroll-behavior: none !important;
     z-index: 999999 !important;
 }
+/* =========================================================
+   PATRIODX — FULL-SCREEN STORY SHARE PAGE
+========================================================= */
+
+.patriodx-story-share-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 1000001 !important;
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    background: var(--card-bg, #fff) !important;
+}
+
+.patriodx-story-share-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 650px !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+    border-radius: 0 !important;
+    background: var(--card-bg, #fff) !important;
+    color: var(--text-color, #111827) !important;
+}
+
+.patriodx-story-share-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 16px !important;
+    min-height: 76px !important;
+    padding: 16px 20px !important;
+    border-bottom: 1px solid var(--border-color, #e2e8f0) !important;
+}
+
+.patriodx-story-share-header > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.patriodx-story-share-header > div strong {
+    font-size: 17px;
+}
+
+.patriodx-story-share-header > div span {
+    font-size: 12px;
+    opacity: .65;
+}
+
+.patriodx-story-share-header .patriodx-story-share-back {
+    display: grid !important;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.patriodx-story-share-header .patriodx-story-share-back:hover {
+    background: var(--hover-bg, #f1f5f9);
+}
+
+.patriodx-story-share-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 18px 20px 12px;
+    padding: 12px 15px;
+    border-radius: 12px;
+    background: var(--hover-bg, #f1f5f9);
+}
+
+.patriodx-story-share-search input {
+    width: 100%;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+}
+
+.patriodx-story-share-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 16px 24px;
+    overscroll-behavior: contain;
+}
+
+.patriodx-story-share-recipient {
+    display: flex !important;
+    align-items: center !important;
+    gap: 13px !important;
+    width: 100% !important;
+    padding: 13px 10px !important;
+    border: 0 !important;
+    border-radius: 12px !important;
+    background: transparent !important;
+    color: inherit !important;
+    text-align: left;
+    cursor: pointer;
+}
+
+.patriodx-story-share-recipient:hover {
+    background: var(--hover-bg, #f1f5f9) !important;
+}
+
+.patriodx-story-share-recipient:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+.patriodx-story-share-recipient img,
+.patriodx-story-share-avatar-placeholder {
+    display: grid;
+    place-items: center;
+    flex: 0 0 46px;
+    width: 46px;
+    height: 46px;
+    overflow: hidden;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--hover-bg, #f1f5f9);
+}
+
+.patriodx-story-share-friend-info {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.patriodx-story-share-friend-info strong {
+    font-size: 14px;
+}
+
+.patriodx-story-share-friend-info small {
+    font-size: 12px;
+    opacity: .65;
+}
+
+.patriodx-story-share-recipient .patriodx-story-share-send {
+    padding: 8px 15px;
+    border-radius: 20px;
+    background: var(--primary-color, #6d28d9);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.patriodx-story-share-empty {
+    padding: 30px 15px;
+    text-align: center;
+    opacity: .65;
+}
+
+body.dark-mode .patriodx-story-share-overlay,
+body.dark-mode .patriodx-story-share-panel {
+    background: #111827 !important;
+    color: #f1f5f9 !important;
+}
+
+body.dark-mode .patriodx-story-share-search {
+    background: #1f2937;
+}
+
+body.dark-mode .patriodx-story-share-recipient:hover {
+    background: #273449 !important;
+}
