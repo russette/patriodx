@@ -28874,3 +28874,11 @@ body.dark-mode .patriodx-story-share-panel {
 body.dark-mode .patriodx-story-share-recipient:hover {
     background: #273449;
 }
+/* PATRIODX — HIDE MOBILE NAV WHILE STORY VIEWER IS OPEN */
+@media (max-width: 768px) {
+    body:has(#patriodxStoryViewer[style*="display: flex"]) #mobileBottomNav {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+}
