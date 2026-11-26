@@ -6161,6 +6161,70 @@ function hidePATRIODXSplash() {
         splash.remove();
     }, 500);
 }
+// =========================================================
+// PATRIODX — REALTIME STORY FEED UPDATES
+// =========================================================
+
+let patriodxStoryFeedChannel = null;
+let patriodxStoryFeedRefreshTimer = null;
+let patriodxStoryFeedRefreshPending = false;
+
+function setupPATRIODXStoryFeedRealtime() {
+
+    if (!currentUser || !supabaseClient) return;
+
+    if (patriodxStoryFeedChannel) {
+        supabaseClient.removeChannel(patriodxStoryFeedChannel);
+        patriodxStoryFeedChannel = null;
+    }
+
+    patriodxStoryFeedChannel = supabaseClient
+        .channel(`patriodx-story-feed-${currentUser.id}`)
+        .on(
+            "postgres_changes",
+            {
+                event: "*",
+                schema: "public",
+                table: "stories"
+            },
+            () => {
+
+                clearTimeout(patriodxStoryFeedRefreshTimer);
+
+                patriodxStoryFeedRefreshTimer = setTimeout(() => {
+
+                    const viewer = document.getElementById(
+                        "patriodxStoryViewer"
+                    );
+
+                    if (viewer && viewer.style.display === "flex") {
+                        patriodxStoryFeedRefreshPending = true;
+                        return;
+                    }
+
+                    loadPATRIODXStories().catch(error => {
+                        console.error(
+                            "Story feed realtime refresh failed:",
+                            error
+                        );
+                    });
+
+                }, 400);
+            }
+        )
+        .subscribe(status => {
+
+            if (
+                status === "CHANNEL_ERROR" ||
+                status === "TIMED_OUT"
+            ) {
+                console.error(
+                    "Story feed realtime subscription failed:",
+                    status
+                );
+            }
+        });
+}
 async function startPATRIODX() {
 
     const authenticated =
@@ -6172,9 +6236,12 @@ async function startPATRIODX() {
     updatePlanUsage();
    await window.loadMyProfile();
 
-    // Load stories after restoring the signed-in user.
-    await loadPATRIODXStories();
-    await setupPATRIODXGlobalPresence();
+  // Load stories and activate live story updates.
+await loadPATRIODXStories();
+setupPATRIODXStoryFeedRealtime();
+setupPATRIODXOwnStoryEngagementRealtime();
+
+await setupPATRIODXGlobalPresence();
     setupNotifications();
     loadPlan();
 
@@ -8520,19 +8587,94 @@ async function loadPATRIODXStories() {
         ascending: false
     });
 
-        if (error) {
+           if (error) {
             throw error;
         }
 
-        storiesContainer.innerHTML = "";
+        // AUTOMATIC STORY EXPIRATION
+        clearTimeout(window.patriodxStoryExpiryTimer);
 
-        patriodxStoryViewerStories = [];
-        patriodxStoryViewerIndex = 0;
+        if (stories && stories.length > 0) {
 
-        if (!stories || stories.length === 0) {
-            return;
+            const expiryTimes = stories
+                .map(story => new Date(story.expires_at).getTime())
+                .filter(time => Number.isFinite(time) && time > Date.now());
+
+            if (expiryTimes.length > 0) {
+
+                const nextExpiry = Math.min(...expiryTimes);
+
+                window.patriodxStoryExpiryTimer = setTimeout(() => {
+
+                    const viewer = document.getElementById(
+                        "patriodxStoryViewer"
+                    );
+
+                    if (viewer && viewer.style.display === "flex") {
+                        patriodxStoryFeedRefreshPending = true;
+                        return;
+                    }
+
+                    loadPATRIODXStories().catch(error => {
+                        console.error(
+                            "Automatic story expiration refresh failed:",
+                            error
+                        );
+                    });
+
+                }, Math.max(0, nextExpiry - Date.now()) + 100);
+            }
         }
 
+       storiesContainer.innerHTML = "";
+
+patriodxStoryViewerStories = [];
+patriodxStoryViewerIndex = 0;
+
+// YOUR STORY — ALWAYS FIRST
+const yourStoryButton =
+    document.getElementById("yourStoryButton");
+
+const yourStoryAdd =
+    yourStoryButton?.querySelector(".social-story-add");
+
+if (yourStoryButton) {
+
+    yourStoryButton.removeAttribute("onclick");
+
+    yourStoryButton.classList.remove(
+        "story-unviewed",
+        "story-viewed"
+    );
+
+    yourStoryButton.onclick = function () {
+
+        const ownStoryIndex =
+            patriodxStoryViewerStories.findIndex(
+                story => story.user_id === currentUser.id
+            );
+
+        if (ownStoryIndex !== -1) {
+            openPATRIODXStoryViewer(ownStoryIndex);
+        } else {
+            openAddStoryModal();
+        }
+    };
+}
+
+if (yourStoryAdd && yourStoryAdd.dataset.ready !== "true") {
+
+    yourStoryAdd.dataset.ready = "true";
+
+    yourStoryAdd.addEventListener("click", function (event) {
+        event.stopPropagation();
+        openAddStoryModal();
+    });
+}
+
+if (!stories || stories.length === 0) {
+    return;
+}
         const userIds = [
             ...new Set(
                 stories.map(
@@ -8596,12 +8738,22 @@ if (currentUser) {
                 profile: profile,
                 name: name
             };
+patriodxStoryViewerStories.push(
+    storyData
+);
 
-            patriodxStoryViewerStories.push(
-                storyData
-            );
+// Keep own stories in the viewer data,
+// but never add them to the other-users list.
+if (story.user_id === currentUser.id) {
 
-           const storyButton =
+    if (yourStoryButton) {
+        yourStoryButton.classList.add("story-unviewed");
+    }
+
+    return;
+}
+
+const storyButton =
     document.createElement("button");
 
 storyButton.type = "button";
@@ -8855,20 +9007,25 @@ async function setupPATRIODXStoryViewers(story) {
 
     if (!isOwner) return;
 
-    button.dataset.storyId = story.id;
-   button.innerHTML = '<i data-lucide="eye"></i><span class="story-view-count">...</span>';
-    const { data, error } = await supabaseClient
-        .from("story_views")
-        .select("viewer_id")
-        .eq("story_id", story.id);
+  button.dataset.storyId = story.id;
 
-    if (error) {
-        console.error("Could not load story viewers:", error);
-        button.textContent = "Viewers unavailable";
-        return;
-    }
+button.innerHTML =
+    '<i data-lucide="eye"></i><span class="story-view-count">...</span>';
 
-    const total = (data || []).length;
+const { count, error } = await supabaseClient
+    .from("story_views")
+    .select("viewer_id", {
+        count: "exact",
+        head: true
+    })
+    .eq("story_id", story.id);
+
+if (error) {
+    console.error("Could not load story viewers:", error);
+    return;
+}
+
+const total = count || 0;
 
     button.innerHTML =
     `<i data-lucide="eye"></i><span class="story-view-count">${total.toLocaleString()}</span>`;
@@ -9009,43 +9166,58 @@ async function loadPATRIODXStoryViewers(storyId) {
         lucide.createIcons();
     }
 }
+let patriodxStoryViewerScrollState = null;
+
 function openPATRIODXStoryViewer(index) {
 
-    const viewer =
-        document.getElementById(
-            "patriodxStoryViewer"
-        );
+    const viewer = document.getElementById(
+        "patriodxStoryViewer"
+    );
 
-    if (!viewer) {
-        console.error(
-            "PATRIODX story viewer was not found."
-        );
+    if (!viewer || !patriodxStoryViewerStories.length) {
         return;
     }
 
-    if (
-        !patriodxStoryViewerStories.length
-    ) {
-        return;
+    // Save the original page position and body styles.
+    if (!patriodxStoryViewerScrollState) {
+
+        patriodxStoryViewerScrollState = {
+            scrollY: window.scrollY,
+
+            position: document.body.style.position,
+            top: document.body.style.top,
+            left: document.body.style.left,
+            right: document.body.style.right,
+            width: document.body.style.width,
+            overflow: document.body.style.overflow,
+
+            htmlOverflow: document.documentElement.style.overflow
+        };
+
+        // Completely freeze the background page.
+        document.body.style.position = "fixed";
+        document.body.style.top =
+            `-${patriodxStoryViewerScrollState.scrollY}px`;
+        document.body.style.left = "0";
+        document.body.style.right = "0";
+        document.body.style.width = "100%";
+        document.body.style.overflow = "hidden";
+
+        document.documentElement.style.overflow = "hidden";
     }
 
-    patriodxStoryViewerIndex =
-        Math.max(
-            0,
-            Math.min(
-                index,
-                patriodxStoryViewerStories.length - 1
-            )
-        );
+    patriodxStoryViewerIndex = Math.max(
+        0,
+        Math.min(
+            index,
+            patriodxStoryViewerStories.length - 1
+        )
+    );
 
     viewer.style.display = "flex";
 
-    document.body.style.overflow = "hidden";
-
     renderPATRIODXStoryViewer();
 }
-
-
 async function renderPATRIODXStoryViewer() {
 
     const story =
@@ -9224,14 +9396,278 @@ video.addEventListener("loadedmetadata", function () {
 
         startPATRIODXStoryProgress(10);
     }
-    await setupPATRIODXStoryActions(story);
-    await recordPATRIODXStoryView(
-        story
-    );
+  await recordPATRIODXStoryView(story);
+
+await setupPATRIODXStoryActions(story);
+
 await setupPATRIODXStoryViewers(story);
+
+await subscribePATRIODXStoryEngagement(story);
     if (typeof lucide !== "undefined") {
         lucide.createIcons();
     }
+}
+// =========================================================
+// LIVE ENGAGEMENT UPDATES FOR THE STORY OWNER
+// =========================================================
+
+function setupPATRIODXOwnStoryEngagementRealtime() {
+
+    if (!currentUser || !supabaseClient) return;
+
+    if (window.patriodxOwnStoryEngagementChannel) {
+        supabaseClient.removeChannel(
+            window.patriodxOwnStoryEngagementChannel
+        );
+    }
+
+    const channel = supabaseClient
+        .channel(`patriodx-own-story-engagement-${currentUser.id}`)
+
+        .on(
+            "postgres_changes",
+            {
+                event: "*",
+                schema: "public",
+                table: "story_views"
+            },
+            async payload => {
+
+                const storyId =
+                    payload.new?.story_id ||
+                    payload.old?.story_id;
+
+                const ownStory =
+                    patriodxStoryViewerStories.some(
+                        story =>
+                            String(story.id) === String(storyId) &&
+                            story.user_id === currentUser.id
+                    );
+
+                if (!ownStory) return;
+
+                const button = document.getElementById(
+                    "storyViewerViewsButton"
+                );
+
+                if (
+                    button &&
+                    button.dataset.storyId === String(storyId)
+                ) {
+                    const { count, error } = await supabaseClient
+                        .from("story_views")
+                        .select("viewer_id", {
+                            count: "exact",
+                            head: true
+                        })
+                        .eq("story_id", storyId);
+
+                    if (error) {
+                        console.error("Own story view update failed:", error);
+                        return;
+                    }
+
+                    button.innerHTML =
+                        `<i data-lucide="eye"></i><span class="story-view-count">${(count || 0).toLocaleString()}</span>`;
+
+                    if (window.lucide) lucide.createIcons();
+
+                    const panel = document.getElementById(
+                        "storyViewerViewsPanel"
+                    );
+
+                    if (panel && !panel.hidden) {
+                        await loadPATRIODXStoryViewers(storyId);
+                    }
+                }
+            }
+        )
+
+        .on(
+            "postgres_changes",
+            {
+                event: "*",
+                schema: "public",
+                table: "story_likes"
+            },
+            async payload => {
+
+                const storyId =
+                    payload.new?.story_id ||
+                    payload.old?.story_id;
+
+                const ownStory =
+                    patriodxStoryViewerStories.some(
+                        story =>
+                            String(story.id) === String(storyId) &&
+                            story.user_id === currentUser.id
+                    );
+
+                if (!ownStory) return;
+
+                const likeCount = document.querySelector(
+                    "#patriodxStoryActions .patriodx-story-like-count"
+                );
+
+                const viewer = document.getElementById(
+                    "patriodxStoryViewer"
+                );
+
+                const currentStory =
+                    patriodxStoryViewerStories[patriodxStoryViewerIndex];
+
+                if (
+                    likeCount &&
+                    viewer?.style.display === "flex" &&
+                    String(currentStory?.id) === String(storyId)
+                ) {
+                    const { count, error } = await supabaseClient
+                        .from("story_likes")
+                        .select("id", {
+                            count: "exact",
+                            head: true
+                        })
+                        .eq("story_id", storyId);
+
+                    if (error) {
+                        console.error("Own story like update failed:", error);
+                        return;
+                    }
+
+                    likeCount.textContent = `${count || 0} likes`;
+                }
+            }
+        )
+
+        .subscribe(status => {
+
+            if (
+                status === "CHANNEL_ERROR" ||
+                status === "TIMED_OUT"
+            ) {
+                console.error(
+                    "Own story engagement subscription failed:",
+                    status
+                );
+            }
+        });
+
+    window.patriodxOwnStoryEngagementChannel = channel;
+}
+/* PATRIODX — LIVE STORY ENGAGEMENT */
+
+async function subscribePATRIODXStoryEngagement(story) {
+
+    if (!story || !story.id || !supabaseClient) return;
+
+    if (window.patriodxStoryEngagementChannel) {
+        await supabaseClient.removeChannel(
+            window.patriodxStoryEngagementChannel
+        );
+
+        window.patriodxStoryEngagementChannel = null;
+    }
+
+    const channel = supabaseClient
+        .channel(`patriodx-story-${story.id}`)
+         .on(
+            "postgres_changes",
+            {
+                event: "*",
+                schema: "public",
+                table: "story_views",
+                filter: `story_id=eq.${story.id}`
+            },
+            async () => {
+
+                const { count, error } = await supabaseClient
+                    .from("story_views")
+                    .select("viewer_id", {
+                        count: "exact",
+                        head: true
+                    })
+                    .eq("story_id", story.id);
+
+                if (error) {
+                    console.error("Live story views error:", error);
+                    return;
+                }
+
+                const button = document.getElementById(
+                    "storyViewerViewsButton"
+                );
+
+                if (
+                    button &&
+                    button.dataset.storyId === String(story.id)
+                ) {
+                    button.innerHTML = `
+                        <i data-lucide="eye"></i>
+                        <span class="story-view-count">${count || 0}</span>
+                    `;
+
+                    if (window.lucide) {
+                        lucide.createIcons();
+                    }
+                }
+
+                const panel = document.getElementById(
+                    "storyViewerViewsPanel"
+                );
+
+                if (panel && !panel.hidden) {
+                    await loadPATRIODXStoryViewers(story.id);
+                }
+            }
+        )
+
+        .on(
+            "postgres_changes",
+            {
+                event: "*",
+                schema: "public",
+                table: "story_likes",
+                filter: `story_id=eq.${story.id}`
+            },
+            async () => {
+
+                const { count, error } = await supabaseClient
+                    .from("story_likes")
+                    .select("id", {
+                        count: "exact",
+                        head: true
+                    })
+                    .eq("story_id", story.id);
+
+                if (error) {
+                    console.error("Live story likes error:", error);
+                    return;
+                }
+
+                const likeCount = document.querySelector(
+                    "#patriodxStoryActions .patriodx-story-like-count"
+                );
+
+                if (likeCount) {
+                    likeCount.textContent = `${count || 0} likes`;
+                }
+            }
+        )
+
+        .subscribe(status => {
+
+            if (
+                status === "CHANNEL_ERROR" ||
+                status === "TIMED_OUT"
+            ) {
+                console.error(
+                    "Story engagement subscription failed:",
+                    status
+                );
+            }
+        });
+
+    window.patriodxStoryEngagementChannel = channel;
 }
 /* =========================================================
    PATRIODX STORY LIKE, REPLY AND SHARE
@@ -9407,13 +9843,15 @@ async function setupPATRIODXStoryActions(story) {
                     throw new Error("Could not open conversation.");
                 }
 
-                const storyMessage =
-                    createPATRIODXStoryMessageContent(story, replyText);
+                if (!messageInput || !messageForm) {
+    throw new Error("Messaging form is unavailable.");
+}
 
-                document.getElementById("storyViewerClose")?.click();
+// Send a normal text reply, not a shared-story card.
+document.getElementById("storyViewerClose")?.click();
 
-                messageInput.value = storyMessage;
-                messageForm.requestSubmit();
+messageInput.value = replyText;
+messageForm.requestSubmit();
 
             } catch (error) {
 
@@ -9583,44 +10021,76 @@ function showNextPATRIODXStory() {
 
 function closePATRIODXStoryViewer() {
 
-    clearTimeout(
-        patriodxStoryViewerTimer
-    );
+    clearTimeout(patriodxStoryViewerTimer);
 
-    const viewer =
-        document.getElementById(
-            "patriodxStoryViewer"
-        );
+    const viewer = document.getElementById(
+        "patriodxStoryViewer"
+    );
 
     if (viewer) {
         viewer.style.display = "none";
     }
 
-    document.body.style.overflow = "";
-
-    const progress =
-        document.getElementById(
-            "storyViewerProgress"
-        );
+    const progress = document.getElementById(
+        "storyViewerProgress"
+    );
 
     if (progress) {
-
         progress.style.transition = "none";
-
         progress.style.width = "0%";
     }
 
-    const viewerContent =
-        document.getElementById(
-            "storyViewerContent"
-        );
+    const viewerContent = document.getElementById(
+        "storyViewerContent"
+    );
 
     if (viewerContent) {
         viewerContent.innerHTML = "";
     }
+
+    // Restore the exact background page state.
+    if (patriodxStoryViewerScrollState) {
+
+        const saved = patriodxStoryViewerScrollState;
+
+        document.body.style.position = saved.position;
+        document.body.style.top = saved.top;
+        document.body.style.left = saved.left;
+        document.body.style.right = saved.right;
+        document.body.style.width = saved.width;
+        document.body.style.overflow = saved.overflow;
+
+        document.documentElement.style.overflow =
+            saved.htmlOverflow;
+
+        patriodxStoryViewerScrollState = null;
+
+        window.scrollTo(0, saved.scrollY);
+    }
+        // Remove the current story's engagement subscription.
+    if (window.patriodxStoryEngagementChannel) {
+        supabaseClient.removeChannel(
+            window.patriodxStoryEngagementChannel
+        );
+
+        window.patriodxStoryEngagementChannel = null;
+    }
+
+    // Refresh story circles if an update arrived while viewing.
+    if (patriodxStoryFeedRefreshPending) {
+
+        patriodxStoryFeedRefreshPending = false;
+
+        setTimeout(() => {
+            loadPATRIODXStories().catch(error => {
+                console.error(
+                    "Deferred story refresh failed:",
+                    error
+                );
+            });
+        }, 150);
+    }
 }
-
-
 function formatPATRIODXStoryTime(
     createdAt
 ) {

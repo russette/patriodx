@@ -29030,3 +29030,17 @@ body.dark-mode .patriodx-story-share-recipient:hover {
         gap: 6px;
     }
 }
+/* PATRIODX — INDEPENDENT FULL-SCREEN STORY VIEWER */
+
+#patriodxStoryViewer {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-width: none !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+    z-index: 999999 !important;
+}
