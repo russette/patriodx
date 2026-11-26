@@ -28882,3 +28882,151 @@ body.dark-mode .patriodx-story-share-recipient:hover {
         pointer-events: none !important;
     }
 }
+/* PATRIODX — STORY REPLY AND SHARE ON ONE ROW */
+.patriodx-story-actions {
+    display: flex;
+    flex-wrap: nowrap !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.patriodx-story-reply-form {
+    flex: 1 1 auto;
+    width: auto;
+    max-width: none;
+    min-width: 0;
+}
+
+.patriodx-story-reply-form input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.patriodx-story-reply-form button,
+.patriodx-story-share-button {
+    flex: 0 0 auto;
+}
+
+@media (max-width: 380px) {
+    .patriodx-story-actions {
+        gap: 6px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .patriodx-story-reply-form button,
+    .patriodx-story-share-button {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+/* PATRIODX — STORY OWNER CONTROLS */
+#storyViewerInsights {
+    position: absolute !important;
+    left: 18px !important;
+    right: auto !important;
+    bottom: 25px !important;
+    width: auto !important;
+    transform: none !important;
+    z-index: 10030;
+}
+
+#storyViewerViewsButton {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: auto !important;
+    min-width: 44px;
+    min-height: 38px;
+    padding: 7px 11px;
+    border-radius: 22px;
+}
+
+#storyViewerViewsButton svg {
+    width: 17px;
+    height: 17px;
+}
+
+#storyViewerViewsPanel {
+    left: 0;
+    bottom: 48px;
+    width: min(290px, calc(100vw - 36px));
+}
+
+/* Owner's Share sits immediately beside the eye button. */
+.patriodx-story-actions:has(.patriodx-story-share-button):not(:has(.patriodx-story-reply-form)) {
+    position: absolute;
+    left: 78px;
+    right: auto;
+    bottom: 25px;
+    width: auto;
+    padding: 0;
+    display: flex;
+    justify-content: flex-start;
+    gap: 0;
+}
+
+.patriodx-story-actions:has(.patriodx-story-share-button):not(:has(.patriodx-story-reply-form))
+.patriodx-story-share-button {
+    min-height: 38px;
+    padding: 7px 12px;
+    border-radius: 22px;
+    font-size: 13px;
+}
+
+/* Other people's stories: Reply and Share share the same row. */
+.patriodx-story-actions:has(.patriodx-story-reply-form) {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    align-items: center;
+    gap: 8px;
+    bottom: 20px;
+}
+
+.patriodx-story-actions:has(.patriodx-story-reply-form)
+.patriodx-story-like-button {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.patriodx-story-actions:has(.patriodx-story-reply-form)
+.patriodx-story-like-count {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.patriodx-story-actions:has(.patriodx-story-reply-form)
+.patriodx-story-reply-form {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+}
+
+.patriodx-story-actions:has(.patriodx-story-reply-form)
+.patriodx-story-share-button {
+    grid-column: 2;
+    grid-row: 2;
+    min-height: 44px;
+    white-space: nowrap;
+}
+
+@media (max-width: 380px) {
+    #storyViewerInsights {
+        left: 10px !important;
+    }
+
+    .patriodx-story-actions:has(.patriodx-story-share-button):not(:has(.patriodx-story-reply-form)) {
+        left: 68px;
+    }
+
+    .patriodx-story-actions:has(.patriodx-story-reply-form) {
+        padding-left: 10px;
+        padding-right: 10px;
+        gap: 6px;
+    }
+}

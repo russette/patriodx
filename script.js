@@ -8856,8 +8856,7 @@ async function setupPATRIODXStoryViewers(story) {
     if (!isOwner) return;
 
     button.dataset.storyId = story.id;
-    button.textContent = "Loading viewers...";
-
+   button.innerHTML = '<i data-lucide="eye"></i><span class="story-view-count">...</span>';
     const { data, error } = await supabaseClient
         .from("story_views")
         .select("viewer_id")
@@ -8871,8 +8870,12 @@ async function setupPATRIODXStoryViewers(story) {
 
     const total = (data || []).length;
 
-    button.textContent =
-        `${total.toLocaleString()} ${total === 1 ? "view" : "views"}`;
+    button.innerHTML =
+    `<i data-lucide="eye"></i><span class="story-view-count">${total.toLocaleString()}</span>`;
+
+if (window.lucide) {
+    lucide.createIcons();
+}
 }
 
 
@@ -9219,7 +9222,7 @@ video.addEventListener("loadedmetadata", function () {
 
         viewerContent.appendChild(image);
 
-        startPATRIODXStoryProgress(5);
+        startPATRIODXStoryProgress(10);
     }
     await setupPATRIODXStoryActions(story);
     await recordPATRIODXStoryView(
@@ -15705,7 +15708,6 @@ async function openPATRIODXSharedStory(storyId) {
 /* =========================================================
    PATRIODX — SEND STORY TO A CONVERSATION
 ========================================================= */
-
 async function sendPATRIODXStoryToConversation(
     story,
     conversationId,
@@ -15719,23 +15721,31 @@ async function sendPATRIODXStoryToConversation(
         replyText
     );
 
-    // Close the story viewer before opening Messaging.
-    document.getElementById("storyViewerClose")?.click();
+    // Close the story viewer without triggering another click handler.
+    closePATRIODXStoryViewer();
 
-    const opened = await openConversation(
+    // Switch to Messaging before opening the conversation.
+    navigatePATRIODX("messaging");
+
+    await openConversation(
         conversationId,
         profile
     );
 
-    if (!opened || !activeConversationId) return;
+    // Confirm that the requested conversation actually opened.
+    if (activeConversationId !== conversationId) {
+        showPATRIODXToast(
+            "Could not open the selected conversation.",
+            "error"
+        );
+        return;
+    }
+
+    if (!messageInput || !messageForm) return;
 
     messageInput.value = storyMessage;
-
-    if (messageForm) {
-        messageForm.requestSubmit();
-    }
+    messageForm.requestSubmit();
 }
-
 
 /* =========================================================
    PATRIODX — STORY SHARE RECIPIENTS
