@@ -15349,6 +15349,32 @@ async function createConversationWithUser(
 /* =========================================================
    LOAD CONVERSATIONS — PATRIODX
 ========================================================= */
+function updateMessageUnreadBadge(totalUnread) {
+
+    const unreadCount = Math.max(
+        0,
+        Number(totalUnread) || 0
+    );
+
+    const badges = [
+        document.getElementById("messageUnreadBadge"),
+        document.getElementById("mobileMessageBadge")
+    ].filter(Boolean);
+
+    badges.forEach(badge => {
+
+        if (unreadCount === 0) {
+            badge.style.display = "none";
+            badge.textContent = "0";
+            return;
+        }
+
+        badge.textContent =
+            unreadCount > 99 ? "99+" : String(unreadCount);
+
+        badge.style.display = "inline-flex";
+    });
+}
 async function loadConversations({ silent = false } = {}) {
 
     if (!currentUser || !conversationList) {
@@ -15391,9 +15417,11 @@ async function loadConversations({ silent = false } = {}) {
             )
         ];
 
-        if (!conversationIds.length) {
+      if (!conversationIds.length) {
 
-            conversationList.innerHTML = `
+    updateMessageUnreadBadge(0);
+
+    conversationList.innerHTML = `
                 <div class="messaging-empty-state">
                     <div><i data-lucide="message-circle"></i></div>
                     <h3>No conversations yet</h3>
@@ -15451,9 +15479,11 @@ if (allMembersError) {
                 );
             });
 
-        if (!visibleConversations.length) {
+      if (!visibleConversations.length) {
 
-            conversationList.innerHTML = `
+    updateMessageUnreadBadge(0);
+
+    conversationList.innerHTML = `
                 <div class="messaging-empty-state">
                     <div><i data-lucide="message-circle"></i></div>
                     <h3>No conversations yet</h3>
@@ -15554,6 +15584,12 @@ const unreadMessageCountMap = new Map();
     );
 
 });
+
+const totalUnreadMessages = [
+    ...unreadMessageCountMap.values()
+].reduce((total, count) => total + count, 0);
+
+updateMessageUnreadBadge(totalUnreadMessages);
         /* SORT BY MOST RECENT ACTIVITY */
 
         visibleConversations.sort((a, b) => {

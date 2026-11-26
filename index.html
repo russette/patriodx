@@ -299,10 +299,15 @@ body {
     <span><i data-lucide="bookmark"></i></span>
     <span>Saved Posts</span>
 </a>
-    <a href="#messaging" class="sidebar-link" data-page="messaging">
-        <span><i data-lucide="message-circle"></i></span>
-        <span data-i18n="messages">Messages</span>
-    </a>
+   <a href="#messaging" class="sidebar-link" data-page="messaging">
+    <span><i data-lucide="message-circle"></i></span>
+    <span data-i18n="messages">Messages</span>
+    <span
+        id="messageUnreadBadge"
+        class="notification-unread-badge"
+        style="display: none;"
+    >0</span>
+</a>
 
    <a href="#notifications" class="sidebar-link" data-page="notifications">
     <span class="sidebar-notification-icon">
