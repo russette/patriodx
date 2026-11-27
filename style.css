@@ -1,4 +1,4 @@
-﻿/* =========================================================
+/* =========================================================
    BUSINESSOS
    PROFESSIONAL BUSINESS MANAGEMENT SYSTEM
    COMPLETE REPLACEMENT CSS
@@ -7818,7 +7818,7 @@ body.dark-mode .social-post-menu-inner > button:hover {
         height: 17px;
     }
 
-   
+
 }
 /* =========================================================
    SOCIAL DYNAMIC LUCIDE ICONS
@@ -22951,7 +22951,7 @@ body.dark-mode .profile-post-viewer-author-avatar {
         overscroll-behavior: none !important;
     }
 
-   
+
 
     #patriodxCommentsSheet {
         position: fixed !important;
@@ -29221,4 +29221,116 @@ body.dark-mode .patriodx-story-share-search {
 
 body.dark-mode .patriodx-story-share-recipient:hover {
     background: #273449 !important;
+}
+/* PATRIODX — Instagram-style comment layout */
+
+.social-comment-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+    margin-bottom: 5px;
+}
+
+.social-comment-header .social-comment-author-name {
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.social-comment-header .social-comment-date {
+    display: inline-block;
+    flex-shrink: 0;
+    margin: 0;
+    color: #8e8e8e;
+    font-size: 12px;
+    opacity: 1;
+}
+
+.social-comment-header .profile-comment-like-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    margin-left: auto;
+    padding: 2px 0 2px 8px;
+    border: 0;
+    background: transparent;
+    color: #8e8e8e;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.social-comment-header .profile-comment-like-button.liked {
+    color: #ed4956;
+}
+
+.social-comment-content > .social-comment-text {
+    display: block;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.social-comment-content {
+    min-width: 0;
+    flex: 1;
+}
+
+.social-comment-content .social-comment-reply-context {
+    margin-bottom: 4px;
+}
+
+@media (max-width: 768px) {
+    .social-comment-header .social-comment-author-name {
+        font-size: 13px;
+    }
+
+    .social-comment-content > .social-comment-text {
+        font-size: 14px;
+    }
+}
+/* PATRIODX — Instagram-style flat comment replies */
+
+.social-comment-view-replies {
+    display: inline-flex;
+    align-items: center;
+    margin: 8px 0 10px 52px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #8e8e8e;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.social-comment-view-replies:hover {
+    color: inherit;
+}
+
+.social-comment-replies {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-left: 28px;
+    padding-top: 8px;
+}
+
+.social-comment-replies[hidden] {
+    display: none !important;
+}
+
+.social-comment-replies > .social-comment {
+    margin: 0;
 }

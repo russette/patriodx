@@ -1,0 +1,23 @@
+# Node dependencies
+node_modules/
+
+# Crash and diagnostic logs
+*.log
+hs_err_pid*
+replay_pid*
+
+# Android generated files
+android/.gradle/
+android/build/
+android/local.properties
+android/app/build/
+android/capacitor-cordova-android-plugins/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+# Android signing credentials and keystores
+*.jks
+*.keystore
+*.p12
+key.properties

@@ -1,4 +1,4 @@
-﻿const profileViewerCommentsCache = new Map();
+const profileViewerCommentsCache = new Map();
 const PAYSTACK_PUBLIC_KEY =
     "pk_live_e1462983063e834b226acdca9492e980762a6ddd";
 const SUPABASE_URL = "https://saerujjsfzyxkyacbvgr.supabase.co";
@@ -17,7 +17,7 @@ let invoices = [];
 let currentUser = null;
 let currentBusiness = null;
 let currentPlan = "free";
-let currentProfile = null; 
+let currentProfile = null;
 let editingProductId = null;
 /* =========================================================
    PATRIODX — UNIVERSAL POST VIEW TRACKER
@@ -4823,7 +4823,7 @@ async function verifyPatriodxPayment(reference, expectedPlan) {
 
 
        const response = await fetch(
-    "/api/",
+    "https://businessos-wine-eight.vercel.app/api/verify-payment",
             {
                 method: "POST",
 
@@ -4946,7 +4946,7 @@ async function startPlanCheckout(plan) {
         }
 
         const response = await fetch(
-            "/api/",
+"https://businessos-wine-eight.vercel.app/api/initialize-payment",
             {
                 method: "POST",
                 headers: {
@@ -6671,7 +6671,7 @@ if (aiForm) {
 
             const response =
                 await fetch(
-                   "/api/",
+                  "https://businessos-wine-eight.vercel.app/api/ai",
                     {
                         method: "POST",
 
@@ -11642,7 +11642,7 @@ ${renderPATRIODXPostLink(post.link_url)}
     </button>
 
 </div>
-                    
+
                         <!-- COMMENTS -->
 
                         <div
@@ -13440,7 +13440,7 @@ function setupSocialTagMentionButtons() {
     if (tagButton && tagButton.dataset.handlerReady !== "true") {
         tagButton.dataset.handlerReady = "true";
 
-  
+
       tagButton.addEventListener("click", async function () {
           const profile = await showPATRIODXUserPicker();
 
@@ -23520,7 +23520,7 @@ if (ownProfilePostsContent) {
     });
 
 
-   
+
     /* =====================================================
        SHOW SELECTED PAGE
     ===================================================== */
@@ -25031,7 +25031,7 @@ if (choice.trim() === "1") {
 }
 
         const response = await fetch(
-            "/api/",
+            "https://businessos-wine-eight.vercel.app/api/initialize-verification",
             {
                 method: "POST",
 
@@ -27841,36 +27841,44 @@ if (avatarUrl) {
 const content = document.createElement("div");
 content.className = "social-comment-content";
 
-const name = document.createElement("strong");
-name.className = "social-comment-author-name";
-name.textContent = author;
+// Instagram-style comment header: username, time and likes.
+const header = document.createElement("div");
+header.className = "social-comment-header";
 
-// Show verification badge immediately after display name.
-if (profile && typeof getPATRIODXBadge === "function") {
-    name.insertAdjacentHTML(
-        "beforeend",
-        getPATRIODXBadge(profile)
-    );
-}
+const usernameLink = document.createElement("button");
+usernameLink.type = "button";
+usernameLink.className = "social-comment-author-name";
+usernameLink.textContent = `@${username || "user"}`;
+usernameLink.dataset.profileUserId = profile?.id || comment.user_id;
 
-// Show username after the verification badge.
-if (username) {
-    const usernameElement = document.createElement("span");
-    usernameElement.className = "social-comment-username";
-    usernameElement.textContent = ` @${username}`;
-    name.appendChild(usernameElement);
-}
+const date = document.createElement("small");
+date.className = "social-comment-date";
+date.textContent = formatRelativeTime(comment.created_at);
+
+const commentLikeButton = document.createElement("button");
+commentLikeButton.type = "button";
+commentLikeButton.className = "profile-comment-like-button";
+commentLikeButton.dataset.commentId = comment.id;
+commentLikeButton.textContent =
+    `${userLiked ? "♥" : "♡"} ${likesForComment.length}`;
+
+commentLikeButton.setAttribute(
+    "aria-label",
+    userLiked ? "Unlike comment" : "Like comment"
+);
+
+commentLikeButton.classList.toggle("liked", userLiked);
+
+header.append(usernameLink, date, commentLikeButton);
+
 const text = document.createElement("p");
 text.className = "social-comment-text";
-text.innerHTML = renderClickableMentions(
-    comment.content || ""
-);
+text.innerHTML = renderClickableMentions(comment.content || "");
+
 let replyContext = null;
 
 if (comment.parent_comment_id) {
-    const parentComment = commentsById.get(
-        comment.parent_comment_id
-    );
+    const parentComment = commentsById.get(comment.parent_comment_id);
 
     const parentProfile = parentComment
         ? profileMap.get(parentComment.user_id)
@@ -27885,73 +27893,27 @@ if (comment.parent_comment_id) {
         const label = document.createElement("span");
         label.textContent = "Replying to ";
 
-        const usernameLink = document.createElement("button");
-        usernameLink.type = "button";
-        usernameLink.className = "social-comment-reply-username";
-        usernameLink.textContent = `@${parentUsername}`;
+        const parentUsernameLink = document.createElement("button");
+        parentUsernameLink.type = "button";
+        parentUsernameLink.className = "social-comment-reply-username";
+        parentUsernameLink.textContent = `@${parentUsername}`;
+        parentUsernameLink.dataset.profileUserId =
+            parentProfile.id || parentComment.user_id;
 
-        usernameLink.dataset.profileUserId =
-    parentProfile.id || parentComment.user_id;
-
-        replyContext.append(label, usernameLink);
+        replyContext.append(label, parentUsernameLink);
     }
 }
-            const date = document.createElement("small");
-           date.textContent = formatRelativeTime(comment.created_at);
-           if (replyContext) {
-    content.append(name, replyContext, text, date);
+
+content.appendChild(header);
+
+if (replyContext) {
+    content.append(replyContext, text);
 } else {
-    content.append(name, text, date);
+    content.appendChild(text);
 }
 
-            const actions = document.createElement("div");
-            actions.className = "social-comment-actions";
-
-            const commentLikeButton = document.createElement("button");
-            commentLikeButton.type = "button";
-            commentLikeButton.className = "profile-comment-like-button";
-            commentLikeButton.dataset.commentId = comment.id;
-            commentLikeButton.textContent =
-                `${userLiked ? "♥" : "♡"} ${likesForComment.length}`;
-            commentLikeButton.setAttribute(
-                "aria-label",
-                userLiked ? "Unlike comment" : "Like comment"
-            );
-            commentLikeButton.classList.toggle("liked", userLiked);
-
-            actions.appendChild(commentLikeButton);
-
-            const replyButton = document.createElement("button");
-            replyButton.type = "button";
-            replyButton.className = "profile-comment-reply-button";
-            replyButton.dataset.commentId = comment.id;
-            replyButton.innerHTML = '<i data-lucide="reply"></i><span>Reply</span>';
-            replyButton.setAttribute("aria-label", "Reply");
-            replyButton.title = "Reply";
-            actions.appendChild(replyButton);
-const commentAge =
-    Date.now() - new Date(comment.created_at).getTime();
-
-const canEditComment =
-    isOwner &&
-    Number.isFinite(commentAge) &&
-    commentAge >= 0 &&
-    commentAge <= 15 * 60 * 1000;
-
-// Edit: only within 15 minutes.
-if (canEditComment) {
-    const editButton = document.createElement("button");
-    editButton.type = "button";
-    editButton.className = "profile-comment-edit-button";
-    editButton.dataset.commentId = comment.id;
-    editButton.innerHTML =
-        '<i data-lucide="pencil"></i><span>Edit</span>';
-    editButton.setAttribute("aria-label", "Edit comment");
-    editButton.title = "Edit";
-
-    actions.appendChild(editButton);
-}
-
+const actions = document.createElement("div");
+actions.className = "social-comment-actions";
 // Delete: always available to the owner.
 if (isOwner) {
     const deleteButton = document.createElement("button");
@@ -28013,31 +27975,62 @@ if (isOwner) {
 
             return row;
         }
-
-    function appendCommentTree(
-    comment,
-    parentContainer = commentsContainer,
-    isReply = false
-) {
-    const row = renderComment(comment, isReply);
-
+function appendCommentTree(comment, parentContainer = commentsContainer) {
     const thread = document.createElement("div");
     thread.className = "social-comment-thread";
     thread.dataset.commentId = comment.id;
 
-    thread.appendChild(row);
+    // Original comment
+    thread.appendChild(renderComment(comment, false));
 
-    const replies = commentsByParent.get(comment.id) || [];
+    // Collect every reply and nested reply into one flat list.
+    const allReplies = [];
+    const visited = new Set([String(comment.id)]);
 
-    if (replies.length) {
-        const repliesContainer = document.createElement("div");
-        repliesContainer.className = "social-comment-replies";
+    function collectReplies(parentId) {
+        const replies = commentsByParent.get(parentId) || [];
 
         replies.forEach(reply => {
-            appendCommentTree(reply, repliesContainer, true);
+            const replyId = String(reply.id);
+
+            if (visited.has(replyId)) return;
+
+            visited.add(replyId);
+            allReplies.push(reply);
+
+            // Collect replies to replies too.
+            collectReplies(reply.id);
+        });
+    }
+
+    collectReplies(comment.id);
+
+    if (allReplies.length > 0) {
+        const repliesToggle = document.createElement("button");
+        repliesToggle.type = "button";
+        repliesToggle.className = "social-comment-view-replies";
+        repliesToggle.textContent =
+            `View ${allReplies.length} ${allReplies.length === 1 ? "reply" : "replies"}`;
+
+        const repliesContainer = document.createElement("div");
+        repliesContainer.className = "social-comment-replies";
+        repliesContainer.hidden = true;
+
+        // Every reply appears at the same indentation level.
+        allReplies.forEach(reply => {
+            repliesContainer.appendChild(renderComment(reply, true));
         });
 
-        thread.appendChild(repliesContainer);
+        repliesToggle.addEventListener("click", function () {
+            const isExpanded = !repliesContainer.hidden;
+
+            repliesContainer.hidden = isExpanded;
+            repliesToggle.textContent = isExpanded
+                ? `View ${allReplies.length} ${allReplies.length === 1 ? "reply" : "replies"}`
+                : "Hide replies";
+        });
+
+        thread.append(repliesToggle, repliesContainer);
     }
 
     parentContainer.appendChild(thread);
@@ -28285,7 +28278,7 @@ void refreshBothPostStats(postId);
 
 /* Handle comment likes, reply forms, and edit forms. */
 document.addEventListener("click", async function (event) {
-        
+
     const target = event.target;
     if (!(target instanceof Element)) return;
 

@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@capacitor/android": "^8.6.3",
+    "@capacitor/core": "^8.6.3",
     "@supabase/supabase-js": "^2.57.4"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.6.3"
   }
 }

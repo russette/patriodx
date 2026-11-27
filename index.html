@@ -16,7 +16,6 @@
         rel="stylesheet"
         href="style.css"
     >
-<link rel="stylesheet" href="x-style.css">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="assets/patriodx-favicon.png">
 <link rel="apple-touch-icon" href="assets/patriodx-apple-icon.png">
@@ -1560,7 +1559,7 @@ body {
 
 <section id="profile" class="section">
 
-   
+
     <div class="section-heading">
 
         <div>
@@ -5747,7 +5746,6 @@ body {
 
 <!-- PATRIODX JAVASCRIPT -->
 <script src="script.js"></script>
-<script src="x-style.js"></script>
 <script>
 (function () {
     function createOfflineIndicator() {
@@ -5784,7 +5782,14 @@ body {
     window.addEventListener("load", () => {
         createOfflineIndicator();
 
-       if ("serviceWorker" in navigator) {
+   if (
+    "serviceWorker" in navigator &&
+    !(
+        window.Capacitor &&
+        typeof window.Capacitor.isNativePlatform === "function" &&
+        window.Capacitor.isNativePlatform()
+    )
+) {
 
     let refreshing = false;
 
@@ -6345,4 +6350,3 @@ body {
 </section>
 </body>
 </html>
-
