@@ -1,4 +1,4 @@
-const profileViewerCommentsCache = new Map();
+﻿const profileViewerCommentsCache = new Map();
 const PAYSTACK_PUBLIC_KEY =
     "pk_live_e1462983063e834b226acdca9492e980762a6ddd";
 const SUPABASE_URL = "https://saerujjsfzyxkyacbvgr.supabase.co";
@@ -28044,7 +28044,83 @@ function appendCommentTree(comment, parentContainer = commentsContainer) {
                 appendCommentTree(comment);
             });
         }
+// PATRIODX — Open profiles from post viewer comments.
+if (!commentsContainer.dataset.profileNavigationBound) {
+    commentsContainer.dataset.profileNavigationBound = "true";
 
+    commentsContainer.addEventListener("click", function (event) {
+        const profileLink = event.target.closest("[data-profile-user-id]");
+
+        if (!profileLink || !commentsContainer.contains(profileLink)) {
+            return;
+        }
+
+        const userId = profileLink.dataset.profileUserId;
+
+        if (!userId) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        // Save the viewer's original location before closing it.
+        const returnSection =
+            window.profileViewerPreviousSection ||
+            mobilePostViewerReturnSection ||
+            "social";
+
+        const returnScrollY =
+            window.profileViewerSavedScrollY ?? window.scrollY;
+
+        // Close the post viewer before navigating to a profile.
+        if (typeof closeProfilePostViewer === "function") {
+            closeProfilePostViewer({ restoreOrigin: true });
+        }
+
+        // YOUR OWN USERNAME → YOUR OWN PROFILE.
+        if (currentUser && userId === currentUser.id) {
+            publicProfileRequestId++;
+            viewedProfileUserId = null;
+
+            document.body.classList.remove("mobile-public-profile-view");
+
+            document.getElementById("publicProfileCard")
+                ?.style.setProperty("display", "none");
+
+            document.getElementById("publicProfilePostsContainer")
+                ?.style.setProperty("display", "none");
+
+            document.getElementById("ownProfileContent")
+                ?.style.removeProperty("display");
+
+            document.getElementById("ownProfilePostsContent")
+                ?.style.removeProperty("display");
+
+            document.querySelectorAll("#profile > .section-heading")
+                .forEach(heading => heading.style.display = "");
+
+            document.getElementById("profileSearchForm")
+                ?.closest(".profile-search-card")
+                ?.style.setProperty("display", "");
+
+            navigatePATRIODX("profile");
+
+            return;
+        }
+
+        // ANOTHER USER'S USERNAME → THEIR PUBLIC PROFILE.
+        mobileProfileReturnSection = returnSection;
+        mobileProfileReturnScrollY = returnScrollY;
+
+        window.patriodxPublicProfileReturnSection = returnSection;
+        window.patriodxPublicProfileReturnScrollY = returnScrollY;
+
+        window.patriodxChatProfileReturnConversationId = null;
+
+        if (typeof loadPublicProfile === "function") {
+            void loadPublicProfile(userId);
+        }
+    });
+}
         if (window.lucide) lucide.createIcons();
 return true;
    } catch (error) {
