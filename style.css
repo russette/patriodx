@@ -1,4 +1,4 @@
-/* =========================================================
+﻿/* =========================================================
    BUSINESSOS
    PROFESSIONAL BUSINESS MANAGEMENT SYSTEM
    COMPLETE REPLACEMENT CSS
@@ -29333,4 +29333,196 @@ body.dark-mode .patriodx-story-share-recipient:hover {
 
 .social-comment-replies > .social-comment {
     margin: 0;
+}
+/* =========================================================
+   PATRIODX — OWN PROFILE TOP BAR & ACCOUNT SWITCHER
+========================================================= */
+
+.own-profile-topbar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    width: 100%;
+    min-height: 58px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    background: var(--card-bg, #ffffff);
+    z-index: 20;
+}
+
+.own-profile-return {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 0;
+    background: transparent;
+    color: var(--text-color, #222222);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 9px 0;
+}
+
+.own-profile-return i {
+    width: 19px;
+    height: 19px;
+}
+
+.own-profile-account-switcher {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    max-width: 55%;
+    padding: 9px 12px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--text-color, #222222);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.own-profile-account-switcher span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.own-profile-account-switcher i {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+}
+
+.own-profile-topbar-spacer {
+    width: 65px;
+    flex-shrink: 0;
+}
+
+/* Account switcher screen */
+
+.own-profile-account-switcher-page {
+    width: 100%;
+    min-height: 60vh;
+    padding: 16px;
+    background: var(--card-bg, #ffffff);
+    color: var(--text-color, #222222);
+}
+
+.own-profile-switcher-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+.own-profile-switcher-heading button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--hover-bg, #f3f4f6);
+    color: inherit;
+    cursor: pointer;
+}
+
+.own-profile-switcher-heading h2 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.own-profile-account-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px 0;
+}
+
+.own-profile-account-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+.own-profile-account-actions button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 12px;
+    background: var(--card-bg, #ffffff);
+    color: var(--text-color, #222222);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+
+.own-profile-account-actions button i {
+    width: 19px;
+    height: 19px;
+}
+
+.own-profile-account-actions button:hover {
+    background: var(--hover-bg, #f3f4f6);
+}
+
+@media (max-width: 768px) {
+    .own-profile-topbar {
+        min-height: 54px;
+        padding: 7px 14px;
+    }
+
+    .own-profile-account-switcher {
+        font-size: 15px;
+    }
+
+    .own-profile-account-switcher-page {
+        min-height: calc(100vh - 110px);
+    }
+}
+/* PATRIODX — REPLACE GLOBAL HEADER ON OWN PROFILE ONLY */
+
+body.own-profile-active .patriodx-header {
+    display: none !important;
+}
+
+body.own-profile-active #ownProfileTopBar {
+    display: flex !important;
+}
+
+/* Account identity rows */
+
+.own-profile-account-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 15px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 12px;
+    color: var(--text-color, #222222);
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+/* Hide own-profile top bar while account switcher is open */
+
+body.own-profile-active.own-profile-switcher-open #ownProfileTopBar {
+    display: none !important;
 }

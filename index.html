@@ -1558,8 +1558,64 @@ body {
 ========================================================= -->
 
 <section id="profile" class="section">
+<!-- PATRIODX OWN PROFILE TOP BAR -->
+<div id="ownProfileTopBar" class="own-profile-topbar">
 
+    <button
+        type="button"
+        id="ownProfileReturnButton"
+        class="own-profile-return"
+        aria-label="Return"
+    >
+        <i data-lucide="arrow-left"></i>
+        <span>Return</span>
+    </button>
 
+    <button
+        type="button"
+        id="ownProfileAccountSwitcherButton"
+        class="own-profile-account-switcher"
+        aria-label="Open account switcher"
+    >
+        <span id="ownProfileTopUsername">username</span>
+        <i data-lucide="chevron-down"></i>
+    </button>
+
+    <div class="own-profile-topbar-spacer"></div>
+
+</div>
+<!-- PATRIODX ACCOUNT SWITCHER -->
+<div id="ownProfileAccountSwitcher" class="own-profile-account-switcher-page" style="display: none;">
+
+    <div class="own-profile-switcher-heading">
+        <button
+            type="button"
+            id="ownProfileSwitcherBack"
+            aria-label="Back to profile"
+        >
+            <i data-lucide="arrow-left"></i>
+        </button>
+
+        <h2>Switch account</h2>
+    </div>
+
+    <div id="ownProfileAccountList" class="own-profile-account-list">
+        <!-- Saved account identities will appear here -->
+    </div>
+
+    <div class="own-profile-account-actions">
+        <button type="button" id="ownProfileAddAccount">
+            <i data-lucide="plus"></i>
+            <span>Add an account</span>
+        </button>
+
+        <button type="button" id="ownProfileCreateAccount">
+            <i data-lucide="user-plus"></i>
+            <span>Create a new account</span>
+        </button>
+    </div>
+
+</div>
     <div class="section-heading">
 
         <div>

@@ -19534,7 +19534,17 @@ setPATRIODXProfileBanner(
     const username =
         currentProfile.username ||
         "username";
+/* PATRIODX OWN PROFILE TOP BAR USERNAME */
 
+const ownProfileTopUsername =
+    document.getElementById("ownProfileTopUsername");
+
+if (ownProfileTopUsername) {
+    ownProfileTopUsername.textContent =
+        username.length > 8
+            ? username.substring(0, 8) + "..."
+            : username;
+}
 
     const bio =
         currentProfile.bio ||
@@ -23415,7 +23425,99 @@ function patriodxHide(element) {
         "important"
     );
 }
+/* =========================================================
+   PATRIODX OWN PROFILE NAVIGATION
+========================================================= */
 
+let ownProfileReturnPage = "home";
+
+function updateOwnProfileTopBar(page) {
+    const topBar =
+        document.getElementById("ownProfileTopBar");
+
+    const switcher =
+        document.getElementById("ownProfileAccountSwitcher");
+
+    const isOwnProfile =
+        page === "profile" &&
+        (
+            !viewedProfileUserId ||
+            String(viewedProfileUserId) === String(currentUser?.id)
+        );
+
+    document.body.classList.toggle(
+        "own-profile-active",
+        isOwnProfile
+    );
+
+    if (topBar) {
+        topBar.style.display =
+            isOwnProfile ? "flex" : "none";
+    }
+
+    if (switcher) {
+        switcher.style.display = "none";
+    }
+}
+
+function openOwnProfileAccountSwitcher() {
+    const ownContent =
+        document.getElementById("ownProfileContent");
+
+    const ownPosts =
+        document.getElementById("ownProfilePostsContent");
+
+    const switcher =
+        document.getElementById("ownProfileAccountSwitcher");
+
+    const topBar =
+        document.getElementById("ownProfileTopBar");
+
+    if (!switcher) return;
+    document.body.classList.add("own-profile-switcher-open");
+window.renderOwnProfileAccountList();
+    if (ownContent) ownContent.style.display = "none";
+    if (ownPosts) ownPosts.style.display = "none";
+
+    document.querySelectorAll("#profile > .section-heading")
+        .forEach(element => element.style.display = "none");
+
+    switcher.style.display = "block";
+
+    if (topBar) topBar.style.display = "none";
+
+    window.scrollTo({ top: 0, behavior: "instant" });
+
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+}
+
+function closeOwnProfileAccountSwitcher() {
+    const ownContent =
+        document.getElementById("ownProfileContent");
+
+    const ownPosts =
+        document.getElementById("ownProfilePostsContent");
+
+    const switcher =
+        document.getElementById("ownProfileAccountSwitcher");
+
+    const topBar =
+        document.getElementById("ownProfileTopBar");
+
+    if (switcher) switcher.style.display = "none";
+    document.body.classList.remove("own-profile-switcher-open");
+    if (ownContent) ownContent.style.removeProperty("display");
+    if (ownPosts) ownPosts.style.removeProperty("display");
+
+    document.querySelectorAll("#profile > .section-heading")
+        .forEach(element => element.style.removeProperty("display"));
+
+    if (topBar) topBar.style.display = "flex";
+
+    window.scrollTo({ top: 0, behavior: "instant" });
+}
 function navigatePATRIODX(page, options = {}) {
 if (
     page !== "messaging" &&
@@ -23430,7 +23532,19 @@ if (
    if (!PATRIODX_PAGES.includes(page)) {
     page = "home";
 }
+/* Remember where the user came from before opening own profile. */
+if (page === "profile") {
+    const previousPage = window.location.hash
+        .replace("#", "")
+        .trim();
 
+    if (previousPage && previousPage !== "profile") {
+        ownProfileReturnPage =
+            PATRIODX_PAGES.includes(previousPage)
+                ? previousPage
+                : "home";
+    }
+}
 // Mark unread notifications as read when opening Notifications.
 if (page === "notifications") {
     markNotificationsReadOnOpen();
@@ -23529,7 +23643,7 @@ if (ownProfilePostsContent) {
         document.getElementById(page);
 
     patriodxShow(selected);
-
+updateOwnProfileTopBar(page);
 if (page === "saved") {
     loadSavedPosts();
 }
@@ -23789,7 +23903,116 @@ function setupPATRIODXHeaderButtons() {
         document.querySelector(
             '[title="Your Profile"]'
         );
+/* PATRIODX OWN PROFILE TOP BAR BUTTONS */
 
+const ownProfileReturnButton =
+    document.getElementById("ownProfileReturnButton");
+
+const ownProfileAccountSwitcherButton =
+    document.getElementById("ownProfileAccountSwitcherButton");
+
+const ownProfileSwitcherBack =
+    document.getElementById("ownProfileSwitcherBack");
+const ownProfileAddAccount =
+    document.getElementById("ownProfileAddAccount");
+
+const ownProfileCreateAccount =
+    document.getElementById("ownProfileCreateAccount");
+
+const ownProfileAccountList =
+    document.getElementById("ownProfileAccountList");
+
+/* Remember account email addresses, never passwords. */
+window.renderOwnProfileAccountList = function() {
+    if (!ownProfileAccountList) return;
+
+    const storageKey = "patriodxSavedAccountEmails";
+    let savedEmails = [];
+
+    try {
+        savedEmails = JSON.parse(
+            localStorage.getItem(storageKey) || "[]"
+        );
+    } catch (error) {
+        savedEmails = [];
+    }
+
+    const currentEmail = currentUser?.email;
+
+    if (currentEmail && !savedEmails.includes(currentEmail)) {
+        savedEmails.push(currentEmail);
+        localStorage.setItem(
+            storageKey,
+            JSON.stringify(savedEmails)
+        );
+    }
+
+    ownProfileAccountList.replaceChildren();
+
+    savedEmails.forEach(email => {
+        const row = document.createElement("div");
+        row.className = "own-profile-account-row";
+
+        const label = document.createElement("span");
+        label.textContent =
+            email === currentEmail
+                ? email + " (Current account)"
+                : email;
+
+       row.appendChild(label);
+
+row.style.cursor = "pointer";
+
+row.addEventListener("click", function() {
+    const loginUrl =
+        "auth.html?mode=login&email=" +
+        encodeURIComponent(email);
+
+    window.location.href = loginUrl;
+});
+
+ownProfileAccountList.appendChild(row);
+    });
+}
+
+if (ownProfileAddAccount) {
+    ownProfileAddAccount.onclick = function() {
+        window.location.href = "auth.html?mode=login";
+    };
+}
+
+if (ownProfileCreateAccount) {
+    ownProfileCreateAccount.onclick = function() {
+        window.location.href = "auth.html?mode=signup";
+    };
+}
+if (ownProfileReturnButton) {
+    ownProfileReturnButton.onclick = function(event) {
+        event.preventDefault();
+
+        closeOwnProfileAccountSwitcher();
+
+        navigatePATRIODX(
+            PATRIODX_PAGES.includes(ownProfileReturnPage)
+                ? ownProfileReturnPage
+                : "home"
+        );
+    };
+}
+
+if (ownProfileAccountSwitcherButton) {
+    ownProfileAccountSwitcherButton.onclick = function(event) {
+        event.preventDefault();
+        openOwnProfileAccountSwitcher();
+    };
+}
+
+if (ownProfileSwitcherBack) {
+    ownProfileSwitcherBack.onclick = function(event) {
+        event.preventDefault();
+        closeOwnProfileAccountSwitcher();
+    };
+}
 
     if (notificationButton) {
 
@@ -23961,6 +24184,42 @@ function setupPATRIODXMobileMenu() {
 /* =========================================================
    PATRIODX — MOBILE PROFILE BACK CONTROLLER
 ========================================================= */
+function restoreCommentPostViewer(savedState) {
+    const viewer = document.getElementById("profilePostViewer");
+
+    if (!viewer) return;
+
+    const viewerScroll = viewer.querySelector(
+        ".profile-post-viewer-scroll"
+    );
+
+    // Restore the original profile context.
+    window.profileViewerPreviousProfileUserId =
+        savedState.originalProfileUserId;
+
+    window.profileViewerPreviousMobileView =
+        savedState.originalMobileView;
+
+    // Restore the viewer without reloading its comments.
+    viewer.style.display = "flex";
+    viewer.setAttribute("aria-hidden", "false");
+
+    document.body.style.overflow = "hidden";
+
+    window.profileViewerHistoryEntryActive = true;
+
+    requestAnimationFrame(() => {
+        if (viewerScroll) {
+            viewerScroll.scrollTop = savedState.viewerScrollTop;
+        }
+
+        window.scrollTo({
+            top: savedState.pageScrollY,
+            left: 0,
+            behavior: "instant"
+        });
+    });
+}
 function PATRIODXMobileProfileNavigationController(event) {
 
     if (!window.matchMedia("(max-width: 768px)").matches) {
@@ -23969,7 +24228,44 @@ function PATRIODXMobileProfileNavigationController(event) {
 
     const viewer = document.getElementById("profilePostViewer");
     const commentsSheet = document.getElementById("patriodxCommentsSheet");
+// Return from a comment author's profile to the preserved post viewer.
+const commentProfileReturn =
+    window.patriodxCommentProfileReturnState;
 
+if (commentProfileReturn) {
+    const viewer = document.getElementById("profilePostViewer");
+
+    if (viewer) {
+        const originalProfileUserId =
+            commentProfileReturn.originalProfileUserId;
+
+        const sourceSection =
+            commentProfileReturn.sourceSection;
+
+        // Restore the original page underneath the viewer.
+        document.body.classList.remove("mobile-public-profile-view");
+
+        viewedProfileUserId = null;
+
+        if (sourceSection === "profile" && originalProfileUserId) {
+            // Restore the original public profile.
+            void loadPublicProfile(originalProfileUserId).then(() => {
+                restoreCommentPostViewer(commentProfileReturn);
+            });
+        } else {
+            navigatePATRIODX(sourceSection, {
+                preserveHistory: true,
+                preserveScroll: true
+            });
+
+            restoreCommentPostViewer(commentProfileReturn);
+        }
+
+        window.patriodxCommentProfileReturnState = null;
+
+        return true;
+    }
+}
     const viewerOpen = Boolean(
         viewer &&
         viewer.getAttribute("aria-hidden") !== "true" &&
@@ -27816,8 +28112,11 @@ const username =
 
             row.dataset.commentId = comment.id;
 
-            const avatar = document.createElement("div");
+ const avatar = document.createElement("button");
+avatar.type = "button";
 avatar.className = "social-comment-avatar";
+avatar.dataset.profileUserId = profile?.id || comment.user_id;
+avatar.setAttribute("aria-label", `Open ${username || author}'s profile`);
 
 const avatarUrl =
     profile?.avatar_url ||
@@ -28044,11 +28343,11 @@ function appendCommentTree(comment, parentContainer = commentsContainer) {
                 appendCommentTree(comment);
             });
         }
-// PATRIODX — Open profiles from post viewer comments.
+// PATRIODX — Preserve post viewer when opening profiles from comments.
 if (!commentsContainer.dataset.profileNavigationBound) {
     commentsContainer.dataset.profileNavigationBound = "true";
 
-    commentsContainer.addEventListener("click", function (event) {
+    const openCommentAuthorProfile = function (event) {
         const profileLink = event.target.closest("[data-profile-user-id]");
 
         if (!profileLink || !commentsContainer.contains(profileLink)) {
@@ -28057,37 +28356,74 @@ if (!commentsContainer.dataset.profileNavigationBound) {
 
         const userId = profileLink.dataset.profileUserId;
 
-        if (!userId) return;
+        if (!userId || !currentUser) return;
 
         event.preventDefault();
         event.stopPropagation();
 
-        // Save the viewer's original location before closing it.
-        const returnSection =
-            window.profileViewerPreviousSection ||
-            mobilePostViewerReturnSection ||
-            "social";
+        const viewer = document.getElementById("profilePostViewer");
 
-        const returnScrollY =
-            window.profileViewerSavedScrollY ?? window.scrollY;
+        if (!viewer) return;
 
-        // Close the post viewer before navigating to a profile.
-        if (typeof closeProfilePostViewer === "function") {
-            closeProfilePostViewer({ restoreOrigin: true });
-        }
+        // Prevent opening another profile while one is already open.
+        if (window.patriodxCommentProfileReturnState) return;
 
-        // YOUR OWN USERNAME → YOUR OWN PROFILE.
-        if (currentUser && userId === currentUser.id) {
+        const viewerScroll = viewer.querySelector(
+            ".profile-post-viewer-scroll"
+        );
+
+        // Save the exact viewer and comment position.
+        window.patriodxCommentProfileReturnState = {
+            sourceSection:
+                window.profileViewerPreviousSection ||
+                mobilePostViewerReturnSection ||
+                window.location.hash.replace("#", "") ||
+                "social",
+
+            viewerScrollTop: viewerScroll?.scrollTop || 0,
+
+            pageScrollY: window.profileViewerSavedScrollY || 0,
+
+            originalProfileUserId:
+                window.profileViewerPreviousProfileUserId || null,
+
+            originalMobileView:
+                Boolean(window.profileViewerPreviousMobileView),
+
+            originalOverflow:
+                window.profileViewerPreviousOverflow || ""
+        };
+
+        // Add a separate history entry for the profile.
+        // The existing post-viewer history entry remains underneath it.
+        history.pushState(
+            {
+                ...(history.state || {}),
+                patriodxCommentProfile: true
+            },
+            "",
+            "#profile"
+        );
+
+        // Hide the viewer without closing it or destroying its comments.
+        viewer.style.display = "none";
+        viewer.setAttribute("aria-hidden", "true");
+
+        document.body.style.overflow =
+            window.profileViewerPreviousOverflow || "";
+
+        // YOUR OWN COMMENT AVATAR OR USERNAME.
+        if (String(userId) === String(currentUser.id)) {
             publicProfileRequestId++;
             viewedProfileUserId = null;
 
             document.body.classList.remove("mobile-public-profile-view");
 
             document.getElementById("publicProfileCard")
-                ?.style.setProperty("display", "none");
+                ?.style.setProperty("display", "none", "important");
 
             document.getElementById("publicProfilePostsContainer")
-                ?.style.setProperty("display", "none");
+                ?.style.setProperty("display", "none", "important");
 
             document.getElementById("ownProfileContent")
                 ?.style.removeProperty("display");
@@ -28096,28 +28432,54 @@ if (!commentsContainer.dataset.profileNavigationBound) {
                 ?.style.removeProperty("display");
 
             document.querySelectorAll("#profile > .section-heading")
-                .forEach(heading => heading.style.display = "");
+                .forEach(heading => {
+                    heading.style.removeProperty("display");
+                });
 
             document.getElementById("profileSearchForm")
                 ?.closest(".profile-search-card")
-                ?.style.setProperty("display", "");
+                ?.style.removeProperty("display");
 
-            navigatePATRIODX("profile");
+            navigatePATRIODX("profile", {
+                preserveHistory: true,
+                preserveScroll: true
+            });
 
             return;
         }
 
-        // ANOTHER USER'S USERNAME → THEIR PUBLIC PROFILE.
-        mobileProfileReturnSection = returnSection;
-        mobileProfileReturnScrollY = returnScrollY;
+        // ANOTHER USER'S COMMENT AVATAR OR USERNAME.
+        mobileProfileReturnSection =
+            window.patriodxCommentProfileReturnState.sourceSection;
 
-        window.patriodxPublicProfileReturnSection = returnSection;
-        window.patriodxPublicProfileReturnScrollY = returnScrollY;
+        mobileProfileReturnScrollY =
+            window.patriodxCommentProfileReturnState.pageScrollY;
+
+        window.patriodxPublicProfileReturnSection =
+            window.patriodxCommentProfileReturnState.sourceSection;
+
+        window.patriodxPublicProfileReturnScrollY =
+            window.patriodxCommentProfileReturnState.pageScrollY;
 
         window.patriodxChatProfileReturnConversationId = null;
 
         if (typeof loadPublicProfile === "function") {
             void loadPublicProfile(userId);
+        }
+    };
+
+    commentsContainer.addEventListener(
+        "click",
+        openCommentAuthorProfile
+    );
+
+    commentsContainer.addEventListener("keydown", function (event) {
+        if (
+            (event.key === "Enter" || event.key === " ") &&
+            event.target.closest("[data-profile-user-id]")
+        ) {
+            event.preventDefault();
+            openCommentAuthorProfile(event);
         }
     });
 }

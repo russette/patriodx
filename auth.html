@@ -473,7 +473,25 @@ switchButton.addEventListener("click", () => {
 
 });
 
+/* PATRIODX ACCOUNT SWITCHER AUTH MODES */
 
+const authParams = new URLSearchParams(
+    window.location.search
+);
+
+const requestedAuthMode = authParams.get("mode");
+const requestedEmail = authParams.get("email");
+
+if (requestedEmail) {
+    document.getElementById("email").value =
+        requestedEmail;
+}
+if (requestedAuthMode === "signup") {
+    isSignUp = true;
+    updateForm();
+} else if (requestedAuthMode === "login") {
+    showLoginForm();
+}
 forgotButton.addEventListener("click", async () => {
 
     const email =
@@ -697,18 +715,45 @@ const { data, error } =
                 throw error;
             }
 
+if (data.user && data.session) {
 
-            if (data.user) {
+    /* Save the new account identity. */
+    try {
+        const storageKey = "patriodxSavedAccountEmails";
 
-                showMessage(
-                    "Account created successfully. Check your email if email confirmation is enabled.",
-                    "success"
-                );
+        const savedEmails = JSON.parse(
+            localStorage.getItem(storageKey) || "[]"
+        );
 
-            }
+        if (!savedEmails.includes(email)) {
+            savedEmails.push(email);
 
+            localStorage.setItem(
+                storageKey,
+                JSON.stringify(savedEmails)
+            );
+        }
+    } catch (storageError) {
+        console.warn("Could not save account identity:", storageError);
+    }
 
-            return;
+    showMessage(
+        "Account created successfully. Opening PATRIODX...",
+        "success"
+    );
+
+    window.location.href = "index.html";
+
+} else if (data.user) {
+
+    showMessage(
+        "Account created successfully. Please check your email to confirm your account, then sign in.",
+        "success"
+    );
+
+}
+
+return;
         }
 
 
@@ -739,7 +784,29 @@ const { data, error } =
             );
 
         }
+/* Save account identity, never the password. */
 
+try {
+    const storageKey = "patriodxSavedAccountEmails";
+
+    const savedEmails = JSON.parse(
+        localStorage.getItem(storageKey) || "[]"
+    );
+
+    if (!savedEmails.includes(email)) {
+        savedEmails.push(email);
+
+        localStorage.setItem(
+            storageKey,
+            JSON.stringify(savedEmails)
+        );
+    }
+} catch (storageError) {
+    console.warn(
+        "Could not save account identity:",
+        storageError
+    );
+}
 
         window.location.href =
             "index.html";
