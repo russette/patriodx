@@ -145,6 +145,76 @@
             background: #fdecec;
             color: #a11a1a;
         }
+        /* PATRIODX — SIGNUP PROFILE SETUP */
+
+#authForm textarea {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #d8dce5;
+    border-radius: 10px;
+    font: inherit;
+    font-size: 15px;
+    resize: vertical;
+}
+
+#authForm small {
+    display: block;
+    margin-top: 7px;
+    color: #778195;
+    font-size: 12px;
+}
+
+.signup-avatar-picker {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+#signupAvatarPreview,
+#signupAvatarPlaceholder {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #eef0f5;
+}
+
+#signupAvatarPlaceholder {
+    display: grid;
+    place-items: center;
+    color: #667085;
+    font-size: 28px;
+}
+
+#signupAvatarPreview[hidden] {
+    display: none;
+}
+
+.signup-avatar-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 16px;
+    border-radius: 9px;
+    background: #eef2ff;
+    color: #4338ca;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#authForm input:focus,
+#authForm textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, .12);
+}
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 22px;
+    }
+}
     </style>
 
 </head>
@@ -167,20 +237,22 @@
 
         <form id="authForm">
 
+<!-- FULL NAME -->
 <div class="form-group" id="nameGroup" style="display:none;">
-    <label for="name">Name</label>
-
+    <label for="name">Full name</label>
     <input
         type="text"
         id="name"
         placeholder="Your full name"
         autocomplete="name"
+        maxlength="80"
+        required
     >
 </div>
 
+<!-- USERNAME -->
 <div class="form-group" id="usernameGroup" style="display:none;">
     <label for="username">Username</label>
-
     <input
         type="text"
         id="username"
@@ -189,19 +261,49 @@
         maxlength="30"
         autocomplete="username"
     >
+    <small>Letters, numbers and underscores only.</small>
 </div>
 
-<div class="form-group" id="usernameGroup" style="display:none;">
-    <label for="username">Username</label>
+<!-- BIO -->
+<div class="form-group" id="bioGroup" style="display:none;">
+    <label for="signupBio">Bio</label>
+    <textarea
+        id="signupBio"
+        placeholder="Tell people about yourself..."
+        maxlength="160"
+        rows="3"
+    ></textarea>
+    <small>Maximum 160 characters.</small>
+</div>
+
+<!-- PROFILE PHOTO -->
+<div class="form-group" id="avatarGroup" style="display:none;">
+    <label>Profile photo</label>
+
+    <div class="signup-avatar-picker">
+        <img
+            id="signupAvatarPreview"
+            alt="Profile photo preview"
+            hidden
+        >
+
+        <div id="signupAvatarPlaceholder">
+            <i data-lucide="user-round"></i>
+        </div>
+
+        <label for="signupAvatar" class="signup-avatar-button">
+            Choose photo
+        </label>
+    </div>
 
     <input
-        type="text"
-        id="username"
-        placeholder="@yourusername"
-        minlength="3"
-        maxlength="30"
-        autocomplete="username"
+        type="file"
+        id="signupAvatar"
+        accept="image/jpeg,image/png,image/webp"
+        hidden
     >
+
+    <small>JPG, PNG or WEBP. Maximum 1.5 MB.</small>
 </div>
 
             <div class="form-group" id="emailGroup">
@@ -238,7 +340,6 @@
             <button type="submit" id="submitButton">
                 Sign In
             </button>
-
         </form>
 
         <div class="switch" id="switchArea">
@@ -301,6 +402,14 @@ const usernameGroup =
 
 const usernameInput =
     document.getElementById("username");
+    const bioGroup = document.getElementById("bioGroup");
+const avatarGroup = document.getElementById("avatarGroup");
+const bioInput = document.getElementById("signupBio");
+const avatarInput = document.getElementById("signupAvatar");
+const avatarPreview = document.getElementById("signupAvatarPreview");
+const avatarPlaceholder = document.getElementById("signupAvatarPlaceholder");
+
+let signupAvatarData = "";
 const emailGroup =
     document.getElementById("emailGroup");
 
@@ -319,7 +428,44 @@ const forgotButton =
 const message =
     document.getElementById("message");
 
+avatarInput.addEventListener("change", () => {
+    const file = avatarInput.files[0];
 
+    if (!file) return;
+
+    const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+        showMessage("Choose a JPG, PNG, or WEBP image.", "error");
+        avatarInput.value = "";
+        return;
+    }
+
+    if (file.size > 1.5 * 1024 * 1024) {
+        showMessage("Your profile photo must be smaller than 1.5 MB.", "error");
+        avatarInput.value = "";
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+        signupAvatarData = reader.result;
+        avatarPreview.src = signupAvatarData;
+        avatarPreview.hidden = false;
+        avatarPlaceholder.style.display = "none";
+    };
+
+    reader.onerror = () => {
+        showMessage("Could not read that image. Please try another.", "error");
+    };
+
+    reader.readAsDataURL(file);
+});
 function showMessage(text, type) {
 
     message.textContent = text;
@@ -349,7 +495,8 @@ function showResetForm() {
         "none";
 usernameGroup.style.display =
     "none";
-
+bioGroup.style.display = "none";
+avatarGroup.style.display = "none";
     forgotGroup.style.display =
         "none";
 
@@ -400,7 +547,8 @@ function showLoginForm() {
         "none";
 usernameGroup.style.display =
     "none";
-
+bioGroup.style.display = "none";
+avatarGroup.style.display = "none";
     forgotGroup.style.display =
         "block";
 
@@ -444,7 +592,8 @@ function updateForm() {
 
 usernameGroup.style.display =
     "block";
-
+bioGroup.style.display = "block";
+avatarGroup.style.display = "block";
 forgotGroup.style.display =
     "none";
     } else {
@@ -589,7 +738,7 @@ const username =
     usernameInput.value
         .trim()
         .toLowerCase();
-
+const bio = bioInput.value.trim();
     submitButton.disabled =
         true;
 
@@ -703,9 +852,10 @@ const { data, error } =
         password: password,
         options: {
             emailRedirectTo: emailRedirectTo,
-          data: {
+         data: {
     full_name: fullName,
-    username: username
+    username: username,
+    bio: bio
 }
         }
     });
@@ -714,7 +864,28 @@ const { data, error } =
             if (error) {
                 throw error;
             }
+// Preserve the selected photo until the user signs in.
+if (data.user && signupAvatarData) {
+    try {
+        localStorage.setItem(
+            `patriodxPendingSignupProfile:${data.user.id}`,
+            JSON.stringify({
+                avatar: signupAvatarData,
+                savedAt: Date.now()
+            })
+        );
+    } catch (storageError) {
+        console.warn(
+            "Could not temporarily save signup photo:",
+            storageError
+        );
 
+        showMessage(
+            "Your account was created, but your photo could not be saved. You can add it from your profile after signing in.",
+            "success"
+        );
+    }
+}
 if (data.user && data.session) {
 
     /* Save the new account identity. */

@@ -497,21 +497,15 @@ const business = businesses?.[0] || null;
             return false;
         }
 
-        if (!business) {
-            console.error(
-                "No business account found for:",
-                currentUser.id
+            // Social accounts can use PATRIODX without creating
+        // a business account first.
+        currentBusiness = business;
+
+        if (!currentBusiness) {
+            console.log(
+                "PATRIODX social account loaded without a business."
             );
-
-            showPATRIODXToast(
-    "Your PATRIODX business account could not be found.",
-    "error"
-);
-
-            return false;
         }
-
-       currentBusiness = business;
 
 loadPlan();
 
@@ -19532,13 +19526,14 @@ async function loadMyProfile() {
         }
 
 
-        currentProfile =
+           currentProfile =
             newProfile;
     }
 
+    await processPendingSignupProfile();
 
     renderMyProfile();
-await loadMyFollowCounts();
+    await loadMyFollowCounts();
     await loadMyProfilePosts();
 }
 // Make the profile loader available immediately.
@@ -19870,6 +19865,92 @@ async function uploadProfileAvatar(file) {
 
 
     return data.publicUrl;
+}
+/* =========================================================
+   PROCESS PROFILE DETAILS SAVED DURING SIGNUP
+========================================================= */
+
+async function processPendingSignupProfile() {
+    if (!currentUser?.id) return;
+
+    const storageKey =
+        `patriodxPendingSignupProfile:${currentUser.id}`;
+
+    const savedData = localStorage.getItem(storageKey);
+
+    if (!savedData) return;
+
+    try {
+        const pending = JSON.parse(savedData);
+        const updates = {};
+
+        // Preserve the signup bio if the profile has no bio yet.
+        if (
+            !currentProfile?.bio &&
+            currentUser.user_metadata?.bio
+        ) {
+            updates.bio = currentUser.user_metadata.bio;
+        }
+
+        // Upload the selected signup photo.
+        if (pending.avatar) {
+            const response = await fetch(pending.avatar);
+            const blob = await response.blob();
+
+            const extensionByType = {
+                "image/jpeg": "jpg",
+                "image/png": "png",
+                "image/webp": "webp"
+            };
+
+            const extension =
+                extensionByType[blob.type];
+
+            if (!extension) {
+                throw new Error("Unsupported signup photo format.");
+            }
+
+            const file = new File(
+                [blob],
+                `signup-avatar.${extension}`,
+                { type: blob.type }
+            );
+
+            const avatarUrl =
+                await uploadProfileAvatar(file);
+
+            if (!avatarUrl) {
+                throw new Error("Signup photo upload failed.");
+            }
+
+            updates.avatar_url = avatarUrl;
+        }
+
+        // Save the details to the existing profile.
+        if (Object.keys(updates).length > 0) {
+            const { data, error } = await supabaseClient
+                .from("profiles")
+                .update(updates)
+                .eq("id", currentUser.id)
+                .select()
+                .single();
+
+            if (error) throw error;
+
+            currentProfile = data;
+        }
+
+        // Clear the temporary data only after successful processing.
+        localStorage.removeItem(storageKey);
+
+        console.log("PATRIODX signup profile processed.");
+
+    } catch (error) {
+        console.error(
+            "Signup profile processing failed:",
+            error
+        );
+    }
 }
 async function uploadProfileBanner(file) {
 
@@ -24497,26 +24578,24 @@ function startPATRIODXNavigation() {
 
     setupPATRIODXMobileMenu();
 setupPATRIODXStoryViewer();
+let startingPage =
+    window.location.hash
+        .replace("#", "")
+        .trim();
 
-    let startingPage =
-        window.location.hash
-            .replace("#", "");
+// New logins and email-confirmation redirects
+// should open Social by default.
+if (!startingPage) {
+    startingPage = "social";
+}
 
+if (startingPage === "ai") {
+    startingPage = "patriodxAI";
+}
 
-    if (startingPage === "ai") {
-        startingPage = "patriodxAI";
-    }
-
-
-    if (
-        !PATRIODX_PAGES.includes(
-            startingPage
-        )
-    ) {
-        startingPage = "home";
-    }
-
-
+if (!PATRIODX_PAGES.includes(startingPage)) {
+    startingPage = "social";
+}
     /* Initial display without adding history */
 
     const oldPushState =
