@@ -7259,7 +7259,57 @@ async function openPATRIODXComments(postId) {
     const list = document.getElementById("patriodxCommentsList");
 
     if (!sheet || !list) return;
+    // Forward mobile comment profile taps to the existing
+    // post-viewer profile navigation handler.
+    if (!list.dataset.profileNavigationForwarderBound) {
+        list.dataset.profileNavigationForwarderBound = "true";
 
+        const forwardProfileClick = function (event) {
+            const clickedLink = event.target.closest(
+                "[data-profile-user-id]"
+            );
+
+            if (!clickedLink || !list.contains(clickedLink)) return;
+
+            const userId = clickedLink.dataset.profileUserId;
+            if (!userId) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            const sourceComments = document.getElementById(
+                "profilePostViewerComments"
+            );
+
+            if (!sourceComments) return;
+
+            const sourceLink = Array.from(
+                sourceComments.querySelectorAll("[data-profile-user-id]")
+            ).find(link =>
+                link.dataset.profileUserId === userId &&
+                link.className === clickedLink.className
+            );
+
+            sourceLink?.click();
+        };
+
+        list.addEventListener("click", forwardProfileClick);
+
+        list.addEventListener("keydown", function (event) {
+            if (
+                event.key === "Enter" ||
+                event.key === " "
+            ) {
+                if (
+                    event.target.closest("[data-profile-user-id]") &&
+                    list.contains(event.target)
+                ) {
+                    event.preventDefault();
+                    forwardProfileClick(event);
+                }
+            }
+        });
+    }
     const commentAvatar = document.getElementById("patriodxCommentAvatar");
     const sourceAvatar = document.getElementById("socialCreateAvatar");
 
@@ -14751,21 +14801,33 @@ const commentProfileMap = new Map(
         ? `@${safe(profile.username)}`
         : "";
 
-    const avatar = profile?.avatar_url
-        ? `<img src="${safe(profile.avatar_url)}"
-                alt=""
-                loading="lazy"
-                onerror="this.style.display='none';">`
-        : `<i data-lucide="user"></i>`;
+  const avatar = profile?.avatar_url
+    ? `<img src="${safe(profile.avatar_url)}"
+            alt="${safe(displayName)}"
+            loading="lazy"
+            onerror="this.style.display='none';">`
+    : `<span>${safe(displayName.charAt(0).toUpperCase())}</span>`;
+
+const profileUserId = profile?.id || comment.user_id;
 
     return `
         <div class="social-comment">
-            <div class="social-comment-avatar">
-                ${avatar}
-            </div>
+          <button
+    type="button"
+    class="social-comment-avatar"
+    data-profile-user-id="${safe(profileUserId)}"
+    aria-label="Open ${safe(displayName)}'s profile"
+>
+    ${avatar}
+</button>
 
             <div class="social-comment-body">
-               <strong class="social-comment-author-name">
+            <strong
+    class="social-comment-author-name"
+    data-profile-user-id="${safe(profileUserId)}"
+    role="button"
+    tabindex="0"
+>
     ${safe(displayName)}
     ${username
         ? `<span class="social-comment-username">${username}</span>`
@@ -14813,6 +14875,20 @@ const commentProfileMap = new Map(
             </button>
         </form>
     `;
+
+    // Make comment avatars and names open the commenter's profile.
+    commentsBox.addEventListener("click", function (event) {
+        const link = event.target.closest("[data-profile-user-id]");
+
+        if (!link || !commentsBox.contains(link)) return;
+
+        const userId = link.dataset.profileUserId;
+        if (!userId) return;
+
+        event.preventDefault();
+
+        loadPublicProfile(userId);
+    });
 }
 async function submitHomeComment(event, postId) {
     event.preventDefault();
@@ -27674,14 +27750,15 @@ const returningToPublicProfile =
     window.profileViewerRequestId = (window.profileViewerRequestId || 0) + 1;
     window.currentProfileViewerPostId = null;
 
-    // Hide the viewer
-    viewer.style.display = "none";
-    viewer.setAttribute("aria-hidden", "true");
-    window.profileViewerHistoryEntryActive = false;
-
+     // Remove focus before hiding the viewer from accessibility tools.
     if (viewer.contains(document.activeElement)) {
         document.activeElement.blur();
     }
+
+    // Hide the viewer.
+    viewer.style.display = "none";
+    viewer.setAttribute("aria-hidden", "true");
+    window.profileViewerHistoryEntryActive = false;
 
     // Restore overflow
     document.body.style.overflow = window.profileViewerPreviousOverflow || "";
@@ -28405,10 +28482,14 @@ if (!commentsContainer.dataset.profileNavigationBound) {
             "#profile"
         );
 
+             // Remove focus before hiding the viewer.
+        if (viewer.contains(document.activeElement)) {
+            document.activeElement.blur();
+        }
+
         // Hide the viewer without closing it or destroying its comments.
         viewer.style.display = "none";
         viewer.setAttribute("aria-hidden", "true");
-
         document.body.style.overflow =
             window.profileViewerPreviousOverflow || "";
 
