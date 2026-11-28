@@ -29526,3 +29526,56 @@ body.own-profile-active #ownProfileTopBar {
 body.own-profile-active.own-profile-switcher-open #ownProfileTopBar {
     display: none !important;
 }
+/* =========================================================
+   PATRIODX — ACCOUNT SWITCHER DARK MODE
+========================================================= */
+
+body.dark-mode .own-profile-topbar {
+    background: #15151b;
+    border-bottom-color: #30303a;
+}
+
+body.dark-mode .own-profile-return,
+body.dark-mode .own-profile-account-switcher {
+    color: #f5f5f7;
+}
+
+body.dark-mode .own-profile-account-switcher-page {
+    background: #15151b;
+    color: #f5f5f7;
+}
+
+body.dark-mode .own-profile-switcher-heading {
+    border-bottom-color: #30303a;
+}
+
+body.dark-mode .own-profile-switcher-heading button {
+    background: #252530;
+    color: #f5f5f7;
+}
+
+body.dark-mode .own-profile-account-actions {
+    border-top-color: #30303a;
+}
+
+body.dark-mode .own-profile-account-actions button {
+    background: #20202a;
+    border-color: #383844;
+    color: #f5f5f7;
+}
+
+body.dark-mode .own-profile-account-actions button:hover {
+    background: #2c2c38;
+}
+
+body.dark-mode .own-profile-account-row {
+    background: #20202a;
+    border-color: #383844;
+    color: #f5f5f7;
+}
+
+body.dark-mode .own-profile-return:hover,
+body.dark-mode .own-profile-account-switcher:hover {
+    background: #252530;
+    border-radius: 9px;
+}
